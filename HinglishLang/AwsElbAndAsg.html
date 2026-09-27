@@ -177,803 +177,119 @@
     transform: translateY(-1px);
   }
 
+  /* Sidebar */
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--sidebar-bg, #151c2c); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 40px;
+    transition: transform .25s ease; z-index: 50;
+  }
+  #sidebar h2 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea1c9; margin: 18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; text-decoration: none; font-size: .88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; border-bottom: 1px solid #263252; margin-bottom: 6px; }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; background: #101a2c; color: #e6ecf5;
+    font-size: .85rem; margin-bottom: 6px; outline: none;
+  }
+
+  /* Main */
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; line-height: 1.65; display: flex; min-height: 100vh; }
+  #main { flex: 1; min-width: 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; background: var(--card-bg, #fff); border-bottom: 1px solid var(--border, #e3e8ef);
+    padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn {
+    display: inline-flex !important; align-items: center; justify-content: center;
+    background: var(--card-bg, #fff); border: 1px solid var(--border, #e3e8ef);
+    border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text, #1e2430); font-size: 1rem;
+    transition: all .15s ease;
+  }
+  #menu-btn:hover { background: var(--teal-soft, #e2f4f5); color: var(--teal-dark, #0a5b62); }
+  #theme-btn {
+    background: var(--teal-soft, #e2f4f5); border: 1px solid var(--border, #e3e8ef); color: var(--teal-dark, #0a5b62); border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  #sidebar.collapsed { display: none !important; }
+  #backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; }
+  #backtotop {
+    position: fixed; bottom: 22px; right: 22px; background: var(--teal, #0e7c86); color: #fff; border: none; border-radius: 50%;
+    width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60;
+  }
+  @media (max-width: 900px) {
+    #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+  }
 </style>
 </head>
 <body>
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">âš–ï¸</span><span class="name">ELB & ASG (Hinglish)</span></div>
+  <a href="../index.html" class="sidebar-home-link">ðŸ  Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Core Concepts (à¤•à¥‰à¤¨à¥à¤¸à¥‡à¤ªà¥à¤Ÿà¥à¤¸)</h2>
+  <ul>
+    <li><a href="#s1">1. Basic AWS Terms</a></li>
+    <li><a href="#s2">2. High Availability</a></li>
+    <li><a href="#s3">3. Elasticity</a></li>
+    <li><a href="#s4">4. What is ELB?</a></li>
+    <li><a href="#s5">5. Types of Load Balancers</a></li>
+    <li><a href="#s6">6. Important Components</a></li>
+    <li><a href="#s7">7. What is ASG?</a></li>
+    <li><a href="#s8">8. ASG Launch Template</a></li>
+    <li><a href="#s9">9. ELB + ASG Relationship</a></li>
+  </ul>
+  <h2>Practical (à¤ªà¥à¤°à¥ˆà¤•à¥à¤Ÿà¤¿à¤•à¤²)</h2>
+  <ul>
+    <li><a href="#s10">10. Real-World Example</a></li>
+    <li><a href="#s11">11. Apache User Data Script</a></li>
+    <li><a href="#s12">12. Create Launch Template</a></li>
+    <li><a href="#s13">13. Create Target Group</a></li>
+    <li><a href="#s14">14. Create ALB</a></li>
+    <li><a href="#s15">15. Create Auto Scaling Group</a></li>
+    <li><a href="#s16">16. ASG Scaling Policies</a></li>
+    <li><a href="#s17">17. Test ELB + ASG</a></li>
+    <li><a href="#s18">18. Test Auto Scaling</a></li>
+    <li><a href="#s19">19. Test High Availability</a></li>
+  </ul>
+  <h2>Reference & Revision</h2>
+  <ul>
+    <li><a href="#s20">20. Security Groups</a></li>
+    <li><a href="#s21">21. Troubleshooting</a></li>
+    <li><a href="#s22">22. ELB vs ASG</a></li>
+    <li><a href="#s23">23. Scalability vs Elasticity</a></li>
+    <li><a href="#s24">24. Important Architecture</a></li>
+    <li><a href="#s25">25. Interview Questions</a></li>
+    <li><a href="#s26">26. Quick Revision</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">â˜°</button>
+      <strong>Level 8: AWS ELB & ASG â€” Hinglish</strong>
+    </div>
+    <button id="theme-btn">ðŸŒ™ Dark mode</button>
+  </div>
 <div class="wrap">
+
     <div class="title-card">
     <h1>⚖️ AWS ELB &amp; ASG — Complete Guide</h1>
     <p>Elastic Load Balancing aur Auto Scaling Groups — basics se lekar full architecture tak, Hinglish mein</p>
   </div>
 
-  <div class="toc">
-    <h2>📑 Contents</h2>
-    <ul class="toc-grid">
-      <li><a href="#s1">1. Basic AWS Terms</a></li>
-      <li><a href="#s2">2. High Availability (HA)</a></li>
-      <li><a href="#s3">3. Elasticity</a></li>
-      <li><a href="#s4">4. What is ELB?</a></li>
-      <li><a href="#s5">5. Types of AWS Load Balancers</a></li>
-      <li><a href="#s6">6. Important ELB Components</a></li>
-      <li><a href="#s7">7. What is ASG?</a></li>
-      <li><a href="#s8">8. ASG Launch Template</a></li>
-      <li><a href="#s9">9. ELB + ASG Relationship</a></li>
-      <li><a href="#s10">10. Complete Real-World Example</a></li>
-      <li><a href="#s11">11. Apache User Data Script</a></li>
-      <li><a href="#s12">12. Create Launch Template</a></li>
-      <li><a href="#s13">13. Create Target Group</a></li>
-      <li><a href="#s14">14. Create Application Load Balancer</a></li>
-      <li><a href="#s15">15. Create Auto Scaling Group</a></li>
-      <li><a href="#s16">16. ASG Scaling Policies</a></li>
-      <li><a href="#s17">17. Test ELB + ASG</a></li>
-      <li><a href="#s18">18. Test Auto Scaling</a></li>
-      <li><a href="#s19">19. Test High Availability</a></li>
-      <li><a href="#s20">20. Security Groups</a></li>
-      <li><a href="#s21">21. Troubleshooting</a></li>
-      <li><a href="#s22">22. ELB vs ASG</a></li>
-      <li><a href="#s23">23. Scalability vs Elasticity vs HA</a></li>
-      <li><a href="#s24">24. Important Architecture</a></li>
-      <li><a href="#s25">25. Interview Questions</a></li>
-      <li><a href="#s26">26. Quick Revision</a></li>
-    </ul>
-  </div>
-
-  <!-- 1 -->
-  <h2 id="s1"><span class="section-icon">1️⃣</span> Basic AWS Terms</h2>
-
-  <h3>Scalability</h3>
-  <div class="definition">Scalability means the ability of a system to handle increasing workload, traffic, or users by increasing available resources.</div>
-  <p>Simple example: Socho tumhare paas ek website hai jisme 100 users aate hain — server easily handle kar leta hai. Ab agar 10,000 users aane lagein, to server ko zyada resources chahiye honge taaki wo bina slow hue us load ko handle kar sake. Yehi ability scalability kehlati hai.</p>
-
-  <h3>Vertical Scalability — Scaling Up</h3>
-  <div class="card">
-    <p>Isme hum:</p>
-    <ul style="margin: 0.3rem 0;">
-      <li>CPU increase karte hain</li>
-      <li>RAM increase karte hain</li>
-      <li>Ek bada EC2 instance use karte hain</li>
-    </ul>
-  </div>
-  <div class="diagram">t2.micro
-   ↓
-m5.large</div>
-  <p>Yaha existing server hi zyada powerful ban jaata hai — same server, bas bigger.</p>
-  <div class="note">
-    <strong>Limitations:</strong>
-    <ul style="margin: 0.5rem 0 0; padding-left: 1.2rem;">
-      <li>Hardware ki ek upper limit hoti hai — infinite scale up nahi kar sakte.</li>
-      <li>Change karte waqt server ko stop/restart karna pad sakta hai.</li>
-      <li>Ek hi server rehta hai, isliye ye ab bhi single point of failure ban sakta hai.</li>
-    </ul>
-  </div>
-
-  <h3>Horizontal Scalability — Scaling Out</h3>
-  <div class="card">
-    <p>Isme hum:</p>
-    <ul style="margin: 0.3rem 0;">
-      <li>Zyada EC2 instances add karte hain</li>
-      <li>Workload ko multiple servers ke beech distribute karte hain</li>
-      <li>Generally ye Load Balancer ke saath use hota hai</li>
-    </ul>
-  </div>
-  <div class="diagram">             Load Balancer
-                  ↓
-       ┌──────────┼──────────┐
-       ↓          ↓          ↓
-     EC2-1      EC2-2      EC2-3</div>
-  <p style="margin-bottom:0;"><strong>Scaling Up vs Scaling Out:</strong> Scaling Up mein ek hi server ko bada banaya jaata hai; Scaling Out mein multiple servers add kiye jaate hain jo mil kar load share karte hain. Horizontal scaling generally better reliability deta hai kyunki ek server fail hone par baaki servers kaam karte rehte hain.</p>
-
-  <hr class="divider">
-
-  <!-- 2 -->
-  <h2 id="s2"><span class="section-icon">🛡️</span> High Availability (HA)</h2>
-  <div class="definition">High Availability means designing an application so that it remains accessible with minimal downtime even when some infrastructure components fail.</div>
-  <ul class="concept-list">
-    <li><strong>Multiple EC2 instances</strong> — ek server pe depend nahi karna.</li>
-    <li><strong>Multiple Availability Zones</strong> — alag-alag physical locations mein servers rakhna.</li>
-    <li><strong>Load Balancer</strong> — traffic ko healthy servers tak route karna.</li>
-    <li><strong>Auto Scaling</strong> — failed instances ko automatically replace karna.</li>
-    <li><strong>Health checks</strong> — regularly check karna ki server sahi se kaam kar raha hai ya nahi.</li>
-  </ul>
-  <div class="diagram">              Load Balancer
-                    ↓
-          ┌─────────┴─────────┐
-          ↓                   ↓
-       AZ-1                  AZ-2
-        EC2                   EC2</div>
-  <p>Multiple Availability Zones use karne se availability improve hoti hai kyunki agar ek AZ mein koi issue (power, network, hardware) aa jaaye, to doosre AZ ka server phir bhi traffic serve karta rehta hai.</p>
-  <div class="important">
-    <div class="important-title">⚠️ Important</div>
-    <p style="margin:0;"><strong>High Availability ≠ 100% uptime.</strong> HA ka matlab hai downtime ko <em>minimize</em> karna, lekin ye guarantee nahi karta ki system kabhi bhi fail nahi hoga.</p>
-  </div>
-
-  <hr class="divider">
-
-  <!-- 3 -->
-  <h2 id="s3"><span class="section-icon">🌊</span> Elasticity</h2>
-  <div class="definition">Elasticity means automatically increasing or decreasing resources according to demand.</div>
-  <div class="diagram">High Traffic
-     ↓
-More EC2 Instances
-     ↓
-Traffic decreases
-     ↓
-Fewer EC2 Instances</div>
-  <p style="margin-bottom:0;">ASG configured policies ke through automatic scaling provide karta hai — jaise hi demand badhti hai, naye instances launch hote hain, aur jaise hi demand kam hoti hai, extra instances automatically remove ho jaate hain.</p>
-
-  <h3>Scalability vs Elasticity vs High Availability</h3>
-  <table>
-    <thead><tr><th>Concept</th><th>Focus</th></tr></thead>
-    <tbody>
-      <tr><td data-label="Concept"><strong>Scalability</strong></td><td data-label="Focus">System ki capability ki wo badhte workload ko handle kar sake (resources add karke)</td></tr>
-      <tr><td data-label="Concept"><strong>Elasticity</strong></td><td data-label="Focus">Demand ke hisaab se resources ka <em>automatically</em> badhna/ghatna</td></tr>
-      <tr><td data-label="Concept"><strong>High Availability</strong></td><td data-label="Focus">Component fail hone par bhi application ko accessible rakhna</td></tr>
-    </tbody>
-  </table>
-
-  <hr class="divider">
-
-  <!-- 4 -->
-  <h2 id="s4"><span class="section-icon">⚖️</span> What is ELB?</h2>
-  <p><strong>ELB = Elastic Load Balancing</strong></p>
-  <div class="card">
-    <p style="margin-bottom:0;">ELB ek AWS service hai jo incoming traffic ko multiple targets (jaise EC2 instances) ke beech distribute karti hai, taaki koi ek server overload na ho aur application zyada reliable rahe.</p>
-  </div>
-  <p>Ek Load Balancer:</p>
-  <ul class="concept-list">
-    <li>Incoming traffic <strong>receive</strong> karta hai</li>
-    <li>Requests ko healthy targets ke beech <strong>distribute</strong> karta hai</li>
-    <li><strong>Health checks</strong> perform karta hai</li>
-    <li>Availability improve karne mein <strong>help</strong> karta hai</li>
-    <li>Multiple Availability Zones ke across <strong>kaam</strong> kar sakta hai</li>
-  </ul>
-
-  <p><strong>Problem without a Load Balancer:</strong></p>
-  <div class="diagram">Users
-  ↓
-Single EC2
-  ↓
-Application</div>
-  <p>Agar ye EC2 fail ho jaaye, to users application access nahi kar payenge.</p>
-
-  <p><strong>With ELB:</strong></p>
-  <div class="diagram">                 Users
-                   ↓
-             Load Balancer
-                   ↓
-        ┌──────────┼──────────┐
-        ↓          ↓          ↓
-      EC2-1      EC2-2      EC2-3</div>
-
-  <hr class="divider">
-
-  <!-- 5 -->
-  <h2 id="s5"><span class="section-icon">🏷️</span> Types of AWS Load Balancers</h2>
-
-  <h3>Application Load Balancer (ALB)</h3>
-  <ul class="concept-list">
-    <li><strong>Layer 7</strong> pe operate karta hai</li>
-    <li><strong>HTTP/HTTPS</strong> traffic ke liye</li>
-    <li><strong>Host-based routing</strong> support karta hai</li>
-    <li><strong>Path-based routing</strong> support karta hai</li>
-    <li>Best for: <strong>Web applications</strong>, <strong>REST APIs</strong>, <strong>Microservices</strong></li>
-  </ul>
-  <div class="diagram">example.com/users
-        ↓
-      ALB
-        ↓
-   User Service</div>
-  <div class="diagram">example.com/products
-        ↓
-      ALB
-        ↓
- Product Service</div>
-
-  <h3>Network Load Balancer (NLB)</h3>
-  <ul class="concept-list">
-    <li><strong>Layer 4</strong> pe operate karta hai</li>
-    <li><strong>TCP</strong> support</li>
-    <li><strong>UDP</strong> support</li>
-    <li><strong>TLS</strong> support</li>
-    <li><strong>Very high performance</strong>, <strong>low latency</strong></li>
-    <li>Network-level traffic ke liye suitable</li>
-  </ul>
-
-  <h3>Gateway Load Balancer (GWLB)</h3>
-  <ul class="concept-list">
-    <li>Network/security appliances ke liye use hota hai</li>
-    <li><strong>Traffic inspection</strong></li>
-    <li><strong>Firewalls</strong></li>
-    <li><strong>Security appliances</strong></li>
-  </ul>
-  <p><strong>Classic Load Balancer</strong> ek legacy option hai — modern architectures generally requirement ke hisaab se ALB ya NLB use karte hain.</p>
-
-  <table>
-    <thead><tr><th>Feature</th><th>ALB</th><th>NLB</th><th>GWLB</th></tr></thead>
-    <tbody>
-      <tr><td data-label="Feature">Layer</td><td data-label="ALB">7</td><td data-label="NLB">4</td><td data-label="GWLB">3/4-oriented appliance integration</td></tr>
-      <tr><td data-label="Feature">Main traffic</td><td data-label="ALB">HTTP/HTTPS</td><td data-label="NLB">TCP/UDP/TLS</td><td data-label="GWLB">Network/security appliance traffic</td></tr>
-      <tr><td data-label="Feature">Routing</td><td data-label="ALB">Content-based</td><td data-label="NLB">Connection/network-level</td><td data-label="GWLB">Appliance-oriented</td></tr>
-      <tr><td data-label="Feature">Common use</td><td data-label="ALB">Web apps/API</td><td data-label="NLB">High-performance network traffic</td><td data-label="GWLB">Firewalls/security appliances</td></tr>
-    </tbody>
-  </table>
-
-  <hr class="divider">
-
-  <!-- 6 -->
-  <h2 id="s6"><span class="section-icon">🧩</span> Important ELB Components</h2>
-
-  <h3>Load Balancer</h3>
-  <div class="card"><p style="margin-bottom:0;">Entry point jo client requests ko receive karta hai.</p></div>
-
-  <h3>Listener</h3>
-  <div class="card">
-    <p>Incoming connection requests ko check karta hai.</p>
-    <p style="margin-bottom:0;"><strong>Example:</strong> HTTP : 80, HTTPS : 443</p>
-  </div>
-
-  <h3>Target Group</h3>
-  <div class="card">
-    <p>Targets ka ek group jo traffic receive karta hai.</p>
-    <p>Targets mein EC2 instances shamil ho sakte hain.</p>
-    <p style="margin-bottom:0;">Health checks target group level pe configure kiye jaate hain.</p>
-  </div>
-
-  <h3>Targets</h3>
-  <div class="card">
-    <p style="margin-bottom:0;">Examples: EC2 instances, IP addresses, containers (depending on load balancer type/configuration).</p>
-  </div>
-
-  <h3>Health Checks</h3>
-  <div class="card">
-    <p style="margin-bottom:0;">Load Balancer check karta hai ki targets healthy hain ya nahi, traffic bhejne se pehle.</p>
-  </div>
-  <div class="diagram">ALB
- ↓
-Health Check
- ↓
-EC2-1 → Healthy
-EC2-2 → Healthy
-EC2-3 → Unhealthy</div>
-  <p style="margin-bottom:0;">Traffic sirf <strong>healthy</strong> targets ko hi route hona chahiye.</p>
-
-  <hr class="divider">
-
-  <!-- 7 -->
-  <h2 id="s7"><span class="section-icon">📈</span> What is ASG?</h2>
-  <p><strong>ASG = Auto Scaling Group</strong></p>
-  <div class="card">
-    <p style="margin-bottom:0;">Ek Auto Scaling Group automatically EC2 instances ki number manage karta hai, configured <strong>minimum</strong>, <strong>desired</strong>, aur <strong>maximum</strong> capacity ke according.</p>
-  </div>
-  <ul class="concept-list">
-    <li><strong>Minimum capacity</strong> — kam se kam kitne instances hamesha chahiye</li>
-    <li><strong>Desired capacity</strong> — normally kitne instances rakhne hain</li>
-    <li><strong>Maximum capacity</strong> — zyada se zyada kitne instances allowed hain</li>
-  </ul>
-  <div class="diagram">Minimum = 2
-Desired = 2
-Maximum = 5</div>
-  <p><strong>High traffic ke dauraan:</strong></p>
-  <div class="diagram">2 EC2
- ↓
-3 EC2
- ↓
-4 EC2
- ↓
-5 EC2</div>
-  <p><strong>Low traffic ke dauraan:</strong></p>
-  <div class="diagram">5 EC2
- ↓
-4 EC2
- ↓
-3 EC2
- ↓
-2 EC2</div>
-  <p>ASG in cheezon mein help karta hai:</p>
-  <ul class="keypoints">
-    <li><strong>Scalability</strong></li>
-    <li><strong>Elasticity</strong></li>
-    <li><strong>High availability</strong></li>
-    <li><strong>Automatic instance replacement</strong></li>
-  </ul>
-
-  <hr class="divider">
-
-  <!-- 8 -->
-  <h2 id="s8"><span class="section-icon">📋</span> ASG Launch Template</h2>
-  <p>ASG ke saath generally ek Launch Template use kiya jaata hai kyunki ye batata hai ki naya EC2 instance <em>exactly kaise</em> launch hona chahiye.</p>
-  <p>Launch Template define kar sakta hai:</p>
-  <ul class="concept-list">
-    <li>AMI</li>
-    <li>Instance type</li>
-    <li>Key pair</li>
-    <li>Security group</li>
-    <li>IAM role</li>
-    <li>Network configuration</li>
-    <li>Storage</li>
-    <li>User Data</li>
-  </ul>
-  <div class="diagram">AMI
- ↓
-Launch Template
- ↓
-Auto Scaling Group
- ↓
-EC2 Instances</div>
-  <table>
-    <thead><tr><th>Component</th><th>Role</th></tr></thead>
-    <tbody>
-      <tr><td data-label="Component"><strong>AMI</strong></td><td data-label="Role">Server ka base image (OS + software)</td></tr>
-      <tr><td data-label="Component"><strong>Launch Template</strong></td><td data-label="Role">AMI + launch settings (instance type, key pair, SG, user data, etc.)</td></tr>
-      <tr><td data-label="Component"><strong>ASG</strong></td><td data-label="Role">Launch Template use karke instances ki quantity manage karta hai</td></tr>
-    </tbody>
-  </table>
-
-  <hr class="divider">
-
-  <!-- 9 -->
-  <h2 id="s9"><span class="section-icon">🔗</span> ELB + ASG Relationship</h2>
-  <p><strong>ELB distributes traffic.</strong></p>
-  <p><strong>ASG manages the number of EC2 instances.</strong></p>
-  <div class="diagram">                    Users
-                      ↓
-               Application
-               Load Balancer
-                      ↓
-              Target Group
-                      ↓
-          ┌───────────┼───────────┐
-          ↓           ↓           ↓
-        EC2-1       EC2-2       EC2-3
-          ↑           ↑           ↑
-          └───────────┼───────────┘
-                      ↑
-                     ASG
-                      ↑
-               Launch Template
-                      ↑
-                     AMI</div>
-  <ul class="concept-list">
-    <li><strong>Users</strong> — application ko access karne wale log</li>
-    <li><strong>Application Load Balancer</strong> — traffic receive karke distribute karta hai</li>
-    <li><strong>Target Group</strong> — targets ko group karta hai aur health check rakhta hai</li>
-    <li><strong>EC2 instances</strong> — actual traffic process karte hain</li>
-    <li><strong>ASG</strong> — instances ki quantity manage karta hai</li>
-    <li><strong>Launch Template</strong> — batata hai instances kaise launch hon</li>
-    <li><strong>AMI</strong> — server ka base image provide karta hai</li>
-  </ul>
-
-  <hr class="divider">
-
-  <!-- 10 -->
-  <h2 id="s10"><span class="section-icon">🏗️</span> Complete Real-World Example</h2>
-  <p>Socho humare paas Apache pe chal rahi ek website hai.</p>
-  <p><strong>Initially:</strong></p>
-  <div class="diagram">Users
-  ↓
-EC2 Instance</div>
-  <p>Traffic increase hoti hai.</p>
-  <div class="note">
-    <strong>Problem:</strong>
-    <ul style="margin: 0.5rem 0 0; padding-left: 1.2rem;">
-      <li>Single EC2 overloaded ho jaata hai.</li>
-      <li>Agar instance fail ho jaaye, website unavailable ho jaati hai.</li>
-    </ul>
-  </div>
-  <p><strong>Solution:</strong></p>
-  <div class="diagram">                    Users
-                      ↓
-                     ALB
-                      ↓
-             ┌────────┴────────┐
-             ↓                 ↓
-           EC2-1             EC2-2
-             ↑                 ↑
-             └────── ASG ──────┘</div>
-  <p><strong>Agar traffic badhti hai:</strong></p>
-  <div class="diagram">EC2-1 + EC2-2
-      ↓
-ASG launches EC2-3
-      ↓
-ALB sends traffic to EC2-1, EC2-2, EC2-3</div>
-  <p><strong>Agar traffic kam hoti hai:</strong></p>
-  <div class="diagram">EC2-1 + EC2-2 + EC2-3
-          ↓
-     ASG scales in
-          ↓
-      EC2-1 + EC2-2</div>
-
-  <hr class="divider">
-
-  <!-- 11 -->
-  <h2 id="s11"><span class="section-icon">📜</span> EC2 Apache Server User Data Script</h2>
-  <pre><code>#!/bin/bash
-
-# Update packages
-sudo yum update -y
-
-# Install Apache
-sudo yum install -y httpd
-
-# Start Apache
-sudo systemctl start httpd
-
-# Enable Apache at boot
-sudo systemctl enable httpd
-
-# Create simple HTML page
-cat &lt;&lt;EOF &gt; /var/www/html/index.html
-&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;Apache Web Server&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Welcome to Apache Web Server on Amazon Linux&lt;/h1&gt;
-    &lt;h2&gt;Hostname: $(hostname)&lt;/h2&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-EOF</code></pre>
-  <div class="card">
-    <p><code>#!/bin/bash</code> — batata hai ki ye script Bash shell mein run hogi.</p>
-    <p><code># Update packages</code> aur <code>sudo yum update -y</code> — sabhi installed packages ko latest version tak update karta hai; <code>-y</code> confirmation prompts ko automatically "yes" kar deta hai.</p>
-    <p><code>sudo yum install -y httpd</code> — Apache web server (<code>httpd</code>) install karta hai.</p>
-    <p><code>sudo systemctl start httpd</code> — Apache service ko turant start karta hai.</p>
-    <p><code>sudo systemctl enable httpd</code> — Apache ko har reboot pe automatically start hone ke liye set karta hai.</p>
-    <p><code>cat &lt;&lt;EOF &gt; /var/www/html/index.html ... EOF</code> — ek "heredoc" hai jo EOF ke beech ki saari lines seedha <code>index.html</code> file mein likh deta hai.</p>
-    <p style="margin-bottom:0;"><code>$(hostname)</code> — server ka current hostname dynamically fetch karke page mein print karta hai.</p>
-  </div>
-
-  <div class="troubleshoot">
-    <h4 style="margin-top:0; color: var(--red);">Common Mistakes to Avoid</h4>
-    <p>Galat:</p>
-    <pre style="margin-top:0.3rem;"><code>httpdsudo</code></pre>
-    <p>Sahi (do alag commands, alag lines pe):</p>
-    <pre style="margin-top:0.3rem;"><code>httpd
-sudo</code></pre>
-    <p>Galat:</p>
-    <pre style="margin-top:0.3rem;"><code>systemctl start httpd|</code></pre>
-    <p style="margin-bottom:0;">Sahi (extra <code>|</code> pipe character nahi hona chahiye):</p>
-    <pre style="margin-top:0.3rem; margin-bottom:0;"><code>systemctl start httpd</code></pre>
-  </div>
-
-  <p style="margin-bottom:0;">Dynamic hostname isliye useful hai kyunki jab multiple EC2 instances ek ALB ke peeche chal rahe hote hain, to browser refresh karne pe alag-alag hostname dikhna ye confirm karta hai ki request alag-alag instances tak pahunch rahi hai — testing ke liye ye ek simple aur effective tareeka hai.</p>
-
-  <hr class="divider">
-
-  <!-- 12 -->
-  <h2 id="s12"><span class="section-icon">🛠️</span> Create Launch Template</h2>
-  <div class="steps-block">
-    <ol class="steps">
-      <li>AWS Console open karo.</li>
-      <li><b>EC2</b> pe jao.</li>
-      <li><b>Launch Templates</b> select karo.</li>
-      <li><b>Create launch template</b> click karo.</li>
-      <li>Launch Template ka <b>name</b> enter karo.</li>
-      <li><b>AMI</b> select karo.</li>
-      <li><b>Instance type</b> select karo.</li>
-      <li>Zaroorat ho to <b>key pair</b> select karo.</li>
-      <li><b>Security group</b> configure karo.</li>
-      <li><b>Storage</b> configure karo.</li>
-      <li><b>User Data</b> add karo.</li>
-      <li>Configuration <b>review</b> karo.</li>
-      <li><b>Create Launch Template</b> click karo.</li>
-    </ol>
-  </div>
-  <p style="margin-bottom:0;">Launch Template mein sahi <strong>AMI</strong>, sahi <strong>Security Group</strong>, aur sahi <strong>User Data</strong> hona zaroori hai — kyunki ASG isi template ke basis pe naye instances launch karega. Agar template mein galat setting ho, to har naya instance bhi usi galti ke saath launch hoga.</p>
-
-  <hr class="divider">
-
-  <!-- 13 -->
-  <h2 id="s13"><span class="section-icon">🎯</span> Create Target Group</h2>
-  <div class="steps-block">
-    <ol class="steps">
-      <li><b>EC2</b> open karo.</li>
-      <li><b>Target Groups</b> pe jao.</li>
-      <li><b>Create target group</b> click karo.</li>
-      <li><b>Target type</b> select karo.</li>
-      <li><b>Protocol</b> aur <b>port</b> select karo.</li>
-      <li><b>VPC</b> select karo.</li>
-      <li><b>Health check</b> configure karo.</li>
-      <li><b>Create target group</b> click karo.</li>
-    </ol>
-  </div>
-  <p>Apache ke liye:</p>
-  <div class="diagram">Protocol: HTTP
-Port: 80
-Health Check Path: /</div>
-  <p style="margin-bottom:0;"><code>/</code> ka matlab hai — health check root URL (<code>http://instance-ip/</code>) pe request bhejega, aur agar Apache waha se koi valid response (jaise 200 OK) deta hai, to us instance ko <strong>healthy</strong> maana jaayega.</p>
-
-  <hr class="divider">
-
-  <!-- 14 -->
-  <h2 id="s14"><span class="section-icon">🌐</span> Create Application Load Balancer</h2>
-  <div class="steps-block">
-    <ol class="steps">
-      <li><b>EC2</b> open karo.</li>
-      <li><b>Load Balancers</b> pe jao.</li>
-      <li><b>Create Load Balancer</b> click karo.</li>
-      <li><b>Application Load Balancer</b> select karo.</li>
-      <li>Load Balancer ka <b>name</b> enter karo.</li>
-      <li>Agar public website bana rahe ho to <b>Internet-facing</b> choose karo.</li>
-      <li><b>IPv4</b> select karo.</li>
-      <li><b>VPC</b> select karo.</li>
-      <li>Jahan applicable ho, kam se kam <b>do Availability Zones/subnets</b> select karo.</li>
-      <li><b>Security group</b> configure karo.</li>
-      <li><b>Listener</b> configure karo.</li>
-      <li><b>Target group</b> select karo.</li>
-      <li>Sab kuch <b>review</b> karo.</li>
-      <li><b>Create Load Balancer</b> click karo.</li>
-    </ol>
-  </div>
-  <ul class="concept-list">
-    <li><strong>Internet-facing ALB</strong> — public internet se accessible hota hai; internal use ke liye "internal" bhi choose kiya ja sakta hai.</li>
-    <li><strong>Security Group</strong> — decide karta hai ALB pe kaunsa traffic (ports) allow hoga.</li>
-    <li><strong>Listener</strong> — check karta hai kaunse port (jaise 80/443) pe requests aa rahi hain.</li>
-    <li><strong>Target Group</strong> — batata hai traffic kis group ke EC2 instances ko bheja jaaye.</li>
-    <li><strong>Availability Zones</strong> — multiple AZs select karne se high availability milti hai.</li>
-  </ul>
-
-  <hr class="divider">
-
-  <!-- 15 -->
-  <h2 id="s15"><span class="section-icon">📊</span> Create Auto Scaling Group</h2>
-  <div class="steps-block">
-    <ol class="steps">
-      <li><b>EC2</b> open karo.</li>
-      <li><b>Auto Scaling Groups</b> pe jao.</li>
-      <li><b>Create Auto Scaling group</b> click karo.</li>
-      <li>ASG ka <b>name</b> enter karo.</li>
-      <li><b>Launch Template</b> select karo.</li>
-      <li><b>VPC</b> select karo.</li>
-      <li>Multiple <b>Availability Zones/subnets</b> select karo.</li>
-      <li><b>Group Size</b> configure karo.</li>
-      <li><b>Desired Capacity</b> set karo.</li>
-      <li><b>Minimum Capacity</b> set karo.</li>
-      <li><b>Maximum Capacity</b> set karo.</li>
-      <li><b>Scaling options</b> configure karo.</li>
-      <li>Pehle se bana hua <b>target group</b> attach karo.</li>
-      <li><b>Health checks</b> configure karo.</li>
-      <li>Sab kuch <b>review</b> karo.</li>
-      <li><b>Create Auto Scaling Group</b> click karo.</li>
-    </ol>
-  </div>
-  <div class="diagram">Minimum capacity = 2
-Desired capacity = 2
-Maximum capacity = 5</div>
-
-  <hr class="divider">
-
-  <!-- 16 -->
-  <h2 id="s16"><span class="section-icon">🎛️</span> Configure ASG Scaling Policies</h2>
-
-  <h3>Target Tracking Scaling</h3>
-  <div class="diagram">Target CPU utilization = 50%</div>
-  <p>ASG capacity ko adjust karta hai taaki wo is target ko maintain karne ki koshish kare.</p>
-
-  <h3>Step Scaling</h3>
-  <p>Scaling alag-alag amount mein ho sakti hai, CloudWatch alarm ke thresholds ke according.</p>
-
-  <h3>Scheduled Scaling</h3>
-  <p>Predictable schedule ke basis pe scaling.</p>
-  <div class="diagram">Office Hours → More Instances
-Night → Fewer Instances</div>
-  <p style="margin-bottom:0;"><strong>CloudWatch</strong> metrics (jaise CPU utilization) ko monitor karta hai aur configured thresholds cross hone par scaling policies ko trigger karta hai.</p>
-
-  <hr class="divider">
-
-  <!-- 17 -->
-  <h2 id="s17"><span class="section-icon">🧪</span> Test ELB + ASG</h2>
-  <div class="steps-block">
-    <ol class="steps">
-      <li><b>ASG</b> check karo.</li>
-      <li>Verify karo ki EC2 instances running hain.</li>
-      <li><b>Target group</b> check karo.</li>
-      <li>Target health verify karo.</li>
-      <li>Browser mein <b>ALB DNS name</b> open karo.</li>
-      <li>Multiple baar <b>refresh</b> karo.</li>
-      <li>Verify karo ki application accessible hai.</li>
-      <li>Webpage pe dikhne wala <b>hostname</b> check karo.</li>
-    </ol>
-  </div>
-  <p style="margin-bottom:0;">Alag-alag hostnames dikhna ye demonstrate karne mein madad karta hai ki requests alag-alag instances tak pahunch rahi hain — lekin ye guarantee nahi hai ki har refresh pe hostname zaroor alternate hoga.</p>
-
-  <hr class="divider">
-
-  <!-- 18 -->
-  <h2 id="s18"><span class="section-icon">📈</span> Test Auto Scaling</h2>
-  <div class="diagram">Desired = 2
-Minimum = 2
-Maximum = 4</div>
-  <p>CPU utilization increase karo ya configured CloudWatch metric use karo.</p>
-  <p>Fir verify karo:</p>
-  <div class="diagram">2 EC2
- ↓
-3 EC2
- ↓
-4 EC2</div>
-  <p>Workload kam hone ke baad:</p>
-  <div class="diagram">4 EC2
- ↓
-3 EC2
- ↓
-2 EC2</div>
-  <p style="margin-bottom:0;">Instances badhna <strong>scale-out</strong> kehlata hai, aur instances kam hona <strong>scale-in</strong> kehlata hai.</p>
-
-  <hr class="divider">
-
-  <!-- 19 -->
-  <h2 id="s19"><span class="section-icon">🧯</span> Test High Availability</h2>
-  <div class="diagram">ALB
- ↓
-EC2-1
-EC2-2</div>
-  <p>Ek EC2 instance ko terminate karo.</p>
-  <p><strong>Expected behavior:</strong></p>
-  <div class="diagram">EC2-1 → Terminated
-EC2-2 → Still running
-       ↓
-ASG launches replacement EC2
-       ↓
-New EC2 becomes healthy
-       ↓
-ALB can route traffic to it</div>
-  <p style="margin-bottom:0;">Ye demonstrate karta hai ki automatic replacement ho raha hai, jo service ki availability ko maintain karne mein madad karta hai.</p>
-
-  <hr class="divider">
-
-  <!-- 20 -->
-  <h2 id="s20"><span class="section-icon">🔒</span> Security Groups</h2>
-  <div class="diagram">Internet
-   ↓
-ALB Security Group
-   ↓
-EC2 Security Group</div>
-
-  <h3>ALB Security Group</h3>
-  <p>Allow karo:</p>
-  <div class="diagram">HTTP 80
-HTTPS 443</div>
-  <p style="margin-bottom:0;">Appropriate client sources se.</p>
-
-  <h3>EC2 Security Group</h3>
-  <p style="margin-bottom:0;">HTTP traffic ko <strong>ALB security group</strong> se allow karo, poore internet se broadly allow karne ke bajaye jahan possible ho. Ye zyada secure isliye hai kyunki EC2 instances direct internet traffic accept nahi karte — sirf ALB ke through hi traffic aata hai, jisse attack surface kam ho jaata hai.</p>
-
-  <hr class="divider">
-
-  <!-- 21 -->
-  <h2 id="s21"><span class="section-icon">🧰</span> Common ELB + ASG Troubleshooting</h2>
-  <table>
-    <thead><tr><th>Problem</th><th>Possible Reason</th><th>Solution</th></tr></thead>
-    <tbody>
-      <tr><td data-label="Problem">ALB not opening</td><td data-label="Possible Reason">Security group</td><td data-label="Solution">Check port 80/443</td></tr>
-      <tr><td data-label="Problem">Target unhealthy</td><td data-label="Possible Reason">Apache not running</td><td data-label="Solution">Check <code>systemctl status httpd</code></td></tr>
-      <tr><td data-label="Problem">Target unhealthy</td><td data-label="Possible Reason">Wrong health check path</td><td data-label="Solution">Check <code>/</code></td></tr>
-      <tr><td data-label="Problem">EC2 has no web page</td><td data-label="Possible Reason">User Data failed</td><td data-label="Solution">Check cloud-init/user-data logs</td></tr>
-      <tr><td data-label="Problem">ASG not launching instances</td><td data-label="Possible Reason">Launch Template issue</td><td data-label="Solution">Verify AMI, subnet, SG, instance type</td></tr>
-      <tr><td data-label="Problem">ALB cannot reach EC2</td><td data-label="Possible Reason">EC2 SG rule missing</td><td data-label="Solution">Allow traffic from ALB SG</td></tr>
-      <tr><td data-label="Problem">EC2 repeatedly replaced</td><td data-label="Possible Reason">Health check failure</td><td data-label="Solution">Check application and target health</td></tr>
-      <tr><td data-label="Problem">Website works on EC2 but not ALB</td><td data-label="Possible Reason">ALB/target configuration</td><td data-label="Solution">Check listener and target group</td></tr>
-    </tbody>
-  </table>
-  <p>Useful commands:</p>
-  <pre><code>sudo systemctl status httpd</code></pre>
-  <pre><code>sudo systemctl restart httpd</code></pre>
-  <pre><code>sudo journalctl -u httpd</code></pre>
-  <pre><code>sudo cat /var/log/httpd/access_log</code></pre>
-  <pre><code>sudo cat /var/log/httpd/error_log</code></pre>
-  <p>User Data/cloud-init troubleshooting ke liye:</p>
-  <pre><code>sudo cat /var/log/cloud-init-output.log</code></pre>
-
-  <hr class="divider">
-
-  <!-- 22 -->
-  <h2 id="s22"><span class="section-icon">⚖️</span> ELB vs ASG</h2>
-  <table>
-    <thead><tr><th>Feature</th><th>ELB</th><th>ASG</th></tr></thead>
-    <tbody>
-      <tr><td data-label="Feature">Full form</td><td data-label="ELB">Elastic Load Balancing</td><td data-label="ASG">Auto Scaling Group</td></tr>
-      <tr><td data-label="Feature">Main purpose</td><td data-label="ELB">Distribute traffic</td><td data-label="ASG">Manage EC2 capacity</td></tr>
-      <tr><td data-label="Feature">Traffic distribution</td><td data-label="ELB">Yes</td><td data-label="ASG">No</td></tr>
-      <tr><td data-label="Feature">Launch instances</td><td data-label="ELB">No</td><td data-label="ASG">Yes</td></tr>
-      <tr><td data-label="Feature">Remove instances</td><td data-label="ELB">No</td><td data-label="ASG">Yes</td></tr>
-      <tr><td data-label="Feature">Health checks</td><td data-label="ELB">Yes</td><td data-label="ASG">Yes, through configured ASG/ELB health mechanisms</td></tr>
-      <tr><td data-label="Feature">Scaling</td><td data-label="ELB">Does not scale EC2 count</td><td data-label="ASG">Yes</td></tr>
-      <tr><td data-label="Feature">Works with EC2</td><td data-label="ELB">Yes</td><td data-label="ASG">Yes</td></tr>
-    </tbody>
-  </table>
-  <div class="hinglish-line">
-    <strong>ELB</strong> = Traffic ko distribute karta hai.<br>
-    <strong>ASG</strong> = EC2 instances ki quantity manage karta hai.
-  </div>
-
-  <hr class="divider">
-
-  <!-- 23 -->
-  <h2 id="s23"><span class="section-icon">📐</span> Scalability vs Elasticity vs High Availability</h2>
-  <table>
-    <thead><tr><th>Concept</th><th>Meaning</th><th>Example</th></tr></thead>
-    <tbody>
-      <tr><td data-label="Concept"><strong>Scalability</strong></td><td data-label="Meaning">System ko larger workload handle karne ki ability</td><td data-label="Example">More EC2</td></tr>
-      <tr><td data-label="Concept"><strong>Vertical Scaling</strong></td><td data-label="Meaning">Existing server ko powerful banana</td><td data-label="Example">Bigger instance</td></tr>
-      <tr><td data-label="Concept"><strong>Horizontal Scaling</strong></td><td data-label="Meaning">More servers add karna</td><td data-label="Example">More EC2</td></tr>
-      <tr><td data-label="Concept"><strong>Elasticity</strong></td><td data-label="Meaning">Demand ke according automatically resources adjust karna</td><td data-label="Example">ASG</td></tr>
-      <tr><td data-label="Concept"><strong>High Availability</strong></td><td data-label="Meaning">Service ko available rakhna</td><td data-label="Example">Multiple AZs</td></tr>
-    </tbody>
-  </table>
-
-  <hr class="divider">
-
-  <!-- 24 -->
-  <h2 id="s24"><span class="section-icon">🗺️</span> Important Architecture</h2>
-  <div class="diagram">                         INTERNET
-                            │
-                            ▼
-                   Application Load
-                       Balancer
-                            │
-                     Target Group
-                            │
-             ┌──────────────┼──────────────┐
-             │              │              │
-             ▼              ▼              ▼
-          EC2-1           EC2-2           EC2-3
-             │              │              │
-             └──────────────┼──────────────┘
-                            ▲
-                            │
-                           ASG
-                            ▲
-                            │
-                     Launch Template
-                            ▲
-                            │
-                           AMI</div>
-  <ul class="concept-list">
-    <li><strong>INTERNET</strong> — jaha se users requests bhejte hain.</li>
-    <li><strong>Application Load Balancer</strong> — traffic receive karke distribute karta hai.</li>
-    <li><strong>Target Group</strong> — targets ko group karta hai aur unka health track karta hai.</li>
-    <li><strong>EC2-1 / EC2-2 / EC2-3</strong> — actual servers jo requests process karte hain.</li>
-    <li><strong>ASG</strong> — instances ki quantity ko automatically manage karta hai.</li>
-    <li><strong>Launch Template</strong> — batata hai naye instances kaise launch honge.</li>
-    <li><strong>AMI</strong> — server ka base image provide karta hai.</li>
-  </ul>
-
-  <hr class="divider">
-
-  <!-- 25 -->
-  <h2 id="s25"><span class="section-icon">🎯</span> Important Interview Questions</h2>
-  <div class="qa-grid">
-    <div class="qa"><p class="q">Q1: What is ELB?</p><p class="a">A: Elastic Load Balancing — traffic ko multiple targets ke beech distribute karne wali AWS service.</p></div>
-    <div class="qa"><p class="q">Q2: What is ASG?</p><p class="a">A: Auto Scaling Group — jo configured min/desired/max capacity ke according EC2 instances manage karta hai.</p></div>
-    <div class="qa"><p class="q">Q3: What is scalability?</p><p class="a">A: System ki ability jo badhte workload/traffic ko resources badha kar handle kare.</p></div>
-    <div class="qa"><p class="q">Q4: What is vertical scaling?</p><p class="a">A: Existing server ko bigger instance type mein upgrade karna.</p></div>
-    <div class="qa"><p class="q">Q5: What is horizontal scaling?</p><p class="a">A: Load share karne ke liye zyada servers add karna.</p></div>
-    <div class="qa"><p class="q">Q6: What is elasticity?</p><p class="a">A: Demand ke hisaab se resources ka automatically increase/decrease hona.</p></div>
-    <div class="qa"><p class="q">Q7: What is high availability?</p><p class="a">A: Kuch components fail hone par bhi application ko minimal downtime ke saath accessible rakhna.</p></div>
-    <div class="qa"><p class="q">Q8: Difference between scalability and elasticity?</p><p class="a">A: Scalability capability hai badhte load ko handle karne ki; elasticity us process ko automatic banati hai.</p></div>
-    <div class="qa"><p class="q">Q9: What is ALB?</p><p class="a">A: Application Load Balancer — Layer 7 pe HTTP/HTTPS traffic handle karta hai, content-based routing ke saath.</p></div>
-    <div class="qa"><p class="q">Q10: What is NLB?</p><p class="a">A: Network Load Balancer — Layer 4 pe high-performance TCP/UDP/TLS traffic handle karta hai.</p></div>
-    <div class="qa"><p class="q">Q11: What is a Target Group?</p><p class="a">A: Targets (jaise EC2 instances) ka group jinhe traffic milta hai aur jinke health checks configured hote hain.</p></div>
-    <div class="qa"><p class="q">Q12: What is a Listener?</p><p class="a">A: Load Balancer ka wo part jo specific port (jaise 80/443) pe incoming connections check karta hai.</p></div>
-    <div class="qa"><p class="q">Q13: What is an ELB health check?</p><p class="a">A: Ek periodic check jo verify karta hai ki target traffic handle karne ke liye healthy hai ya nahi.</p></div>
-    <div class="qa"><p class="q">Q14: What happens when an EC2 target becomes unhealthy?</p><p class="a">A: Load Balancer us target ko traffic bhejna band kar deta hai jab tak wo healthy na ho jaaye.</p></div>
-    <div class="qa"><p class="q">Q15: What is an Auto Scaling Group?</p><p class="a">A: Ek AWS resource jo min/desired/max capacity ke according EC2 instances ki count automatically manage karta hai.</p></div>
-    <div class="qa"><p class="q">Q16: What are minimum, desired, and maximum capacities?</p><p class="a">A: Minimum = kam se kam instances; Desired = normal target count; Maximum = zyada se zyada allowed instances.</p></div>
-    <div class="qa"><p class="q">Q17: What is a Launch Template?</p><p class="a">A: Ek saved configuration (AMI, instance type, key pair, SG, user data, etc.) jo naya EC2 launch karne ke liye use hoti hai.</p></div>
-    <div class="qa"><p class="q">Q18: How does ASG launch a new EC2 instance?</p><p class="a">A: ASG apne assigned Launch Template ko use karke exact wahi configuration ke saath naya instance launch karta hai.</p></div>
-    <div class="qa"><p class="q">Q19: How does ELB work with ASG?</p><p class="a">A: ASG instances ko launch/remove karta hai, aur ELB un currently healthy instances ke beech traffic distribute karta hai.</p></div>
-    <div class="qa"><p class="q">Q20: What happens if one EC2 instance fails?</p><p class="a">A: ELB baaki healthy instances ko hi traffic bhejta hai, aur ASG failed instance ki jagah naya instance launch kar deta hai.</p></div>
-    <div class="qa"><p class="q">Q21: How does ASG help High Availability?</p><p class="a">A: Failed instances ko automatically replace karke aur multiple AZs mein instances rakh kar.</p></div>
-    <div class="qa"><p class="q">Q22: Why use multiple Availability Zones?</p><p class="a">A: Taaki ek AZ mein issue aane par bhi application doosre AZ se serve hoti rahe.</p></div>
-    <div class="qa"><p class="q">Q23: What is Target Tracking Scaling?</p><p class="a">A: Ek scaling policy jisme ASG ek target metric value (jaise 50% CPU) maintain karne ki koshish karta hai.</p></div>
-    <div class="qa"><p class="q">Q24: Difference between ALB and NLB?</p><p class="a">A: ALB Layer 7 pe content-based routing karta hai (HTTP/HTTPS); NLB Layer 4 pe high-performance TCP/UDP/TLS handle karta hai.</p></div>
-    <div class="qa"><p class="q">Q25: Can ELB itself launch EC2 instances?</p><p class="a">A: Nahi — ELB sirf traffic distribute karta hai, instances launch/manage nahi karta.</p></div>
-    <div class="qa"><p class="q">Q26: Can ASG distribute traffic?</p><p class="a">A: Nahi — ASG sirf instance count manage karta hai; traffic distribution ELB ka kaam hai.</p></div>
-    <div class="qa"><p class="q">Q27: Why is a Target Group required?</p><p class="a">A: Ye batata hai Load Balancer ko ki traffic kaunse targets ko bhejna hai, aur unka health track karta hai.</p></div>
-    <div class="qa"><p class="q">Q28: How do you troubleshoot an unhealthy target?</p><p class="a">A: Application service status check karo (<code>systemctl status httpd</code>), health check path verify karo, aur security group rules check karo.</p></div>
-    <div class="qa"><p class="q">Q29: How do you connect an ASG with an ALB?</p><p class="a">A: ASG create/edit karte waqt uske saath ek existing target group attach karo, jo ALB se linked ho.</p></div>
-    <div class="qa"><p class="q">Q30: What is the role of CloudWatch in Auto Scaling?</p><p class="a">A: CloudWatch metrics (jaise CPU utilization) monitor karta hai aur configured thresholds cross hone par scaling policies trigger karta hai.</p></div>
-  </div>
+  
 
   <hr class="divider">
 
@@ -1015,6 +331,109 @@ Target Group = Groups Targets + Health Checks
 CloudWatch = Monitoring/Metrics
 Multiple AZs = High Availability</div>
 
-</div>
+  </div> <!-- end .wrap -->
+</div> <!-- end #main -->
+
+<button id="backtotop" aria-label="Back to top">â‡§</button>
+
+<script>
+(function(){
+  // Instant Theme Handler
+  var themeBtn = document.getElementById('theme-btn');
+  function applyTheme(target) {
+    document.documentElement.setAttribute('data-theme', target);
+    document.documentElement.classList.toggle('dark', target === 'dark');
+    document.body.setAttribute('data-theme', target);
+    document.body.classList.toggle('dark', target === 'dark');
+    localStorage.setItem('cloud_learning_theme', target);
+    if (themeBtn) themeBtn.textContent = target === 'dark' ? 'â˜€ï¸ Light mode' : 'ðŸŒ™ Dark mode';
+  }
+  var saved = localStorage.getItem('cloud_learning_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function(){
+      var isDark = document.body.getAttribute('data-theme') === 'dark';
+      applyTheme(isDark ? 'light' : 'dark');
+    });
+  }
+
+  // Universal Sidebar Toggle & Persistence
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+
+  function toggleSidebar() {
+    if (window.innerWidth <= 900) {
+      if (sidebar) sidebar.classList.toggle('open');
+      if (backdrop) backdrop.classList.toggle('show');
+    } else {
+      if (sidebar) {
+        sidebar.classList.toggle('collapsed');
+        try {
+          localStorage.setItem('cloud_learning_sidebar', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+        } catch(e) {}
+      }
+    }
+  }
+
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('show');
+  }
+
+  if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+  if (backdrop) backdrop.addEventListener('click', closeSidebar);
+  if (sidebar) {
+    sidebar.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function() {
+        if (window.innerWidth <= 900) closeSidebar();
+      });
+    });
+  }
+
+  try {
+    if (window.innerWidth > 900 && localStorage.getItem('cloud_learning_sidebar') === 'collapsed') {
+      if (sidebar) sidebar.classList.add('collapsed');
+    }
+  } catch(e) {}
+
+  // Filter sections
+  var searchBox = document.getElementById('search-box');
+  if (searchBox) {
+    searchBox.addEventListener('input', function(){
+      var q = searchBox.value.trim().toLowerCase();
+      document.querySelectorAll('#sidebar li').forEach(function(li){
+        var text = li.textContent.toLowerCase();
+        li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  }
+
+  // Active link scroll
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a[href^="#"]'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    var btt = document.getElementById('backtotop');
+    if (btt) btt.style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  var btt = document.getElementById('backtotop');
+  if (btt) {
+    btt.addEventListener('click', function(){
+      window.scrollTo({ top:0, behavior:'smooth' });
+    });
+  }
+})();
+</script>
 </body>
 </html>

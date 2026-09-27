@@ -218,14 +218,25 @@
     gap: 12px;
   }
   #menu-btn {
-    display: none;
-    background: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
     border: 1px solid var(--card-border);
     border-radius: 6px;
-    padding: 5px 9px;
+    padding: 6px 10px;
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--ink);
+    transition: all .15s ease;
+  }
+  #menu-btn:hover {
+    background: var(--brand-soft);
+    color: var(--brand);
+    border-color: var(--brand-border);
+  }
+  #sidebar.collapsed {
+    display: none !important;
   }
   .topbar-title {
     font-size: 1.1rem;
@@ -1306,9 +1317,36 @@
   }
 
   function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("open");
-    document.getElementById("backdrop").classList.toggle("show");
+    var sidebar = document.getElementById("sidebar");
+    var backdrop = document.getElementById("backdrop");
+    if (window.innerWidth <= 900) {
+      sidebar.classList.toggle("open");
+      if (backdrop) backdrop.classList.toggle("show");
+    } else {
+      sidebar.classList.toggle("collapsed");
+      try {
+        localStorage.setItem('cloud_learning_sidebar', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+      } catch(e) {}
+    }
   }
+
+  function closeSidebar() {
+    var sidebar = document.getElementById("sidebar");
+    var backdrop = document.getElementById("backdrop");
+    if (sidebar) sidebar.classList.remove("open");
+    if (backdrop) backdrop.classList.remove("show");
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var backdrop = document.getElementById("backdrop");
+    if (backdrop) backdrop.addEventListener('click', closeSidebar);
+    try {
+      if (window.innerWidth > 900 && localStorage.getItem('cloud_learning_sidebar') === 'collapsed') {
+        var sidebar = document.getElementById("sidebar");
+        if (sidebar) sidebar.classList.add('collapsed');
+      }
+    } catch(e) {}
+  });
 
   // ==========================================
   // 8. THEME TOGGLE

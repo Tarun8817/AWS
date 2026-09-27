@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("cloud_learning_theme") || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dark") document.documentElement.classList.add("dark");
+    } catch(e) {}
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AWS Route 53 — Complete Guide</title>
@@ -220,6 +230,30 @@
     transform: translateY(-1px);
   }
 
+
+  /* Universal Sidebar Toggle Styles */
+  #menu-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg, var(--card, #fff));
+    border: 1px solid var(--border, var(--line, #cbd5e1));
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: var(--text, var(--ink, #0f172a));
+    font-size: 1rem;
+    line-height: 1;
+    transition: all .15s ease;
+  }
+  #menu-btn:hover {
+    background: var(--accent-soft, var(--brand-soft, #f1f5f9));
+    color: var(--accent-dark, var(--brand, #2563eb));
+    border-color: var(--accent, var(--brand, #2563eb));
+  }
+  #sidebar.collapsed {
+    display: none !important;
+  }
 </style>
 </head>
 <body data-theme="light">
@@ -799,9 +833,14 @@ RDS / MongoDB</div>
 (function(){
   var themeBtn = document.getElementById('theme-btn');
   themeBtn.addEventListener('click', function(){
-    var isDark = document.body.getAttribute('data-theme') === 'dark';
-    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+    var isDark = (document.documentElement.getAttribute('data-theme') || document.body.getAttribute('data-theme')) === 'dark';
+    var target = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', target);
+    document.documentElement.classList.toggle('dark', target === 'dark');
+    document.body.setAttribute('data-theme', target);
+    document.body.classList.toggle('dark', target === 'dark');
+    try { localStorage.setItem('cloud_learning_theme', target); } catch(e) {}
+    themeBtn.innerHTML = target === 'dark' ? 'â˜€ï¸ Light mode' : 'ðŸŒ™ Dark mode';
   });
 
   var sidebar = document.getElementById('sidebar');
@@ -847,6 +886,50 @@ RDS / MongoDB</div>
     window.scrollTo({ top:0, behavior:'smooth' });
   });
 })();
+
+  // Universal Sidebar Toggle & Persistence
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+
+  function toggleSidebar() {
+    if (window.innerWidth <= 900) {
+      if (sidebar) sidebar.classList.toggle('open');
+      if (backdrop) backdrop.classList.toggle('show');
+    } else {
+      if (sidebar) {
+        sidebar.classList.toggle('collapsed');
+        try {
+          localStorage.setItem('cloud_learning_sidebar', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+        } catch(e) {}
+      }
+    }
+  }
+
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('show');
+  }
+
+  if (menuBtn) {
+    menuBtn.onclick = toggleSidebar;
+  }
+  if (backdrop) {
+    backdrop.onclick = closeSidebar;
+  }
+  if (sidebar) {
+    sidebar.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function() {
+        if (window.innerWidth <= 900) closeSidebar();
+      });
+    });
+  }
+
+  try {
+    if (window.innerWidth > 900 && localStorage.getItem('cloud_learning_sidebar') === 'collapsed') {
+      if (sidebar) sidebar.classList.add('collapsed');
+    }
+  } catch(e) {}
 </script>
 
 </body>

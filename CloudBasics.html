@@ -125,7 +125,7 @@
   <!-- Topbar -->
   <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-      <button id="menu-btn" class="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+      <button id="menu-btn" class="inline-flex items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" onclick="toggleSidebar()" aria-label="Toggle menu" title="Toggle Sidebar (Open/Close)">☰</button>
       <div class="relative flex-1 sm:w-72 md:w-80">
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">🔍</span>
         <input type="text" id="search-input" class="w-full pl-9 pr-8 py-1.5 text-sm rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand" placeholder="Search terms (Hypervisor, IaaS, AWS...)" oninput="filterDefinitions(this.value)">
@@ -276,9 +276,23 @@
   function toggleSidebar() {
     const sb = document.getElementById("sidebar");
     const bd = document.getElementById("backdrop");
-    sb.classList.toggle("-translate-x-full");
-    bd.classList.toggle("hidden");
+    if (window.innerWidth <= 768) {
+      sb.classList.toggle("-translate-x-full");
+      bd.classList.toggle("hidden");
+    } else {
+      sb.classList.toggle("md:hidden");
+      try {
+        localStorage.setItem("cloud_learning_sidebar", sb.classList.contains("md:hidden") ? "collapsed" : "expanded");
+      } catch(e) {}
+    }
   }
+
+  // Restore sidebar state on load
+  try {
+    if (window.innerWidth > 768 && localStorage.getItem("cloud_learning_sidebar") === "collapsed") {
+      document.getElementById("sidebar").classList.add("md:hidden");
+    }
+  } catch(e) {}
 
   function applyTheme(target) {
     document.documentElement.setAttribute("data-theme", target);

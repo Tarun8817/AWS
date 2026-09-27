@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Level 1: AWS IAM (Identity & Access Management) — Hinglish Guide</title>
+<title>Level 1: AWS IAM (Identity & Access Management) â€” Hinglish Guide</title>
 <script>
   (function() {
     try {
@@ -16,21 +16,75 @@
 </script>
 <style>
   :root {
-    --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-muted: #64748b;
+    --bg: #f8fafc; --sidebar-bg: #151c2c; --card: #ffffff; --card-bg: #ffffff; --text: #0f172a; --text-muted: #64748b;
     --brand: #2563eb; --brand-soft: #eff6ff; --border: #e2e8f0;
     --accent: #f59e0b; --accent-soft: #fffbeb; --ok: #10b981; --ok-soft: #ecfdf5;
   }
   html.dark, body[data-theme="dark"], [data-theme="dark"] {
-    --bg: #090d16; --card: #111827; --text: #f8fafc; --text-muted: #94a3b8;
+    --bg: #090d16; --sidebar-bg: #151c2c; --card: #111827; --card-bg: #111827; --text: #f8fafc; --text-muted: #94a3b8;
     --brand: #3b82f6; --brand-soft: #1e293b; --border: #1f293d;
     --accent: #fbbf24; --accent-soft: #2b1f0c; --ok: #34d399; --ok-soft: #064e3b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-  .header-nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 30; }
-  .btn-back { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 0.88rem; font-weight: 600; color: var(--brand); padding: 6px 12px; border-radius: 8px; background: var(--brand-soft); }
-  .btn-back:hover { background: var(--brand); color: #fff; }
-  .btn-theme { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; cursor: pointer; color: var(--text); }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--sidebar-bg, #151c2c); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 40px;
+    transition: transform .25s ease; z-index: 50;
+  }
+  #sidebar h2 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea1c9; margin: 18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; text-decoration: none; font-size: .88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; border-bottom: 1px solid #263252; margin-bottom: 6px; }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; background: #101a2c; color: #e6ecf5;
+    font-size: .85rem; margin-bottom: 6px; outline: none;
+  }
+  .sidebar-home-link {
+    display: flex; align-items: center; gap: 8px; background: #1e293b; color: #e2e8f0 !important; text-decoration: none;
+    font-size: 0.85rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; margin: 6px 0 12px; border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover { background: var(--brand); color: #fff !important; }
+
+  /* Main */
+  #main { flex: 1; min-width: 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn {
+    display: inline-flex !important; align-items: center; justify-content: center;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text); font-size: 1rem;
+    transition: all .15s ease;
+  }
+  #menu-btn:hover { background: var(--brand-soft); color: var(--brand); }
+  #theme-btn {
+    background: var(--brand-soft); border: 1px solid var(--border); color: var(--brand); border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  #sidebar.collapsed { display: none !important; }
+  #backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; }
+  #backtotop {
+    position: fixed; bottom: 22px; right: 22px; background: var(--brand); color: #fff; border: none; border-radius: 50%;
+    width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60;
+  }
+  @media (max-width: 900px) {
+    #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+  }
+
   .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
   .hero { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: #fff; padding: 2rem; border-radius: 16px; margin-bottom: 2rem; }
   .hero h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
@@ -44,17 +98,40 @@
 </style>
 </head>
 <body data-theme="light">
-  <div class="header-nav">
-    <a href="../index.html" class="btn-back">⬅ Return to Dashboard</a>
-    <button class="btn-theme" onclick="toggleTheme()">🌙</button>
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">ðŸ”</span><span class="name">IAM (Hinglish)</span></div>
+  <a href="../index.html" class="sidebar-home-link">ðŸ  Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Contents (à¤µà¤¿à¤·à¤¯ à¤¸à¥‚à¤šà¥€)</h2>
+  <ul>
+    <li><a href="#s1">1. IAM kya hai?</a></li>
+    <li><a href="#s2">2. JSON Policies</a></li>
+    <li><a href="#s3">3. IAM Users & Groups</a></li>
+    <li><a href="#s4">4. IAM Roles vs Policies</a></li>
+    <li><a href="#s5">5. Security Best Practices</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">â˜°</button>
+      <strong>Level 1: AWS IAM (Identity & Access Management) â€” Hinglish</strong>
+    </div>
+    <button id="theme-btn">ðŸŒ™ Dark mode</button>
   </div>
+
   <div class="wrap">
     <div class="hero">
-      <span class="tag" style="background:rgba(255,255,255,0.2); color:#fff;">Level 01 • Hinglish Guide</span>
+      <span class="tag" style="background:rgba(255,255,255,0.2); color:#fff;">Level 01 â€¢ Hinglish Guide</span>
       <h1>Level 1: AWS IAM (Identity & Access Management)</h1>
       <p>AWS account ki security, users, groups, roles aur JSON policies ko aasan Hinglish mein samjhein.</p>
     </div>
-    <div class="card">
+
+    <div class="card" id="s1">
       <h2>1. IAM kya hai? (Simple Explanation)</h2>
       <p>IAM (Identity and Access Management) AWS ki ek free service hai jisse aap yeh control karte hain ki kaun aapke AWS account mein login kar sakta hai aur unhe kin resources (EC2, S3, RDS) ka access milega.</p>
       <ul>
@@ -64,7 +141,8 @@
         <li><strong>IAM Roles:</strong> Temporary permissions jo EC2 instances ya Lambda functions ko assign hoti hain.</li>
       </ul>
     </div>
-    <div class="card">
+
+    <div class="card" id="s2">
       <h2>2. JSON Policies ka Basic Structure</h2>
       <p>IAM permissions JSON format mein likhi jaati hain jisme 4 main elements hote hain: Effect, Action, Resource, aur Condition:</p>
       <pre>{
@@ -78,28 +156,129 @@
   ]
 }</pre>
     </div>
-  </div>
-  <script>
-    function applyTheme(target) {
-      document.documentElement.setAttribute('data-theme', target);
-      document.documentElement.classList.toggle('dark', target === 'dark');
-      document.body.setAttribute('data-theme', target);
-      document.body.classList.toggle('dark', target === 'dark');
-      localStorage.setItem('cloud_learning_theme', target);
-      const btn = document.querySelector('.btn-theme');
-      if (btn) btn.textContent = target === 'dark' ? '☀️' : '🌙';
+
+    <div class="card" id="s3">
+      <h2>3. IAM Users & User Groups</h2>
+      <p>Users individual identities hain jabki Groups multiple users ko ek saath permissions assign karne ke liye use hote hain:</p>
+      <ul>
+        <li><strong>Admin Group:</strong> AdministratorAccess policy ke sath management tasks ke liye.</li>
+        <li><strong>Developers Group:</strong> Sirf EC2, S3, RDS read/write permissions ke sath.</li>
+        <li><strong>MFA (Multi-Factor Authentication):</strong> Har user ke liye zaroori enable karein.</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s4">
+      <h2>4. IAM Roles vs IAM Policies</h2>
+      <p>Policies permission documents hain, jabki Roles identities hain jinhe temporary credentials ke through assume kiya jata hai (jaise EC2 instance ko S3 access dena bina secret keys hardcode kiye).</p>
+    </div>
+
+    <div class="card" id="s5">
+      <h2>5. Security Best Practices</h2>
+      <ul>
+        <li><strong>Principle of Least Privilege:</strong> Sirf utna access dein jitna kaam ke liye zaroori ho.</li>
+        <li><strong>Root User Lock:</strong> Root account par MFA lagayein aur access keys delete karein.</li>
+        <li><strong>Rotate Credentials:</strong> Regular intervals par passwords aur keys change karein.</li>
+      </ul>
+    </div>
+  </div> <!-- end .wrap -->
+</div> <!-- end #main -->
+
+<button id="backtotop" aria-label="Back to top">â‡§</button>
+
+<script>
+(function(){
+  var themeBtn = document.getElementById('theme-btn');
+  function applyTheme(target) {
+    document.documentElement.setAttribute('data-theme', target);
+    document.documentElement.classList.toggle('dark', target === 'dark');
+    document.body.setAttribute('data-theme', target);
+    document.body.classList.toggle('dark', target === 'dark');
+    localStorage.setItem('cloud_learning_theme', target);
+    if (themeBtn) themeBtn.textContent = target === 'dark' ? 'â˜€ï¸ Light mode' : 'ðŸŒ™ Dark mode';
+  }
+  var saved = localStorage.getItem('cloud_learning_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function(){
+      var isDark = document.body.getAttribute('data-theme') === 'dark';
+      applyTheme(isDark ? 'light' : 'dark');
+    });
+  }
+
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+
+  function toggleSidebar() {
+    if (window.innerWidth <= 900) {
+      if (sidebar) sidebar.classList.toggle('open');
+      if (backdrop) backdrop.classList.toggle('show');
+    } else {
+      if (sidebar) {
+        sidebar.classList.toggle('collapsed');
+        try {
+          localStorage.setItem('cloud_learning_sidebar', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+        } catch(e) {}
+      }
     }
-    function initTheme() {
-      const saved = localStorage.getItem('cloud_learning_theme') || 
-        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      applyTheme(saved);
+  }
+
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('show');
+  }
+
+  if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+  if (backdrop) backdrop.addEventListener('click', closeSidebar);
+  if (sidebar) {
+    sidebar.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function() {
+        if (window.innerWidth <= 900) closeSidebar();
+      });
+    });
+  }
+
+  try {
+    if (window.innerWidth > 900 && localStorage.getItem('cloud_learning_sidebar') === 'collapsed') {
+      if (sidebar) sidebar.classList.add('collapsed');
     }
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme') || document.body.getAttribute('data-theme') || 'light';
-      const target = current === 'dark' ? 'light' : 'dark';
-      applyTheme(target);
-    }
-    document.addEventListener('DOMContentLoaded', initTheme);
-  </script>
+  } catch(e) {}
+
+  var searchBox = document.getElementById('search-box');
+  if (searchBox) {
+    searchBox.addEventListener('input', function(){
+      var q = searchBox.value.trim().toLowerCase();
+      document.querySelectorAll('#sidebar li').forEach(function(li){
+        var text = li.textContent.toLowerCase();
+        li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  }
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.card[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a[href^="#"]'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    var btt = document.getElementById('backtotop');
+    if (btt) btt.style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  var btt = document.getElementById('backtotop');
+  if (btt) {
+    btt.addEventListener('click', function(){
+      window.scrollTo({ top:0, behavior:'smooth' });
+    });
+  }
+})();
+</script>
 </body>
 </html>
