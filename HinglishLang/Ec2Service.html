@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS EC2 — Complete Study Notes (Hinglish)</title>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("cloud_learning_theme") || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dark") document.documentElement.classList.add("dark");
+    } catch(e) {}
+  })();
+</script>
+<style>
+  :root {
+    --bg: #f7f9fc; --card-bg: #ffffff; --text: #1e2430; --text-soft: #4b5567;
+    --heading: #0f172a; --accent: #ff9900; --accent-dark: #cc7a00; --accent-soft: #fff4e0;
+    --blue: #146eb4; --blue-dark: #0d4f82; --blue-soft: #e8f2fb;
+    --green: #1a7f5a; --green-soft: #e7f7f0; --purple: #6b46c1; --purple-soft: #f1ebfb;
+    --red: #c0392b; --red-soft: #fdecea; --border: #e3e8ef;
+    --code-bg: #0f172a; --code-text: #e2e8f0;
+    --important-bg: #fff8e6; --important-border: #e6a700;
+    --note-bg: #fff1f0; --note-border: #e64545;
+    --table-head-bg: #146eb4; --table-head-text: #ffffff; --table-row-alt: #f4f8fc;
+    --toc-bg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+      --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+      --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+      --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+      --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+      --code-bg: #05070d; --code-text: #d7ecff;
+      --important-bg: #2a2210; --important-border: #ffcc4d;
+      --note-bg: #2a1414; --note-border: #ff6b6b;
+      --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+      --toc-bg: #161d2b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+    --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+    --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+    --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+    --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+    --code-bg: #05070d; --code-text: #d7ecff;
+    --important-bg: #2a2210; --important-border: #ffcc4d;
+    --note-bg: #2a1414; --note-border: #ff6b6b;
+    --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+    --toc-bg: #161d2b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; line-height: 1.65; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+  .title-card { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 8px 24px rgba(255,153,0,0.25); }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.1rem; letter-spacing: -0.02em; }
+  .title-card p { margin: 0; font-size: 1.05rem; opacity: 0.85; }
+  .toc { background: var(--toc-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.6rem; margin-bottom: 2rem; }
+  .toc h2 { margin-top: 0; border: none; padding: 0; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 1.5rem; list-style: none; padding: 0; margin: 0; font-size: 0.92rem; }
+  .toc-grid a { color: var(--blue); text-decoration: none; }
+  .toc-grid a:hover { text-decoration: underline; }
+  @media (max-width: 640px) { .toc-grid { grid-template-columns: 1fr; } }
+  h2 { color: var(--heading); font-size: 1.4rem; margin-top: 2.6rem; margin-bottom: 0.9rem; padding-bottom: 0.4rem; border-bottom: 3px solid var(--accent); display: flex; align-items: center; gap: 0.55rem; scroll-margin-top: 1rem; }
+  h3 { color: var(--blue); font-size: 1.12rem; margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  h4 { color: var(--purple); font-size: 1rem; margin-top: 1.1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text-soft); }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.1rem; }
+  .badge { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem; }
+  .badge-theory { background: var(--blue-soft); color: var(--blue-dark); }
+  .badge-practical { background: var(--accent-soft); color: var(--accent-dark); }
+  .keypoints { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  .concept-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .concept-list li { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .concept-list li strong { color: var(--blue-dark); }
+  .usecase-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .usecase-list li { background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .usecase-list li strong { color: var(--purple); }
+  .steps-block { background: var(--accent-soft); border-radius: 10px; padding: 1.1rem 1.3rem 1.1rem 1.6rem; margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border); }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.4rem; }
+  ol.steps li { padding: 0.32rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--accent-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--accent-dark); }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.9rem; margin: 0.6rem 0 1rem; }
+  code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88em; }
+  p code, li code, td code { background: var(--code-bg); color: var(--code-text); padding: 0.1rem 0.35rem; border-radius: 4px; }
+  .diagram { background: var(--code-bg); color: var(--code-text); padding: 1rem 1.3rem; border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.92rem; text-align: center; line-height: 1.9; margin: 1rem 0; white-space: pre; }
+  .cmd-explain { margin: 0 0 1.2rem 0; padding-left: 0.2rem; }
+  .cmd-explain code { display: inline-block; margin-bottom: 0.2rem; }
+  .cmd-table td:first-child code { white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.7rem 1rem; font-size: 0.9rem; }
+  tbody td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.9rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+  .important { background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px; padding: 1rem 1.3rem; margin: 1.2rem 0; color: var(--text); }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.45rem; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .troubleshoot { background: var(--red-soft); border-left: 5px solid var(--red); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; color: var(--text); }
+  .troubleshoot h4 { margin-top: 0; color: var(--red); }
+  .troubleshoot ul { margin: 0.3rem 0; padding-left: 1.2rem; }
+  .task-list { columns: 2; column-gap: 2rem; list-style: none; padding: 0; margin: 0; }
+  .task-list li { break-inside: avoid; background: var(--card-bg); border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 0.5rem 0.8rem; margin-bottom: 0.6rem; font-size: 0.92rem; display: flex; gap: 0.5rem; align-items: flex-start; }
+  .task-list .num { color: var(--blue); font-weight: 700; min-width: 1.4rem; }
+  @media (max-width: 640px) { .task-list { columns: 1; } }
+  .qa { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1.2rem; margin-bottom: 0.8rem; }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.35rem; }
+  .qa .a { color: var(--text-soft); margin: 0; }
+  hr.divider { border: none; border-top: 2px dashed var(--border); margin: 2.6rem 0; }
+  .section-icon { font-size: 1.2rem; }
+  #sidebar { width: 280px; flex-shrink: 0; background: var(--code-bg); color: #dbe3f2; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 80px; transition: transform .25s ease; z-index: 50; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+  #sidebar::-webkit-scrollbar { width: 6px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  #sidebar h2 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea1c9; margin: 18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a { display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; text-decoration: none; font-size: .88rem; }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; border-bottom: 1px solid #263252; margin-bottom: 6px; }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; background: #101a2c; color: #e6ecf5; font-size: .85rem; margin-bottom: 6px; }
+  body { display: flex; min-height: 100vh; }
+  #main { flex: 1; min-width: 0; }
+  .topbar { position: sticky; top: 0; z-index: 40; background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn { display: none; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text); font-size: 1rem; }
+  #theme-btn { background: var(--accent-soft); border: 1px solid var(--border); color: var(--accent-dark); border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600; }
+  #backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; }
+  #backtotop { position: fixed; bottom: 22px; right: 22px; background: var(--accent); color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60; }
+  @media (max-width: 900px) {
+    #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+    #menu-btn { display: inline-block; }
+  }
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.5rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before { content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.2rem; font-size: 0.75rem; text-transform: uppercase; }
+  }
+  .roadmap-container { margin: 1.8rem 0 2.5rem; }
+  .roadmap-header-card { background: linear-gradient(135deg, rgba(20, 110, 180, 0.08) 0%, rgba(255, 153, 0, 0.1) 100%); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
+  .roadmap-header-card h3 { margin: 0 0 0.4rem 0; font-size: 1.25rem; color: var(--heading); display: flex; align-items: center; gap: 8px; }
+  .roadmap-header-card p { margin: 0; font-size: 0.92rem; color: var(--text-soft); }
+  .pipeline-overview { display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 6px 2px 14px; margin-bottom: 1.4rem; scrollbar-width: thin; }
+  .pipeline-step { flex: 1; min-width: 135px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; text-align: center; cursor: pointer; transition: all .25s ease; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .pipeline-step:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+  .pipeline-step .pipeline-num { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border-radius: 4px; }
+  .pipeline-step .pipeline-title { font-size: 0.82rem; font-weight: 600; color: var(--heading); white-space: nowrap; }
+  .pipeline-arrow { color: var(--text-soft); font-size: 0.95rem; opacity: 0.4; flex-shrink: 0; font-weight: bold; }
+  .roadmap-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.6rem; }
+  .filter-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-soft); padding: 6px 14px; border-radius: 20px; font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: all .2s ease; display: inline-flex; align-items: center; gap: 6px; }
+  .filter-btn:hover { border-color: var(--blue); color: var(--blue-dark); }
+  .filter-btn.active { background: var(--blue); color: #ffffff !important; border-color: var(--blue); box-shadow: 0 2px 8px rgba(20, 110, 180, 0.35); }
+  .roadmap-stage { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.4rem; margin-bottom: 1.2rem; transition: all .3s ease; position: relative; }
+  .roadmap-stage:hover { border-color: var(--stage-color, var(--blue)); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+  .stage-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-bottom: 1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+  .stage-meta { display: flex; align-items: center; gap: 12px; }
+  .stage-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; background: var(--stage-soft, var(--blue-soft)); color: var(--stage-color, var(--blue)); flex-shrink: 0; border: 1px solid var(--stage-color, var(--border)); }
+  .stage-badge { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 4px; background: var(--stage-soft, var(--blue-soft)); color: var(--stage-color, var(--blue)); }
+  .stage-title { margin: 3px 0 0 0; font-size: 1.18rem; font-weight: 700; color: var(--heading); }
+  .stage-desc { font-size: 0.88rem; color: var(--text-soft); margin: 0; max-width: 600px; }
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .step-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; transition: all .2s ease; position: relative; }
+  .step-card:hover { transform: translateY(-3px); border-color: var(--stage-color, var(--blue)); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+  .step-card-top { display: flex; align-items: center; gap: 10px; }
+  .step-num { font-size: 0.72rem; font-weight: 800; color: var(--stage-color, var(--blue)); background: var(--stage-soft, var(--blue-soft)); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--stage-color, var(--border)); }
+  .step-icon { font-size: 1.2rem; }
+  .step-name { font-size: 0.94rem; font-weight: 700; color: var(--heading); line-height: 1.3; }
+  .step-text { font-size: 0.83rem; color: var(--text-soft); line-height: 1.45; margin: 0; }
+  .step-link { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; color: var(--stage-color, var(--blue)); text-decoration: none; padding: 5px 10px; border-radius: 6px; background: var(--stage-soft, var(--blue-soft)); width: fit-content; transition: all .15s ease; margin-top: auto; border: 1px solid transparent; }
+  .step-link:hover { background: var(--stage-color, var(--blue)); color: #ffffff !important; border-color: var(--stage-color, var(--blue)); }
+  .stage-1 { --stage-color: #2563eb; --stage-soft: #eff6ff; }
+  .stage-2 { --stage-color: #0d9488; --stage-soft: #f0fdfa; }
+  .stage-3 { --stage-color: #10b981; --stage-soft: #ecfdf5; }
+  .stage-4 { --stage-color: #d97706; --stage-soft: #fffbeb; }
+  .stage-5 { --stage-color: #7c3aed; --stage-soft: #f5f3ff; }
+  .stage-6 { --stage-color: #e11d48; --stage-soft: #fff1f2; }
+  [data-theme="dark"] .stage-1, :root:not([data-theme="light"]) .stage-1 { --stage-color: #60a5fa; --stage-soft: #172554; }
+  [data-theme="dark"] .stage-2, :root:not([data-theme="light"]) .stage-2 { --stage-color: #2dd4bf; --stage-soft: #042f2e; }
+  [data-theme="dark"] .stage-3, :root:not([data-theme="light"]) .stage-3 { --stage-color: #34d399; --stage-soft: #064e3b; }
+  [data-theme="dark"] .stage-4, :root:not([data-theme="light"]) .stage-4 { --stage-color: #fbbf24; --stage-soft: #382405; }
+  [data-theme="dark"] .stage-5, :root:not([data-theme="light"]) .stage-5 { --stage-color: #a78bfa; --stage-soft: #2e1065; }
+  [data-theme="dark"] .stage-6, :root:not([data-theme="light"]) .stage-6 { --stage-color: #fb7185; --stage-soft: #4c0519; }
+  .stage-connector { display: flex; justify-content: center; align-items: center; padding: 10px 0; color: var(--accent); font-size: 1.3rem; opacity: 0.75; }
+  @keyframes sectionHighlight { 0% { outline: 3px solid var(--accent); box-shadow: 0 0 18px rgba(255, 153, 0, 0.6); } 50% { outline: 3px solid var(--accent); box-shadow: 0 0 28px rgba(255, 153, 0, 0.85); } 100% { outline: none; box-shadow: none; } }
+  .flash-highlight { animation: sectionHighlight 2s ease-out; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">🖥️</span><span class="name">EC2 Guide</span></div>
+  <input type="text" id="search-box" placeholder="Section filter karo...">
+  <h2>Basics</h2>
+  <ul>
+    <li><a href="#s1">1. Definition</a></li>
+    <li><a href="#s2">2. Architecture</a></li>
+    <li><a href="#s3">3. EC2 Kyu?</a></li>
+    <li><a href="#s4">4. Components</a></li>
+    <li><a href="#s5">5. Instance Types</a></li>
+    <li><a href="#s6">6. Pricing</a></li>
+  </ul>
+  <h2>Getting Started</h2>
+  <ul>
+    <li><a href="#s7">7. Instance Create Karo</a></li>
+    <li><a href="#s8">8. Instance Details</a></li>
+    <li><a href="#s9">9. EC2 Access Karo</a></li>
+    <li><a href="#s10">10. Linux Commands</a></li>
+    <li><a href="#s11">11. Server Update Karo</a></li>
+    <li><a href="#s12">12. Apache Install Karo</a></li>
+    <li><a href="#s13">13. Security Group</a></li>
+    <li><a href="#s14">14. Website Host Karo</a></li>
+    <li><a href="#s15">15. Apache Verify Karo</a></li>
+    <li><a href="#s16">16. Apache Commands</a></li>
+  </ul>
+  <h2>Advanced Features</h2>
+  <ul>
+    <li><a href="#s17">17. User Data</a></li>
+    <li><a href="#s18">18. Stop/Start/Terminate</a></li>
+    <li><a href="#s19">19. Public IP</a></li>
+    <li><a href="#s20">20. EBS Volume</a></li>
+    <li><a href="#s21">21. Format/Mount EBS</a></li>
+    <li><a href="#s22">22. Snapshots</a></li>
+    <li><a href="#s23">23. AMI Create Karo</a></li>
+    <li><a href="#s24">24. AMI Se Launch</a></li>
+    <li><a href="#s25">25. Launch Template</a></li>
+    <li><a href="#s26">26. Multiple Instances</a></li>
+    <li><a href="#s27">27. Elastic IP</a></li>
+  </ul>
+  <h2>Operations</h2>
+  <ul>
+    <li><a href="#s28">28. Monitoring</a></li>
+    <li><a href="#s29">29. Status Checks</a></li>
+    <li><a href="#s30">30. Security</a></li>
+    <li><a href="#s31">31. Troubleshooting</a></li>
+    <li><a href="#s32">32. Differences</a></li>
+    <li><a href="#s33">33. Vertical Scaling</a></li>
+    <li><a href="#s34">34. Horizontal Scaling</a></li>
+    <li><a href="#s35">35. Load Balancer</a></li>
+    <li><a href="#s36">36. Auto Scaling</a></li>
+  </ul>
+  <h2>Practice &amp; Interview</h2>
+  <ul>
+    <li><a href="#s37">37. Complete Project</a></li>
+    <li><a href="#s38">38. Task List</a></li>
+    <li><a href="#s39">39. Interview Q&amp;A</a></li>
+    <li><a href="#s40">40. Learning Flow</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS EC2 — Complete Study Notes</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+<div class="wrap">
+
+  <div class="title-card">
+    <h1>🖥️ AWS EC2 — Complete Study Notes</h1>
+    <p>Elastic Compute Cloud, basic theory se practical implementation tak — beginner-friendly, interview-ready</p>
+  </div>
+
+  <div class="toc">
+    <h2>📑 Contents</h2>
+    <ul class="toc-grid">
+      <li><a href="#s1">1. Definition</a></li>
+      <li><a href="#s2">2. EC2 Architecture / Flow</a></li>
+      <li><a href="#s3">3. EC2 Kyu Use Karte Hain?</a></li>
+      <li><a href="#s4">4. Important EC2 Components</a></li>
+      <li><a href="#s5">5. EC2 Instance Types</a></li>
+      <li><a href="#s6">6. EC2 Pricing Basics</a></li>
+      <li><a href="#s7">7. EC2 Instance Create Karna</a></li>
+      <li><a href="#s8">8. EC2 Instance Details Check Karna</a></li>
+      <li><a href="#s9">9. EC2 Access Kaise Karein</a></li>
+      <li><a href="#s10">10. Connect Karne Ke Baad Linux Commands</a></li>
+      <li><a href="#s11">11. EC2 Server Update Karna</a></li>
+      <li><a href="#s12">12. Apache Web Server Install Karna</a></li>
+      <li><a href="#s13">13. Apache Ke Liye Security Group Configure Karna</a></li>
+      <li><a href="#s14">14. Simple Website Host Karna</a></li>
+      <li><a href="#s15">15. Apache Verify Karna</a></li>
+      <li><a href="#s16">16. Common Apache Commands</a></li>
+      <li><a href="#s17">17. EC2 User Data</a></li>
+      <li><a href="#s18">18. Stop, Start, Reboot, Terminate</a></li>
+      <li><a href="#s19">19. Public IP Behavior</a></li>
+      <li><a href="#s20">20. EBS Volume Create Aur Attach</a></li>
+      <li><a href="#s21">21. EBS Volume Format Aur Mount</a></li>
+      <li><a href="#s22">22. EBS Snapshot Create Karna</a></li>
+      <li><a href="#s23">23. AMI Create Karna</a></li>
+      <li><a href="#s24">24. AMI Se EC2 Launch Karna</a></li>
+      <li><a href="#s25">25. Launch Template Create Karna</a></li>
+      <li><a href="#s26">26. Multiple EC2 Instances Launch Karna</a></li>
+      <li><a href="#s27">27. Elastic IP</a></li>
+      <li><a href="#s28">28. EC2 Monitoring</a></li>
+      <li><a href="#s29">29. EC2 Status Checks</a></li>
+      <li><a href="#s30">30. Security Best Practices</a></li>
+      <li><a href="#s31">31. EC2 Troubleshooting</a></li>
+      <li><a href="#s32">32. Important Differences</a></li>
+      <li><a href="#s33">33. Vertical Scaling</a></li>
+      <li><a href="#s34">34. Horizontal Scaling</a></li>
+      <li><a href="#s35">35. EC2 + Load Balancer</a></li>
+      <li><a href="#s36">36. EC2 + Auto Scaling</a></li>
+      <li><a href="#s37">37. Complete Practical Project</a></li>
+      <li><a href="#s38">38. Practical Task List</a></li>
+      <li><a href="#s39">39. Interview Questions</a></li>
+      <li><a href="#s40">40. Final Learning Flow</a></li>
+    </ul>
+  </div>
+
+  <!-- 1 -->
+  <h2 id="s1"><span class="section-icon">1️⃣</span> Definition</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="card">
+    <p><strong>AWS EC2 Kya Hai?</strong></br></strong> Amazon EC2 (Elastic Compute Cloud) AWS ki ek web service hai jo cloud mein resizable virtual computers ("servers") deti hai. Physical hardware kharidne ki jagah, aap AWS se ek computer rent pe lete ho aur usse internet ke through use karte ho.</p>
+    <p><strong>EC2 ka full form kya hai?</strong></br> <strong>E</strong>lastic <strong>C</strong>ompute <strong>C</strong>loud.</p>
+    <p><strong>EC2 Instance Kya Hai?</strong></br> Ek EC2 Instance ek single virtual server hai jo aap EC2 ke andar create aur run karte ho. Ise ek aisa computer samjho jo AWS aapko use karne ke liye deta hai.</p>
+    <p><strong>Hum EC2 Kyu Use Karte Hain?</strong></br> Isse aap minutes mein server chala sakte ho, jitna use karo utna hi pay karo, zarurat pe usse resize (kam/zyada CPU ya RAM) kar sakte ho, aur physical machines kharidne aur maintain karne ki cost aur effort se bach sakte ho.</p>
+  </div>
+  <div class="example">
+    <strong>Real-world example</strong>
+    <p style="margin-bottom:0;">Socho aapne apne laptop pe ek website banayi. Poori duniya ko use visit karwane ke liye, aapko ek aisa computer chahiye jo hamesha on aur internet se connected ho. Apna laptop 24/7 chalane ki jagah, aap AWS se ek EC2 instance rent pe lete ho, apni website usme daalte ho, aur ab duniya ka koi bhi banda uski public address use karke usse khol sakta hai.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2 -->
+  <h2 id="s2"><span class="section-icon">🧭</span> EC2 Architecture / Basic Flow</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="diagram">User
+ ↓
+Internet
+ ↓
+Public IP
+ ↓
+Security Group
+ ↓
+EC2 Instance
+ ↓
+Application / Web Server</div>
+  <ul class="concept-list">
+    <li><strong>User</strong> — Wo insaan jo browser khol ke website ya application request kar raha hai.</li>
+    <li><strong>Internet</strong> — Wo public network jo user ki request ko AWS tak le jaata hai.</li>
+    <li><strong>Public IP</strong> — Aapke EC2 instance ka internet pe address; iske bina bahar ki duniya aapke server tak nahi pahunch sakti.</li>
+    <li><strong>Security Group</strong> — Instance ke aage ek virtual firewall jo decide karta hai kaunsa traffic (ports) andar/bahar jaane diya jaaye.</li>
+    <li><strong>EC2 Instance</strong> — Wo actual virtual server jo request receive karta hai.</li>
+    <li><strong>Application / Web Server</strong> — Instance ke andar chal raha software (jaise Apache) jo request ko actually process karke response bhejta hai.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 3 -->
+  <h2 id="s3"><span class="section-icon">💡</span> Hum EC2 Kyu Use Karte Hain?</h2>
+  <span class="badge badge-theory">Theory</span>
+  <ul class="usecase-list">
+    <li><strong>Website hosting</strong> — Company ya personal website chalao jo 24/7 reachable ho.</li>
+    <li><strong>Backend/API hosting</strong> — REST/GraphQL APIs host karo jinhe mobile ya web apps call karte hain.</li>
+    <li><strong>Application servers</strong> — CRMs ya internal tools jaisa business software chalao.</li>
+    <li><strong>Development environments</strong> — Har developer ya team ko build aur test karne ke liye ek remote machine do.</li>
+    <li><strong>Databases</strong> — MySQL, PostgreSQL, MongoDB, etc. ko dedicated server pe self-manage karo.</li>
+    <li><strong>Docker workloads</strong> — Jab host machine pe full control chahiye ho tab containers chalao.</li>
+    <li><strong>Business applications</strong> — ERP systems, reporting tools, internal dashboards, aur bhi bahut kuch.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 4 -->
+  <h2 id="s4"><span class="section-icon">🧩</span> Important EC2 Components</h2>
+  <span class="badge badge-theory">Theory</span>
+
+  <h3>AMI (Amazon Machine Image)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> AMI ek pre-built template hai jisme operating system aur kabhi kabhi pre-installed software hota hai. Ise ek "snapshot recipe" samjho jo EC2 instance create karne ke liye use hoti hai.</p>
+    <p><strong>Purpose:</strong> Har baar server launch karte waqt OS scratch se install karne se ye aapko bacha leta hai.</p>
+    <p><strong>Examples:</strong> Amazon Linux 2023, Ubuntu 22.04, Windows Server 2022, Red Hat Enterprise Linux.</p>
+    <p style="margin-bottom:0;"><strong>Kaise use hota hai:</strong> Jab aap EC2 instance launch karte ho, sabse pehla choice hota hai kaunsa AMI se boot karna hai — isi se aapka operating system decide hota hai.</p>
+  </div>
+
+  <h3>Instance Type</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Instance type decide karta hai ki aapke virtual server ko kitna CPU, RAM, aur network performance milega.</p>
+    <p><strong>CPU / RAM / Network:</strong> Har type ka naam (jaise <code>t3.micro</code>) ek fixed amount ke vCPUs, memory, aur network bandwidth se map hota hai.</p>
+    <p style="margin-bottom:0;"><strong>Examples:</strong> <code>t3.micro</code> (2 vCPU, 1 GB RAM — learning/free tier ke liye best), <code>t3.small</code> (2 vCPU, 2 GB RAM), <code>t3.medium</code> (2 vCPU, 4 GB RAM).</p>
+  </div>
+
+  <h3>Key Pair</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Key Pair do cryptographic keys ka set hota hai — ek <strong>public key</strong> aur ek <strong>private key</strong> — jo aapke instance mein securely login karne ke liye use hoti hain.</p>
+    <p><strong>Public key</strong> — AWS dwara automatically instance pe store ki jaati hai.</p>
+    <p><strong>Private key</strong> — Ek baar aap dwara <code>.pem</code> file ke roop mein download ki jaati hai; kisi ke saath share nahi ki jaati.</p>
+    <p><strong>Kyu zaruri hai:</strong> Linux EC2 instances default mein password use nahi karte — wo key-based login use karte hain, jo kaafi zyada secure hai.</p>
+    <p style="margin-bottom:0;"><strong>SSH ise kaise use karta hai:</strong> Connect karte waqt, SSH proof karta hai ki aapke paas matching private key hai — bina use network pe bheje.</p>
+  </div>
+  <div class="steps-block">
+    <h4>Key Pair Kaise Banaye</h4>
+    <ol class="steps">
+      <li><b>EC2 Dashboard → Key Pairs</b> pe jao.</li>
+      <li><b>Create key pair</b> pe click karo.</li>
+      <li>Ek naam daalo (e.g., <code>my-ec2-key</code>).</li>
+      <li>Type <b>RSA</b> aur format <b>.pem</b> (Linux/Mac ke liye) ya <b>.ppk</b> (Windows pe PuTTY ke liye) choose karo.</li>
+      <li><b>Create key pair</b> pe click karo — private key file automatically download ho jaayegi. Ise safe rakho; AWS iska copy store nahi karta.</li>
+    </ol>
+  </div>
+
+  <h3>Security Group</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Security Group aapke EC2 instance se attached ek virtual firewall hai jo incoming aur outgoing traffic control karta hai.</p>
+    <p><strong>Inbound rules</strong> — Instance ke <em>andar aane</em> wala traffic control karte hain (jaise SSH ya web traffic allow karna).</p>
+    <p><strong>Outbound rules</strong> — Instance se <em>bahar jaane</em> wala traffic control karte hain (usually default mein open rehte hain).</p>
+  </div>
+  <table>
+    <thead><tr><th>Port</th><th>Protocol</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Port"><code>22</code></td><td data-label="Protocol">SSH</td><td data-label="Purpose">Linux servers pe remote terminal login</td></tr>
+      <tr><td data-label="Port"><code>80</code></td><td data-label="Protocol">HTTP</td><td data-label="Purpose">Normal (unencrypted) website traffic</td></tr>
+      <tr><td data-label="Port"><code>443</code></td><td data-label="Protocol">HTTPS</td><td data-label="Purpose">Encrypted, secure website traffic</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Source IP concept:</strong> Har rule ka ek "source" bhi hota hai — kaunse IP addresses us port ko use kar sakte hain. <code>0.0.0.0/0</code> ka matlab hai "internet pe koi bhi," jabki <code>My IP</code> access ko sirf aapke current IP address tak restrict kar deta hai.</p>
+
+  <h3>VPC (Virtual Private Cloud)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> VPC AWS ke andar aapka apna private, isolated network hai jahan aapke resources (jaise EC2) rehte hain.</p>
+    <p style="margin-bottom:0;"><strong>EC2 se relationship:</strong> Har EC2 instance ek VPC ke andar hi launch karna hota hai — ye private network boundaries aur IP ranges define karta hai jo instance use kar sakta hai.</p>
+  </div>
+
+  <h3>Subnet</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Subnet ek VPC ke IP address range ka chhota division hota hai.</p>
+    <p><strong>Public subnet</strong> — Iska internet se route hota hai, isliye yahan instances ko public IP mil sakta hai.</p>
+    <p><strong>Private subnet</strong> — Iska direct internet route nahi hota, isse databases ya internal-only servers ke liye use kiya jaata hai.</p>
+    <p style="margin-bottom:0;"><strong>EC2 se relationship:</strong> Har EC2 instance ek specific subnet ke andar launch hota hai, jo decide karta hai ki wo internet se reach ho sakta hai ya nahi.</p>
+  </div>
+
+  <h3>Availability Zone (AZ)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Availability Zone ek AWS Region ke andar ek physical, isolated data center location hoti hai.</p>
+    <p style="margin-bottom:0;"><strong>EC2 AZ ke andar kyu chalta hai:</strong> Har instance ko physically kahin na kahin exist karna hota hai — usse ek specific AZ mein rakhna AWS ko fault isolation dene mein help karta hai (agar ek AZ mein issue ho, doosre unaffected rahte hain).</p>
+  </div>
+
+  <h3>Region</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Region ek geographic area hai (e.g., Mumbai, Singapore, N. Virginia) jisme multiple Availability Zones hote hain.</p>
+    <p style="margin-bottom:0;"><strong>Relationship:</strong> Ek Region mein bahut saari Availability Zones hoti hain (usually 3 ya zyada), aur har AZ ke apne alag data centers hote hain.</p>
+  </div>
+
+  <h3>EBS (Elastic Block Store)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> EBS ek EC2 instance se attached persistent block storage hai, virtual hard drive ki tarah.</p>
+    <p><strong>EC2 EBS kyu use karta hai:</strong> Ek EC2 instance ko OS aur data store karne ke liye disk chahiye hoti hai — EBS wo disk deta hai, aur instance stop hone pe bhi data survive karta hai.</p>
+    <p><strong>Root volume</strong> — Primary EBS volume jisme operating system hota hai; instance launch karte waqt automatically create hota hai.</p>
+    <p style="margin-bottom:0;"><strong>Additional EBS volumes</strong> — Baad mein zyada storage ke liye attach kiye jaane wale extra disks (e.g., application data ya databases ke liye).</p>
+  </div>
+
+  <h3>Public IP</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Public IP ek internet-routable address hai jo aapke instance ko diya jaata hai taaki AWS ke bahar se bhi usse reach kiya ja sake.</p>
+    <p><strong>Kyu zaruri hai:</strong> Iske bina internet pe koi bhi aapke server se connect nahi kar sakta.</p>
+    <p style="margin-bottom:0;"><strong>Kaise dhundhein:</strong> <b>EC2 → Instances</b> kholo, apna instance select karo, aur details panel mein <b>Public IPv4 address</b> field dekho.</p>
+  </div>
+
+  <h3>Private IP</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Private IP ek internal address hai jo sirf VPC ke andar use ho sakta hai.</p>
+    <p style="margin-bottom:0;"><strong>Internal communication:</strong> Jab EC2 instances ko same network ke andar ek doosre se baat karni ho, bina public internet pe jaaye, tab ye use hota hai.</p>
+  </div>
+
+  <h3>Elastic IP</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> Elastic IP ek static, fixed public IP address hai jo aap allocate karte aur control karte ho.</p>
+    <p><strong>Kyu use hota hai:</strong> Normal Public IP har baar instance stop aur start hone pe change hota hai; Elastic IP same rehta hai.</p>
+    <p style="margin-bottom:0;"><strong>Public IP se difference:</strong> Ek regular Public IP temporary hota hai aur auto-assign hota hai; Elastic IP tab tak permanent rehta hai jab tak aap manually release na karo.</p>
+  </div>
+
+  <h3>User Data</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> User Data ek script hai jo aap instance se attach karte ho, jo instance ke pehli baar boot hone pe automatically run hota hai.</p>
+    <p><strong>Purpose:</strong> Setup tasks automate karne ke liye — software install karna, services start karna, ya server configure karna — bina manual kaam ke.</p>
+    <p style="margin-bottom:0;"><strong>Kaise use karein:</strong> Instance launch karte waqt Advanced Details ke under "User data" field mein ek shell script paste karo.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 5 -->
+  <h2 id="s5"><span class="section-icon">🏷️</span> EC2 Instance Types</h2>
+  <span class="badge badge-theory">Theory</span>
+  <table>
+    <thead><tr><th>Category</th><th>Kis Ke Liye Best</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Category"><strong>General Purpose</strong></td><td data-label="Kis Ke Liye Best">Balanced CPU/RAM — web servers, small apps, dev/test</td><td data-label="Example"><code>t3.micro</code>, <code>m6i.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Compute Optimized</strong></td><td data-label="Kis Ke Liye Best">High CPU workloads — batch processing, gaming servers, video encoding</td><td data-label="Example"><code>c6i.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Memory Optimized</strong></td><td data-label="Kis Ke Liye Best">RAM-heavy workloads — large databases, in-memory caches</td><td data-label="Example"><code>r6i.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Storage Optimized</strong></td><td data-label="Kis Ke Liye Best">High-speed, high-volume disk I/O — data warehousing, NoSQL databases</td><td data-label="Example"><code>i3.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Accelerated Computing</strong></td><td data-label="Kis Ke Liye Best">GPU-based work — machine learning, graphics rendering</td><td data-label="Example"><code>g5.xlarge</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 6 -->
+  <h2 id="s6"><span class="section-icon">💰</span> EC2 Pricing Basics</h2>
+  <span class="badge badge-theory">Theory</span>
+  <ul class="keypoints">
+    <li><strong>On-Demand</strong> — Ghante/second ke hisaab se pay karo, koi long-term commitment nahi; sabse flexible, lekin per hour sabse mehnga.</li>
+    <li><strong>Reserved Instances</strong> — 1 ya 3 saal commit karo aur kaafi kam hourly rate paao; predictable, steady workloads ke liye achha.</li>
+    <li><strong>Savings Plans</strong> — 1-3 saal ke liye ek consistent compute usage amount ($/hour) commit karo kam prices ke badle, Reserved Instances se zyada flexible.</li>
+    <li><strong>Spot Instances</strong> — AWS ki spare capacity bhaari discount pe use karo; AWS kabhi bhi short notice pe instance wapas le sakta hai, isliye ye fault-tolerant ya flexible workloads ke liye suit karta hai.</li>
+    <li><strong>Free Tier</strong> — New AWS accounts har mahine limited hours ke liye <code>t2.micro</code> ya <code>t3.micro</code> instance free chala sakte hain, 12 mahino tak — learning ke liye perfect.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 7 -->
+  <h2 id="s7"><span class="section-icon">🚀</span> EC2 Instance Kaise Create Karein</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="diagram">AWS Console
+ ↓
+EC2
+ ↓
+Launch Instance</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>Instance Name</b> — Ek recognizable naam do, e.g. <code>my-web-server</code>. Ye sirf ek label hai.</li>
+      <li><b>AMI</b> — Operating system choose karo. Beginner Linux web server ke liye, <b>Amazon Linux 2023</b> (Free tier eligible) select karo.</li>
+      <li><b>Instance Type</b> — Learning ke liye <code>t3.micro</code> ya <code>t2.micro</code> choose karo (Free Tier eligible).</li>
+      <li><b>Key Pair</b> — Existing key pair select karo ya naya banao; <code>.pem</code> file download karke safe rakho.</li>
+      <li><b>VPC</b> — <b>default VPC</b> rehne do, jab tak aapke paas already custom network setup na ho.</li>
+      <li><b>Subnet</b> — Koi bhi <b>public subnet</b> (ya "No preference") choose karo taaki instance ko internet access mile.</li>
+      <li><b>Auto-assign Public IP</b> — <b>Enable</b> pe set karo taaki aap instance ko internet se reach kar sako.</li>
+      <li><b>Security Group</b> — Naya banao aur "My IP" se <b>SSH (22)</b> aur, web server ke liye, kahin se bhi <b>HTTP (80)</b> allow karo.</li>
+      <li><b>Storage / EBS</b> — Simple test server ke liye default 8 GB <code>gp3</code> root volume rehne do.</li>
+      <li><b>Advanced Details</b> — Default rehne do, jab tak IAM roles ya specific settings chahiye ho.</li>
+      <li><b>User Data</b> — Optionally yahan ek startup script paste karo (Section 17 dekho).</li>
+      <li><b>Launch Instance</b> — <b>Launch instance</b> pe click karo; AWS ek do minute mein isse boot kar dega.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 8 -->
+  <h2 id="s8"><span class="section-icon">🔍</span> EC2 Instance Details Kaise Check Karein</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Instances</b> pe jao.</li>
+      <li>Apne instance ki <b>Instance ID</b> pe click karo taaki details page khule.</li>
+      <li><b>Details</b> tab mein aapko ye milega: <b>Instance ID</b>, <b>Instance State</b>, <b>Instance Type</b>, <b>AMI ID</b>, <b>Public IPv4 address</b>, <b>Private IPv4 address</b>, <b>Public IPv4 DNS</b>, <b>Private DNS</b>, <b>Availability Zone</b>, <b>VPC ID</b>, <b>Subnet ID</b>, <b>Security Group</b>, aur <b>Key pair name</b>.</li>
+      <li>Attached <b>EBS Volume(s)</b>, unka size, aur device names dekhne ke liye <b>Storage</b> tab pe jao.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 9 -->
+  <h2 id="s9"><span class="section-icon">🔑</span> EC2 Access Kaise Karein</h2>
+  <span class="badge badge-practical">Practical</span>
+
+  <h3>Method 1: SSH</h3>
+  <div class="card">
+    <p><strong>SSH kya hai:</strong> Secure Shell (SSH) ek protocol hai jisse aap network ke through kisi doosre computer pe secure remote terminal session khol sakte ho.</p>
+    <p><strong>Port 22 kyu:</strong> SSH convention ke hisaab se TCP port 22 pe communicate karta hai — isliye Security Group mein port 22 pe inbound traffic allow hona zaruri hai.</p>
+    <p style="margin-bottom:0;"><strong><code>.pem</code> file kahan use hoti hai:</strong> Ye SSH command ko diya jaata hai taaki password ki jagah aapki identity prove ho sake.</p>
+  </div>
+  <pre><code>ssh -i "key.pem" ec2-user@PUBLIC-IP</code></pre>
+  <div class="cmd-explain">
+    <p><code>ssh</code> — command jo secure shell connection start karta hai.</p>
+    <p><code>-i "key.pem"</code> — SSH ko batata hai ki authentication ke liye kaunsa private key file use karna hai.</p>
+    <p><code>ec2-user</code> — Amazon Linux instances ke liye default username (Ubuntu <code>ubuntu</code> use karta hai).</p>
+    <p style="margin-bottom:0;"><code>@PUBLIC-IP</code> — aapke EC2 instance ka public IPv4 address.</p>
+  </div>
+
+  <h3>Method 2: EC2 Instance Connect</h3>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Instances</b> pe jao aur apna instance select karo.</li>
+      <li>Top pe <b>Connect</b> pe click karo.</li>
+      <li><b>EC2 Instance Connect</b> tab choose karo.</li>
+      <li><b>Connect</b> pe click karo — ek browser-based terminal directly khul jaayega, koi key file nahi chahiye.</li>
+    </ol>
+  </div>
+  <p><strong>SSH vs EC2 Instance Connect:</strong> SSH ko apna terminal aur private key file chahiye; EC2 Instance Connect temporary, AWS-managed credentials use karke seedha browser se kaam karta hai — quick access ke liye convenient hai lekin regular development work ke liye SSH zyada common hai.</p>
+
+  <hr class="divider">
+
+  <!-- 10 -->
+  <h2 id="s10"><span class="section-icon">⌨️</span> EC2 Se Connect Hone Ke Baad Linux Commands</h2>
+  <span class="badge badge-practical">Practical</span>
+  <table class="cmd-table">
+    <thead><tr><th>Command</th><th>Kya Karta Hai</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Command"><code>whoami</code></td><td data-label="Kya Karta Hai">Current logged-in username dikhata hai.</td></tr>
+      <tr><td data-label="Command"><code>pwd</code></td><td data-label="Kya Karta Hai">Current working directory ka path print karta hai.</td></tr>
+      <tr><td data-label="Command"><code>ls</code></td><td data-label="Kya Karta Hai">Current directory ki files aur folders list karta hai.</td></tr>
+      <tr><td data-label="Command"><code>ls -la</code></td><td data-label="Kya Karta Hai">Saari files (hidden bhi) detailed info ke saath list karta hai.</td></tr>
+      <tr><td data-label="Command"><code>cd</code></td><td data-label="Kya Karta Hai">Current directory change karta hai.</td></tr>
+      <tr><td data-label="Command"><code>mkdir</code></td><td data-label="Kya Karta Hai">Naya directory/folder create karta hai.</td></tr>
+      <tr><td data-label="Command"><code>touch</code></td><td data-label="Kya Karta Hai">Naya empty file create karta hai.</td></tr>
+      <tr><td data-label="Command"><code>cat</code></td><td data-label="Kya Karta Hai">File ka content display karta hai.</td></tr>
+      <tr><td data-label="Command"><code>nano</code></td><td data-label="Kya Karta Hai">Ek simple, beginner-friendly text editor kholta hai.</td></tr>
+      <tr><td data-label="Command"><code>vi</code></td><td data-label="Kya Karta Hai">Classic, zyada advanced text editor kholta hai.</td></tr>
+      <tr><td data-label="Command"><code>cp</code></td><td data-label="Kya Karta Hai">Files ya folders copy karta hai.</td></tr>
+      <tr><td data-label="Command"><code>mv</code></td><td data-label="Kya Karta Hai">Files/folders move ya rename karta hai.</td></tr>
+      <tr><td data-label="Command"><code>rm</code></td><td data-label="Kya Karta Hai">Files ya folders delete karta hai.</td></tr>
+      <tr><td data-label="Command"><code>sudo</code></td><td data-label="Kya Karta Hai">Administrator (root) privileges ke saath ek command run karta hai.</td></tr>
+      <tr><td data-label="Command"><code>clear</code></td><td data-label="Kya Karta Hai">Terminal screen clear karta hai.</td></tr>
+      <tr><td data-label="Command"><code>history</code></td><td data-label="Kya Karta Hai">Pehle chalaye gaye commands ki list dikhata hai.</td></tr>
+      <tr><td data-label="Command"><code>df -h</code></td><td data-label="Kya Karta Hai">Disk space usage human-readable format mein dikhata hai.</td></tr>
+      <tr><td data-label="Command"><code>free -h</code></td><td data-label="Kya Karta Hai">RAM (memory) usage human-readable format mein dikhata hai.</td></tr>
+      <tr><td data-label="Command"><code>top</code></td><td data-label="Kya Karta Hai">Har process ka live CPU aur memory usage dikhata hai.</td></tr>
+      <tr><td data-label="Command"><code>ps</code></td><td data-label="Kya Karta Hai">Currently running processes list karta hai.</td></tr>
+      <tr><td data-label="Command"><code>ip addr</code></td><td data-label="Kya Karta Hai">Machine ke network interfaces aur IP addresses dikhata hai.</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 11 -->
+  <h2 id="s11"><span class="section-icon">🔄</span> EC2 Server Update Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p>Amazon Linux ke liye, run karo:</p>
+  <pre><code>sudo dnf update -y</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo</code> — command ko administrator ki tarah run karta hai, system-level changes ke liye zaruri.</p>
+    <p><code>dnf</code> — package manager jo Amazon Linux/Fedora/RHEL software install aur update karne ke liye use karte hain.</p>
+    <p><code>update</code> — <code>dnf</code> ko batata hai ki saare installed packages ki latest versions fetch aur install kare.</p>
+    <p style="margin-bottom:0;"><code>-y</code> — confirmation prompts ka automatically "yes" answer deta hai, taaki update bina rukavat ke chale.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 12 -->
+  <h2 id="s12"><span class="section-icon">🌐</span> Apache Web Server Install Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <pre><code>sudo dnf install -y httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo systemctl status httpd</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo dnf install -y httpd</code> — Apache web server package install karta hai (Amazon Linux pe <code>httpd</code> naam se jaana jaata hai).</p>
+    <p><code>sudo systemctl start httpd</code> — Apache service ko turant start karta hai.</p>
+    <p><code>sudo systemctl enable httpd</code> — Apache ko configure karta hai ki server reboot hone pe automatically start ho jaaye.</p>
+    <p style="margin-bottom:0;"><code>sudo systemctl status httpd</code> — dikhata hai ki Apache abhi chal raha hai aur healthy hai ya nahi.</p>
+  </div>
+  <div class="card">
+    <p><strong>Apache kya hai?</strong> Apache HTTP Server free, widely-used software hai jo visitors ke browsers ko web pages serve karta hai.</p>
+    <p><strong>Ise install kyu karein?</strong> Ek EC2 instance sirf ek bare server hai — website requests ka respond karne ke liye usse Apache jaisa web server software chahiye.</p>
+    <p><strong><code>systemctl</code> kya hai?</strong> Ye modern Linux systems pe services control karne ke liye use hone wala tool hai (start, stop, enable, status check).</p>
+    <p><strong>start</strong> — service ko abhi turant on karta hai.</p>
+    <p><strong>enable</strong> — har boot pe service ko automatically start karwata hai.</p>
+    <p style="margin-bottom:0;"><strong>status</strong> — report karta hai ki service active hai ya nahi, aur recent log lines dikhata hai.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 13 -->
+  <h2 id="s13"><span class="section-icon">🛡️</span> Apache Ke Liye Security Group Configure Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p>Apache <strong>HTTP port 80</strong> pe web pages serve karta hai. Agar ye port Security Group mein open nahi hai, to visitors kabhi bhi website tak nahi pahunch payenge, chahe Apache kitni bhi achhi tarah configure ho.</p>
+  <div class="diagram">EC2
+ ↓
+Security Groups
+ ↓
+Inbound Rules
+ ↓
+Edit Inbound Rules
+ ↓
+Add HTTP
+ ↓
+Port 80
+ ↓
+Source 0.0.0.0/0</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Instances</b> pe jao, apna instance select karo, aur <b>Security</b> tab kholo.</li>
+      <li>Attached <b>Security Group</b> pe click karo.</li>
+      <li><b>Inbound rules → Edit inbound rules</b> pe jao.</li>
+      <li><b>Add rule</b> pe click karo, type <b>HTTP</b> choose karo (ye automatically port <b>80</b> fill kar deta hai).</li>
+      <li><b>Source</b> ko <code>0.0.0.0/0</code> set karo taaki kahin se bhi traffic allow ho.</li>
+      <li><b>Save rules</b> pe click karo.</li>
+    </ol>
+  </div>
+  <div class="note">
+    <strong>Security note:</strong> <code>0.0.0.0/0</code> ka matlab hai internet pe literally koi bhi is port tak pahunch sakta hai. Ye ek public website ke liye port 80/443 pe normal aur expected hai, lekin sensitive ports jaise 22 (SSH) ya database ports (3306, 5432) ko kabhi <code>0.0.0.0/0</code> ke liye open mat karo — inhe apne IP ya trusted network tak hi restrict karo.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 14 -->
+  <h2 id="s14"><span class="section-icon">📄</span> EC2 Pe Simple Website Host Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p>Amazon Linux pe Apache ki default web directory hai:</p>
+  <pre><code>/var/www/html</code></pre>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Web directory mein jao:
+        <pre><code>cd /var/www/html</code></pre>
+      </li>
+      <li>Homepage file create karo:
+        <pre><code>sudo nano index.html</code></pre>
+      </li>
+      <li>Ek simple HTML page paste karo:
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;My EC2 Website&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Welcome to AWS EC2!&lt;/h1&gt;
+    &lt;p&gt;This page is hosted on an Amazon EC2 instance.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      </li>
+      <li>Nano mein file save karo: <code>Ctrl + O</code> dabao, phir confirm karne ke liye <code>Enter</code>, phir exit karne ke liye <code>Ctrl + X</code>.</li>
+    </ol>
+  </div>
+  <p>Ab browser kholke visit karo:</p>
+  <pre><code>http://PUBLIC-IP</code></pre>
+  <p style="margin-bottom:0;">Jab aap browser mein Public IP kholte ho, request internet ke through instance ke public IP tak jaati hai, Security Group ke port 80 rule se pass hoti hai, Apache tak pahunchti hai, aur Apache <code>index.html</code> read karke return karta hai — jise browser phir webpage ki tarah render karta hai.</p>
+
+  <hr class="divider">
+
+  <!-- 15 -->
+  <h2 id="s15"><span class="section-icon">✅</span> Apache Verify Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <pre><code>sudo systemctl status httpd
+curl localhost
+curl http://localhost</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo systemctl status httpd</code> — confirm karta hai ki Apache service khud chal rahi hai ya nahi.</p>
+    <p><code>curl localhost</code> aur <code>curl http://localhost</code> — server ke andar se hi khud ko ek HTTP request bhejte hain, aur raw HTML response print karte hain; agar aapko apni page ka HTML dikhta hai, to Apache content sahi se serve kar raha hai.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 16 -->
+  <h2 id="s16"><span class="section-icon">🔧</span> Common Apache Commands</h2>
+  <span class="badge badge-practical">Practical</span>
+  <table class="cmd-table">
+    <thead><tr><th>Command</th><th>Kya Karta Hai</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Command"><code>sudo systemctl start httpd</code></td><td data-label="Kya Karta Hai">Apache start karta hai.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl stop httpd</code></td><td data-label="Kya Karta Hai">Apache ko poori tarah stop karta hai.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl restart httpd</code></td><td data-label="Kya Karta Hai">Apache ko stop karke dobara start karta hai (major config changes ke baad use hota hai).</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl reload httpd</code></td><td data-label="Kya Karta Hai">Active connections drop kiye bina configuration reload karta hai.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl enable httpd</code></td><td data-label="Kya Karta Hai">Boot pe Apache ko automatically start karwata hai.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl disable httpd</code></td><td data-label="Kya Karta Hai">Apache ko boot pe auto-start hone se rokta hai.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl status httpd</code></td><td data-label="Kya Karta Hai">Current running state aur recent logs dikhata hai.</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 17 -->
+  <h2 id="s17"><span class="section-icon">📜</span> EC2 User Data</h2>
+  <span class="badge badge-theory">Theory</span> <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>Ye kya hai:</strong> Launch time pe instance se attach ki gayi ek shell script.</p>
+    <p><strong>Ye kab run hoti hai:</strong> Automatically, sirf ek baar, jab instance pehli baar boot hota hai.</p>
+    <p><strong>Kyu useful hai:</strong> Ye setup ko poori tarah automate kar deta hai — launch ke baad koi manual SSH steps ki zarurat nahi.</p>
+    <p style="margin-bottom:0;"><strong>Kaise add karein:</strong> Instance launch karte waqt <b>Advanced details</b> ke under <b>User data</b> box mein script paste karo.</p>
+  </div>
+  <pre><code>#!/bin/bash
+
+dnf update -y
+dnf install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "&lt;h1&gt;Welcome to AWS EC2&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre>
+  <div class="cmd-explain">
+    <p><code>#!/bin/bash</code> — system ko batata hai ki ye script Bash shell use karke run honi chahiye.</p>
+    <p><code>dnf update -y</code> — kuch bhi setup karne se pehle saare installed packages update karta hai.</p>
+    <p><code>dnf install -y httpd</code> — Apache install karta hai.</p>
+    <p><code>systemctl start httpd</code> — Apache ko turant start karta hai.</p>
+    <p><code>systemctl enable httpd</code> — ensure karta hai ki reboot pe Apache automatically restart ho.</p>
+    <p style="margin-bottom:0;"><code>echo "..." &gt; /var/www/html/index.html</code> — ek simple welcome heading directly homepage file mein likh deta hai, taaki instance boot hote hi website live ho jaaye.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 18 -->
+  <h2 id="s18"><span class="section-icon">⏯️</span> Stop, Start, Reboot Aur Terminate</h2>
+  <span class="badge badge-theory">Theory</span> <span class="badge badge-practical">Practical</span>
+
+  <h3>Stop</h3>
+  <div class="card"><p style="margin-bottom:0;">Instance shutdown ho jaata hai lekin <strong>delete nahi hota</strong>. EBS root volume aur uska data intact rehta hai. Isse baad mein dobara start kiya ja sakta hai. Compute usage ka billing ruk jaata hai, lekin EBS storage charges chalte rehte hain.</p></div>
+  <h3>Start</h3>
+  <div class="card"><p style="margin-bottom:0;">Ek stopped instance ko dobara boot karta hai. Usually ye <strong>naya Public IPv4 address</strong> paata hai, jab tak Elastic IP attached na ho.</p></div>
+  <h3>Reboot</h3>
+  <div class="card"><p style="margin-bottom:0;">Instance ko poori tarah stop kiye bina operating system restart karta hai. Public IP <strong>same rehta hai</strong>, aur ye physical computer restart karne jaisa hi hai.</p></div>
+  <h3>Terminate</h3>
+  <div class="card"><p style="margin-bottom:0;">Instance ko permanently <strong>delete</strong> karta hai. Default mein, root EBS volume bhi delete ho jaata hai (jab tak "Delete on Termination" disable na ho). <strong>Ye undo nahi ho sakta</strong> — instance recover nahi kiya ja sakta.</p></div>
+
+  <div class="steps-block">
+    <h4>AWS Console Steps (chaaron actions)</h4>
+    <ol class="steps">
+      <li><b>EC2 → Instances</b> pe jao.</li>
+      <li>Apne instance ke aage checkbox select karo.</li>
+      <li>Top pe <b>Instance state</b> pe click karo.</li>
+      <li><b>Stop instance</b>, <b>Start instance</b>, <b>Reboot instance</b>, ya <b>Terminate instance</b> choose karo.</li>
+      <li>Popup dialog mein action confirm karo.</li>
+    </ol>
+  </div>
+
+  <table>
+    <thead><tr><th>Action</th><th>Data Rehta Hai?</th><th>Public IP</th><th>Reversible?</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Action"><strong>Stop</strong></td><td data-label="Data Rehta Hai?">Haan</td><td data-label="Public IP">Next start pe change hota hai</td><td data-label="Reversible?">Haan — dobara start kiya ja sakta hai</td></tr>
+      <tr><td data-label="Action"><strong>Reboot</strong></td><td data-label="Data Rehta Hai?">Haan</td><td data-label="Public IP">Same rehta hai</td><td data-label="Reversible?">N/A — instance chalta rehta hai</td></tr>
+      <tr><td data-label="Action"><strong>Terminate</strong></td><td data-label="Data Rehta Hai?">Nahi (root volume usually delete ho jaata hai)</td><td data-label="Public IP">Permanently release ho jaata hai</td><td data-label="Reversible?">Nahi — permanent</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 19 -->
+  <h2 id="s19"><span class="section-icon">🌐</span> Public IP Behavior</h2>
+  <span class="badge badge-theory">Theory</span>
+  <p>Default mein, EC2 instance ko diya gaya normal Public IPv4 address <strong>permanent nahi hota</strong> — jab bhi instance stop karke dobara start kiya jaata hai, ye change ho jaata hai. Reboot karne se ye change nahi hota, lekin full stop/start cycle se hota hai.</p>
+  <p style="margin-bottom:0;">Isi liye jab bhi fixed public address chahiye ho — jaise agar aapne ek domain name (DNS) apne server pe point kiya hai, ya agar doosre systems specific IP se connect karne ke liye hardcoded hain — tab <strong>Elastic IP</strong> use kiya jaata hai.</p>
+
+  <hr class="divider">
+
+  <!-- 20 -->
+  <h2 id="s20"><span class="section-icon">💾</span> EBS Volume Create Aur Attach Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>EBS kya hai?</strong> Elastic Block Store EC2 instances ke liye persistent, network-attached disk storage hai.</p>
+    <p><strong>Additional storage kyu?</strong> Default root volume application data, logs, ya databases ke liye kaafi na ho, isliye us data ke liye ek second volume attach kiya jaata hai.</p>
+    <p style="margin-bottom:0;"><strong>Same Availability Zone rule:</strong> Ek EBS volume physically ek Availability Zone ke andar hi rehta hai, isliye ye sirf usi AZ mein chal rahe EC2 instance se attach ho sakta hai.</p>
+  </div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Elastic Block Store → Volumes</b> pe jao.</li>
+      <li><b>Create volume</b> pe click karo.</li>
+      <li><b>Volume type</b> (e.g., <code>gp3</code>), <b>Size</b>, aur apne EC2 instance jaisi hi <b>Availability Zone</b> choose karo.</li>
+      <li><b>Create volume</b> pe click karo.</li>
+      <li>Naya volume select karo, <b>Actions → Attach volume</b> pe click karo.</li>
+      <li>Apna EC2 instance choose karo aur <b>Device name</b> confirm karo (e.g., <code>/dev/xvdf</code>).</li>
+      <li><b>Attach volume</b> pe click karo.</li>
+    </ol>
+  </div>
+  <p>Disk attach hui ya nahi confirm karne ke liye, instance se connect karke run karo:</p>
+  <pre><code>lsblk</code></pre>
+  <p style="margin-bottom:0;"><code>lsblk</code> saare block devices list karta hai; naya volume ek extra disk ki tarah dikhega (e.g., <code>xvdf</code>) jiska abhi tak koi mount point nahi hoga — isi se aap ise identify kar sakte ho.</p>
+
+  <hr class="divider">
+
+  <!-- 21 -->
+  <h2 id="s21"><span class="section-icon">🗂️</span> EBS Volume Format Aur Mount Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <pre><code>sudo mkfs -t xfs /dev/xvdf
+
+sudo mkdir /data
+
+sudo mount /dev/xvdf /data
+
+df -h</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo mkfs -t xfs /dev/xvdf</code> — raw naye volume ko XFS filesystem se format karta hai taaki Linux usme files store kar sake. Ye step sirf ek baar, naye khaali volume pe zaruri hota hai.</p>
+    <p><code>sudo mkdir /data</code> — ek empty folder banata hai jo naye disk ke access point ki tarah kaam karega.</p>
+    <p><code>sudo mount /dev/xvdf /data</code> — formatted volume ko <code>/data</code> folder se attach ("mount") karta hai, isliye <code>/data</code> ke andar save kiya gaya kuch bhi actually EBS volume pe store hota hai.</p>
+    <p style="margin-bottom:0;"><code>df -h</code> — disk usage dikhake mount work karne ki confirmation deta hai, jisme naya <code>/data</code> entry bhi shamil hoga.</p>
+  </div>
+  <div class="note">
+    <strong>Note:</strong> Device name aapke instance type ke hisaab se <code>/dev/xvdf</code> se alag ho sakta hai. Format ya mount karne se pehle hamesha <code>lsblk</code> se actual naam check karo.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 22 -->
+  <h2 id="s22"><span class="section-icon">📸</span> EBS Snapshot Create Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>Snapshot kya hai?</strong> Ek EBS volume ka point-in-time backup copy, jo Amazon S3 mein store hota hai.</p>
+    <p><strong>Kyu use hota hai?</strong> Risky changes se pehle data protect karne ke liye, ya kahin aur identical volumes banane ke liye.</p>
+    <p style="margin-bottom:0;"><strong>EBS se relation:</strong> Ek snapshot ek EBS volume *se* liya jaata hai, aur baad mein usi data ke saath ek bilkul naya EBS volume *banane* ke liye use ho sakta hai.</p>
+  </div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Jo volume backup karna hai use select karo.</li>
+      <li><b>Actions → Create snapshot</b> pe click karo.</li>
+      <li>Ek description daalo aur <b>Create snapshot</b> pe click karo.</li>
+      <li><b>Elastic Block Store → Snapshots</b> ke under ise dekho.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 23 -->
+  <h2 id="s23"><span class="section-icon">🖨️</span> AMI Create Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>AMI kya hai?</strong> Ek EC2 instance ka complete, reusable template — uska operating system, installed software, aur configuration.</p>
+    <p><strong>Custom AMI kyu banayein?</strong> Ek fully configured server ki identical copies quickly launch karne ke liye, bina manually setup steps repeat kiye.</p>
+    <p style="margin-bottom:0;"><strong>Kya capture hota hai?</strong> Root volume (aur agar select kiya ho to koi aur attached volumes), OS, installed packages, aur files samet.</p>
+  </div>
+  <div class="diagram">EC2
+ ↓
+Instances
+ ↓
+Select Instance
+ ↓
+Actions
+ ↓
+Image and templates
+ ↓
+Create image</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Instances</b> pe jao.</li>
+      <li>Jo instance capture karna hai use select karo.</li>
+      <li><b>Actions → Image and templates → Create image</b> pe click karo.</li>
+      <li>Ek image name aur description daalo.</li>
+      <li><b>Create image</b> pe click karo. Ready hone pe ye <b>AMIs</b> ke under dikhega.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 24 -->
+  <h2 id="s24"><span class="section-icon">🚀</span> AMI Se EC2 Launch Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → AMIs</b> pe jao.</li>
+      <li>Apna custom AMI select karo.</li>
+      <li><b>Launch instance from AMI</b> pe click karo.</li>
+      <li>Instance Type, Key Pair, Security Group, aur normal launch jaisi doosri settings fill karo.</li>
+      <li><b>Launch instance</b> pe click karo.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Custom AMI se launch karna useful hai kyunki naya instance already configured hokar boot hota hai — Apache dobara install karne, settings dobara configure karne, ya setup steps dobara karne ki zarurat nahi.</p>
+
+  <hr class="divider">
+
+  <!-- 25 -->
+  <h2 id="s25"><span class="section-icon">📋</span> Launch Template Create Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>Launch Template kya hai?</strong> Ek saved configuration blueprint (AMI, instance type, key pair, security group, etc.) jo consistently aur quickly instances launch karne ke liye reuse kiya ja sakta hai.</p>
+    <p><strong>Kyu useful hai?</strong> Har baar sab settings dobara enter karne ki jagah, aap seedha saved template se launch karte ho — Auto Scaling aur team consistency ke liye essential.</p>
+    <p style="margin-bottom:0;"><strong>AMI vs Launch Template:</strong> AMI sirf disk image hai (OS + software); Launch Template us AMI ke around instance type, security group, key pair, aur doosri launch settings bhi store karta hai.</p>
+  </div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Launch Templates</b> pe jao.</li>
+      <li><b>Create launch template</b> pe click karo.</li>
+      <li>Template name daalo, AMI, instance type, key pair, aur security group choose karo.</li>
+      <li><b>Create launch template</b> pe click karo.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 26 -->
+  <h2 id="s26"><span class="section-icon">🧬</span> Multiple EC2 Instances Launch Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p style="margin-bottom:0;">Ek baar Launch Template ban jaaye, to usse launch karte waqt <b>Number of instances</b> select kiya ja sakta hai (ya isse Auto Scaling Group ke saath use kiya ja sakta hai) taaki ek hi action mein identical configuration wale kai servers ban jaayein — application ko quickly scale karne ke liye useful.</p>
+
+  <hr class="divider">
+
+  <!-- 27 -->
+  <h2 id="s27"><span class="section-icon">📌</span> Elastic IP</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="diagram">EC2
+ ↓
+Elastic IPs
+ ↓
+Allocate Elastic IP
+ ↓
+Associate Elastic IP
+ ↓
+Select EC2 Instance</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Network &amp; Security → Elastic IPs</b> pe jao.</li>
+      <li><b>Allocate Elastic IP address</b> pe click karo, phir <b>Allocate</b>.</li>
+      <li>Naya address select karo, <b>Actions → Associate Elastic IP address</b> pe click karo.</li>
+      <li>Apna EC2 instance choose karo aur <b>Associate</b> pe click karo.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Jab bhi aapke server ko permanent, unchanging public address chahiye ho — jaise jab ek domain name (DNS record) usse point karta ho — tab Elastic IP use karo.</p>
+
+  <hr class="divider">
+
+  <!-- 28 -->
+  <h2 id="s28"><span class="section-icon">📊</span> EC2 Monitoring</h2>
+  <span class="badge badge-theory">Theory</span> <span class="badge badge-practical">Practical</span>
+  <ul class="concept-list">
+    <li><strong>CloudWatch</strong> — AWS ki monitoring service jo automatically EC2 instances se metrics collect karti hai.</li>
+    <li><strong>CPU Utilization</strong> — Instance ki CPU capacity ka kitna percentage abhi use ho raha hai.</li>
+    <li><strong>Network In / Network Out</strong> — Instance dwara receive aur send ki gayi data ki quantity.</li>
+    <li><strong>Status Checks</strong> — Automated health checks jo AWS ye verify karne ke liye chalata hai ki instance aur uska host sahi se function kar rahe hain.</li>
+  </ul>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 → Instances</b> pe jao aur apna instance select karo.</li>
+      <li>CPU, network, aur status check graphs dekhne ke liye <b>Monitoring</b> tab kholo.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 29 -->
+  <h2 id="s29"><span class="section-icon">🩺</span> EC2 Instance Status Checks</h2>
+  <span class="badge badge-theory">Theory</span>
+  <ul class="concept-list">
+    <li><strong>System status check</strong> — AWS hardware/infrastructure jo aapka instance host karta hai use monitor karta hai (e.g., power, network, hardware issues AWS ki taraf se).</li>
+    <li><strong>Instance status check</strong> — Aapke specific instance ki software/network configuration ko monitor karta hai (e.g., OS-level networking ya kernel issues).</li>
+  </ul>
+  <p style="margin-bottom:0;">Ek <strong>failed status check</strong> generally ye matlab rakhta hai ki instance unreachable ya unhealthy hai — beginners ke liye, usually iska matlab hai ki instance ko reboot ki zarurat hai, ya rare cases mein, AWS underlying hardware issue resolve kar raha hai.</p>
+
+  <hr class="divider">
+
+  <!-- 30 -->
+  <h2 id="s30"><span class="section-icon">🔒</span> EC2 Security Best Practices</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="important">
+    <div class="important-title">⚠️ IMPORTANT</div>
+    <ul>
+      <li>SSH (port 22) ko bina zarurat sabke liye expose mat karo.</li>
+      <li>Jahan appropriate ho, SSH rules ke liye source <b>My IP</b> use karo.</li>
+      <li>Strong key-pair management use karo — <code>.pem</code> files organized aur securely backed up rakho.</li>
+      <li>Apni <code>.pem</code> private key files kabhi kisi ke saath share mat karo.</li>
+      <li>Scripts ya code ke andar passwords ya secrets hardcode mat karo.</li>
+      <li>Long-lived credentials ki jagah IAM roles aur policies properly use karo.</li>
+      <li>Operating system aur packages regularly update rakho.</li>
+      <li>Sirf wahi ports open karo jo aapke application ko actually chahiye.</li>
+      <li>Kisi bhi production website ke liye HTTPS (port 443) use karo.</li>
+      <li>Unnecessary charges avoid karne ke liye unused resources stop ya terminate karo.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 31 -->
+  <h2 id="s31"><span class="section-icon">🧯</span> EC2 Troubleshooting</h2>
+  <span class="badge badge-practical">Practical</span>
+
+  <div class="troubleshoot">
+    <h4>EC2 Mein SSH Nahi Ho Pa Raha</h4>
+    <p>Order mein ye check karo:</p>
+    <ul>
+      <li>Instance <b>running</b> state mein hai?</li>
+      <li><b>Public IP</b> sahi aur current hai?</li>
+      <li>Security Group aapke IP se inbound <b>port 22</b> allow karta hai?</li>
+      <li>Aap sahi <b>username</b> use kar rahe ho (e.g., <code>ec2-user</code>)?</li>
+      <li>Aap sahi <code>.pem</code> file point kar rahe ho?</li>
+      <li>Aapki taraf koi network/firewall issue outbound SSH ko block kar raha hai?</li>
+    </ul>
+  </div>
+
+  <div class="troubleshoot">
+    <h4>Website Nahi Khul Rahi</h4>
+    <ul>
+      <li>Instance <b>running</b> hai?</li>
+      <li><b>Apache</b> chal raha hai (<code>sudo systemctl status httpd</code>)?</li>
+      <li>Security Group inbound <b>port 80</b> allow karta hai?</li>
+      <li>Aap sahi <b>Public IP</b> use kar rahe ho?</li>
+      <li><code>/var/www/html/index.html</code> actually exist karti hai?</li>
+      <li>Koi doosra Security Group rule silently traffic block kar raha hai?</li>
+    </ul>
+  </div>
+
+  <div class="troubleshoot">
+    <h4>Apache Chal Nahi Raha</h4>
+    <pre style="margin-top:0.4rem;"><code>sudo systemctl status httpd
+sudo systemctl restart httpd</code></pre>
+    <p style="margin-bottom:0;">Pehle error dekhne ke liye status check karo, phir recovery try karne ke liye service restart karo.</p>
+  </div>
+
+  <h4>Port Check Karna</h4>
+  <pre><code>sudo ss -tulpn</code></pre>
+  <p><code>ss -tulpn</code> saare listening TCP/UDP ports aur unhe use karne wale process ke saath list karta hai — ye confirm karne ke liye useful hai ki Apache actually port 80 pe listen kar raha hai.</p>
+
+  <h4>Apache Logs Check Karna</h4>
+  <pre><code>sudo journalctl -u httpd</code></pre>
+  <p style="margin-bottom:0;"><code>journalctl -u httpd</code> specifically <code>httpd</code> (Apache) service ke system log entries dikhata hai — startup errors ya crashes spot karne mein helpful hota hai.</p>
+
+  <hr class="divider">
+
+  <!-- 32 -->
+  <h2 id="s32"><span class="section-icon">📐</span> EC2 Important Differences</h2>
+  <span class="badge badge-theory">Theory</span>
+
+  <h3>Public IP vs Private IP</h3>
+  <table>
+    <thead><tr><th>Public IP</th><th>Private IP</th></tr></thead>
+    <tbody><tr><td data-label="Public IP">Internet se reachable</td><td data-label="Private IP">Sirf VPC ke andar reachable</td></tr></tbody>
+  </table>
+
+  <h3>Public IP vs Elastic IP</h3>
+  <table>
+    <thead><tr><th>Public IP</th><th>Elastic IP</th></tr></thead>
+    <tbody><tr><td data-label="Public IP">Stop/start pe change hota hai, auto-assigned</td><td data-label="Elastic IP">Manually release hone tak fixed aur permanent</td></tr></tbody>
+  </table>
+
+  <h3>Stop vs Reboot vs Terminate</h3>
+  <table>
+    <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Action"><strong>Stop</strong></td><td data-label="Effect">Shutdown hota hai, data rehta hai, dobara start ho sakta hai</td></tr>
+      <tr><td data-label="Action"><strong>Reboot</strong></td><td data-label="Effect">OS restart hota hai, chalta rehta hai, IP unchanged</td></tr>
+      <tr><td data-label="Action"><strong>Terminate</strong></td><td data-label="Effect">Permanently delete, recover nahi ho sakta</td></tr>
+    </tbody>
+  </table>
+
+  <h3>AMI vs EBS Snapshot</h3>
+  <table>
+    <thead><tr><th>AMI</th><th>EBS Snapshot</th></tr></thead>
+    <tbody><tr><td data-label="AMI">Full instance template (OS + software), naye EC2s launch karne ke liye</td><td data-label="EBS Snapshot">Sirf ek single volume ke data ka backup</td></tr></tbody>
+  </table>
+
+  <h3>AMI vs Launch Template</h3>
+  <table>
+    <thead><tr><th>AMI</th><th>Launch Template</th></tr></thead>
+    <tbody><tr><td data-label="AMI">Khud disk image</td><td data-label="Launch Template">Ek saved launch configuration (kaunsa AMI + instance type + key pair + security group, etc.)</td></tr></tbody>
+  </table>
+
+  <h3>Security Group vs Network ACL</h3>
+  <table>
+    <thead><tr><th>Security Group</th><th>Network ACL</th></tr></thead>
+    <tbody><tr><td data-label="Security Group">Instance-level firewall, stateful (return traffic auto-allowed)</td><td data-label="Network ACL">Subnet-level firewall, stateless (dono directions explicitly allow karni padti hain)</td></tr></tbody>
+  </table>
+
+  <h3>Vertical Scaling vs Horizontal Scaling</h3>
+  <table>
+    <thead><tr><th>Vertical Scaling</th><th>Horizontal Scaling</th></tr></thead>
+    <tbody><tr><td data-label="Vertical Scaling">Ek existing instance ka size/power badhana</td><td data-label="Horizontal Scaling">Parallel chal rahe zyada instances add karna</td></tr></tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 33 -->
+  <h2 id="s33"><span class="section-icon">📏</span> Vertical Scaling</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="diagram">t3.micro
+ ↓
+t3.medium</div>
+  <p style="margin-bottom:0;">Vertical scaling ka matlab hai kisi existing instance ko bade (ya chhote) instance type mein badalna taaki usse zyada (ya kam) CPU aur RAM mile — same single server bas zyada powerful ban jaata hai.</p>
+
+  <hr class="divider">
+
+  <!-- 34 -->
+  <h2 id="s34"><span class="section-icon">↔️</span> Horizontal Scaling</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="diagram">Load Balancer
+      ↓
+ ┌────┼────┐
+ ↓    ↓    ↓
+EC2  EC2  EC2</div>
+  <p style="margin-bottom:0;">Horizontal scaling ka matlab hai workload share karne ke liye ek instance ko bada karne ki jagah zyada EC2 instances add karna. Ye useful hai kyunki isse traffic multiple servers mein spread hota hai, jisse performance aur reliability dono improve hoti hain — agar ek instance fail ho jaaye, to baaki traffic serve karte rehte hain.</p>
+
+  <hr class="divider">
+
+  <!-- 35 -->
+  <h2 id="s35"><span class="section-icon">⚖️</span> EC2 + Load Balancer</h2>
+  <span class="badge badge-theory">Theory</span>
+  <p style="margin-bottom:0;">Ek Load Balancer multiple EC2 instances ke aage baitha hota hai aur incoming traffic ko unme evenly distribute karta hai. Users hamesha Load Balancer ke address se connect hote hain, aur ye har request ko peeche khade healthy EC2 instances mein se kisi ek ko forward kar deta hai — individual servers ko hide karke, aur users ko affect kiye bina instances add/remove karna aasan bana deta hai.</p>
+
+  <hr class="divider">
+
+  <!-- 36 -->
+  <h2 id="s36"><span class="section-icon">📈</span> EC2 + Auto Scaling</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="card">
+    <p><strong>Auto Scaling kya hai?</strong> Ek feature jo demand (jaise CPU usage ya traffic levels) ke hisaab se automatically EC2 instances add ya remove karta hai.</p>
+    <p style="margin-bottom:0;"><strong>Kyu use hota hai?</strong> Taaki aapka application traffic spikes ko automatically handle kar sake, aur jab traffic kam ho to shrink hoke paise bhi bache.</p>
+  </div>
+  <div class="diagram">Low Traffic → Few EC2 Instances
+High Traffic → Auto Scaling adds more EC2 Instances
+Traffic drops → Auto Scaling removes extra instances</div>
+  <p style="margin-bottom:0;">Auto Scaling ek Launch Template ke saath kaam karta hai (exactly janne ke liye ki naye instances kaise banaye jaayein) aur typically ek Load Balancer ke saath (jo bhi instances abhi exist karte hain unme traffic distribute karne ke liye).</p>
+
+  <hr class="divider">
+
+  <!-- 37 -->
+  <h2 id="s37"><span class="section-icon">🏗️</span> Complete Practical Project: AWS EC2 Pe Static Website Host Karna</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>EC2 instance create karo.</li>
+      <li>AMI ke roop mein Amazon Linux select karo.</li>
+      <li>Instance type <code>t3.micro</code> select karo.</li>
+      <li>Key Pair create karo (ya select karo).</li>
+      <li>Security Group configure karo.</li>
+      <li>Apne IP se SSH (port 22) allow karo.</li>
+      <li>Kahin se bhi HTTP (port 80) allow karo.</li>
+      <li>EC2 instance launch karo.</li>
+      <li>Instance ka Public IP dhundho.</li>
+      <li>SSH use karke connect karo.</li>
+      <li>Server update karo: <code>sudo dnf update -y</code>.</li>
+      <li>Apache install karo: <code>sudo dnf install -y httpd</code>.</li>
+      <li>Apache start karo: <code>sudo systemctl start httpd</code>.</li>
+      <li>Apache enable karo: <code>sudo systemctl enable httpd</code>.</li>
+      <li><code>/var/www/html</code> mein <code>index.html</code> banao.</li>
+      <li>File mein HTML content add karo.</li>
+      <li><code>curl localhost</code> se Apache verify karo.</li>
+      <li>Website dekhne ke liye browser mein Public IP kholo.</li>
+      <li>Zarurat ho to website content modify karo.</li>
+      <li>Configuration changes ke baad Apache restart karo.</li>
+      <li>Zarurat na ho to instance stop karo.</li>
+      <li>Baad mein instance dobara start karo.</li>
+      <li>Verify karo ki website abhi bhi chal rahi hai (note: Public IP change ho sakta hai).</li>
+      <li>Project complete hone pe resources clean up karo (instance terminate karo, Elastic IP release karo, volumes delete karo).</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 38 -->
+  <h2 id="s38"><span class="section-icon">🗒️</span> Practical EC2 Task List</h2>
+  <span class="badge badge-practical">Practical</span>
+  <ol class="task-list">
+    <li><span class="num">1.</span> EC2 Instance Create Karo</li>
+    <li><span class="num">2.</span> Key Pair Create Karo</li>
+    <li><span class="num">3.</span> Security Group Configure Karo</li>
+    <li><span class="num">4.</span> SSH Use Karke Connect Karo</li>
+    <li><span class="num">5.</span> EC2 Instance Connect Use Karke Connect Karo</li>
+    <li><span class="num">6.</span> EC2 Details Check Karo</li>
+    <li><span class="num">7.</span> Apache Install Karo</li>
+    <li><span class="num">8.</span> Nginx Install Karo</li>
+    <li><span class="num">9.</span> Apache Start Karo</li>
+    <li><span class="num">10.</span> Apache Stop Karo</li>
+    <li><span class="num">11.</span> Apache Restart Karo</li>
+    <li><span class="num">12.</span> Apache Enable Karo</li>
+    <li><span class="num">13.</span> Static Website Host Karo</li>
+    <li><span class="num">14.</span> HTTP Configure Karo</li>
+    <li><span class="num">15.</span> HTTPS Configure Karo</li>
+    <li><span class="num">16.</span> User Data Use Karo</li>
+    <li><span class="num">17.</span> EC2 Stop Karo</li>
+    <li><span class="num">18.</span> EC2 Start Karo</li>
+    <li><span class="num">19.</span> EC2 Reboot Karo</li>
+    <li><span class="num">20.</span> EC2 Terminate Karo</li>
+    <li><span class="num">21.</span> EBS Volume Create Karo</li>
+    <li><span class="num">22.</span> EBS Volume Attach Karo</li>
+    <li><span class="num">23.</span> EBS Volume Format Karo</li>
+    <li><span class="num">24.</span> EBS Volume Mount Karo</li>
+    <li><span class="num">25.</span> Data Store Karo</li>
+    <li><span class="num">26.</span> EBS Unmount Karo</li>
+    <li><span class="num">27.</span> EBS Detach Karo</li>
+    <li><span class="num">28.</span> EBS Snapshot Create Karo</li>
+    <li><span class="num">29.</span> AMI Create Karo</li>
+    <li><span class="num">30.</span> AMI Se EC2 Launch Karo</li>
+    <li><span class="num">31.</span> Launch Template Create Karo</li>
+    <li><span class="num">32.</span> Launch Template Se EC2 Launch Karo</li>
+    <li><span class="num">33.</span> Elastic IP Create Karo</li>
+    <li><span class="num">34.</span> Elastic IP Associate Karo</li>
+    <li><span class="num">35.</span> EC2 Monitor Karo</li>
+    <li><span class="num">36.</span> EC2 Troubleshoot Karo</li>
+    <li><span class="num">37.</span> Load Balancer Configure Karo</li>
+    <li><span class="num">38.</span> Auto Scaling Configure Karo</li>
+  </ol>
+
+  <hr class="divider">
+
+  <!-- 39 -->
+  <h2 id="s39"><span class="section-icon">🎯</span> EC2 Interview Questions</h2>
+  <span class="badge badge-theory">Interview Prep</span>
+
+  <div class="qa"><p class="q">Q: EC2 kya hai?</p><p class="a">A: Ek web service jo cloud mein resizable virtual servers provide karti hai.</p></div>
+  <div class="qa"><p class="q">Q: EC2 instance kya hai?</p><p class="a">A: EC2 ke andar create aur run kiya gaya ek single virtual server.</p></div>
+  <div class="qa"><p class="q">Q: AMI kya hai?</p><p class="a">A: Ek template jisme OS aur optionally pre-installed software hota hai, instances launch karne ke liye use hota hai.</p></div>
+  <div class="qa"><p class="q">Q: Instance Type kya hai?</p><p class="a">A: Ek configuration jo instance ki CPU, RAM, aur network performance define karti hai.</p></div>
+  <div class="qa"><p class="q">Q: Key Pair kya hai?</p><p class="a">A: Ek public/private key combination jo instance mein secure, passwordless login ke liye use hoti hai.</p></div>
+  <div class="qa"><p class="q">Q: Security Group kya hai?</p><p class="a">A: Ek virtual, instance-level firewall jo inbound aur outbound traffic control karta hai.</p></div>
+  <div class="qa"><p class="q">Q: EBS kya hai?</p><p class="a">A: Elastic Block Store — EC2 instances se attached persistent block storage.</p></div>
+  <div class="qa"><p class="q">Q: Public IP kya hai?</p><p class="a">A: Instance ko diya gaya internet-reachable address, usually stop/start pe change hota hai.</p></div>
+  <div class="qa"><p class="q">Q: Private IP kya hai?</p><p class="a">A: VPC ke andar communication ke liye use hone wala internal address.</p></div>
+  <div class="qa"><p class="q">Q: Elastic IP kya hai?</p><p class="a">A: Ek static, permanent public IP address jo aap allocate aur control karte ho.</p></div>
+  <div class="qa"><p class="q">Q: User Data kya hai?</p><p class="a">A: Ek script jo instance ke pehli baar boot hone pe automatically run hoti hai, setup automate karne ke liye.</p></div>
+  <div class="qa"><p class="q">Q: Stop aur Terminate mein kya difference hai?</p><p class="a">A: Stop instance aur data ko rakhta hai, reversible hai; Terminate permanently delete kar deta hai.</p></div>
+  <div class="qa"><p class="q">Q: Stop aur Reboot mein kya difference hai?</p><p class="a">A: Stop instance ko poori tarah shutdown karta hai; Reboot OS restart karta hai jabki instance chalta rehta hai.</p></div>
+  <div class="qa"><p class="q">Q: AMI aur Snapshot mein kya difference hai?</p><p class="a">A: AMI ek full instance template hai; Snapshot ek single EBS volume ka backup hota hai.</p></div>
+  <div class="qa"><p class="q">Q: Launch Template kya hai?</p><p class="a">A: EC2 instances ko consistently launch karne ke liye ek saved, reusable configuration.</p></div>
+  <div class="qa"><p class="q">Q: Availability Zone kya hai?</p><p class="a">A: Ek AWS Region ke andar ek isolated physical data center location.</p></div>
+  <div class="qa"><p class="q">Q: AWS Region kya hai?</p><p class="a">A: Multiple Availability Zones wala ek geographic area.</p></div>
+  <div class="qa"><p class="q">Q: Linux EC2 instance se kaise connect karte hain?</p><p class="a">A: Public IP aur private key ke saath SSH ke through, ya browser se EC2 Instance Connect ke through.</p></div>
+  <div class="qa"><p class="q">Q: EC2 pe website kaise host karte hain?</p><p class="a">A: Ek web server (jaise Apache) install karke, website files ko uske web root mein daalke, aur Security Group mein port 80/443 open karke.</p></div>
+  <div class="qa"><p class="q">Q: Agar EC2 server access nahi ho raha to kaise troubleshoot karein?</p><p class="a">A: Instance state, Public IP, Security Group rules, sahi username, aur sahi key file check karein.</p></div>
+  <div class="qa"><p class="q">Q: Port 22 kyu use hota hai?</p><p class="a">A: Ye SSH remote terminal access ka standard port hai.</p></div>
+  <div class="qa"><p class="q">Q: Port 80 kyu use hota hai?</p><p class="a">A: Ye unencrypted HTTP web traffic ka standard port hai.</p></div>
+  <div class="qa"><p class="q">Q: Port 443 kyu use hota hai?</p><p class="a">A: Ye encrypted HTTPS web traffic ka standard port hai.</p></div>
+  <div class="qa"><p class="q">Q: EC2 instance stop karne ke baad Public IP ka kya hota hai?</p><p class="a">A: Ye release ho jaata hai aur instance dobara start hone pe naya assign hota hai (jab tak Elastic IP attached na ho).</p></div>
+  <div class="qa"><p class="q">Q: Hum Elastic IP kyu use karte hain?</p><p class="a">A: Instance ke liye ek fixed, unchanging public address paane ke liye.</p></div>
+  <div class="qa"><p class="q">Q: Vertical scaling kya hai?</p><p class="a">A: Ek existing single instance ke resources (CPU/RAM) ko badhana.</p></div>
+  <div class="qa"><p class="q">Q: Horizontal scaling kya hai?</p><p class="a">A: Workload share karne ke liye zyada instances add karna.</p></div>
+
+  <hr class="divider">
+
+  <!-- 40 -->
+  <h2 id="s40"><span class="section-icon">🗺️</span> Final EC2 Learning Flow &amp; Roadmap</h2>
+  <span class="badge badge-theory">Complete Learning Path</span>
+  <span class="badge badge-practical">Interactive Roadmap</span>
+
+  <div class="roadmap-container">
+    <div class="roadmap-header-card">
+      <h3>🚀 End-to-End EC2 Mastery Roadmap</h3>
+      <p>Core cloud foundations aur virtual server provisioning se lekar web hosting, automated backups, golden AMIs, aur high-availability auto-scaling tak. Kisi bhi step pe click karke seedha uske dedicated study guide section pe jaao.</p>
+    </div>
+
+    <div class="pipeline-overview" aria-label="Roadmap Stages Navigation">
+      <div class="pipeline-step" data-stage="1" title="Click to view Stage 1: Foundations">
+        <span class="pipeline-num" style="background:#eff6ff; color:#2563eb;">Stage 01</span>
+        <span class="pipeline-title">🌐 Foundations</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="2" title="Click to view Stage 2: Provisioning">
+        <span class="pipeline-num" style="background:#f0fdfa; color:#0d9488;">Stage 02</span>
+        <span class="pipeline-title">🚀 Launch &amp; Sizing</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="3" title="Click to view Stage 3: Linux &amp; Web">
+        <span class="pipeline-num" style="background:#ecfdf5; color:#10b981;">Stage 03</span>
+        <span class="pipeline-title">💻 Web &amp; CLI</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="4" title="Click to view Stage 4: Storage &amp; Data">
+        <span class="pipeline-num" style="background:#fffbeb; color:#d97706;">Stage 04</span>
+        <span class="pipeline-title">💾 Storage &amp; IP</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="5" title="Click to view Stage 5: AMI &amp; Fleet">
+        <span class="pipeline-num" style="background:#f5f3ff; color:#7c3aed;">Stage 05</span>
+        <span class="pipeline-title">📦 AMIs &amp; Templates</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="6" title="Click to view Stage 6: Scaling &amp; HA">
+        <span class="pipeline-num" style="background:#fff1f2; color:#e11d48;">Stage 06</span>
+        <span class="pipeline-title">📈 Load Balance &amp; ASG</span>
+      </div>
+    </div>
+
+    <div class="roadmap-filters">
+      <button class="filter-btn active" data-filter="all">🌟 All Stages (27 Steps)</button>
+      <button class="filter-btn" data-filter="1">🌐 1. Foundations</button>
+      <button class="filter-btn" data-filter="2">🚀 2. Launch &amp; Sizing</button>
+      <button class="filter-btn" data-filter="3">💻 3. Web &amp; CLI</button>
+      <button class="filter-btn" data-filter="4">💾 4. Storage &amp; IP</button>
+      <button class="filter-btn" data-filter="5">📦 5. AMIs &amp; Templates</button>
+      <button class="filter-btn" data-filter="6">📈 6. Scaling &amp; HA</button>
+    </div>
+
+    <div class="roadmap-stage stage-1" data-stage="1" id="stage-1">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">🌐</div>
+          <div>
+            <span class="stage-badge">Stage 01</span>
+            <h3 class="stage-title">Cloud Infrastructure Foundations</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Security boundaries, geographical regions, aur isolated network subnets prepare karo jahan aapka virtual compute rahega.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">01</span>
+            <span class="step-icon">🔑</span>
+            <span class="step-name">AWS Account &amp; IAM</span>
+          </div>
+          <p class="step-text">Root protection, billing alerts, aur least-privilege IAM users/roles setup karo.</p>
+          <a href="#s30" class="step-link">Security Guide Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">02</span>
+            <span class="step-icon">🌍</span>
+            <span class="step-name">AWS Region &amp; AZs</span>
+          </div>
+          <p class="step-text">Low latency ke liye geographic region select karo &amp; high fault-tolerance ke liye multiple AZs.</p>
+          <a href="#s2" class="step-link">Architecture Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">03</span>
+            <span class="step-icon">🛡️</span>
+            <span class="step-name">VPC &amp; Subnet Isolation</span>
+          </div>
+          <p class="step-text">Private/public IPv4 CIDR blocks, route tables, aur Internet Gateway access define karo.</p>
+          <a href="#s2" class="step-link">VPC Placement Pe Jao ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <div class="roadmap-stage stage-2" data-stage="2" id="stage-2">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">🚀</div>
+          <div>
+            <span class="stage-badge">Stage 02</span>
+            <h3 class="stage-title">EC2 Instance Provisioning &amp; Security</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Firewall rules configure karo, operating system choose karo, compute sizing, aur SSH cryptographic keypair.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">04</span>
+            <span class="step-icon">🔒</span>
+            <span class="step-name">Security Group Firewall</span>
+          </div>
+          <p class="step-text">SSH (Port 22), HTTP (80), aur HTTPS (443) ke liye stateful virtual firewall rules configure karo.</p>
+          <a href="#s13" class="step-link">Security Group Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">05</span>
+            <span class="step-icon">💿</span>
+            <span class="step-name">AMI Selection</span>
+          </div>
+          <p class="step-text">Base OS template choose karo: Amazon Linux 2023, Ubuntu 22.04/24.04, ya Red Hat Enterprise.</p>
+          <a href="#s4" class="step-link">Components (AMI) Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">06</span>
+            <span class="step-icon">⚡</span>
+            <span class="step-name">Instance Type &amp; Sizing</span>
+          </div>
+          <p class="step-text">Optimal CPU/RAM balance select karo (General Purpose t3.micro/t3.medium, Compute, Memory).</p>
+          <a href="#s5" class="step-link">Instance Types Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">07</span>
+            <span class="step-icon">🗝️</span>
+            <span class="step-name">Key Pair Generation</span>
+          </div>
+          <p class="step-text">Secure authentication ke liye <code>.pem</code> / <code>.ppk</code> cryptographic private key create aur download karo.</p>
+          <a href="#s4" class="step-link">Key Pair Guide Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">08</span>
+            <span class="step-icon">🚀</span>
+            <span class="step-name">Launch EC2 Instance</span>
+          </div>
+          <p class="step-text">Configurations review karo, virtual machine launch karo, aur initialization status checks monitor karo.</p>
+          <a href="#s7" class="step-link">Step-by-Step Launch Pe Jao ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <div class="roadmap-stage stage-3" data-stage="3" id="stage-3">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">💻</div>
+          <div>
+            <span class="stage-badge">Stage 03</span>
+            <h3 class="stage-title">Remote Connection, Linux &amp; Web Server</h3>
+          </div>
+        </div>
+        <p class="stage-desc">SSH se connect karo, server administration commands chalao, Apache/Nginx web server install karo, aur live websites host karo.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">09</span>
+            <span class="step-icon">🌐</span>
+            <span class="step-name">Public IP &amp; Hostname</span>
+          </div>
+          <p class="step-text">AWS pool se assigned dynamic public IPv4 address aur public DNS name verify karo.</p>
+          <a href="#s8" class="step-link">Instance Details Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">10</span>
+            <span class="step-icon">💻</span>
+            <span class="step-name">SSH &amp; EC2 Instance Connect</span>
+          </div>
+          <p class="step-text">CLI <code>ssh -i key.pem user@ip</code> ya browser-based connect ke through secure terminal session establish karo.</p>
+          <a href="#s9" class="step-link">Access EC2 Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">11</span>
+            <span class="step-icon">⌨️</span>
+            <span class="step-name">Linux Administration</span>
+          </div>
+          <p class="step-text">Essential commands chalao: <code>sudo su</code>, <code>pwd</code>, <code>systemctl</code>, file navigation aur permissions.</p>
+          <a href="#s10" class="step-link">Linux Commands Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">12</span>
+            <span class="step-icon">🔄</span>
+            <span class="step-name">Update Server Packages</span>
+          </div>
+          <p class="step-text"><code>sudo dnf update -y</code> use karke security vulnerabilities patch karo aur packages update karo.</p>
+          <a href="#s11" class="step-link">Server Updates Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">13</span>
+            <span class="step-icon">🌐</span>
+            <span class="step-name">Install Apache (HTTPD)</span>
+          </div>
+          <p class="step-text">Web server package install karo, daemon start karo, aur boot auto-start enable karo (<code>systemctl enable httpd</code>).</p>
+          <a href="#s12" class="step-link">Install Apache Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">14</span>
+            <span class="step-icon">📄</span>
+            <span class="step-name">Host Website &amp; Verify</span>
+          </div>
+          <p class="step-text">Custom HTML ko <code>/var/www/html/index.html</code> mein deploy karo aur Public IP se browse karo.</p>
+          <a href="#s14" class="step-link">Host Website Pe Jao ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <div class="roadmap-stage stage-4" data-stage="4" id="stage-4">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">💾</div>
+          <div>
+            <span class="stage-badge">Stage 04</span>
+            <h3 class="stage-title">EBS Storage, Disaster Recovery &amp; Automation</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Block storage volumes, automated bootstrap scripts, point-in-time snapshots, aur persistent Elastic IPs manage karo.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">15</span>
+            <span class="step-icon">💽</span>
+            <span class="step-name">EBS Storage Volume</span>
+          </div>
+          <p class="step-text">Running instance se network-attached block storage volume (gp3/io2) create aur attach karo.</p>
+          <a href="#s20" class="step-link">EBS Volume Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">16</span>
+            <span class="step-icon">📁</span>
+            <span class="step-name">Format &amp; Mount Filesystem</span>
+          </div>
+          <p class="step-text"><code>mkfs -t xfs</code> se partition format karo, mount point banao, aur <code>/etc/fstab</code> configure karo.</p>
+          <a href="#s21" class="step-link">Format &amp; Mount Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">17</span>
+            <span class="step-icon">📸</span>
+            <span class="step-name">EBS Snapshot Backup</span>
+          </div>
+          <p class="step-text">Disaster recovery ke liye Amazon S3 mein securely stored incremental point-in-time backups capture karo.</p>
+          <a href="#s22" class="step-link">Snapshots Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">18</span>
+            <span class="step-icon">📜</span>
+            <span class="step-name">User Data Automation</span>
+          </div>
+          <p class="step-text">Instance ke first launch pe bash scripts ke through automatic package installation aur configuration bootstrap karo.</p>
+          <a href="#s17" class="step-link">User Data Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">19</span>
+            <span class="step-icon">📌</span>
+            <span class="step-name">Elastic IP (Static IPv4)</span>
+          </div>
+          <p class="step-text">Instance reboot/stop pe IP changes rokne ke liye fixed, unchanging public IP address allocate karo.</p>
+          <a href="#s27" class="step-link">Elastic IP Pe Jao ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <div class="roadmap-stage stage-5" data-stage="5" id="stage-5">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">📦</div>
+          <div>
+            <span class="stage-badge">Stage 05</span>
+            <h3 class="stage-title">Custom Golden AMI &amp; Launch Templates</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Pre-configured operating environments ko reusable AMIs mein bake karo aur rapid fleet provisioning ke liye versioned launch templates define karo.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">20</span>
+            <span class="step-icon">📦</span>
+            <span class="step-name">Create Custom AMI</span>
+          </div>
+          <p class="step-text">Apna installed web server, app code, aur configurations ek reusable Golden Image AMI mein bake karo.</p>
+          <a href="#s23" class="step-link">Create AMI Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">21</span>
+            <span class="step-icon">🚀</span>
+            <span class="step-name">Launch from Custom AMI</span>
+          </div>
+          <p class="step-text">Bina manual software setup ki zarurat ke instantly ready-to-serve instances deploy karo.</p>
+          <a href="#s24" class="step-link">Launch from AMI Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">22</span>
+            <span class="step-icon">📋</span>
+            <span class="step-name">Launch Template</span>
+          </div>
+          <p class="step-text">Versioned, standardized specifications create karo (AMI, instance type, SG, user data, tags).</p>
+          <a href="#s25" class="step-link">Launch Template Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">23</span>
+            <span class="step-icon">👥</span>
+            <span class="step-name">Multiple Instances Fleet</span>
+          </div>
+          <p class="step-text">Launch Templates use karke multiple availability zones mein standardized instance fleets deploy karo.</p>
+          <a href="#s26" class="step-link">Multiple Instances Pe Jao ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <div class="roadmap-stage stage-6" data-stage="6" id="stage-6">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">📈</div>
+          <div>
+            <span class="stage-badge">Stage 06</span>
+            <h3 class="stage-title">Monitoring, High Availability &amp; Auto Scaling</h3>
+          </div>
+        </div>
+        <p class="stage-desc">CloudWatch se health monitor karo, ALB se traffic balance karo, aur Auto Scaling Groups se capacity automatically scale karo.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">24</span>
+            <span class="step-icon">📊</span>
+            <span class="step-name">CloudWatch Monitoring</span>
+          </div>
+          <p class="step-text">CPU utilization, network traffic, system/instance status checks track karo, aur automated alarms configure karo.</p>
+          <a href="#s28" class="step-link">Monitoring Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">25</span>
+            <span class="step-icon">⚖️</span>
+            <span class="step-name">Application Load Balancer</span>
+          </div>
+          <p class="step-text">Continuous automated health checks ke saath incoming HTTP/HTTPS traffic ko target groups mein distribute karo.</p>
+          <a href="#s35" class="step-link">Load Balancer Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">26</span>
+            <span class="step-icon">🔄</span>
+            <span class="step-name">Auto Scaling Group (ASG)</span>
+          </div>
+          <p class="step-text">CPU/traffic alarms ke hisaab se instance count (Min, Desired, Max) dynamically scale karo aur unhealthy nodes replace karo.</p>
+          <a href="#s36" class="step-link">Auto Scaling Pe Jao ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">27</span>
+            <span class="step-icon">🏆</span>
+            <span class="step-name">Complete Production Project</span>
+          </div>
+          <p class="step-text">VPC, EC2, User Data, ALB, aur ASG combine karke full end-to-end resilient architecture implement karo.</p>
+          <a href="#s37" class="step-link">Hands-on Project Pe Jao ➔</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  var themeBtn = document.getElementById('theme-btn');
+  var root = document.documentElement;
+  function applyTheme(target) {
+    root.setAttribute('data-theme', target);
+    document.body.setAttribute('data-theme', target);
+    root.classList.toggle('dark', target === 'dark');
+    document.body.classList.toggle('dark', target === 'dark');
+    localStorage.setItem('cloud_learning_theme', target);
+    if (themeBtn) themeBtn.innerHTML = target === 'dark' ? '&#9728;&#65039; Light mode' : '&#127769; Dark mode';
+  }
+  var saved = localStorage.getItem('cloud_learning_theme') || 
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function(){
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      applyTheme(isDark ? 'light' : 'dark');
+    });
+  }
+
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+
+  var filterBtns = document.querySelectorAll('.roadmap-filters .filter-btn');
+  var roadmapStages = document.querySelectorAll('.roadmap-stage');
+  var stageConnectors = document.querySelectorAll('.stage-connector');
+  
+  filterBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = btn.getAttribute('data-filter');
+      filterBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      
+      roadmapStages.forEach(function(stage){
+        if(target === 'all' || stage.getAttribute('data-stage') === target){
+          stage.style.display = 'block';
+        } else {
+          stage.style.display = 'none';
+        }
+      });
+      stageConnectors.forEach(function(conn){
+        conn.style.display = target === 'all' ? 'flex' : 'none';
+      });
+    });
+  });
+
+  document.querySelectorAll('.pipeline-step').forEach(function(step){
+    step.addEventListener('click', function(e){
+      e.preventDefault();
+      var stageNum = step.getAttribute('data-stage');
+      var targetFilterBtn = document.querySelector('.filter-btn[data-filter="' + stageNum + '"]');
+      if (targetFilterBtn) {
+        targetFilterBtn.click();
+        var targetStage = document.getElementById('stage-' + stageNum);
+        if (targetStage) {
+          targetStage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('.step-link').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var targetId = link.getAttribute('href');
+      if (targetId && targetId.startsWith('#')) {
+        var targetEl = document.querySelector(targetId);
+        if (targetEl) {
+          setTimeout(function(){
+            targetEl.classList.add('flash-highlight');
+            setTimeout(function(){ targetEl.classList.remove('flash-highlight'); }, 2000);
+          }, 300);
+        }
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

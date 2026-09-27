@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AWS Cloud Notes, Core Definitions & 21-Level Roadmap</title>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("cloud_learning_theme") || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    } catch(e) {}
+  })();
+</script>
 <style>
   :root {
     --bg: #f8fafc;
@@ -31,6 +45,8 @@
     --modal-bg: rgba(15, 23, 42, 0.65);
   }
 
+  html.dark,
+  body[data-theme="dark"],
   [data-theme="dark"] {
     --bg: #090d16;
     --sidebar-bg: #0c1220;
@@ -714,9 +730,14 @@
 
     <!-- ================= TAB 2: CORE DEFINITIONS (IN EASY WORDS) ================= -->
     <div class="tab-pane" id="pane-easy-definitions">
-      <div style="margin-bottom:20px;">
-        <h2 style="font-size:1.3rem; margin-bottom:6px;">📖 Foundational Cloud Concepts in Simple Words</h2>
-        <p style="color:var(--ink-muted); font-size:0.9rem;">Core architectural building blocks explained without heavy jargon:</p>
+      <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h2 style="font-size:1.3rem; margin-bottom:4px;">📖 Foundational Cloud Concepts in Simple Words</h2>
+          <p style="color:var(--ink-muted); font-size:0.9rem;">Core architectural building blocks explained without heavy jargon:</p>
+        </div>
+        <a href="./CloudBasics.html" style="display:inline-flex; align-items:center; gap:6px; background:var(--brand); color:#fff; padding:6px 14px; border-radius:8px; text-decoration:none; font-size:0.85rem; font-weight:600;">
+          <span>⚡ Interactive EN / Hinglish Mode ➔</span>
+        </a>
       </div>
 
       <div class="definitions-grid">
@@ -1292,18 +1313,26 @@
   // ==========================================
   // 8. THEME TOGGLE
   // ==========================================
+  function applyTheme(target) {
+    document.documentElement.setAttribute("data-theme", target);
+    document.documentElement.classList.toggle("dark", target === "dark");
+    document.body.setAttribute("data-theme", target);
+    document.body.classList.toggle("dark", target === "dark");
+    localStorage.setItem("cloud_learning_theme", target);
+    const btn = document.getElementById("theme-btn");
+    if (btn) btn.textContent = target === "dark" ? "☀️" : "🌙";
+  }
+
   function initTheme() {
-    const saved = localStorage.getItem("cloud_learning_theme") || "light";
-    document.body.setAttribute("data-theme", saved);
-    document.getElementById("theme-btn").textContent = saved === "dark" ? "☀️" : "🌙";
+    const saved = localStorage.getItem("cloud_learning_theme") || 
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(saved);
   }
 
   function toggleTheme() {
-    const current = document.body.getAttribute("data-theme");
+    const current = document.documentElement.getAttribute("data-theme") || document.body.getAttribute("data-theme") || "light";
     const target = current === "dark" ? "light" : "dark";
-    document.body.setAttribute("data-theme", target);
-    localStorage.setItem("cloud_learning_theme", target);
-    document.getElementById("theme-btn").textContent = target === "dark" ? "☀️" : "🌙";
+    applyTheme(target);
   }
 </script>
 </body>

@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
-    darkMode: ['class', '[data-theme="dark"]'],
+    darkMode: 'class',
     theme: {
       extend: {
         colors: {
@@ -19,7 +19,19 @@
         }
       }
     }
-  }
+  };
+  (function() {
+    try {
+      var saved = localStorage.getItem("cloud_learning_theme") || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    } catch(e) {}
+  })();
 </script>
 <style>
   :root {
@@ -42,11 +54,13 @@
     --ok: #10b981;
     --ok-soft: #ecfdf5;
     --pill-bg: #f1f5f9;
-    --header-bg: rgba(255, 255, 255, 0.9);
+    --header-bg: rgba(255, 255, 255, 0.95);
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
   }
 
+  html.dark,
+  body[data-theme="dark"],
   [data-theme="dark"] {
     --bg: #090d16;
     --sidebar-bg: #0c1220;
@@ -67,7 +81,7 @@
     --ok: #34d399;
     --ok-soft: #064e3b;
     --pill-bg: #1e293b;
-    --header-bg: rgba(17, 24, 39, 0.9);
+    --header-bg: rgba(17, 24, 39, 0.95);
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.35);
   }
@@ -524,6 +538,28 @@
   .meta-tag.diff-hard { background: #fef2f2; color: #ef4444; border-color: transparent; }
   .meta-tag.lang-hi { background: #f5f3ff; color: #8b5cf6; border-color: transparent; }
 
+  html.dark .meta-tag.diff-hard, [data-theme="dark"] .meta-tag.diff-hard {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+  }
+  html.dark .meta-tag.lang-hi, [data-theme="dark"] .meta-tag.lang-hi {
+    background: rgba(139, 92, 246, 0.18);
+    color: #c4b5fd;
+  }
+  html.dark .active-tag, [data-theme="dark"] .active-tag {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.45);
+  }
+  html.dark .pill-select button.active, [data-theme="dark"] .pill-select button.active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+  }
+  html.dark .sort-select option, [data-theme="dark"] .sort-select option {
+    background: #111827;
+    color: #f8fafc;
+  }
+
   .card-footer {
     display: flex;
     align-items: center;
@@ -698,6 +734,11 @@
     <div class="sidebar-nav mt-3 flex flex-col gap-1">
       <div class="nav-label text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-2">Roadmap & Notes</div>
       
+      <!-- Cloud Basics (New) -->
+      <a href="./CloudBasics.html" class="nav-item">
+        <span>📖 Cloud Basics (EN / Hinglish)</span>
+      </a>
+
       <!-- 21-Level Roadmap -->
       <a href="./NotesAndDefinitions.html" class="nav-item special-note">
         <span>🗺️ 21-Level Master Roadmap</span>
@@ -760,17 +801,9 @@
     </div>
   </div>
 
-  <div class="pt-4">
-    <!-- Sidebar Progress Bar -->
-    <div class="sidebar-progress-card bg-slate-800/80 border border-slate-700/60 rounded-xl p-3">
-      <div class="sidebar-progress-header flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
-        <span>21-Level Progress</span>
-        <span id="sidebar-progress-pct">0%</span>
-      </div>
-      <div class="sidebar-bar-wrap h-1.5 bg-slate-700 rounded-full overflow-hidden">
-        <div class="sidebar-bar-fill h-full bg-emerald-500 w-0 transition-all duration-300" id="sidebar-progress-bar"></div>
-      </div>
-    </div>
+  <div class="pt-4 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between shrink-0">
+    <span>AWS 21-Level Hub</span>
+    <span>v2.0</span>
   </div>
 </aside>
 
@@ -849,6 +882,19 @@
       tags: ["IAM", "Users", "Groups", "Roles", "Policies", "MFA"],
       description: "Level 1 starting foundation: Users, Groups, Roles, JSON Policies, Least Privilege, MFA, and secure permissions."
     },
+    {
+      id: "lvl-1-iam-hi",
+      level: 1,
+      title: "Level 1: AWS IAM Security (Hinglish)",
+      filename: "./HinglishLang/IAMService.html",
+      category: "Security",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "20m",
+      icon: "🔐",
+      tags: ["IAM", "Users", "Groups", "Roles", "Policies", "Hinglish"],
+      description: "AWS IAM security, Users, Groups, Roles aur JSON permissions ki aasan Hinglish guide."
+    },
     // Level 2: CLI Configuration
     {
       id: "lvl-2-cli",
@@ -862,6 +908,19 @@
       icon: "⚡",
       tags: ["CLI", "Credentials", "Access Keys", "aws configure", "STS"],
       description: "Install AWS CLI, configure Access Keys & Secret Keys via `aws configure`, setup named profiles, and test sts caller identity."
+    },
+    {
+      id: "lvl-2-cli-hi",
+      level: 2,
+      title: "Level 2: AWS CLI Setup & Credentials (Hinglish)",
+      filename: "./HinglishLang/CLIConfiguration.html",
+      category: "DevOps",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "15m",
+      icon: "⚡",
+      tags: ["CLI", "Credentials", "Access Keys", "aws configure", "Hinglish"],
+      description: "Terminal se AWS commands chalane ke liye AWS CLI install aur credentials setup karein."
     },
     // Level 3: EC2
     {
@@ -877,6 +936,19 @@
       tags: ["EC2", "Virtual Machines", "Key Pairs", "User Data", "Instance Types"],
       description: "Virtual servers in the cloud, instance types, key pairs, bootstrap user data scripts, and security groups."
     },
+    {
+      id: "lvl-3-ec2-hi",
+      level: 3,
+      title: "Level 3: Amazon EC2 Virtual Server (Hinglish)",
+      filename: "./HinglishLang/Ec2Service.html",
+      category: "Compute",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "35m",
+      icon: "🖥️",
+      tags: ["EC2", "Virtual Machines", "Linux", "Windows", "Hinglish"],
+      description: "Cloud mein virtual servers launch karne aur manage karne ki aasan Hinglish guide."
+    },
     // Level 4: EBS
     {
       id: "lvl-4-ebs",
@@ -891,6 +963,19 @@
       tags: ["EBS", "Block Storage", "GP3", "IO2", "Snapshots", "Volumes"],
       description: "High-performance block storage volumes for EC2, volume types (GP3, IO2), snapshot backups, and dynamic expansion."
     },
+    {
+      id: "lvl-4-ebs-hi",
+      level: 4,
+      title: "Level 4: Amazon EBS Block Storage (Hinglish)",
+      filename: "./HinglishLang/EBSService.html",
+      category: "Storage",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "20m",
+      icon: "💾",
+      tags: ["EBS", "Storage", "Volumes", "Snapshots", "Hinglish"],
+      description: "EC2 instances ke liye persistent virtual hard drives aur snapshot backup setup karein."
+    },
     // Level 5: AMI
     {
       id: "lvl-5-ami",
@@ -904,6 +989,19 @@
       icon: "📦",
       tags: ["AMI", "Snapshots", "Custom Images", "Cross-Region Copy"],
       description: "Pre-configured OS templates, creating custom AMIs, snapshot management, and sharing golden AMIs across accounts."
+    },
+    {
+      id: "lvl-5-ami-hi",
+      level: 5,
+      title: "Level 5: Amazon Machine Images AMI (Hinglish)",
+      filename: "./HinglishLang/AMIService.html",
+      category: "Compute",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "20m",
+      icon: "📦",
+      tags: ["AMI", "Snapshots", "Golden Images", "Templates", "Hinglish"],
+      description: "Custom Golden AMIs banana aur cross-region templates manage karne ki Hinglish guide."
     },
     // Level 6: ELB & ASG
     {
@@ -1054,6 +1152,19 @@
       tags: ["CloudFormation", "IaC", "Templates", "Stacks", "YAML"],
       description: "Declarative AWS Infrastructure as Code using JSON/YAML templates, Stacks, Change Sets, and automated rollback."
     },
+    {
+      id: "lvl-11-cloudformation-hi",
+      level: 11,
+      title: "Level 11: AWS CloudFormation IaC (Hinglish)",
+      filename: "./HinglishLang/InfrastructureAsCode(IaC).html",
+      category: "DevOps",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "35m",
+      icon: "📜",
+      tags: ["CloudFormation", "IaC", "Templates", "YAML", "Hinglish"],
+      description: "JSON ya YAML template likhkar AWS infrastructure ko automated tareeqe se create aur manage karein."
+    },
     // Level 12: Route 53
     {
       id: "lvl-12-route53",
@@ -1067,6 +1178,19 @@
       icon: "🌐",
       tags: ["Route53", "DNS", "Hosted Zones", "Routing Policies", "Failover"],
       description: "Managed DNS service, Public & Private Hosted Zones, Alias records, latency routing, and health checks."
+    },
+    {
+      id: "lvl-12-route53-hi",
+      level: 12,
+      title: "Level 12: Amazon Route 53 DNS (Hinglish)",
+      filename: "./HinglishLang/Route53.html",
+      category: "Networking",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "25m",
+      icon: "🌐",
+      tags: ["Route53", "DNS", "Hosted Zones", "Routing", "Hinglish"],
+      description: "Domain DNS management, Hosted Zones, Alias records aur routing policies ki practical Hinglish guide."
     },
     // Level 13: CloudFront
     {
@@ -1557,18 +1681,26 @@
     document.getElementById("backdrop").classList.toggle("show");
   }
 
+  function applyTheme(target) {
+    document.documentElement.setAttribute("data-theme", target);
+    document.documentElement.classList.toggle("dark", target === "dark");
+    document.body.setAttribute("data-theme", target);
+    document.body.classList.toggle("dark", target === "dark");
+    localStorage.setItem(STORAGE_KEY_THEME, target);
+    const btn = document.getElementById("theme-btn");
+    if (btn) btn.textContent = target === "dark" ? "☀️" : "🌙";
+  }
+
   function initTheme() {
-    const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || "light";
-    document.body.setAttribute("data-theme", savedTheme);
-    document.getElementById("theme-btn").textContent = savedTheme === "dark" ? "☀️" : "🌙";
+    const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(savedTheme);
   }
 
   function toggleTheme() {
-    const current = document.body.getAttribute("data-theme");
+    const current = document.documentElement.getAttribute("data-theme") || document.body.getAttribute("data-theme") || "light";
     const target = current === "dark" ? "light" : "dark";
-    document.body.setAttribute("data-theme", target);
-    localStorage.setItem(STORAGE_KEY_THEME, target);
-    document.getElementById("theme-btn").textContent = target === "dark" ? "☀️" : "🌙";
+    applyTheme(target);
   }
 
   // Back to Top button listener

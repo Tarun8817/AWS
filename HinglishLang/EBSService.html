@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS EBS — Complete Notes (Hinglish)</title>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("cloud_learning_theme") || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dark") document.documentElement.classList.add("dark");
+    } catch(e) {}
+  })();
+</script>
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --sidebar-bg: #151c2c;
+    --card-bg: #ffffff;
+    --text: #1e2430;
+    --text-soft: #4b5567;
+    --heading: #0f172a;
+    --accent: #ff9900;
+    --accent-dark: #cc7a00;
+    --accent-soft: #fff4e0;
+    --blue: #146eb4;
+    --blue-soft: #e8f2fb;
+    --green: #1a7f5a;
+    --green-soft: #e7f7f0;
+    --border: #e3e8ef;
+    --code-bg: #0f172a;
+    --code-text: #e2e8f0;
+    --note-bg: #fff1f0;
+    --note-border: #e64545;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+      --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+      --blue: #5fb0ec; --blue-soft: #12233a; --green: #4fd8a2; --green-soft: #10281f;
+      --border: #2a3346; --code-bg: #05070d; --code-text: #d7ecff;
+      --note-bg: #2a1414; --note-border: #ff6b6b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+    --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+    --blue: #5fb0ec; --blue-soft: #12233a; --green: #4fd8a2; --green-soft: #10281f;
+    --border: #2a3346; --code-bg: #05070d; --code-text: #d7ecff;
+    --note-bg: #2a1414; --note-border: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65; display: flex; min-height: 100vh;
+  }
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--sidebar-bg); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 40px;
+    transition: transform .25s ease; z-index: 50;
+  }
+  #sidebar h2 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea1c9; margin: 18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a { display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; text-decoration: none; font-size: .88rem; }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; border-bottom: 1px solid #263252; margin-bottom: 6px; }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; background: #101a2c; color: #e6ecf5; font-size: .85rem; margin-bottom: 6px; }
+  #main { flex: 1; min-width: 0; }
+  .topbar { position: sticky; top: 0; z-index: 40; background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn { display: none; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text); font-size: 1rem; }
+  #theme-btn { background: var(--accent-soft); border: 1px solid var(--border); color: var(--accent-dark); border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600; }
+  #backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; }
+  #backtotop { position: fixed; bottom: 22px; right: 22px; background: var(--blue); color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60; }
+  @media (max-width: 900px) {
+    #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+    #menu-btn { display: inline-block; }
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  .title-card { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: #1a1300; border-radius: 16px; padding: 2rem 2rem; margin-bottom: 2rem; box-shadow: 0 8px 24px rgba(255,153,0,0.25); }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2rem; letter-spacing: -0.02em; }
+  .title-card p { margin: 0; font-size: 1.05rem; opacity: 0.85; }
+  h2 { color: var(--heading); font-size: 1.4rem; margin-top: 2.4rem; margin-bottom: 0.8rem; padding-bottom: 0.4rem; border-bottom: 3px solid var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+  h3 { color: var(--blue); font-size: 1.1rem; margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  p { color: var(--text-soft); }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.3rem 1.6rem; margin-bottom: 1.2rem; }
+  .keypoints { list-style: none; padding-left: 0; margin: 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.55rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  ol.steps { margin: 0; padding-left: 1.4rem; }
+  ol.steps li { padding: 0.35rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--blue); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--blue); }
+  .steps-block { background: var(--blue-soft); border-radius: 10px; padding: 1.1rem 1.3rem 1.1rem 1.6rem; margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border); }
+  .steps-block h3 { margin-top: 0; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.92rem; margin: 0.6rem 0 1.2rem; }
+  code { font-family: 'Fira Code', 'Consolas', monospace; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .task-list { columns: 2; column-gap: 2rem; list-style: none; padding: 0; margin: 0; }
+  .task-list li { break-inside: avoid; background: var(--card-bg); border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 0.5rem 0.8rem; margin-bottom: 0.6rem; font-size: 0.93rem; display: flex; gap: 0.5rem; align-items: flex-start; }
+  .task-list .num { color: var(--blue); font-weight: 700; min-width: 1.4rem; }
+  @media (max-width: 640px) { .task-list { columns: 1; } .title-card h1 { font-size: 1.5rem; } }
+  .section-icon { font-size: 1.2rem; }
+  hr.divider { border: none; border-top: 2px dashed var(--border); margin: 2.5rem 0; }
+</style>
+</head>
+<body>
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">💾</span><span class="name">EBS</span></div>
+  <input type="text" id="search-box" placeholder="Section filter karo...">
+  <h2>Concepts</h2>
+  <ul>
+    <li><a href="#key-points">EBS Ke Key Points</a></li>
+  </ul>
+  <h2>Operations</h2>
+  <ul>
+    <li><a href="#create-attach">EBS Volume Create &amp; Attach</a></li>
+    <li><a href="#modify-size">EBS Volume Size Modify</a></li>
+    <li><a href="#detach-delete">EBS Volume Detach aur Delete</a></li>
+    <li><a href="#create-snapshot">EBS Snapshot Create</a></li>
+    <li><a href="#volume-from-snapshot">Snapshot Se Volume Create</a></li>
+    <li><a href="#cross-regions">EBS Cross Regions Attach</a></li>
+  </ul>
+  <h2>Tasks</h2>
+  <ul>
+    <li><a href="#task-list">AWS EBS Beginner Task List</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS EBS</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+<div class="wrap">
+
+  <div class="title-card">
+    <h1>☁️ AWS EBS — Elastic Block Store</h1>
+    <p>Complete notes: concepts, workflows, aur ek hands-on beginner task list</p>
+  </div>
+
+  <div class="card">
+    <p>
+      AWS EBS (Elastic Block Store) ek cloud-based storage service hai jo <strong>Amazon EC2 instances</strong> ke saath use karne ke liye durable, high-performance <strong>block storage</strong> provide karti hai.
+    </p>
+    <p>
+      Ye ek <strong>virtual hard drive</strong> ki tarah kaam karti hai, jisse aap data store aur access kar sakte ho — chahe aapke EC2 instances <strong>stopped ya terminated</strong> hi kyu na hon.
+    </p>
+  </div>
+
+  <div class="example">
+    <strong>Example</strong>
+    <p style="margin-bottom:0;">
+      Agar aap MySQL ya PostgreSQL database host kar rahe ho, to frequent read/write operations handle karne ke liye reliable, high-performance storage chahiye. EBS persistent, fast storage deta hai jo ensure karta hai ki EC2 instance stop ya restart hone pe bhi data safe rahe — isliye database workloads ke liye ideal hai.
+    </p>
+  </div>
+
+  <h2><span class="section-icon">🔑</span> AWS EBS Ke Key Points</h2>
+  <ul class="keypoints">
+    <li><strong>Persistent Storage</strong> — EC2 instance stop hone pe bhi data available rehta hai.</li>
+    <li><strong>Block Storage</strong> — EC2 instance se attached virtual hard drive ki tarah kaam karta hai.</li>
+    <li><strong>High Performance</strong> — Fast read/write operations support karta hai.</li>
+    <li><strong>Durable</strong> — Data ko reliably store rakhne ke liye design kiya gaya hai.</li>
+    <li><strong>Scalable</strong> — Storage requirement badhne pe volume size increase kiya ja sakta hai.</li>
+    <li><strong>Snapshots</strong> — Snapshots use karke EBS volumes ke backups bana sakte ho.</li>
+    <li><strong>Attach/Detach</strong> — EBS volume ko EC2 instances se attach/detach kiya ja sakta hai.</li>
+    <li><strong>Availability Zone</strong> — Ek EBS volume ek specific Availability Zone se tied hota hai.</li>
+    <li><strong>Database Workloads</strong> — MySQL, PostgreSQL, aur persistent storage chahne wale apps ke liye suitable.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2 id="create-attach"><span class="section-icon">🛠️</span> EBS Volume Create &amp; EC2 Se Attach Karna</h2>
+
+  <div class="steps-block">
+    <h3>EBS Volume Create Karne Ke Steps</h3>
+    <ol class="steps">
+      <li><b>EC2 Dashboard</b> pe jao.</li>
+      <li>Left side pe <b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li><b>Create volume</b> pe click karo.</li>
+      <li>Required <b>Volume Type</b> select karo.</li>
+      <li>Volume ka required <b>Size</b> daalo.</li>
+      <li>Apne EC2 instance jaisi hi <b>Availability Zone</b> select karo.</li>
+      <li><b>Create volume</b> pe click karo.</li>
+    </ol>
+  </div>
+
+  <div class="steps-block">
+    <h3>EBS Volume Ko EC2 Se Attach Karne Ke Steps</h3>
+    <ol class="steps">
+      <li><b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Newly created EBS volume select karo.</li>
+      <li><b>Actions → Attach volume</b> pe click karo.</li>
+      <li>Apna <b>EC2 instance</b> select karo.</li>
+      <li>Required <b>Device name</b> select karo.</li>
+      <li><b>Attach volume</b> pe click karo.</li>
+      <li>Ab EBS volume aapke EC2 instance se attach ho chuka hai.</li>
+    </ol>
+  </div>
+
+  <h3>Volume Verify Karna</h3>
+  <p>SSH se apne EC2 instance se connect karo aur ye run karo:</p>
+  <pre><code>lsblk</code></pre>
+
+  <hr class="divider">
+
+  <h2 id="modify-size"><span class="section-icon">📈</span> EBS Volume Size Modify Karna</h2>
+  <p>Zyada space chahiye ho to existing EBS volume ki storage size badha sakte ho.</p>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 Dashboard</b> pe jao.</li>
+      <li>Left side pe <b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Jo EBS volume modify karna hai use select karo.</li>
+      <li><b>Actions → Modify volume</b> pe click karo.</li>
+      <li>Apni zarurat ke hisaab se <b>Size</b> badhao.</li>
+      <li><b>Modify</b> pe click karo.</li>
+      <li>Modification confirm karo.</li>
+      <li>Volume status <b>In-use</b> hone tak check karte raho, jab tak modification complete na ho jaye.</li>
+      <li>EC2 instance se connect karke run karo: <code>lsblk</code></li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="detach-delete"><span class="section-icon">🔌</span> EBS Volume Detach Aur Delete Karna</h2>
+  <p>Zarurat na ho to EBS volume ko EC2 instance se detach karke phir delete kiya ja sakta hai.</p>
+
+  <div class="steps-block">
+    <h3>EBS Volume Detach Karne Ke Steps</h3>
+    <ol class="steps">
+      <li><b>EC2 Dashboard</b> pe jao.</li>
+      <li>Left side pe <b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Jo EBS volume detach karna hai use select karo.</li>
+      <li><b>Actions → Detach volume</b> pe click karo.</li>
+      <li>Detachment confirm karo.</li>
+      <li>Volume state <b>In-use</b> se <b>Available</b> hone tak wait karo.</li>
+    </ol>
+  </div>
+
+  <div class="steps-block">
+    <h3>EBS Volume Delete Karne Ke Steps</h3>
+    <ol class="steps">
+      <li><b>Available</b> state wala EBS volume select karo.</li>
+      <li><b>Actions → Delete volume</b> pe click karo.</li>
+      <li>Deletion confirm karo.</li>
+      <li>EBS volume permanently delete ho jaayega.</li>
+    </ol>
+  </div>
+
+  <div class="note">
+    <strong>Note:</strong> EBS volume delete karne se us volume pe stored data permanently remove ho jaata hai.
+    Agar data baad mein chahiye ho, to volume delete karne se pehle ek <strong>EBS Snapshot</strong> bana lo.
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="create-snapshot"><span class="section-icon">📸</span> EBS Snapshot Create Karna</h2>
+  <p>Ek EBS Snapshot ek EBS volume ka backup hota hai. Aap snapshot use karke naya EBS volume bhi bana sakte ho.</p>
+  <div class="steps-block">
+    <h3>Snapshot Create Karne Ke Steps</h3>
+    <ol class="steps">
+      <li><b>EC2 Dashboard</b> pe jao.</li>
+      <li>Left side pe <b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Jo EBS volume backup karna hai use select karo.</li>
+      <li><b>Actions → Create snapshot</b> pe click karo.</li>
+      <li>Snapshot ke liye <b>Description</b> daalo.</li>
+      <li><b>Create snapshot</b> pe click karo.</li>
+      <li>Snapshot check karne ke liye <b>Elastic Block Store → Snapshots</b> pe jao.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="volume-from-snapshot"><span class="section-icon">♻️</span> Snapshot Se EBS Volume Create Karna</h2>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>EC2 Dashboard</b> pe jao.</li>
+      <li>Left side pe <b>Elastic Block Store → Snapshots</b> pe jao.</li>
+      <li>Jo snapshot use karna hai use select karo.</li>
+      <li><b>Actions → Create volume from snapshot</b> pe click karo.</li>
+      <li>Required <b>Volume Type</b> select karo.</li>
+      <li>Required <b>Size</b> daalo.</li>
+      <li>Jis Availability Zone mein aapka EC2 instance chal raha hai wahi select karo.</li>
+      <li><b>Create volume</b> pe click karo.</li>
+    </ol>
+  </div>
+
+  <h3>Naye EBS Volume Ko EC2 Instance Se Attach Karna</h3>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Snapshot se banaya gaya volume select karo.</li>
+      <li><b>Actions → Attach volume</b> pe click karo.</li>
+      <li><b>EC2 instance</b> select karo.</li>
+      <li>Required <b>Device name</b> select karo.</li>
+      <li><b>Attach volume</b> pe click karo.</li>
+      <li>EC2 instance se connect karke run karo: <code>lsblk</code></li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="cross-regions"><span class="section-icon">🌍</span> EBS Volume Cross Regions Attach Karna</h2>
+  <p>
+    Aap ek AWS Region ka EBS volume directly doosre Region ke EC2 instance se attach nahi kar sakte.
+  </p>
+  <p>
+    Same data doosre Region mein use karne ke liye <strong>snapshot banana, us snapshot ko doosre Region mein copy karna, naya volume banana, aur usse EC2 instance se attach karna</strong> padta hai.
+  </p>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Source Region mein <b>EC2 Dashboard</b> pe jao.</li>
+      <li><b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Jo EBS volume move karna hai use select karo.</li>
+      <li><b>Actions → Create snapshot</b> pe click karo.</li>
+      <li><b>Description</b> daalo aur <b>Create snapshot</b> pe click karo.</li>
+      <li><b>Elastic Block Store → Snapshots</b> pe jao.</li>
+      <li>Snapshot select karo.</li>
+      <li><b>Actions → Copy snapshot</b> pe click karo.</li>
+      <li><b>Destination Region</b> select karo.</li>
+      <li><b>Copy snapshot</b> pe click karo.</li>
+      <li><b>Destination Region</b> pe switch karo.</li>
+      <li><b>Elastic Block Store → Snapshots</b> pe jao.</li>
+      <li>Copied snapshot select karo.</li>
+      <li><b>Actions → Create volume from snapshot</b> pe click karo.</li>
+      <li>EC2 instance jaisi hi <b>Availability Zone</b> select karo.</li>
+      <li>Required <b>Volume Type</b> aur <b>Size</b> daalo.</li>
+      <li><b>Create volume</b> pe click karo.</li>
+      <li><b>Elastic Block Store → Volumes</b> pe jao.</li>
+      <li>Newly created EBS volume select karo.</li>
+      <li><b>Actions → Attach volume</b> pe click karo.</li>
+      <li>Destination Region mein EC2 instance select karo.</li>
+      <li>Required <b>Device name</b> select karo.</li>
+      <li><b>Attach volume</b> pe click karo.</li>
+      <li>EC2 instance se connect karke run karo: <code>lsblk</code></li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="task-list"><span class="section-icon">✅</span> AWS EBS Beginner Task List</h2>
+  <ol class="task-list">
+    <li><span class="num">1.</span> EC2 Instance Create Karo</li>
+    <li><span class="num">2.</span> Root EBS Volume Identify Karo</li>
+    <li><span class="num">3.</span> Naya EBS Volume Create Karo</li>
+    <li><span class="num">4.</span> EBS Volume Ko EC2 Instance Se Attach Karo</li>
+    <li><span class="num">5.</span> EBS Volume Format Karo</li>
+    <li><span class="num">6.</span> EBS Volume Mount Karo</li>
+    <li><span class="num">7.</span> EBS Volume Pe Data Store Karo</li>
+    <li><span class="num">8.</span> EBS Volume Unmount Karo</li>
+    <li><span class="num">9.</span> EBS Volume Detach Karo</li>
+    <li><span class="num">10.</span> EBS Volume Reattach Karo</li>
+    <li><span class="num">11.</span> EBS Volume Size Modify Karo</li>
+    <li><span class="num">12.</span> Updated Storage Size Verify Karo</li>
+    <li><span class="num">13.</span> EBS Snapshot Create Karo</li>
+    <li><span class="num">14.</span> Snapshot Se EBS Volume Create Karo</li>
+    <li><span class="num">15.</span> Snapshot Se Data Restore Karo</li>
+    <li><span class="num">16.</span> EBS Snapshot Ko Doosre Region Mein Copy Karo</li>
+    <li><span class="num">17.</span> Doosre Region Mein EBS Volume Create Karo</li>
+    <li><span class="num">18.</span> Doosre Region Ke EC2 Instance Se EBS Volume Attach Karo</li>
+    <li><span class="num">19.</span> Delete on Termination Configure Karo</li>
+    <li><span class="num">20.</span> EC2 Terminate Karke EBS Volume Verify Karo</li>
+    <li><span class="num">21.</span> EBS Volume Detach Aur Delete Karo</li>
+    <li><span class="num">22.</span> EBS Volume Delete Karne Se Pehle Snapshot Create Karo</li>
+    <li><span class="num">23.</span> Unused EBS Volumes Delete Karo</li>
+    <li><span class="num">24.</span> EBS Volume Types Samjho</li>
+    <li><span class="num">25.</span> EBS vs Instance Store Samjho</li>
+  </ol>
+
+</div>
+</div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  var themeBtn = document.getElementById('theme-btn');
+  function applyTheme(target) {
+    document.documentElement.setAttribute('data-theme', target);
+    document.body.setAttribute('data-theme', target);
+    document.documentElement.classList.toggle('dark', target === 'dark');
+    document.body.classList.toggle('dark', target === 'dark');
+    localStorage.setItem('cloud_learning_theme', target);
+    if (themeBtn) themeBtn.innerHTML = target === 'dark' ? '&#9728;&#65039; Light mode' : '&#127769; Dark mode';
+  }
+  var saved = localStorage.getItem('cloud_learning_theme') || 
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function(){
+      var isDark = document.body.getAttribute('data-theme') === 'dark';
+      applyTheme(isDark ? 'light' : 'dark');
+    });
+  }
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

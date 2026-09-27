@@ -4,13 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Level 1: AWS IAM (Identity & Access Management) — Hinglish Guide</title>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem("cloud_learning_theme") || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dark") document.documentElement.classList.add("dark");
+    } catch(e) {}
+  })();
+</script>
 <style>
   :root {
     --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-muted: #64748b;
     --brand: #2563eb; --brand-soft: #eff6ff; --border: #e2e8f0;
     --accent: #f59e0b; --accent-soft: #fffbeb; --ok: #10b981; --ok-soft: #ecfdf5;
   }
-  [data-theme="dark"] {
+  html.dark, body[data-theme="dark"], [data-theme="dark"] {
     --bg: #090d16; --card: #111827; --text: #f8fafc; --text-muted: #94a3b8;
     --brand: #3b82f6; --brand-soft: #1e293b; --border: #1f293d;
     --accent: #fbbf24; --accent-soft: #2b1f0c; --ok: #34d399; --ok-soft: #064e3b;
@@ -70,11 +80,26 @@
     </div>
   </div>
   <script>
-    function toggleTheme() {
-      const current = document.body.getAttribute('data-theme');
-      const target = current === 'dark' ? 'light' : 'dark';
+    function applyTheme(target) {
+      document.documentElement.setAttribute('data-theme', target);
+      document.documentElement.classList.toggle('dark', target === 'dark');
       document.body.setAttribute('data-theme', target);
+      document.body.classList.toggle('dark', target === 'dark');
+      localStorage.setItem('cloud_learning_theme', target);
+      const btn = document.querySelector('.btn-theme');
+      if (btn) btn.textContent = target === 'dark' ? '☀️' : '🌙';
     }
+    function initTheme() {
+      const saved = localStorage.getItem('cloud_learning_theme') || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      applyTheme(saved);
+    }
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || document.body.getAttribute('data-theme') || 'light';
+      const target = current === 'dark' ? 'light' : 'dark';
+      applyTheme(target);
+    }
+    document.addEventListener('DOMContentLoaded', initTheme);
   </script>
 </body>
 </html>

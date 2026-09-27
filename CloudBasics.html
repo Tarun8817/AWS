@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Basics & Core Definitions — Cloud, AWS & DevOps Hub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            DEFAULT: '#2563eb',
+            hover: '#1d4ed8',
+            soft: '#eff6ff'
+          }
+        }
+      }
+    }
+  };
+  (function() {
+    try {
+      var saved = localStorage.getItem("cloud_learning_theme") || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute("data-theme", saved);
+      if (saved === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    } catch(e) {}
+  })();
+</script>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --card-border: #e2e8f0;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --brand: #2563eb;
+    --brand-soft: #eff6ff;
+  }
+  html.dark,
+  body[data-theme="dark"],
+  [data-theme="dark"] {
+    --bg: #090d16;
+    --card: #111827;
+    --card-border: #1f293d;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --brand: #3b82f6;
+    --brand-soft: #1e293b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  #sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+  #sidebar::-webkit-scrollbar {
+    width: 5px;
+  }
+  #sidebar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body data-theme="light" class="flex flex-col md:flex-row min-h-screen">
+
+<!-- Backdrop for mobile drawer -->
+<div id="backdrop" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden transition-opacity" onclick="toggleSidebar()"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0f172a] text-slate-200 flex flex-col justify-between p-4 -translate-x-full transition-transform duration-200 ease-in-out md:translate-x-0 md:sticky md:top-0 md:h-screen md:shrink-0">
+  <div class="flex flex-col min-h-0 flex-1">
+    <a href="./index.html" class="flex items-center gap-2.5 pb-4 border-b border-slate-800 text-white no-underline shrink-0">
+      <div class="text-xl bg-slate-800 w-9 h-9 flex items-center justify-center rounded-lg">☁️</div>
+      <div>
+        <div class="font-bold text-base leading-tight">Cloud Hub</div>
+        <div class="text-xs text-slate-400">AWS & DevOps 21-Level Portal</div>
+      </div>
+    </a>
+
+    <div class="mt-3 flex flex-col gap-1 overflow-y-auto flex-1 pr-1" style="scrollbar-width:none;">
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-2">Basics & Roadmap</div>
+      
+      <!-- Current Page: Cloud Basics -->
+      <a href="./CloudBasics.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white font-semibold text-sm no-underline shadow-sm">
+        <span>📖 Cloud Basics & Definitions</span>
+      </a>
+
+      <!-- 21-Level Master Roadmap -->
+      <a href="./NotesAndDefinitions.html" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white text-sm font-medium transition-colors no-underline">
+        <span>🗺️ 21-Level Master Roadmap</span>
+      </a>
+
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-3">Dashboard</div>
+      <a href="./index.html" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white text-sm font-medium transition-colors no-underline">
+        <span>📚 All 21 Level Guides</span>
+      </a>
+
+      <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-3">External Links</div>
+      <a href="https://eu-north-1.signin.aws.amazon.com/oauth?response_type=code&client_id=arn%3Aaws%3Asignin%3A%3A%3Aconsole%2Fcanvas&redirect_uri=https%3A%2F%2Feu-north-1.console.aws.amazon.com%2Fconsole%2Fhome%3Fca-oauth-flow-id%3Def75%26hashArgs%3D%2523%26isauthcode%3Dtrue%26region%3Deu-north-1%26state%3DhashArgsFromTB_eu-north-1_f46bb704b8a8968d&forceMobileLayout=0&forceMobileApp=0&code_challenge=ia3836otX7c43NDhJmZb5b3FoLG7nLZ58AflK-8q5M0&code_challenge_method=SHA-256" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-3 py-2 rounded-lg text-amber-300 hover:bg-slate-800 text-sm font-medium transition-colors no-underline">
+        <span>🔑 AWS Console (eu-north-1) ↗</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="pt-4 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between shrink-0">
+    <span>Cloud Basics Guide</span>
+    <span>v2.0</span>
+  </div>
+</aside>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div id="main" class="flex-1 min-w-0 flex flex-col min-h-screen w-full">
+  <!-- Topbar -->
+  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+      <button id="menu-btn" class="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+      <div class="relative flex-1 sm:w-72 md:w-80">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">🔍</span>
+        <input type="text" id="search-input" class="w-full pl-9 pr-8 py-1.5 text-sm rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand" placeholder="Search terms (Hypervisor, IaaS, AWS...)" oninput="filterDefinitions(this.value)">
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+      <!-- Live Language Switcher -->
+      <div class="flex bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full p-0.5" id="lang-toggle-group">
+        <button id="btn-lang-en" class="px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all" onclick="setLanguage('EN')">🇺🇸 English</button>
+        <button id="btn-lang-hi" class="px-3 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all" onclick="setLanguage('HINGLISH')">🇮🇳 Hinglish</button>
+      </div>
+
+      <!-- Dashboard link -->
+      <a href="./index.html" class="text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 border border-blue-200 dark:border-blue-900 hover:bg-blue-600 hover:text-white transition-all">
+        <span>🏠 Dashboard</span>
+      </a>
+
+      <!-- Theme Switcher -->
+      <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700" onclick="toggleTheme()" title="Toggle Dark/Light Mode" id="theme-btn">🌙</button>
+    </div>
+  </header>
+
+  <!-- Page Content Wrap -->
+  <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
+    <!-- Header Hero -->
+    <div class="mb-6 p-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full" id="lang-indicator">English Version</span>
+        <span class="text-xs text-blue-100">• 1–2 Line Plain Language Definitions</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Core Cloud Computing Definitions</h1>
+      <p class="text-sm sm:text-base text-blue-100 mt-1 max-w-2xl">Foundational cloud architectures, hypervisors, service models, and AWS fundamentals explained in simple, scannable terms.</p>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="flex flex-wrap items-center gap-2 mb-6" id="category-pills">
+      <button class="px-3 py-1 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-sm" onclick="filterCategory('all', this)">All Concepts</button>
+      <button class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700" onclick="filterCategory('Foundation', this)">Foundation</button>
+      <button class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700" onclick="filterCategory('Compute', this)">Compute & VMs</button>
+      <button class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700" onclick="filterCategory('Cloud Models', this)">Service & Deployment Models</button>
+      <button class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700" onclick="filterCategory('Cloud Provider', this)">Cloud Providers</button>
+      <button class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700" onclick="filterCategory('Architecture', this)">Architecture & Security</button>
+    </div>
+
+    <!-- Definitions Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="definitions-container">
+      <!-- Injected via JavaScript -->
+    </div>
+  </main>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="./data/cloudModulesEN.js"></script>
+<script src="./data/cloudModulesHinglish.js"></script>
+<script>
+  let currentLanguage = "EN";
+  let activeCategory = "all";
+  let searchQuery = "";
+
+  function getActiveData() {
+    return currentLanguage === "EN" ? CLOUD_MODULES_EN : CLOUD_MODULES_HINGLISH;
+  }
+
+  function setLanguage(lang) {
+    currentLanguage = lang;
+    const btnEN = document.getElementById("btn-lang-en");
+    const btnHI = document.getElementById("btn-lang-hi");
+    const indicator = document.getElementById("lang-indicator");
+
+    if (lang === "EN") {
+      btnEN.className = "px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all";
+      btnHI.className = "px-3 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all";
+      indicator.textContent = "English Version";
+    } else {
+      btnHI.className = "px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all";
+      btnEN.className = "px-3 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all";
+      indicator.textContent = "🇮🇳 Hinglish Version";
+    }
+
+    renderDefinitions();
+  }
+
+  function filterCategory(cat, btn) {
+    activeCategory = cat;
+    document.querySelectorAll("#category-pills button").forEach(b => {
+      b.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700";
+    });
+    if (btn) {
+      btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-sm";
+    }
+    renderDefinitions();
+  }
+
+  function filterDefinitions(query) {
+    searchQuery = query.toLowerCase().trim();
+    renderDefinitions();
+  }
+
+  function renderDefinitions() {
+    const data = getActiveData();
+    const container = document.getElementById("definitions-container");
+    container.innerHTML = "";
+
+    const filtered = data.filter(item => {
+      const matchCat = activeCategory === "all" || item.category === activeCategory;
+      const matchQuery = !searchQuery || 
+        item.term.toLowerCase().includes(searchQuery) ||
+        item.definition.toLowerCase().includes(searchQuery) ||
+        item.analogy.toLowerCase().includes(searchQuery);
+      return matchCat && matchQuery;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="col-span-full text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500">
+          <div class="text-3xl mb-2">🔍</div>
+          <p class="font-semibold text-sm">No definition matches your search query.</p>
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between";
+      card.innerHTML = `
+        <div>
+          <div class="flex items-start justify-between gap-3 mb-2.5">
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl">${item.icon}</span>
+              <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">${item.term}</h2>
+            </div>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 shrink-0">${item.category}</span>
+          </div>
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">${item.definition}</p>
+        </div>
+
+        <div class="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-start gap-2 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-lg">
+          <span class="text-xs font-bold text-amber-600 dark:text-amber-400 shrink-0">💡 ${currentLanguage === 'EN' ? 'Analogy' : 'In Simple Words'}:</span>
+          <span class="text-xs text-slate-600 dark:text-slate-400 italic">${item.analogy}</span>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleSidebar() {
+    const sb = document.getElementById("sidebar");
+    const bd = document.getElementById("backdrop");
+    sb.classList.toggle("-translate-x-full");
+    bd.classList.toggle("hidden");
+  }
+
+  function applyTheme(target) {
+    document.documentElement.setAttribute("data-theme", target);
+    document.documentElement.classList.toggle("dark", target === "dark");
+    document.body.setAttribute("data-theme", target);
+    document.body.classList.toggle("dark", target === "dark");
+    localStorage.setItem("cloud_learning_theme", target);
+    const btn = document.getElementById("theme-btn");
+    if (btn) btn.textContent = target === "dark" ? "☀️" : "🌙";
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem("cloud_learning_theme") || 
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(saved);
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") || document.body.getAttribute("data-theme") || "light";
+    const target = current === "dark" ? "light" : "dark";
+    applyTheme(target);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
+    renderDefinitions();
+  });
+</script>
+
+</body>
+</html>
