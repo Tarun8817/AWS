@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS DynamoDB Study Notes (English + Hinglish)</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --sidebar-bg: #151c2c; --card: #ffffff; --ink: #1e2a38; --muted: #5a6878; --line: #dbe2ea;
+    --brand: #2b4fa3; --brand-soft: #e8eefb;
+    --ok: #1d7a46; --ok-soft: #e5f5ec;
+    --warn: #9a6200; --warn-soft: #fff4dc;
+    --bad: #b02a2a; --bad-soft: #fdeaea;
+    --hi: #a34a12; --hi-soft: #fdf1e7;
+    --code-bg: #14202e; --code-ink: #e3ebf3;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.65; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--sidebar-bg); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 40px;
+    transition: transform .25s ease; z-index: 50;
+  }
+  #sidebar h2 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea1c9; margin: 18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; text-decoration: none; font-size: .88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; border-bottom: 1px solid #263252; margin-bottom: 6px; }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; background: #101a2c; color: #e6ecf5;
+    font-size: .85rem; margin-bottom: 6px;
+  }
+
+  /* Main */
+  #main { flex: 1; min-width: 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; background: var(--card); border-bottom: 1px solid var(--line);
+    padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn {
+    display: none; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px;
+    cursor: pointer; color: var(--ink); font-size: 1rem;
+  }
+  #theme-btn {
+    background: var(--brand-soft); border: 1px solid var(--line); color: var(--brand); border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 24px 16px 60px; }
+  #backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; }
+  #backtotop {
+    position: fixed; bottom: 22px; right: 22px; background: var(--brand); color: #fff; border: none; border-radius: 50%;
+    width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60;
+  }
+  @media (max-width: 900px) {
+    #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+    #menu-btn { display: inline-block; }
+    .wrap { padding: 20px 14px 60px;  width: 100%; }
+  }
+
+  header.top { background: var(--brand); color: #fff; padding: 32px 22px; border-radius: 10px; margin-bottom: 20px; }
+  header.top h1 { margin: 0 0 6px; font-size: 2rem; line-height: 1.25; }
+  header.top p { margin: 0; opacity: .93; }
+  nav.toc { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+  nav.toc h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  nav.toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 32px; font-size: .95rem; }
+  nav.toc li { margin-bottom: 3px; break-inside: avoid; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px 24px; margin-bottom: 20px; }
+  section.card > h2 { margin: 0 0 14px; font-size: 1.45rem; color: var(--brand); padding-bottom: 8px; border-bottom: 2px solid var(--brand-soft); }
+  h3 { margin: 22px 0 6px; font-size: 1.12rem; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 24px; }
+  li { margin-bottom: 4px; }
+
+  .box { border-left: 5px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; border-radius: 6px; margin: 14px 0; }
+  .box.def { border-color: var(--brand); background: var(--brand-soft); }
+  .box.hi { border-color: var(--hi); background: var(--hi-soft); }
+  .box.good { border-color: var(--ok); background: var(--ok-soft); }
+  .box.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .box.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .box strong.t { display: block; margin-bottom: 2px; }
+
+  pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-family: Consolas, "Courier New", monospace; font-size: .87rem; line-height: 1.5; margin: 12px 0; white-space: pre; }
+  code { font-family: Consolas, "Courier New", monospace; background: #eef1f5; padding: 1px 6px; border-radius: 4px; font-size: .9em; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .k { color: #7fc4ff; } .s { color: #a5e08a; } .c { color: #8395a7; font-style: italic; } .f { color: #ffd479; } .n { color: #f2a2c0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .94rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); }
+  .tablewrap { overflow-x: auto; }
+
+  .arch { background: #f9fbfd; border: 1px dashed #9db4cc; font-family: Consolas, "Courier New", monospace; font-size: .9rem; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre; line-height: 1.4; margin: 12px 0; }
+  .qa { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin: 10px 0; background: #fbfcfe; }
+  .qa .q { font-weight: 700; color: var(--brand); }
+  .qa .a { margin-top: 4px; }
+  .check li { list-style: none; margin-left: -20px; }
+  .check li::before { content: "\2610  "; }
+  footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 30px; }
+
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    header.top h1 { font-size: 1.5rem; }
+    nav.toc ol { columns: 1; }
+    section.card { padding: 16px 14px; }
+  }
+  @media print {
+    body { background: #fff; font-size: 12pt; }
+    .wrap { max-width: 100%; padding: 0; }
+    header.top { background: #fff; color: #000; border: 2px solid #000; }
+    section.card { border: 1px solid #999; }
+    section.card > h2 { page-break-after: avoid; }
+    pre, .arch, table, .qa, .box { page-break-inside: avoid; }
+    pre { background: #f2f2f2; color: #000; border: 1px solid #999; white-space: pre-wrap; }
+    .k, .s, .c, .f, .n { color: #000; }
+    a { text-decoration: none; color: #000; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body>
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">⚡</span><span class="name">DynamoDB</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Core Concepts</h2>
+  <ul>
+    <li><a href="#s1">1. Introduction</a></li>
+    <li><a href="#s2">2. DynamoDB vs RDS</a></li>
+    <li><a href="#s3">3. MERN-style Example</a></li>
+    <li><a href="#s4">4. What is NoSQL?</a></li>
+    <li><a href="#s5">5. Table, Item, Attribute</a></li>
+    <li><a href="#s6">6. Primary Key, Partition Key</a></li>
+    <li><a href="#s7">7. Create a DynamoDB Table</a></li>
+    <li><a href="#s8">8. Users Table Example</a></li>
+  </ul>
+  <h2>Operations</h2>
+  <ul>
+    <li><a href="#s9">9. CRUD Operations (CLI)</a></li>
+    <li><a href="#s10">10. Query vs Scan</a></li>
+    <li><a href="#s11">11. Indexes: GSI & LSI</a></li>
+    <li><a href="#s12">12. Capacity, RCU & WCU</a></li>
+    <li><a href="#s13">13. Scaling & Serverless</a></li>
+  </ul>
+  <h2>Node.js Integration</h2>
+  <ul>
+    <li><a href="#s14">14. Node.js with AWS SDK v3</a></li>
+    <li><a href="#s15">15. Document Client</a></li>
+    <li><a href="#s16">16. Express + DynamoDB API</a></li>
+    <li><a href="#s17">17. Credentials & Env Variables</a></li>
+    <li><a href="#s18">18. EC2 + IAM Role</a></li>
+  </ul>
+  <h2>Access & Security</h2>
+  <ul>
+    <li><a href="#s19">19. Port 3306?</a></li>
+    <li><a href="#s20">20. Outside AWS / Windows</a></li>
+    <li><a href="#s21">21. Security</a></li>
+    <li><a href="#s22">22. Backup & Recovery</a></li>
+    <li><a href="#s23">23. TTL</a></li>
+    <li><a href="#s24">24. Streams</a></li>
+  </ul>
+  <h2>Advanced & Comparisons</h2>
+  <ul>
+    <li><a href="#s25">25. DynamoDB + Lambda</a></li>
+    <li><a href="#s26">26. DynamoDB vs MongoDB</a></li>
+    <li><a href="#s27">27. DynamoDB vs RDS vs MongoDB</a></li>
+    <li><a href="#s28">28. E-commerce Design</a></li>
+    <li><a href="#s29">29. Common Mistakes</a></li>
+    <li><a href="#s30">30. Cost, Monitoring</a></li>
+    <li><a href="#s31">31. Interview Q&A</a></li>
+    <li><a href="#s32">32. Important Architectures</a></li>
+  </ul>
+  <h2>Quick Reference</h2>
+  <ul>
+    <li><a href="#s33">33. DynamoDB in One Minute</a></li>
+    <li><a href="#s34">34. Quick Revision Table</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS DynamoDB</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+<div class="wrap">
+
+<header class="top">
+  <h1>AWS DynamoDB &mdash; Beginner Study Notes</h1>
+  <p>English + Hinglish &bull; for learning, revision, AWS interview preparation and printing</p>
+</header>
+
+
+<!-- 1 -->
+<section class="card" id="s1">
+  <h2>1. AWS DynamoDB Introduction</h2>
+  <p><strong>AWS DynamoDB = Amazon DynamoDB</strong></p>
+  <div class="box def">
+    <strong class="t">Definition</strong>
+    Amazon DynamoDB is a fully managed NoSQL database service provided by AWS that provides fast and predictable performance with seamless scalability.
+  </div>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    DynamoDB AWS ka fully managed NoSQL database service hai. Isme hume database server install ya manage karne ki zarurat nahi hoti. AWS infrastructure ko manage karta hai aur hum mainly apne data aur application par focus karte hain.
+  </div>
+
+  <h3>What is DynamoDB?</h3>
+  <p>A database service where you store data as <strong>items</strong> inside <strong>tables</strong> and read/write it using AWS APIs. You do not create or manage a database server.</p>
+  <p><em>Hinglish:</em> DynamoDB mein hum tables banate hain aur unme items (records) store karte hain. Koi database server banana ya chalana nahi padta.</p>
+
+  <h3>What is NoSQL?</h3>
+  <p>NoSQL databases do not primarily use the traditional relational table structure of SQL databases. Details in <a href="#s4">section 4</a>.</p>
+
+  <h3>What does &ldquo;fully managed&rdquo; mean?</h3>
+  <p>AWS takes care of servers, hardware, software patching, replication of data across facilities, and scaling infrastructure. You take care of your data model, access patterns, permissions, security and cost.</p>
+  <p><em>Hinglish:</em> Fully managed ka matlab: server, hardware, patching, infrastructure AWS sambhalta hai. Data model, permissions, security aur cost hamari zimmedari hai.</p>
+
+  <h3>Why do we use DynamoDB?</h3>
+  <ul>
+    <li>Fast, predictable performance for key-based lookups.</li>
+    <li>No server to install or patch.</li>
+    <li>Scales to large traffic.</li>
+    <li>Flexible schema (items can have different attributes).</li>
+    <li>Works well with AWS services (IAM, Lambda, CloudWatch).</li>
+  </ul>
+
+  <h3>Where is DynamoDB useful?</h3>
+  <ul>
+    <li>User profiles, shopping carts, orders history</li>
+    <li>Session data and temporary data (with TTL)</li>
+    <li>Gaming leaderboards / player data</li>
+    <li>IoT and event data</li>
+    <li>Serverless applications (API Gateway + Lambda + DynamoDB)</li>
+  </ul>
+  <p><em>Hinglish:</em> Jahan data ko key se fast access karna ho (jaise userId se profile) aur traffic zyada ho sakta ho, wahan DynamoDB achha lagta hai.</p>
+</section>
+
+<!-- 2 -->
+<section class="card" id="s2">
+  <h2>2. DynamoDB vs RDS</h2>
+  <p><strong>DynamoDB:</strong> NoSQL, key-value/document, serverless/fully managed experience, very fast access, automatic scaling options, flexible schema.</p>
+  <p><strong>RDS:</strong> relational database, SQL, tables/rows/columns, MySQL/PostgreSQL/etc., relationships, SQL queries.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Feature</th><th>DynamoDB</th><th>RDS</th></tr>
+    <tr><td>Database type</td><td>NoSQL (key-value / document)</td><td>Relational (SQL)</td></tr>
+    <tr><td>Query style</td><td>API calls: GetItem, PutItem, Query, Scan (PartiQL is also available)</td><td>SQL queries (SELECT, JOIN, ...)</td></tr>
+    <tr><td>Schema</td><td>Flexible; only the primary key is fixed</td><td>Fixed columns per table</td></tr>
+    <tr><td>Scaling</td><td>Designed for horizontal scaling; on-demand and provisioned options</td><td>Bigger instance (vertical), storage growth, read replicas</td></tr>
+    <tr><td>Relationships</td><td>No joins; you design data around access patterns</td><td>Foreign keys and JOINs</td></tr>
+    <tr><td>Connection</td><td>AWS SDK/CLI over HTTPS + IAM permissions</td><td>Endpoint + port (e.g. 3306) + DB username/password</td></tr>
+    <tr><td>Typical use cases</td><td>Carts, sessions, profiles, IoT, serverless apps</td><td>Financial data, reporting, apps needing joins and complex SQL</td></tr>
+  </table>
+  </div>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    DynamoDB mein SQL tables aur JOIN nahi hote; data key ke through access hota hai aur design access patterns ke hisaab se hota hai. RDS mein SQL, tables, rows, columns aur relationships hote hain. Dono alag problems ke liye bane hain &mdash; ek dusre se universally better nahi hai.
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="card" id="s3">
+  <h2>3. Real-World MERN-style Project Example</h2>
+  <p>MERN normally means <strong>M</strong>ongoDB, <strong>E</strong>xpress.js, <strong>R</strong>eact, <strong>N</strong>ode.js. But a React + Node.js application can also use <strong>DynamoDB instead of MongoDB</strong>.</p>
+<div class="arch">User
+ |
+ v
+React Frontend
+ |
+ v
+Node.js + Express Backend  (on EC2)
+ |
+ v
+AWS DynamoDB
+ |
+ v
+Data</div>
+  <p>Suppose we build an <strong>e-commerce application</strong>: Frontend = React, Backend = Node.js + Express, Database = DynamoDB, AWS = EC2 runs the Node.js backend.</p>
+<pre><code><span class="c">// User item</span>
+{
+  <span class="s">"userId"</span>: <span class="s">"U101"</span>,
+  <span class="s">"name"</span>: <span class="s">"Tarun"</span>,
+  <span class="s">"email"</span>: <span class="s">"tarun@example.com"</span>
+}
+
+<span class="c">// Product item</span>
+{
+  <span class="s">"productId"</span>: <span class="s">"P101"</span>,
+  <span class="s">"name"</span>: <span class="s">"Laptop"</span>,
+  <span class="s">"price"</span>: <span class="n">50000</span>
+}</code></pre>
+  <h3>Request flow</h3>
+  <ol>
+    <li>User opens the React application.</li>
+    <li>React sends an API request.</li>
+    <li>Node.js/Express receives the request.</li>
+    <li>Backend communicates with DynamoDB (using the AWS SDK).</li>
+    <li>DynamoDB returns the requested data.</li>
+    <li>Backend sends the response to React.</li>
+    <li>React displays the result.</li>
+  </ol>
+  <p><em>Hinglish:</em> Flow wahi hai jo normal MERN app ka hota hai; bas Node.js backend MongoDB ke bajay AWS SDK se DynamoDB se baat karta hai.</p>
+</section>
+
+<!-- 4 -->
+<section class="card" id="s4">
+  <h2>4. What is NoSQL?</h2>
+  <div class="box def">
+    <strong class="t">Definition</strong>
+    NoSQL databases are databases that do not primarily use the traditional relational table structure of SQL databases.
+  </div>
+  <p><em>Hinglish:</em> NoSQL databases mein data mainly SQL ki fixed rows-columns wali relational tables ki tarah store nahi hota. (&ldquo;NoSQL&rdquo; ko aksar &ldquo;Not only SQL&rdquo; bhi kehte hain.)</p>
+  <p>DynamoDB supports <strong>key-value</strong> data and <strong>document</strong> data.</p>
+<pre><code>{
+  <span class="s">"userId"</span>: <span class="s">"U101"</span>,
+  <span class="s">"name"</span>: <span class="s">"Tarun"</span>,
+  <span class="s">"age"</span>: <span class="n">24</span>,
+  <span class="s">"skills"</span>: [<span class="s">"React"</span>, <span class="s">"Node.js"</span>, <span class="s">"AWS"</span>]
+}</code></pre>
+  <h3>Why NoSQL can be useful</h3>
+  <ul>
+    <li><strong>Flexible data structure:</strong> items can have different attributes (lists, nested maps).</li>
+    <li><strong>High scalability:</strong> built to spread data and traffic across many machines.</li>
+    <li><strong>Fast access:</strong> quick lookups by key.</li>
+    <li><strong>Large-scale applications:</strong> good when data and traffic are big.</li>
+  </ul>
+  <p><em>Hinglish:</em> Flexible structure, high scalability aur fast key-based access ki wajah se NoSQL badi applications mein use hota hai. Iska matlab ye nahi ki har project ke liye NoSQL hi best hai.</p>
+</section>
+
+<!-- 5 -->
+<section class="card" id="s5">
+  <h2>5. DynamoDB Table, Item and Attribute</h2>
+  <div class="box def">
+    <strong class="t">Table</strong>
+    A DynamoDB table is a collection of items.
+  </div>
+<div class="arch">Table
+ |
+ v
+Items
+ |
+ v
+Attributes</div>
+  <div class="tablewrap">
+  <table>
+    <tr><th>SQL</th><th>DynamoDB</th></tr>
+    <tr><td>Database &rarr; Table &rarr; Rows &rarr; Columns</td><td>Table &rarr; Items &rarr; Attributes</td></tr>
+    <tr><td>Row</td><td>Item</td></tr>
+    <tr><td>Column</td><td>Attribute</td></tr>
+  </table>
+  </div>
+  <p><strong>Item</strong> = one record/document in DynamoDB. <strong>Attribute</strong> = a field inside an item.</p>
+<pre><code>{
+  <span class="s">"userId"</span>: <span class="s">"U101"</span>,
+  <span class="s">"name"</span>: <span class="s">"Tarun"</span>,
+  <span class="s">"email"</span>: <span class="s">"tarun@example.com"</span>
+}</code></pre>
+  <ul>
+    <li><strong>Item:</strong> the complete object above.</li>
+    <li><strong>Attributes:</strong> <code>userId</code>, <code>name</code>, <code>email</code>.</li>
+  </ul>
+  <p><em>Hinglish:</em> Table = items ka collection. Item = ek poora record (SQL ki row jaisa). Attribute = item ke andar ka ek field (SQL ke column jaisa). Fark ye hai ki alag items mein alag attributes ho sakte hain.</p>
+</section>
+
+<!-- 6 -->
+<section class="card" id="s6">
+  <h2>6. Primary Key, Partition Key and Sort Key</h2>
+  <p>Every DynamoDB table <strong>must have a primary key</strong>. It uniquely identifies each item. There are two types:</p>
+  <ol>
+    <li><strong>Simple primary key</strong> = Partition key only</li>
+    <li><strong>Composite primary key</strong> = Partition key + Sort key</li>
+  </ol>
+
+  <h3>Partition key</h3>
+  <p>The partition key is the main key used to identify items and distribute them internally. Example: <code>userId = U101</code>.</p>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    Partition key DynamoDB ko batata hai ki item ko kaise identify aur internally distribute karna hai.
+  </div>
+  <div class="tablewrap">
+  <table>
+    <tr><th colspan="2">Table: Users &mdash; Partition Key: userId</th></tr>
+    <tr><td>U101</td><td>Tarun</td></tr>
+    <tr><td>U102</td><td>Rahul</td></tr>
+    <tr><td>U103</td><td>Riya</td></tr>
+  </table>
+  </div>
+
+  <h3>Composite primary key and Sort key</h3>
+  <div class="box def">
+    <strong class="t">Sort key</strong>
+    A sort key is the second part of a composite primary key and allows related items to be organized and queried together.
+  </div>
+  <p>Partition key = <code>userId</code>, Sort key = <code>orderId</code>. The <em>combination</em> must be unique.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th colspan="4">Table: UsersOrders</th></tr>
+    <tr><th>userId (PK)</th><th>orderId (SK)</th><th>product</th><th>price</th></tr>
+    <tr><td>U101</td><td>O1001</td><td>Laptop</td><td>50000</td></tr>
+    <tr><td>U101</td><td>O1002</td><td>Mouse</td><td>1000</td></tr>
+    <tr><td>U102</td><td>O1003</td><td>Keyboard</td><td>2000</td></tr>
+  </table>
+  </div>
+  <p><strong>Why is this useful?</strong> Items with the same partition key are stored together and sorted by the sort key. So DynamoDB can efficiently fetch <em>all orders of one user</em> (<code>userId = U101</code>) with a Query, without checking the whole table.</p>
+  <p><em>Hinglish:</em> Partition key se DynamoDB pata kar leta hai ki user ka data kahan hai. Sort key se us user ke orders ek order mein arranged rehte hain, isliye &ldquo;U101 ke saare orders&rdquo; jaisi query fast chalti hai.</p>
+</section>
+
+<!-- 7 -->
+<section class="card" id="s7">
+  <h2>7. How to Create a DynamoDB Table</h2>
+  <ol>
+    <li>Login to the <strong>AWS Console</strong>.</li>
+    <li>Search for <strong>DynamoDB</strong>.</li>
+    <li>Open <strong>Amazon DynamoDB</strong>.</li>
+    <li>Go to <strong>Tables</strong>.</li>
+    <li>Click <strong>Create table</strong>.</li>
+    <li>Enter the table name, for example <code>Users</code>.</li>
+    <li>Partition key: <code>userId</code></li>
+    <li>Key type: <strong>String</strong></li>
+    <li><strong>Sort key</strong> is optional. Add one only when you need a composite key (like <code>orderId</code>). For this first beginner example: <strong>Partition key = userId, no sort key</strong>.</li>
+    <li>Keep the other settings simple/default for learning.</li>
+    <li>Click <strong>Create table</strong> and wait until the status is <strong>Active</strong>.</li>
+  </ol>
+  <div class="box warn">
+    <strong class="t">Note</strong>
+    DynamoDB configuration options can change over time, and the AWS Console may show different options depending on the current service interface. The main idea (table name + primary key) stays the same.
+  </div>
+  <p><em>Hinglish:</em> Console ki screens badalti rehti hain; important cheez table name aur primary key hai. Sort key optional hota hai, aur primary key baad mein change nahi hoti, isliye pehle se soch kar choose karo.</p>
+</section>
+
+<!-- 8 -->
+<section class="card" id="s8">
+  <h2>8. DynamoDB Table Example: Users</h2>
+  <p>Table: <code>Users</code> &bull; Partition key: <code>userId</code></p>
+<pre><code>{
+  <span class="s">"userId"</span>: <span class="s">"U101"</span>,
+  <span class="s">"name"</span>: <span class="s">"Tarun"</span>,
+  <span class="s">"email"</span>: <span class="s">"tarun@example.com"</span>,
+  <span class="s">"age"</span>: <span class="n">24</span>
+}
+
+{
+  <span class="s">"userId"</span>: <span class="s">"U102"</span>,
+  <span class="s">"name"</span>: <span class="s">"Rahul"</span>,
+  <span class="s">"email"</span>: <span class="s">"rahul@example.com"</span>,
+  <span class="s">"age"</span>: <span class="n">25</span>
+}</code></pre>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Attribute</th><th>Meaning</th></tr>
+    <tr><td><code>userId</code></td><td>Partition key; unique ID of the user (required in every item).</td></tr>
+    <tr><td><code>name</code></td><td>User&rsquo;s name (normal attribute).</td></tr>
+    <tr><td><code>email</code></td><td>User&rsquo;s email (normal attribute).</td></tr>
+    <tr><td><code>age</code></td><td>User&rsquo;s age (number).</td></tr>
+  </table>
+  </div>
+  <p><em>Hinglish:</em> Sirf <code>userId</code> zaroori hai kyunki wo primary key hai. Baaki attributes optional aur flexible hain; kisi item mein extra attribute add kar sakte ho bina table badle.</p>
+</section>
+
+<!-- 9 -->
+<section class="card" id="s9">
+  <h2>9. CRUD Operations</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Letter</th><th>Meaning</th><th>DynamoDB operation</th><th>Hinglish</th></tr>
+    <tr><td>C</td><td>Create</td><td><code>PutItem</code></td><td>Naya item likhna/create karna</td></tr>
+    <tr><td>R</td><td>Read</td><td><code>GetItem</code></td><td>Key se item padhna</td></tr>
+    <tr><td>U</td><td>Update</td><td><code>UpdateItem</code></td><td>Item ke attributes badalna</td></tr>
+    <tr><td>D</td><td>Delete</td><td><code>DeleteItem</code></td><td>Item delete karna</td></tr>
+  </table>
+  </div>
+
+  <h3>PutItem (create)</h3>
+  <p>PutItem creates/writes an item. If an item with the same primary key already exists, it is <strong>replaced</strong> (unless you add a condition).</p>
+<pre><code><span class="f">aws</span> dynamodb put-item \
+  --table-name Users \
+  --item <span class="s">'{
+    "userId": {"S": "U101"},
+    "name": {"S": "Tarun"},
+    "email": {"S": "tarun@example.com"}
+  }'</span></code></pre>
+  <p><code>S</code> = String. (Other common types: <code>N</code> = Number, <code>BOOL</code> = Boolean, <code>L</code> = List, <code>M</code> = Map.)</p>
+  <div class="box warn">
+    <strong class="t">Why is the CLI JSON different?</strong>
+    DynamoDB&rsquo;s low-level API represents attribute types explicitly (<code>{"S": "Tarun"}</code>), so the CLI syntax differs from normal JSON. Normal JSON like <code>"name": "Tarun"</code> is what you use with the Document Client in code (<a href="#s15">section 15</a>).
+  </div>
+  <p><em>Hinglish:</em> Low-level API ko type batana padta hai (S, N, ...). Isliye CLI mein <code>{"S": "Tarun"}</code> likhte hain. PutItem same key par purana item replace kar deta hai, dhyan rakhna.</p>
+
+  <h3>GetItem (read)</h3>
+<pre><code><span class="f">aws</span> dynamodb get-item \
+  --table-name Users \
+  --key <span class="s">'{
+    "userId": {"S": "U101"}
+  }'</span></code></pre>
+  <ul>
+    <li><code>--table-name Users</code> &mdash; which table.</li>
+    <li><code>--key</code> &mdash; the full primary key of the item you want (here only <code>userId</code>).</li>
+  </ul>
+  <p><em>Hinglish:</em> GetItem ko exact primary key chahiye; ye ek hi item wapas deta hai aur bahut fast hota hai.</p>
+
+  <h3>UpdateItem</h3>
+<pre><code><span class="f">aws</span> dynamodb update-item \
+  --table-name Users \
+  --key <span class="s">'{"userId":{"S":"U101"}}'</span> \
+  --update-expression <span class="s">"SET #n = :name"</span> \
+  --expression-attribute-names <span class="s">'{"#n":"name"}'</span> \
+  --expression-attribute-values <span class="s">'{":name":{"S":"Tarun Rajput"}}'</span></code></pre>
+  <ul>
+    <li><strong>update-expression</strong> &mdash; what to change: <code>SET #n = :name</code> means &ldquo;set attribute #n to value :name&rdquo;.</li>
+    <li><strong>expression-attribute-names</strong> &mdash; a nickname for an attribute name. <code>#n</code> stands for <code>name</code>. This is needed because <code>name</code> is a DynamoDB reserved word.</li>
+    <li><strong>expression-attribute-values</strong> &mdash; the actual value. <code>:name</code> stands for <code>"Tarun Rajput"</code>.</li>
+  </ul>
+  <p><em>Hinglish:</em> <code>#</code> se shuru hone wale placeholders attribute ke naam ke liye hote hain, aur <code>:</code> se shuru hone wale placeholders value ke liye. Isse reserved words ki problem nahi aati aur query safe rehti hai.</p>
+
+  <h3>DeleteItem</h3>
+<pre><code><span class="f">aws</span> dynamodb delete-item \
+  --table-name Users \
+  --key <span class="s">'{
+    "userId": {"S": "U101"}
+  }'</span></code></pre>
+  <p>Deletes the item with that primary key. <em>Hinglish:</em> Ye us key wala item hata deta hai. Delete se pehle sure ho lo, warna backup/PITR se hi recover hoga.</p>
+</section>
+
+<!-- 10 -->
+<section class="card" id="s10">
+  <h2>10. Query vs Scan</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th></th><th>Query</th><th>Scan</th></tr>
+    <tr><td>How it works</td><td>Uses key conditions (partition key, optionally sort key)</td><td>Examines items across the whole table/index</td></tr>
+    <tr><td>Efficiency</td><td>Generally more efficient for targeted access</td><td>Can consume more resources, especially on big tables</td></tr>
+    <tr><td>Typical use</td><td>Get all orders for user U101</td><td>Check the entire table to find users where age = 24</td></tr>
+    <tr><td>In applications</td><td>Preferred for normal access patterns</td><td>Usually not preferred for large-scale application access patterns</td></tr>
+  </table>
+  </div>
+<pre><code><span class="c"># Query: all orders of user U101 (table with userId + orderId)</span>
+<span class="f">aws</span> dynamodb query \
+  --table-name UsersOrders \
+  --key-condition-expression <span class="s">"userId = :u"</span> \
+  --expression-attribute-values <span class="s">'{":u":{"S":"U101"}}'</span></code></pre>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    <strong>Query</strong> = seedha us partition key wale items nikalna (jaise &ldquo;U101 ke saare orders&rdquo;). <strong>Scan</strong> = poori table check karna (jaise &ldquo;kis user ki age 24 hai?&rdquo;). Scan chhoti tables ya kabhi-kabhi ke admin kaam ke liye theek hai, lekin badi tables par bar bar Scan chalane se cost aur time dono badhte hain. Isliye Query ke hisaab se table design karo.
+  </div>
+  <p>Note: a filter on a Scan (like <code>age = 24</code>) is applied <em>after</em> items are read, so you are still charged for reading the items examined.</p>
+</section>
+
+<!-- 11 -->
+<section class="card" id="s11">
+  <h2>11. DynamoDB Indexes (GSI and LSI)</h2>
+  <p>An <strong>index</strong> gives you another way to look up items besides the table&rsquo;s primary key. <em>Hinglish:</em> Index ek extra &ldquo;rasta&rdquo; hai jisse hum primary key ke alawa kisi aur attribute se bhi efficiently search kar sakte hain.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th></th><th>GSI (Global Secondary Index)</th><th>LSI (Local Secondary Index)</th></tr>
+    <tr><td>Partition key</td><td>Can be different from the base table</td><td>Same as the base table</td></tr>
+    <tr><td>Sort key</td><td>Can be different (optional)</td><td>Different sort key</td></tr>
+    <tr><td>Use</td><td>Alternative access patterns</td><td>Another sort order within the same partition key</td></tr>
+    <tr><td>When to create</td><td>Can be added later</td><td>Must be created when the table is created</td></tr>
+  </table>
+  </div>
+  <p><strong>Simple example (LSI):</strong> table <code>UsersOrders</code> has <code>userId + orderId</code>. An LSI with sort key <code>orderDate</code> lets you list one user&rsquo;s orders sorted by date.</p>
+
+  <h3>Real project with GSI</h3>
+  <p>Users table: partition key = <code>userId</code>. Suppose we also want to find a user <strong>by email</strong> (for login).</p>
+<div class="arch">Base table  Users
+   Primary key : userId
+
+GSI  email-index
+   GSI partition key : email</div>
+  <p>Now <code>userId</code> lookups use the table, and <code>email</code> lookups use the GSI &mdash; two efficient access patterns.</p>
+  <div class="box warn">
+    <strong class="t">Design tip</strong>
+    Design indexes based on your application&rsquo;s <em>actual query patterns</em>. Every index adds storage and write cost, so do not create unnecessary indexes.
+  </div>
+  <p><em>Hinglish:</em> Jitne queries chahiye utne hi indexes banao. Bina zarurat index banane se cost badhti hai.</p>
+</section>
+
+<!-- 12 -->
+<section class="card" id="s12">
+  <h2>12. Capacity Modes, RCU and WCU</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Mode</th><th>Meaning</th><th>Hinglish</th></tr>
+    <tr><td><strong>On-demand</strong></td><td>Pay based on request usage; DynamoDB manages capacity automatically.</td><td>Jitni requests, utna payment. Capacity planning ki tension nahi.</td></tr>
+    <tr><td><strong>Provisioned</strong></td><td>You specify read/write capacity settings and manage capacity planning, with scaling options (auto scaling) available.</td><td>Hum khud read/write capacity set karte hain; traffic predictable ho to suitable.</td></tr>
+  </table>
+  </div>
+
+  <h3>RCU and WCU</h3>
+  <ul>
+    <li><strong>RCU</strong> = Read Capacity Unit</li>
+    <li><strong>WCU</strong> = Write Capacity Unit</li>
+  </ul>
+  <p>Conceptually: a <strong>read</strong> operation consumes read capacity, and a <strong>write</strong> operation consumes write capacity. Actual consumption depends on <strong>item size</strong> and the <strong>operation characteristics</strong> (for example consistency type, or whether it is a Query or a Scan). Bigger items and bigger scans use more capacity.</p>
+  <p><em>Hinglish:</em> Read karne par RCU kharch hota hai, write karne par WCU. Item jitna bada, ya operation jitna heavy (jaise Scan), capacity utni zyada use hoti hai. Exact calculation ke liye AWS ka current documentation dekho.</p>
+</section>
+
+<!-- 13 -->
+<section class="card" id="s13">
+  <h2>13. DynamoDB Scaling and the Serverless Concept</h2>
+  <p>DynamoDB is designed for <strong>horizontal scalability</strong>:</p>
+  <ul>
+    <li>Handles large amounts of traffic</li>
+    <li>Automatically manages infrastructure</li>
+    <li>Supports scaling options (on-demand, or provisioned with auto scaling)</li>
+    <li>Can handle very high request volumes when tables are designed well</li>
+  </ul>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    Traffic badhne par DynamoDB ko traditional server ki tarah manually CPU/RAM increase karne ki zarurat nahi hoti. DynamoDB service scaling ko manage karne ke liye designed hai.
+  </div>
+
+  <h3>Serverless concept</h3>
+  <p>DynamoDB is commonly used as a serverless database.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>You do NOT manage</th><th>You still manage</th></tr>
+    <tr><td>Database server installation<br>OS patching<br>Database server hardware<br>Traditional server maintenance</td><td>Data model<br>Access patterns<br>IAM permissions<br>Application logic<br>Costs<br>Security</td></tr>
+  </table>
+  </div>
+  <div class="box warn">
+    <strong class="t">Remember</strong>
+    DynamoDB does not automatically fix a bad table design. Poor key design or heavy Scans can still cause slowness, throttling and high cost.
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="card" id="s14">
+  <h2>14. Access DynamoDB from Node.js (AWS SDK v3)</h2>
+<pre><code><span class="f">npm</span> install @aws-sdk/client-dynamodb</code></pre>
+<pre><code><span class="k">const</span> {
+  DynamoDBClient,
+  PutItemCommand
+} = <span class="f">require</span>(<span class="s">"@aws-sdk/client-dynamodb"</span>);
+
+<span class="k">const</span> client = <span class="k">new</span> <span class="f">DynamoDBClient</span>({
+  region: process.env.AWS_REGION
+});</code></pre>
+  <ul>
+    <li><code>require("@aws-sdk/client-dynamodb")</code> &mdash; SDK package import karta hai.</li>
+    <li><code>DynamoDBClient</code> &mdash; DynamoDB se baat karne wala client object.</li>
+    <li><code>PutItemCommand</code> &mdash; &ldquo;item likho&rdquo; wali command ka class.</li>
+    <li><code>region: process.env.AWS_REGION</code> &mdash; kaunse AWS region (jaise <code>eu-north-1</code>) ke DynamoDB se baat karni hai; environment variable se aata hai.</li>
+  </ul>
+  <p>Now write an item:</p>
+<pre><code><span class="k">const</span> command = <span class="k">new</span> <span class="f">PutItemCommand</span>({
+  TableName: <span class="s">"Users"</span>,
+  Item: {
+    userId: { S: <span class="s">"U101"</span> },
+    name: { S: <span class="s">"Tarun"</span> },
+    email: { S: <span class="s">"tarun@example.com"</span> }
+  }
+});
+
+<span class="k">await</span> client.<span class="f">send</span>(command);</code></pre>
+  <ul>
+    <li><code>TableName</code> &mdash; kis table mein likhna hai.</li>
+    <li><code>Item</code> &mdash; item ka data; har value ke saath type (<code>S</code> = String) likhna padta hai.</li>
+    <li><code>client.send(command)</code> &mdash; command ko AWS ko bhejta hai. <code>await</code> ka matlab result aane tak ruko.</li>
+  </ul>
+  <p>Note: <code>await</code> works inside an <code>async</code> function (or top-level in ES modules). No access keys are written in this code: the SDK finds credentials automatically (see <a href="#s17">section 17</a>).</p>
+</section>
+
+<!-- 15 -->
+<section class="card" id="s15">
+  <h2>15. DynamoDB Document Client (Easier Way)</h2>
+<pre><code><span class="f">npm</span> install @aws-sdk/client-dynamodb @aws-sdk/lib-dynamodb</code></pre>
+<pre><code><span class="k">const</span> { DynamoDBClient } = <span class="f">require</span>(<span class="s">"@aws-sdk/client-dynamodb"</span>);
+<span class="k">const</span> {
+  DynamoDBDocumentClient,
+  PutCommand,
+  GetCommand
+} = <span class="f">require</span>(<span class="s">"@aws-sdk/lib-dynamodb"</span>);
+
+<span class="k">const</span> client = <span class="k">new</span> <span class="f">DynamoDBClient</span>({ region: process.env.AWS_REGION });
+<span class="k">const</span> docClient = DynamoDBDocumentClient.<span class="f">from</span>(client);
+
+<span class="k">async function</span> <span class="f">demo</span>() {
+  <span class="c">// Create / write</span>
+  <span class="k">await</span> docClient.<span class="f">send</span>(<span class="k">new</span> <span class="f">PutCommand</span>({
+    TableName: <span class="s">"Users"</span>,
+    Item: { userId: <span class="s">"U101"</span>, name: <span class="s">"Tarun"</span>, age: <span class="n">24</span> }
+  }));
+
+  <span class="c">// Read</span>
+  <span class="k">const</span> result = <span class="k">await</span> docClient.<span class="f">send</span>(<span class="k">new</span> <span class="f">GetCommand</span>({
+    TableName: <span class="s">"Users"</span>,
+    Key: { userId: <span class="s">"U101"</span> }
+  }));
+
+  console.<span class="f">log</span>(result.Item);
+}
+
+<span class="f">demo</span>();</code></pre>
+  <div class="box good">
+    <strong class="t">Why Document Client is easier</strong>
+    With the Document Client, developers work with normal JavaScript values (<code>"Tarun"</code>, <code>24</code>) instead of manually specifying DynamoDB attribute types (<code>{ S: "Tarun" }</code>, <code>{ N: "24" }</code>).
+    <p><em>Hinglish:</em> Document Client mein normal JS objects use karte hain, type (S/N) likhne ki tension nahi. Zyada tar Node.js projects mein ye asaan padta hai.</p>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="card" id="s16">
+  <h2>16. Node.js + Express + DynamoDB API</h2>
+<div class="arch">React
+ |
+ v
+Express API
+ |
+ v
+DynamoDB</div>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Method</th><th>Route</th><th>DynamoDB operation</th></tr>
+    <tr><td>POST</td><td><code>/api/users</code></td><td>PutCommand</td></tr>
+    <tr><td>GET</td><td><code>/api/users/:id</code></td><td>GetCommand</td></tr>
+    <tr><td>PUT</td><td><code>/api/users/:id</code></td><td>UpdateCommand</td></tr>
+    <tr><td>DELETE</td><td><code>/api/users/:id</code></td><td>DeleteCommand</td></tr>
+  </table>
+  </div>
+<pre><code><span class="k">const</span> express = <span class="f">require</span>(<span class="s">"express"</span>);
+<span class="k">const</span> { randomUUID } = <span class="f">require</span>(<span class="s">"crypto"</span>);
+<span class="k">const</span> { DynamoDBClient } = <span class="f">require</span>(<span class="s">"@aws-sdk/client-dynamodb"</span>);
+<span class="k">const</span> {
+  DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, DeleteCommand
+} = <span class="f">require</span>(<span class="s">"@aws-sdk/lib-dynamodb"</span>);
+
+<span class="k">const</span> app = <span class="f">express</span>();
+app.<span class="f">use</span>(express.<span class="f">json</span>());
+
+<span class="k">const</span> docClient = DynamoDBDocumentClient.<span class="f">from</span>(
+  <span class="k">new</span> <span class="f">DynamoDBClient</span>({ region: process.env.AWS_REGION })
+);
+<span class="k">const</span> TABLE = <span class="s">"Users"</span>;
+
+<span class="c">// POST /api/users</span>
+app.<span class="f">post</span>(<span class="s">"/api/users"</span>, <span class="k">async</span> (req, res) =&gt; {
+  <span class="k">const</span> { name, email } = req.body;
+  <span class="k">if</span> (!name || !email) {
+    <span class="k">return</span> res.<span class="f">status</span>(<span class="n">400</span>).<span class="f">json</span>({ error: <span class="s">"name and email are required"</span> });
+  }
+  <span class="k">const</span> user = { userId: <span class="f">randomUUID</span>(), name, email };
+  <span class="k">await</span> docClient.<span class="f">send</span>(<span class="k">new</span> <span class="f">PutCommand</span>({ TableName: TABLE, Item: user }));
+  res.<span class="f">status</span>(<span class="n">201</span>).<span class="f">json</span>(user);
+});
+
+<span class="c">// GET /api/users/:id</span>
+app.<span class="f">get</span>(<span class="s">"/api/users/:id"</span>, <span class="k">async</span> (req, res) =&gt; {
+  <span class="k">const</span> out = <span class="k">await</span> docClient.<span class="f">send</span>(<span class="k">new</span> <span class="f">GetCommand</span>({
+    TableName: TABLE, Key: { userId: req.params.id }
+  }));
+  <span class="k">if</span> (!out.Item) <span class="k">return</span> res.<span class="f">status</span>(<span class="n">404</span>).<span class="f">json</span>({ error: <span class="s">"Not found"</span> });
+  res.<span class="f">json</span>(out.Item);
+});
+
+<span class="c">// PUT /api/users/:id  (update name)</span>
+app.<span class="f">put</span>(<span class="s">"/api/users/:id"</span>, <span class="k">async</span> (req, res) =&gt; {
+  <span class="k">const</span> out = <span class="k">await</span> docClient.<span class="f">send</span>(<span class="k">new</span> <span class="f">UpdateCommand</span>({
+    TableName: TABLE,
+    Key: { userId: req.params.id },
+    UpdateExpression: <span class="s">"SET #n = :name"</span>,
+    ExpressionAttributeNames: { <span class="s">"#n"</span>: <span class="s">"name"</span> },
+    ExpressionAttributeValues: { <span class="s">":name"</span>: req.body.name },
+    ReturnValues: <span class="s">"ALL_NEW"</span>
+  }));
+  res.<span class="f">json</span>(out.Attributes);
+});
+
+<span class="c">// DELETE /api/users/:id</span>
+app.<span class="f">delete</span>(<span class="s">"/api/users/:id"</span>, <span class="k">async</span> (req, res) =&gt; {
+  <span class="k">await</span> docClient.<span class="f">send</span>(<span class="k">new</span> <span class="f">DeleteCommand</span>({
+    TableName: TABLE, Key: { userId: req.params.id }
+  }));
+  res.<span class="f">status</span>(<span class="n">204</span>).<span class="f">end</span>();
+});
+
+app.<span class="f">listen</span>(<span class="n">3000</span>, () =&gt; console.<span class="f">log</span>(<span class="s">"API running on port 3000"</span>));</code></pre>
+  <p>Simplified for learning: real apps also need error handling (<code>try/catch</code>), authentication and stricter validation. Note that this update would create the item if the id does not exist; add a condition expression if you want to prevent that.</p>
+
+  <h3>What happens on <code>POST /api/users</code>?</h3>
+<pre><code>Request body:
+{
+  "name": "Tarun",
+  "email": "tarun@example.com"
+}</code></pre>
+  <ol>
+    <li>Backend <strong>validates</strong> the request (name and email present).</li>
+    <li>Backend <strong>generates a userId</strong> (a unique id).</li>
+    <li>Backend <strong>writes the item</strong> to DynamoDB (PutCommand).</li>
+    <li>Backend <strong>returns a response</strong> with the created user.</li>
+  </ol>
+  <p><em>Hinglish:</em> Pehle request check hoti hai, phir unique userId banti hai, phir DynamoDB mein item save hota hai, aur last mein response React ko jata hai.</p>
+</section>
+
+<!-- 17 -->
+<section class="card" id="s17">
+  <h2>17. Environment Variables and AWS Credentials</h2>
+<pre><code>AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=</code></pre>
+  <div class="box bad">
+    <strong class="t">Do NOT hard-code credentials</strong>
+    Never write access keys in source code, Dockerfiles or notes pushed to GitHub. Keep any <code>.env</code> file out of Git (<code>.gitignore</code>).
+  </div>
+  <ul>
+    <li><strong>Local development:</strong> configure credentials with the AWS CLI credential/configuration mechanism (<code>aws configure</code>). The SDK reads them automatically, so your code needs only <code>AWS_REGION</code> (or a configured default region).</li>
+    <li><strong>On EC2:</strong> use an <strong>IAM Role</strong> instead of putting long-term access keys on the server. The SDK receives temporary credentials automatically.</li>
+  </ul>
+  <p><em>Hinglish:</em> Access keys code mein kabhi mat likho. Local machine par <code>aws configure</code> use karo, aur EC2 par IAM Role lagao, taaki long-term keys server par rakhni hi na padein.</p>
+</section>
+
+<!-- 18 -->
+<section class="card" id="s18">
+  <h2>18. EC2 + DynamoDB and the IAM Role</h2>
+<div class="arch">Internet
+   |
+   v
+EC2
+   |
+   v
+Node.js / Express
+   |
+   v
+DynamoDB</div>
+  <p>EC2 runs the backend, the backend uses the AWS SDK, and DynamoDB stores the data.</p>
+
+  <h3>Why does EC2 need an IAM Role?</h3>
+  <p>DynamoDB is protected by IAM. Your app must have <strong>permission</strong> to call DynamoDB operations. The clean way is:</p>
+<div class="arch">EC2
+ |
+ v
+IAM Role (attached to the instance)
+ |
+ v
+DynamoDB permissions</div>
+  <p>Example permission concept (actions):</p>
+<pre><code>dynamodb:GetItem
+dynamodb:PutItem
+dynamodb:UpdateItem
+dynamodb:DeleteItem
+dynamodb:Query</code></pre>
+  <p>Example policy idea (limited to one table; replace region, account and table name):</p>
+<pre><code>{
+  <span class="s">"Version"</span>: <span class="s">"2012-10-17"</span>,
+  <span class="s">"Statement"</span>: [{
+    <span class="s">"Effect"</span>: <span class="s">"Allow"</span>,
+    <span class="s">"Action"</span>: [
+      <span class="s">"dynamodb:GetItem"</span>, <span class="s">"dynamodb:PutItem"</span>,
+      <span class="s">"dynamodb:UpdateItem"</span>, <span class="s">"dynamodb:DeleteItem"</span>,
+      <span class="s">"dynamodb:Query"</span>
+    ],
+    <span class="s">"Resource"</span>: <span class="s">"arn:aws:dynamodb:eu-north-1:&lt;ACCOUNT_ID&gt;:table/Users"</span>
+  }]
+}</code></pre>
+  <div class="box good">
+    <strong class="t">Least privilege</strong>
+    Give only the actions and only the tables the app needs. Do <strong>not</strong> attach <code>AdministratorAccess</code> just to use DynamoDB.
+  </div>
+  <p><em>Hinglish:</em> EC2 ko DynamoDB use karne ki permission IAM Role se milti hai. Role mein sirf zaroori actions aur sirf zaroori table do &mdash; ye least privilege hai.</p>
+</section>
+
+<!-- 19 -->
+<section class="card" id="s19">
+  <h2>19. Does DynamoDB Need Port 3306?</h2>
+  <div class="box bad">
+    <strong class="t">NO.</strong>
+    DynamoDB is not MySQL. There is no MySQL-style port 3306 that you open in a Security Group for normal DynamoDB API access. The application normally communicates with DynamoDB through AWS service APIs over HTTPS.
+  </div>
+  <div class="tablewrap">
+  <table>
+    <tr><th>RDS MySQL</th><th>DynamoDB</th></tr>
+    <tr><td>Port = 3306</td><td>AWS API over HTTPS</td></tr>
+    <tr><td>Connect with DB username/password</td><td>Connect with AWS credentials / IAM role</td></tr>
+    <tr><td>Control network access with Security Group</td><td>Control access with IAM policies</td></tr>
+  </table>
+  </div>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    RDS MySQL mein hum 3306 port aur security group rule use karte hain. DynamoDB mein aisa nahi hota: app AWS SDK ke through HTTPS API call karti hai, aur permission IAM se control hoti hai. Isliye DynamoDB ke liye 3306 kholne ki koi zarurat nahi.
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="card" id="s20">
+  <h2>20. Access DynamoDB from Outside AWS, Windows and Endpoint</h2>
+  <p>DynamoDB is an AWS managed service accessed through <strong>AWS APIs</strong>. A developer&rsquo;s local computer can use:</p>
+  <ul>
+    <li><strong>AWS CLI</strong></li>
+    <li><strong>AWS SDK</strong></li>
+    <li><strong>AWS Console</strong></li>
+  </ul>
+  <p>Authentication/authorization is done using AWS credentials (or another appropriate identity mechanism), and access depends on <strong>IAM permissions</strong>.</p>
+<pre><code><span class="f">aws</span> dynamodb list-tables --region eu-north-1
+
+<span class="f">aws</span> dynamodb scan --table-name Users --region eu-north-1</code></pre>
+  <p>Use Scan only on small learning tables. Unlike a public RDS database, you do <strong>not</strong> normally expose DynamoDB by opening port 3306 to the internet.</p>
+  <p><em>Hinglish:</em> Bahar se access ke liye bas AWS CLI/SDK/Console aur sahi IAM permission chahiye. Koi port kholne ki zarurat nahi.</p>
+
+  <h3>Local Windows access</h3>
+  <ol>
+    <li>Install AWS CLI, then check it:
+<pre><code><span class="f">aws</span> --version</code></pre></li>
+    <li>Configure credentials:
+<pre><code><span class="f">aws</span> configure</code></pre>
+      Enter: <strong>Access Key ID</strong>, <strong>Secret Access Key</strong>, <strong>Default region</strong> (for example <code>eu-north-1</code>) and <strong>Output format</strong> (for example <code>json</code>).</li>
+    <li>Test:
+<pre><code><span class="f">aws</span> dynamodb list-tables --region eu-north-1</code></pre></li>
+  </ol>
+  <div class="box warn">
+    <strong class="t">Handle keys carefully</strong>
+    Long-term access keys should be handled carefully and never committed to GitHub. Use least-privilege IAM users/roles and rotate or delete keys you no longer need.
+  </div>
+
+  <h3>DynamoDB endpoint</h3>
+  <p>DynamoDB does not work like RDS, where you usually get a database-specific hostname (endpoint) for your instance. Instead, the AWS SDK/CLI uses the <strong>AWS regional DynamoDB service endpoint</strong> for the region you select (for example <code>eu-north-1</code>), and it does this automatically. There is no separate endpoint per table.</p>
+<div class="arch">RDS       :  Application -> RDS endpoint (host:3306) -> Database
+
+DynamoDB  :  Application -> AWS SDK / API (region) -> DynamoDB</div>
+  <p><em>Hinglish:</em> RDS mein hum ek alag endpoint (hostname) se connect karte hain. DynamoDB mein bas region choose karte hain; SDK khud sahi regional service endpoint use kar leta hai.</p>
+</section>
+
+<!-- 21 -->
+<section class="card" id="s21">
+  <h2>21. DynamoDB Security</h2>
+  <ul>
+    <li><strong>IAM:</strong> controls who can do what in AWS.</li>
+    <li><strong>IAM Policies:</strong> JSON rules that allow/deny actions on resources (e.g. <code>dynamodb:GetItem</code> on the <code>Users</code> table).</li>
+    <li><strong>IAM Roles:</strong> temporary permissions for EC2, Lambda, etc., without long-term keys.</li>
+    <li><strong>Encryption:</strong> encryption at rest is managed by AWS by default, with options for customer-managed KMS keys. Data in transit uses HTTPS.</li>
+    <li><strong>Least privilege:</strong> only the needed actions on only the needed tables.</li>
+    <li><strong>AWS credentials:</strong> keep secret, never hard-code, prefer roles.</li>
+    <li><strong>CloudTrail:</strong> records API activity for auditing who did what.</li>
+    <li><strong>VPC endpoints (where appropriate):</strong> let resources inside a VPC reach DynamoDB privately without going through the public internet.</li>
+  </ul>
+  <p><em>Hinglish:</em> DynamoDB ki security mostly IAM se hoti hai: kaun access kar sakta hai, kaunse actions kar sakta hai. Encryption default hota hai, aur CloudTrail se audit hota hai. Private network se access chahiye to VPC endpoint use kar sakte ho.</p>
+</section>
+
+<!-- 22 -->
+<section class="card" id="s22">
+  <h2>22. DynamoDB Backup</h2>
+  <ul>
+    <li><strong>Point-in-time recovery (PITR):</strong> when enabled, lets you restore a table to a chosen point within the recovery window.</li>
+    <li><strong>On-demand backups:</strong> a backup you create manually at a moment in time.</li>
+    <li><strong>Restore:</strong> creates a <em>new</em> table from a backup or PITR point.</li>
+  </ul>
+  <p><strong>Example:</strong> If important data is accidentally deleted, backup/recovery features can help recover data depending on the configured recovery options (for example, PITR must have been enabled beforehand).</p>
+  <p><em>Hinglish:</em> PITR on rakho to kisi purane time par table restore kar sakte ho. On-demand backup hum khud lete hain. Restore hamesha nayi table banata hai.</p>
+</section>
+
+<!-- 23 -->
+<section class="card" id="s23">
+  <h2>23. DynamoDB TTL (Time To Live)</h2>
+  <p><strong>TTL = Time To Live.</strong> TTL allows items to be automatically removed after their expiration time.</p>
+<pre><code>{
+  <span class="s">"otp"</span>: <span class="s">"123456"</span>,
+  <span class="s">"expiresAt"</span>: <span class="n">1750000000</span>   <span class="c">// Unix time in seconds</span>
+}</code></pre>
+  <p>You choose one attribute (here <code>expiresAt</code>) as the TTL attribute, holding a Unix epoch time in seconds. After that time, DynamoDB deletes the item in the background.</p>
+  <p>Useful for: OTPs, temporary sessions, temporary cache-like data, expiring records.</p>
+  <div class="box warn">
+    <strong class="t">Note</strong>
+    TTL deletion is a background process and is not guaranteed to happen at the exact second of expiry. If your app must never use expired data, also check the expiry time in your code.
+  </div>
+  <p><em>Hinglish:</em> TTL se purana data apne aap delete ho jata hai. Delete thodi der baad hota hai, isliye app mein bhi expiry check rakho.</p>
+</section>
+
+<!-- 24 -->
+<section class="card" id="s24">
+  <h2>24. DynamoDB Streams</h2>
+  <p>DynamoDB Streams capture changes to items (create, update, delete) in order.</p>
+<div class="arch">User updated
+   |
+   v
+DynamoDB
+   |
+   v
+DynamoDB Stream
+   |
+   v
+Lambda
+   |
+   v
+Send notification / process event</div>
+  <p><em>Hinglish:</em> Jab table mein koi item add/update/delete hota hai, Stream us change ka record rakhta hai. Lambda us record ko padhkar kaam kar sakta hai, jaise notification bhejna ya kisi aur system ko update karna.</p>
+</section>
+
+<!-- 25 -->
+<section class="card" id="s25">
+  <h2>25. DynamoDB + Lambda (Serverless Architecture)</h2>
+<div class="arch">React
+ |
+ v
+API Gateway
+ |
+ v
+Lambda
+ |
+ v
+DynamoDB</div>
+  <p>This is called a <strong>serverless architecture</strong> because you do not manage any servers: API Gateway handles HTTP, Lambda runs code on demand, DynamoDB stores data.</p>
+  <p><strong>Compare with the EC2 version:</strong></p>
+<div class="arch">React
+ |
+ v
+EC2
+ |
+ v
+Node.js
+ |
+ v
+DynamoDB</div>
+  <div class="tablewrap">
+  <table>
+    <tr><th></th><th>EC2 version</th><th>Serverless version</th></tr>
+    <tr><td>Backend runs on</td><td>An EC2 server you manage (OS, updates, scaling)</td><td>Lambda functions (AWS runs them)</td></tr>
+    <tr><td>Scaling</td><td>You plan/configure it</td><td>Handled by the services</td></tr>
+    <tr><td>Control</td><td>More control</td><td>Less server work</td></tr>
+  </table>
+  </div>
+  <p><em>Hinglish:</em> Serverless mein hum server manage nahi karte, sirf code aur data model. EC2 mein server hamara hota hai, isliye updates aur scaling hume dekhni padti hai.</p>
+</section>
+
+<!-- 26 -->
+<section class="card" id="s26">
+  <h2>26. DynamoDB vs MongoDB</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Point</th><th>DynamoDB</th><th>MongoDB</th></tr>
+    <tr><td>Type</td><td>AWS managed NoSQL, key-value/document</td><td>Document database</td></tr>
+    <tr><td>Ecosystem</td><td>AWS ecosystem</td><td>MongoDB ecosystem</td></tr>
+    <tr><td>Data model</td><td>Items with a required primary key; design by access patterns</td><td>Flexible document model, rich query language</td></tr>
+    <tr><td>Access control</td><td>IAM integration</td><td>Database users / roles (and Atlas controls)</td></tr>
+    <tr><td>Managed service</td><td>Fully managed by AWS</td><td>MongoDB Atlas is available as a managed service (or self-host)</td></tr>
+    <tr><td>Orientation</td><td>Serverless-oriented</td><td>Runs as a database cluster/service</td></tr>
+  </table>
+  </div>
+  <p><strong>Which may use which?</strong> DynamoDB often suits AWS-centric and serverless projects with well-known access patterns (carts, sessions, IoT). MongoDB often suits projects wanting a flexible document model with rich queries, common in MERN apps. Neither is universally better, and they are not the same thing.</p>
+  <p><em>Hinglish:</em> AWS + serverless project ho aur access patterns clear hon to DynamoDB achha choice ho sakta hai. Flexible documents aur rich queries chahiye (aur MERN ecosystem) to MongoDB. Project ki zarurat dekhkar choose karo.</p>
+</section>
+
+<!-- 27 -->
+<section class="card" id="s27">
+  <h2>27. DynamoDB vs RDS vs MongoDB</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Feature</th><th>DynamoDB</th><th>RDS</th><th>MongoDB</th></tr>
+    <tr><td>Database type</td><td>NoSQL key-value/document</td><td>Relational (SQL)</td><td>NoSQL document</td></tr>
+    <tr><td>Schema</td><td>Flexible (key fixed)</td><td>Fixed columns</td><td>Flexible</td></tr>
+    <tr><td>Query style</td><td>API: Get/Put/Query/Scan (+ PartiQL)</td><td>SQL</td><td>MongoDB query language / aggregation</td></tr>
+    <tr><td>Relationships</td><td>No joins; design around access patterns</td><td>Foreign keys, JOINs</td><td>Embedding / references; limited join-like lookups</td></tr>
+    <tr><td>Scaling</td><td>Horizontal, managed</td><td>Vertical + read replicas</td><td>Horizontal via sharding (managed in Atlas)</td></tr>
+    <tr><td>AWS integration</td><td>Native (IAM, Lambda, CloudWatch)</td><td>Native service (VPC, security groups)</td><td>Runs on AWS via Atlas or self-hosted</td></tr>
+    <tr><td>Typical use cases</td><td>Carts, sessions, serverless apps, IoT</td><td>Structured business data, reporting</td><td>Content, catalogs, MERN apps</td></tr>
+  </table>
+  </div>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    DynamoDB = key se fast access + AWS integration. RDS = SQL, joins, structured data. MongoDB = flexible documents + rich queries. Sabki apni strengths hain; koi sabse better nahi hai.
+  </div>
+</section>
+
+<!-- 28 -->
+<section class="card" id="s28">
+  <h2>28. Real E-commerce Example and Design Thinking</h2>
+  <p>Table: <code>Orders</code> &bull; Partition key: <code>userId</code> &bull; Sort key: <code>orderId</code></p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>userId (PK)</th><th>orderId (SK)</th><th>product</th><th>price</th><th>status</th></tr>
+    <tr><td>U101</td><td>O1001</td><td>Laptop</td><td>50000</td><td>Delivered</td></tr>
+    <tr><td>U101</td><td>O1002</td><td>Mouse</td><td>1000</td><td>Shipped</td></tr>
+  </table>
+  </div>
+  <p>To get <strong>all orders for U101</strong>, run a Query with partition key <code>U101</code>.</p>
+<pre><code><span class="f">aws</span> dynamodb query \
+  --table-name Orders \
+  --key-condition-expression <span class="s">"userId = :u"</span> \
+  --expression-attribute-values <span class="s">'{":u":{"S":"U101"}}'</span></code></pre>
+  <p><strong>Why is this efficient?</strong> All items with the same partition key are stored together, so DynamoDB goes straight to that user&rsquo;s items instead of reading the whole table.</p>
+
+  <h3>Design DynamoDB tables based on access patterns</h3>
+  <p>In traditional SQL, developers often start by designing normalized tables. In DynamoDB, first ask: <strong>&ldquo;What queries does my application need?&rdquo;</strong></p>
+  <p>Requirement: <em>&ldquo;Get all orders of a user.&rdquo;</em> Design: Partition key = <code>userId</code>, Sort key = <code>orderId</code>.</p>
+  <div class="box hi">
+    <strong class="t">Hinglish</strong>
+    SQL mein hum pehle tables design karte hain, phir queries likhte hain. DynamoDB mein ulta hota hai: pehle sochte hain ki app ko kaunse queries chahiye (access patterns), phir unke hisaab se partition key aur sort key choose karte hain.
+  </div>
+</section>
+
+<!-- 29 -->
+<section class="card" id="s29">
+  <h2>29. Common DynamoDB Mistakes</h2>
+  <ol>
+    <li><strong>Using Scan for everything</strong> &mdash; expensive and slow on big tables; prefer Query with good keys.</li>
+    <li><strong>Poor partition key design</strong> &mdash; e.g. a key where most requests hit the same value (a &ldquo;hot&rdquo; partition).</li>
+    <li><strong>Giving excessive IAM permissions</strong> &mdash; use least privilege; avoid AdministratorAccess.</li>
+    <li><strong>Hard-coding AWS credentials</strong> &mdash; use roles / credential configuration.</li>
+    <li><strong>Ignoring item size</strong> &mdash; large items cost more and there is an item size limit.</li>
+    <li><strong>Creating unnecessary indexes</strong> &mdash; each index adds cost.</li>
+    <li><strong>Not thinking about access patterns</strong> &mdash; design starts from queries.</li>
+    <li><strong>Ignoring cost</strong> &mdash; check pricing, capacity mode, backups, streams.</li>
+    <li><strong>Using DynamoDB like a relational SQL database</strong> &mdash; it has no joins; design differently.</li>
+    <li><strong>Not planning for high-traffic access patterns</strong> &mdash; think about key distribution and capacity early.</li>
+  </ol>
+  <p><em>Hinglish:</em> Sabse badi galti: DynamoDB ko MySQL ki tarah use karna. Access patterns pehle socho, Scan kam use karo, aur permissions tight rakho.</p>
+</section>
+
+<!-- 30 -->
+<section class="card" id="s30">
+  <h2>30. Cost, Monitoring and Throttling</h2>
+  <h3>Cost</h3>
+  <p>DynamoDB pricing can depend on:</p>
+  <ul>
+    <li>Read/write usage</li>
+    <li>Storage</li>
+    <li>On-demand or provisioned capacity</li>
+    <li>Backups</li>
+    <li>Streams</li>
+    <li>Other enabled features (indexes, global tables, etc.)</li>
+  </ul>
+  <div class="box warn">
+    <strong class="t">Cost warning</strong>
+    DynamoDB is not always free. AWS Free Tier availability and limits can change, so verify the current AWS pricing and Free Tier terms, and watch your billing dashboard.
+  </div>
+  <p><em>Hinglish:</em> Cost read/write, storage, backups, streams sab par depend karti hai. Free tier ke rules badalte rehte hain, isliye current AWS pricing page check karo.</p>
+
+  <h3>Monitoring</h3>
+  <p><strong>Amazon CloudWatch</strong> can monitor DynamoDB. Common metrics:</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Metric</th><th>Simple meaning</th></tr>
+    <tr><td>Read capacity (consumed)</td><td>How much read capacity your app is using.</td></tr>
+    <tr><td>Write capacity (consumed)</td><td>How much write capacity your app is using.</td></tr>
+    <tr><td>Throttled requests</td><td>Requests rejected/delayed because capacity was exceeded.</td></tr>
+    <tr><td>Successful request latency</td><td>How long successful requests take.</td></tr>
+    <tr><td>Consumed capacity</td><td>Total capacity used; helps plan cost and limits.</td></tr>
+  </table>
+  </div>
+
+  <h3>Throttling</h3>
+  <div class="box def">
+    <strong class="t">Definition</strong>
+    Throttling happens when requests exceed the available capacity for the relevant operation/partition.
+  </div>
+  <p>Application design, capacity mode, partition-key distribution and traffic patterns all matter. A good key spreads requests evenly; a &ldquo;hot&rdquo; key can cause throttling even if total traffic looks small. SDKs automatically retry throttled requests, but repeated throttling means you should review your design or capacity settings.</p>
+  <p><em>Hinglish:</em> Jab requests available capacity se zyada ho jaati hain to DynamoDB kuch requests ko throttle kar deta hai. Isse bachne ke liye partition key achhi choose karo aur capacity mode sahi rakho.</p>
+</section>
+
+<!-- 31 -->
+<section class="card" id="s31">
+  <h2>31. DynamoDB Interview Questions &amp; Answers</h2>
+  <div class="qa"><div class="q">Q1. What is DynamoDB?</div><div class="a">A fully managed NoSQL database service from AWS with fast, predictable performance and easy scaling.</div></div>
+  <div class="qa"><div class="q">Q2. Is DynamoDB SQL or NoSQL?</div><div class="a">NoSQL (key-value and document). It is not a relational database.</div></div>
+  <div class="qa"><div class="q">Q3. What is a DynamoDB table?</div><div class="a">A collection of items.</div></div>
+  <div class="qa"><div class="q">Q4. What is an item?</div><div class="a">One record in a table, like a row in SQL.</div></div>
+  <div class="qa"><div class="q">Q5. What is an attribute?</div><div class="a">A field inside an item, like a column value in SQL.</div></div>
+  <div class="qa"><div class="q">Q6. What is a partition key?</div><div class="a">The main key used to identify items and distribute them internally, e.g. <code>userId</code>.</div></div>
+  <div class="qa"><div class="q">Q7. What is a sort key?</div><div class="a">The second part of a composite key; it organizes items within the same partition key so they can be queried together.</div></div>
+  <div class="qa"><div class="q">Q8. What is a composite primary key?</div><div class="a">Partition key + sort key, e.g. <code>userId + orderId</code>. The combination must be unique.</div></div>
+  <div class="qa"><div class="q">Q9. Difference between Query and Scan?</div><div class="a">Query uses key conditions and is generally efficient for targeted access. Scan examines items across the table/index and can be costly on large tables.</div></div>
+  <div class="qa"><div class="q">Q10. What is a GSI?</div><div class="a">Global Secondary Index: an index with a different partition key (and optional sort key) for alternative access patterns; can be added later.</div></div>
+  <div class="qa"><div class="q">Q11. What is an LSI?</div><div class="a">Local Secondary Index: same partition key as the table but a different sort key; must be created when the table is created.</div></div>
+  <div class="qa"><div class="q">Q12. What is DynamoDB TTL?</div><div class="a">Time To Live: automatically removes items after an expiry time stored in a TTL attribute (Unix seconds).</div></div>
+  <div class="qa"><div class="q">Q13. What is DynamoDB Streams?</div><div class="a">A feature that captures item changes so other services like Lambda can react to them.</div></div>
+  <div class="qa"><div class="q">Q14. What is RCU?</div><div class="a">Read Capacity Unit: measures read capacity consumed; depends on item size and read type.</div></div>
+  <div class="qa"><div class="q">Q15. What is WCU?</div><div class="a">Write Capacity Unit: measures write capacity consumed; depends on item size.</div></div>
+  <div class="qa"><div class="q">Q16. What is on-demand capacity?</div><div class="a">Pay per request; DynamoDB manages capacity automatically.</div></div>
+  <div class="qa"><div class="q">Q17. What is provisioned capacity?</div><div class="a">You set read/write capacity and plan it, with auto scaling options available.</div></div>
+  <div class="qa"><div class="q">Q18. How does EC2 access DynamoDB?</div><div class="a">The app uses the AWS SDK over HTTPS, with permissions from an IAM role attached to the EC2 instance.</div></div>
+  <div class="qa"><div class="q">Q19. Does DynamoDB require port 3306?</div><div class="a">No. That is MySQL. DynamoDB is accessed through AWS APIs over HTTPS.</div></div>
+  <div class="qa"><div class="q">Q20. How can a local computer access DynamoDB?</div><div class="a">With AWS CLI, SDK or Console, using AWS credentials that have IAM permission.</div></div>
+  <div class="qa"><div class="q">Q21. How is DynamoDB different from RDS?</div><div class="a">DynamoDB is NoSQL, key-based, no joins, accessed via API and IAM. RDS is relational SQL with tables, joins, endpoint and port.</div></div>
+  <div class="qa"><div class="q">Q22. How is DynamoDB different from MongoDB?</div><div class="a">DynamoDB is an AWS-managed key-value/document service integrated with IAM; MongoDB is a document database with its own ecosystem (Atlas is its managed service). They are different products, each with strengths.</div></div>
+  <div class="qa"><div class="q">Q23. How do you secure DynamoDB?</div><div class="a">IAM least-privilege policies and roles, no hard-coded credentials, encryption (default, optionally KMS), CloudTrail auditing, VPC endpoints where appropriate.</div></div>
+  <div class="qa"><div class="q">Q24. How do you connect Node.js with DynamoDB?</div><div class="a">Install AWS SDK v3 (<code>@aws-sdk/client-dynamodb</code>, or <code>lib-dynamodb</code> for the Document Client), create a client with the region, and send commands like PutCommand/GetCommand.</div></div>
+  <div class="qa"><div class="q">Q25. Why use IAM roles instead of hard-coded AWS credentials on EC2?</div><div class="a">Roles give temporary, automatically rotated credentials, so no long-term keys are stored on the server or leaked in code, and permissions can be limited.</div></div>
+</section>
+
+<!-- 32 -->
+<section class="card" id="s32">
+  <h2>32. Important Architectures</h2>
+  <h3>Version 1: EC2-based</h3>
+<div class="arch">                    USERS
+                      |
+                      v
+                React Frontend
+                      |
+                      v
+                Node.js / Express
+                      |
+                      v
+                     EC2
+                      |
+                      v
+                  DynamoDB</div>
+  <ul>
+    <li><strong>Users:</strong> people using the app.</li>
+    <li><strong>React Frontend:</strong> the UI; sends API requests.</li>
+    <li><strong>Node.js / Express:</strong> backend logic and routes; uses AWS SDK.</li>
+    <li><strong>EC2:</strong> the server where the backend runs; has an IAM role for DynamoDB access.</li>
+    <li><strong>DynamoDB:</strong> stores data as items in tables.</li>
+  </ul>
+
+  <h3>Version 2: Serverless</h3>
+<div class="arch">                    USERS
+                      |
+                      v
+                React Frontend
+                      |
+                      v
+                API Gateway
+                      |
+                      v
+                    Lambda
+                      |
+                      v
+                  DynamoDB</div>
+  <ul>
+    <li><strong>API Gateway:</strong> receives HTTP requests and routes them.</li>
+    <li><strong>Lambda:</strong> runs your backend code on demand; uses an IAM execution role for DynamoDB permissions.</li>
+    <li><strong>DynamoDB:</strong> stores the data.</li>
+  </ul>
+  <p><em>Hinglish:</em> Pehle version mein server (EC2) hum manage karte hain. Doosre version mein koi server nahi: API Gateway request leta hai, Lambda code chalata hai, DynamoDB data rakhta hai.</p>
+</section>
+
+<!-- 33 -->
+<section class="card" id="s33">
+  <h2>33. DynamoDB in One Minute</h2>
+  <div class="box def"><strong class="t">AWS DynamoDB = Fully managed NoSQL database service.</strong></div>
+  <p><strong>It stores:</strong> Items and Attributes.</p>
+  <p><strong>Primary key:</strong> Partition key <em>OR</em> Partition key + sort key.</p>
+  <p><strong>Main operations:</strong> PutItem, GetItem, UpdateItem, DeleteItem, Query, Scan.</p>
+  <p><strong>Capacity:</strong> On-demand, Provisioned.</p>
+  <p><strong>Security:</strong> IAM, Encryption, Least privilege.</p>
+  <p><strong>For Node.js:</strong></p>
+<div class="arch">React
+ |
+ v
+Express
+ |
+ v
+AWS SDK
+ |
+ v
+DynamoDB</div>
+  <p><strong>For serverless:</strong></p>
+<div class="arch">React
+ |
+ v
+API Gateway
+ |
+ v
+Lambda
+ |
+ v
+DynamoDB</div>
+  <div class="box bad">
+    <strong class="t">Important</strong>
+    DynamoDB does NOT require MySQL port 3306.
+  </div>
+  <ul class="check">
+    <li>Design tables from access patterns</li>
+    <li>Prefer Query over Scan for app traffic</li>
+    <li>Use IAM roles, never hard-coded credentials</li>
+    <li>Give least-privilege permissions</li>
+    <li>Check current pricing and Free Tier terms</li>
+  </ul>
+</section>
+
+<!-- 34 -->
+<section class="card" id="s34">
+  <h2>34. Quick Revision Table</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Term</th><th>Simple Meaning</th></tr>
+    <tr><td><strong>DynamoDB</strong></td><td>AWS fully managed NoSQL database service.</td></tr>
+    <tr><td><strong>NoSQL</strong></td><td>Databases that do not primarily use the relational table structure of SQL.</td></tr>
+    <tr><td><strong>Table</strong></td><td>Collection of items.</td></tr>
+    <tr><td><strong>Item</strong></td><td>One record (like a row).</td></tr>
+    <tr><td><strong>Attribute</strong></td><td>A field inside an item.</td></tr>
+    <tr><td><strong>Partition Key</strong></td><td>Main key to identify and distribute items.</td></tr>
+    <tr><td><strong>Sort Key</strong></td><td>Second key part that orders/groups related items under one partition key.</td></tr>
+    <tr><td><strong>GSI</strong></td><td>Index with a different partition key (and optional sort key); can be added later.</td></tr>
+    <tr><td><strong>LSI</strong></td><td>Index with the same partition key but a different sort key; created with the table.</td></tr>
+    <tr><td><strong>Query</strong></td><td>Fetch items using key conditions; efficient and targeted.</td></tr>
+    <tr><td><strong>Scan</strong></td><td>Examine items across the whole table/index; can be costly.</td></tr>
+    <tr><td><strong>RCU</strong></td><td>Read Capacity Unit.</td></tr>
+    <tr><td><strong>WCU</strong></td><td>Write Capacity Unit.</td></tr>
+    <tr><td><strong>TTL</strong></td><td>Automatic removal of items after an expiry time.</td></tr>
+    <tr><td><strong>Streams</strong></td><td>Ordered record of item changes, often used with Lambda.</td></tr>
+    <tr><td><strong>On-demand</strong></td><td>Pay per request; capacity managed automatically.</td></tr>
+    <tr><td><strong>Provisioned</strong></td><td>You set read/write capacity (auto scaling optional).</td></tr>
+    <tr><td><strong>IAM Role</strong></td><td>Temporary permissions for an AWS resource (e.g. EC2) without long-term keys.</td></tr>
+    <tr><td><strong>DynamoDB Endpoint</strong></td><td>The AWS regional service endpoint the SDK/CLI uses automatically (not a per-table, RDS-style endpoint).</td></tr>
+    <tr><td><strong>DynamoDB API</strong></td><td>The HTTPS API (used via SDK/CLI/Console) to read and write data.</td></tr>
+  </table>
+  </div>
+</section>
+
+<footer>AWS DynamoDB study note (English + Hinglish)</footer>
+
+</div>
+</div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  // Sidebar toggle (mobile)
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar search/filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // Active link highlighting on scroll
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.card[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

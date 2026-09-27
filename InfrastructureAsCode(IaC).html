@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS CloudFormation &mdash; Infrastructure as Code (IaC)</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --ink:#1c2431; --muted:#5c6779; --line:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --card:#161e2d; --ink:#e6ecf5; --muted:#9aa7bb; --line:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:280px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:7px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:6px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:6px;
+  }
+  #sidebar-toggle { display:none; }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  header.hero {
+    background:linear-gradient(135deg,var(--brand),#7b3fe4); color:#fff; padding:38px 30px; border-radius:14px; margin-bottom:24px;
+  }
+  header.hero .kicker { text-transform:uppercase; letter-spacing:.12em; font-size:.78rem; opacity:.85; margin-bottom:6px; }
+  header.hero h1 { margin:0 0 8px; font-size:2rem; line-height:1.25; }
+  header.hero p { margin:0; opacity:.95; font-size:1.05rem; }
+  header.hero .cost-warn {
+    margin-top:16px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3);
+    padding:10px 14px; border-radius:8px; font-size:.9rem;
+  }
+
+  section.card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px 26px; margin-bottom:22px;
+    scroll-margin-top:70px;
+  }
+  section.card > h2 {
+    margin:0 0 6px; font-size:1.4rem; color:var(--ink); display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  section.card > .badges { margin:0 0 14px; display:flex; gap:6px; flex-wrap:wrap; }
+  h3 { margin:20px 0 8px; font-size:1.08rem; }
+  p { margin:8px 0; }
+  ul, ol { margin:8px 0; padding-left:24px; }
+  li { margin-bottom:5px; }
+
+  .badge {
+    display:inline-block; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 9px; border-radius:20px; color:#fff;
+  }
+  .badge.theory { background:var(--badge-theory); }
+  .badge.practical { background:var(--badge-practical); }
+  .badge.interview { background:var(--badge-interview); }
+  .badge.important { background:var(--badge-important); }
+
+  .box { border-left:5px solid var(--brand); background:var(--brand-soft); padding:12px 16px; border-radius:8px; margin:14px 0; }
+  .box.good { border-color:var(--ok); background:var(--ok-soft); }
+  .box.warn { border-color:var(--warn); background:var(--warn-soft); }
+  .box.bad { border-color:var(--bad); background:var(--bad-soft); }
+  .box.tip { border-color:var(--tip); background:var(--tip-soft); }
+  .box strong.t { display:block; margin-bottom:3px; }
+
+  .codewrap { margin:14px 0; border-radius:10px; overflow:hidden; border:1px solid var(--line); }
+  .codehead {
+    background:var(--code-head); color:#a9b8d6; display:flex; align-items:center; justify-content:space-between;
+    padding:6px 12px; font-size:.75rem; font-family:Consolas,monospace; letter-spacing:.03em; text-transform:uppercase;
+  }
+  .copy-btn {
+    background:#2c3a5c; color:#dce6f2; border:none; border-radius:5px; padding:3px 10px; font-size:.72rem;
+    cursor:pointer; letter-spacing:0; text-transform:none;
+  }
+  .copy-btn:hover { background:#3a4a70; }
+  .copy-btn.copied { background:var(--ok); color:#fff; }
+  pre {
+    background:var(--code-bg); color:var(--code-ink); margin:0; padding:14px 16px; overflow-x:auto;
+    font-family:Consolas,"Courier New",monospace; font-size:.85rem; line-height:1.55; white-space:pre;
+  }
+  code { font-family:Consolas,"Courier New",monospace; background:var(--brand-soft); padding:1px 6px; border-radius:4px; font-size:.9em; }
+  pre code { background:none; padding:0; font-size:inherit; }
+  .y-k{color:#7fc4ff;} .y-s{color:#a5e08a;} .y-c{color:#8395a7;font-style:italic;} .y-f{color:#ffd479;} .y-n{color:#f2a2c0;}
+
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:.92rem; }
+  th, td { border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--brand-soft); }
+  .tablewrap { overflow-x:auto; }
+
+  .arch {
+    background:var(--brand-soft); border:1px dashed #9db4dd; font-family:Consolas,monospace; font-size:.88rem;
+    padding:14px; border-radius:8px; overflow-x:auto; white-space:pre; line-height:1.45; margin:14px 0;
+  }
+  [data-theme="dark"] .arch { border-color:#3a4a70; }
+
+  .steps { counter-reset:stepnum; list-style:none; padding-left:0; margin:14px 0; }
+  .steps li {
+    counter-increment:stepnum; position:relative; padding:8px 8px 8px 42px; margin-bottom:6px;
+    border:1px solid var(--line); border-radius:8px; background:var(--card);
+  }
+  .steps li::before {
+    content:counter(stepnum); position:absolute; left:8px; top:8px; width:24px; height:24px; border-radius:50%;
+    background:var(--brand); color:#fff; font-size:.78rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+
+  .qa { border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin:10px 0; background:var(--card); }
+  .qa .q { font-weight:700; color:var(--brand); }
+  .qa .a { margin-top:4px; }
+
+  .check li { list-style:none; margin-left:-20px; }
+  .check li::before { content:"\2610  "; }
+
+  .term-card { border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:12px 0; background:var(--card); }
+  .term-card h4 { margin:0 0 4px; font-size:1rem; color:var(--brand); }
+  .term-card .tag { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+
+  footer.end { text-align:center; color:var(--muted); font-size:1rem; margin-top:36px; padding:22px; border-top:1px solid var(--line); font-weight:600; }
+
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+
+  #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+    header.hero { padding:26px 18px; }
+    header.hero h1 { font-size:1.5rem; }
+  }
+
+  @media print {
+    #sidebar, .topbar, #backtotop, .copy-btn { display:none !important; }
+    body { display:block; }
+    .content { max-width:100%; padding:0; }
+    section.card { border:1px solid #999; page-break-inside:auto; }
+    pre { background:#f2f2f2 !important; color:#000 !important; border:1px solid #999; white-space:pre-wrap; }
+    .y-k,.y-s,.y-c,.y-f,.y-n { color:#000 !important; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">&#9729;</span><span class="name">CloudFormation Notes</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Theory</h2>
+  <ul id="toc-theory">
+    <li><a href="#s1">1. Introduction</a></li>
+    <li><a href="#s2">2. What is IaC?</a></li>
+    <li><a href="#s3">3. CloudFormation Architecture</a></li>
+    <li><a href="#s4">4. Important Terms</a></li>
+    <li><a href="#s5">5. Template Structure</a></li>
+    <li><a href="#s6">6. YAML Basics</a></li>
+    <li><a href="#s7">7. Resource Anatomy</a></li>
+    <li><a href="#s13">13. Parameters</a></li>
+    <li><a href="#s14">14&ndash;16. Ref / GetAtt / Sub</a></li>
+    <li><a href="#s17">17. Outputs</a></li>
+    <li><a href="#s18">18. DependsOn</a></li>
+    <li><a href="#s19">19. Conditions</a></li>
+    <li><a href="#s20">20. Mappings</a></li>
+    <li><a href="#s25">25. DeletionPolicy</a></li>
+    <li><a href="#s26">26. Drift Detection</a></li>
+    <li><a href="#s27">27&ndash;28. Nested Stacks / StackSets</a></li>
+    <li><a href="#s33">33. CFN vs Terraform</a></li>
+    <li><a href="#s34">34. CFN vs Manual Console</a></li>
+  </ul>
+  <h2>Practical</h2>
+  <ul id="toc-practical">
+    <li><a href="#s8">8. Lab 1: S3 Bucket</a></li>
+    <li><a href="#s9">9. Lab 2: EC2 Instance</a></li>
+    <li><a href="#s10">10. Lab 3: EC2 + Security Group</a></li>
+    <li><a href="#s11">11. Lab 4: Web Server (UserData)</a></li>
+    <li><a href="#s12">12. Lab 5: S3 + EC2 Together</a></li>
+    <li><a href="#s21">21. Change Sets</a></li>
+    <li><a href="#s22">22. Update a Stack</a></li>
+    <li><a href="#s23">23. Stack Rollback</a></li>
+    <li><a href="#s24">24. Delete a Stack</a></li>
+    <li><a href="#s29">29. CLI Commands</a></li>
+    <li><a href="#s30">30. CLI Deployment Walkthrough</a></li>
+    <li><a href="#s31">31. MERN Architecture</a></li>
+    <li><a href="#s32">32. Complete MERN Project</a></li>
+    <li><a href="#s37">37. Final Practical Lab</a></li>
+    <li><a href="#s38">38. Verification Checklist</a></li>
+  </ul>
+  <h2>Reference</h2>
+  <ul id="toc-reference">
+    <li><a href="#s35">35. Common Errors</a></li>
+    <li><a href="#s36">36. Best Practices</a></li>
+    <li><a href="#s39">39. Interview Questions</a></li>
+    <li><a href="#s40">40. Quick Revision</a></li>
+    <li><a href="#s41">41. Final Real-World Flow</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS CloudFormation &mdash; IaC Notes</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <header class="hero">
+      <div class="kicker">AWS CLOUDformation</div>
+      <h1>Infrastructure as Code (IaC)</h1>
+      <p>Create, Deploy, Update and Manage AWS Infrastructure Using Code</p>
+      <div class="cost-warn">
+        &#9888; <strong>Cost warning:</strong> Every practical lab in this document creates real AWS resources (EC2, S3, etc.) that can incur charges depending on your account, region and configuration. Always delete stacks you no longer need, and check the AWS Billing Dashboard. AWS Console labels/screens can also change over time &mdash; the flow described here stays the same even if button names shift slightly.
+      </div>
+    </header>
+
+    <!-- 1 -->
+    <section class="card" id="s1">
+      <h2>1. Introduction</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="box">
+        <strong class="t">Simple definition</strong>
+        AWS CloudFormation is an AWS service that allows us to create and manage AWS infrastructure using code instead of manually creating resources one by one.
+      </div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Term</th><th>Simple meaning</th></tr>
+        <tr><td><strong>AWS</strong></td><td>Amazon Web Services &mdash; the cloud provider offering services like EC2, S3, RDS.</td></tr>
+        <tr><td><strong>CloudFormation</strong></td><td>An AWS service that reads a text file describing infrastructure and creates it for you.</td></tr>
+        <tr><td><strong>Infrastructure</strong></td><td>The AWS resources your application needs &mdash; servers, storage, databases, networking.</td></tr>
+        <tr><td><strong>Infrastructure as Code (IaC)</strong></td><td>Describing infrastructure in a file (code) instead of clicking through a console.</td></tr>
+        <tr><td><strong>Template</strong></td><td>The YAML/JSON file that describes what resources to create.</td></tr>
+        <tr><td><strong>Stack</strong></td><td>A deployed instance of a template &mdash; the actual group of resources CloudFormation manages together.</td></tr>
+        <tr><td><strong>Resource</strong></td><td>A single AWS thing created by the template, e.g. one S3 bucket or one EC2 instance.</td></tr>
+      </table>
+      </div>
+
+      <h3>The problem with creating resources manually</h3>
+      <p>Without CloudFormation, a developer manually creates each piece by clicking through the Console: EC2, Security Group, S3, RDS, IAM Role, Load Balancer &mdash; one at a time, remembering every setting. This is slow, easy to get wrong, hard to repeat exactly, and hard to track changes to.</p>
+      <div class="arch">Without CloudFormation:
+Developer manually creates one-by-one:
+  EC2  ->  Security Group  ->  S3  ->  RDS  ->  IAM Role  ->  Load Balancer
+
+With CloudFormation:
+CloudFormation Template
+        |
+        v
+CloudFormation Stack
+        |
+        v
+AWS Resources (all created together, from one file)</div>
+      <p>CloudFormation solves this by letting you write down <em>what</em> you want once, and it figures out <em>how</em> to create it, in the right order, repeatably.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="card" id="s2">
+      <h2>2. What is Infrastructure as Code (IaC)?</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Traditional approach</th><th>IaC approach</th></tr>
+        <tr><td>AWS Console &rarr; manually create each resource by clicking</td><td>Code (template) &rarr; AWS &rarr; Infrastructure is created automatically</td></tr>
+      </table>
+      </div>
+      <h3>Advantages of IaC</h3>
+      <ul>
+        <li><strong>Automation</strong> &mdash; resources are created without manual clicking.</li>
+        <li><strong>Repeatability</strong> &mdash; the same template produces the same infrastructure every time.</li>
+        <li><strong>Version control</strong> &mdash; templates can be stored in Git, so changes are tracked.</li>
+        <li><strong>Consistency</strong> &mdash; dev, staging and prod can be built from the same base template.</li>
+        <li><strong>Faster deployment</strong> &mdash; a whole environment can be created in one step.</li>
+        <li><strong>Easy rollback</strong> &mdash; CloudFormation can undo a failed change automatically.</li>
+        <li><strong>Less human error</strong> &mdash; no missed checkbox or wrong dropdown value.</li>
+        <li><strong>Easy replication</strong> &mdash; spin up an identical environment in another region/account.</li>
+      </ul>
+      <div class="box tip">
+        <strong class="t">Real-world example</strong>
+        A team needs an identical staging environment for testing before every release. With IaC, they reuse the same CloudFormation template with a different parameter (e.g. <code>Environment: staging</code>) instead of manually rebuilding everything from memory.
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="card" id="s3">
+      <h2>3. CloudFormation Architecture</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="arch">CloudFormation Template
+        |
+        v
+CloudFormation Stack
+        |
+        v
++-----------------------------------------+
+|  EC2   |   S3   |   RDS   |  IAM  | VPC  |
++-----------------------------------------+</div>
+      <ul>
+        <li><strong>Template</strong> &mdash; the YAML/JSON file you write, describing every resource.</li>
+        <li><strong>Stack</strong> &mdash; created when you deploy a template; CloudFormation tracks every resource that belongs to this stack as one unit.</li>
+        <li><strong>Resources</strong> &mdash; the actual AWS services (EC2, S3, RDS, IAM roles, VPC, etc.) that get created, updated or deleted together as part of the stack.</li>
+      </ul>
+      <p>Because the stack tracks everything as one group, updating the template and re-deploying updates all the related resources together, and deleting the stack removes them together (subject to <a href="#s25">DeletionPolicy</a>).</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="card" id="s4">
+      <h2>4. Important CloudFormation Terms</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+
+      <div class="term-card">
+        <h4>1. Template</h4>
+        <p>The YAML/JSON file describing your infrastructure. <strong>Why:</strong> it's the source of truth for what should exist. <em>Example:</em> a file <code>s3-bucket.yaml</code> describing one S3 bucket.</p>
+      </div>
+      <div class="term-card">
+        <h4>2. Stack</h4>
+        <p>A deployed instance of a template, tracked as one unit. <strong>Why:</strong> lets you create/update/delete a whole group of resources together. <em>Example:</em> stack <code>my-s3-stack</code>.</p>
+      </div>
+      <div class="term-card">
+        <h4>3. Resource</h4>
+        <p>A single AWS item created by the template (e.g. <code>AWS::S3::Bucket</code>). <strong>Why:</strong> the actual building block of your infrastructure. <em>Example:</em> one EC2 instance.</p>
+      </div>
+      <div class="term-card">
+        <h4>4. Parameter</h4>
+        <p>An input value supplied when you deploy the stack. <strong>Why:</strong> makes templates reusable across environments. <em>Example:</em> <code>InstanceType</code> = <code>t3.micro</code>.</p>
+      </div>
+      <div class="term-card">
+        <h4>5. Mapping</h4>
+        <p>A fixed lookup table inside the template (e.g. region &rarr; value). <strong>Why:</strong> avoids hardcoding region-specific values in multiple places. <em>Example:</em> mapping AMI IDs per region.</p>
+      </div>
+      <div class="term-card">
+        <h4>6. Condition</h4>
+        <p>A rule that decides whether a resource is created. <strong>Why:</strong> lets one template behave differently per environment. <em>Example:</em> only create a resource when <code>Environment = prod</code>.</p>
+      </div>
+      <div class="term-card">
+        <h4>7. Output</h4>
+        <p>A value returned after the stack is created (e.g. a URL or bucket name). <strong>Why:</strong> lets you retrieve useful info without digging through the Console. <em>Example:</em> the public IP of an EC2 instance.</p>
+      </div>
+      <div class="term-card">
+        <h4>8. Metadata</h4>
+        <p>Extra descriptive information attached to the template or a resource (not used to create resources directly). <strong>Why:</strong> useful for tools/Console hints. <em>Example:</em> grouping parameters into sections in the Console UI.</p>
+      </div>
+      <div class="term-card">
+        <h4>9. Intrinsic Functions</h4>
+        <p>Built-in functions like <code>!Ref</code>, <code>!GetAtt</code>, <code>!Sub</code> used inside templates. <strong>Why:</strong> let resources reference each other and build dynamic values. <em>Example:</em> <code>!Ref MyBucket</code>.</p>
+      </div>
+      <div class="term-card">
+        <h4>10. Change Set</h4>
+        <p>A preview of what will change before you actually apply an update. <strong>Why:</strong> avoid surprises on a live stack. <em>Example:</em> see that updating a template will replace an EC2 instance.</p>
+      </div>
+      <div class="term-card">
+        <h4>11. Drift Detection</h4>
+        <p>A check for differences between the template and the actual resource state. <strong>Why:</strong> catches manual changes made outside CloudFormation. <em>Example:</em> someone edited a Security Group rule by hand.</p>
+      </div>
+      <div class="term-card">
+        <h4>12. Stack Policy</h4>
+        <p>A JSON policy that restricts what update actions can be performed on specific resources in a stack. <strong>Why:</strong> protects critical resources (like a production database) from accidental replacement. <em>Example:</em> deny replacing an RDS instance during updates.</p>
+      </div>
+      <div class="term-card">
+        <h4>13. Nested Stack</h4>
+        <p>A stack created and managed as a resource inside another (parent) stack. <strong>Why:</strong> breaks large infrastructure into reusable, organized pieces. <em>Example:</em> a Network Stack nested inside a Main Stack.</p>
+      </div>
+      <div class="term-card">
+        <h4>14. StackSet</h4>
+        <p>One template deployed as stacks across multiple AWS accounts and/or regions. <strong>Why:</strong> centrally manage infrastructure for an organization. <em>Example:</em> deploying the same security baseline to 10 accounts.</p>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="card" id="s5">
+      <h2>5. CloudFormation Template Structure</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>A template is normally organized into these top-level sections:</p>
+<div class="arch">AWSTemplateFormatVersion:
+Description:
+Parameters:
+Mappings:
+Conditions:
+Resources:
+Outputs:</div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Section</th><th>Purpose</th><th>Required?</th></tr>
+        <tr><td><code>AWSTemplateFormatVersion</code></td><td>The template format version (a fixed string).</td><td>Optional but common</td></tr>
+        <tr><td><code>Description</code></td><td>A short text description of the template.</td><td>Optional</td></tr>
+        <tr><td><code>Parameters</code></td><td>Inputs you supply at deploy time.</td><td>Optional</td></tr>
+        <tr><td><code>Mappings</code></td><td>Fixed lookup tables.</td><td>Optional</td></tr>
+        <tr><td><code>Conditions</code></td><td>Rules controlling whether resources are created.</td><td>Optional</td></tr>
+        <tr><td><code>Resources</code></td><td>The actual AWS resources to create.</td><td><strong>Required</strong></td></tr>
+        <tr><td><code>Outputs</code></td><td>Values returned after deployment.</td><td>Optional</td></tr>
+      </table>
+      </div>
+
+      <h3>A basic template</h3>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">AWSTemplateFormatVersion</span>: <span class="y-s">'2010-09-09'</span>
+
+<span class="y-k">Description</span>: <span class="y-s">Basic CloudFormation Example</span>
+
+<span class="y-k">Resources</span>:
+  <span class="y-k">MyBucket</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::S3::Bucket</span>
+
+<span class="y-k">Outputs</span>:
+  <span class="y-k">BucketName</span>:
+    <span class="y-k">Value</span>: !Ref MyBucket</code></pre>
+      </div>
+      <ul>
+        <li><code>AWSTemplateFormatVersion: '2010-09-09'</code> &mdash; the fixed version string CloudFormation expects.</li>
+        <li><code>Description</code> &mdash; a human-readable note about what this template does.</li>
+        <li><code>Resources.MyBucket</code> &mdash; <code>MyBucket</code> is the <strong>logical ID</strong> (a name you choose for use inside this template); <code>Type: AWS::S3::Bucket</code> says it's an S3 bucket.</li>
+        <li><code>Outputs.BucketName.Value: !Ref MyBucket</code> &mdash; after creation, show the actual bucket name/reference as an output called <code>BucketName</code>.</li>
+      </ul>
+    </section>
+
+    <!-- 6 -->
+    <section class="card" id="s6">
+      <h2>6. YAML Basics for CloudFormation</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>CloudFormation templates are usually written in YAML (JSON also works, but YAML is more beginner-friendly).</p>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Concept</th><th>Meaning</th></tr>
+        <tr><td>Indentation</td><td>Spaces (not tabs) show which items belong inside which section. Consistent 2-space indentation is common.</td></tr>
+        <tr><td>Key/value</td><td><code>Key: value</code> &mdash; a colon and a space separate the key from its value.</td></tr>
+        <tr><td>Lists</td><td>Lines starting with <code>-</code> under a key represent a list.</td></tr>
+        <tr><td>Objects</td><td>A key with no value on the same line, followed by indented key/value pairs, is a nested object.</td></tr>
+        <tr><td>Strings</td><td>Usually written plainly; quotes (<code>'...'</code> or <code>"..."</code>) are used when the value could be misread (like <code>'2010-09-09'</code>).</td></tr>
+        <tr><td>Comments</td><td>Start with <code>#</code> and are ignored by CloudFormation.</td></tr>
+      </table>
+      </div>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-c"># A resource is a key, indented under Resources</span>
+<span class="y-k">Resources</span>:
+  <span class="y-k">MyBucket</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::S3::Bucket</span></code></pre>
+      </div>
+      <div class="box warn">
+        <strong class="t">Why indentation matters</strong>
+        YAML uses indentation instead of brackets to show structure. If <code>Type:</code> is indented at the wrong level, CloudFormation may read it as belonging to the wrong resource (or fail with a parsing error).
+      </div>
+      <h3>Common YAML mistakes</h3>
+      <ul>
+        <li>Mixing tabs and spaces (YAML does not allow tabs for indentation).</li>
+        <li>Inconsistent indentation between sibling lines.</li>
+        <li>Missing the space after a colon (<code>Type:AWS::S3::Bucket</code> is invalid; it needs <code>Type: AWS::S3::Bucket</code>).</li>
+        <li>Forgetting the <code>-</code> when writing a list item.</li>
+        <li>Using a reserved character (like <code>:</code>) inside an unquoted string.</li>
+      </ul>
+    </section>
+
+    <!-- 7 -->
+    <section class="card" id="s7">
+      <h2>7. CloudFormation Resource</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Resources</span>:
+  <span class="y-k">MyBucket</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::S3::Bucket</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">BucketName</span>: <span class="y-s">my-example-bucket</span></code></pre>
+      </div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Part</th><th>Meaning</th></tr>
+        <tr><td><strong>Logical ID</strong> (<code>MyBucket</code>)</td><td>A name you choose to refer to this resource <em>inside this template</em> (used with <code>!Ref</code>, <code>!GetAtt</code>, <code>DependsOn</code>). It is not the actual AWS resource name.</td></tr>
+        <tr><td><strong>Type</strong> (<code>AWS::S3::Bucket</code>)</td><td>Tells CloudFormation which AWS resource to create.</td></tr>
+        <tr><td><strong>Properties</strong></td><td>The settings for that resource (varies by resource type).</td></tr>
+      </table>
+      </div>
+      <p>Logical IDs are used only within the template to link resources together &mdash; e.g. an EC2 instance's <code>Properties</code> can reference a Security Group's logical ID to attach it.</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="card" id="s8">
+      <h2>8. Practical Lab 1 &mdash; Create an S3 Bucket Using CloudFormation</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <p><strong>Goal:</strong> create an S3 bucket using a CloudFormation stack via the AWS Console.</p>
+      <div class="arch">CloudFormation
+      |
+      v
+  S3 Bucket</div>
+
+      <h3>Template: <code>s3-bucket.yaml</code></h3>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">AWSTemplateFormatVersion</span>: <span class="y-s">'2010-09-09'</span>
+
+<span class="y-k">Description</span>: <span class="y-s">Create an S3 bucket using CloudFormation</span>
+
+<span class="y-k">Resources</span>:
+  <span class="y-k">MyS3Bucket</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::S3::Bucket</span>
+
+<span class="y-k">Outputs</span>:
+  <span class="y-k">BucketName</span>:
+    <span class="y-k">Description</span>: <span class="y-s">Name of the S3 bucket</span>
+    <span class="y-k">Value</span>: !Ref MyS3Bucket</code></pre>
+      </div>
+      <p>Since <code>MyS3Bucket</code> has no <code>BucketName</code> property, AWS will auto-generate a unique bucket name. <code>!Ref MyS3Bucket</code> for an S3 bucket returns that bucket's name.</p>
+
+      <ol class="steps">
+        <li>Open the <strong>AWS Management Console</strong>.</li>
+        <li>Search for <strong>CloudFormation</strong>.</li>
+        <li>Open <strong>CloudFormation</strong>.</li>
+        <li>Click <strong>Create stack</strong>.</li>
+        <li>Choose <strong>With new resources (standard)</strong>.</li>
+        <li>Choose <strong>Upload a template file</strong>.</li>
+        <li>Create the file <code>s3-bucket.yaml</code> locally with the code above, and select it to upload.</li>
+        <li>Click <strong>Next</strong>.</li>
+        <li>Enter the stack name: <code>my-s3-stack</code></li>
+        <li>Continue through the remaining options (leave defaults for this beginner lab).</li>
+        <li>Review the summary shown by CloudFormation.</li>
+        <li>If AWS asks you to <strong>acknowledge IAM capability</strong> (this happens when a template can create IAM resources), check the acknowledgement box. This template doesn't create IAM resources, so it may not appear here &mdash; but it will for later labs.</li>
+        <li>Click <strong>Submit</strong> / <strong>Create stack</strong>.</li>
+      </ol>
+
+      <h3>What happens after clicking Create?</h3>
+      <p>CloudFormation starts creating resources in the order it determines from the template, and shows a live <strong>Events</strong> tab with each step.</p>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Status</th><th>Meaning</th></tr>
+        <tr><td><code>CREATE_IN_PROGRESS</code></td><td>CloudFormation is currently creating the stack/resource.</td></tr>
+        <tr><td><code>CREATE_COMPLETE</code></td><td>The stack/resource was created successfully.</td></tr>
+        <tr><td><code>CREATE_FAILED</code></td><td>Something went wrong creating this resource.</td></tr>
+        <tr><td><code>ROLLBACK_IN_PROGRESS</code></td><td>A failure occurred, so CloudFormation is undoing what it created.</td></tr>
+        <tr><td><code>ROLLBACK_COMPLETE</code></td><td>The rollback finished; the stack is back to a clean (deleted) state and usually must be deleted before retrying.</td></tr>
+      </table>
+      </div>
+
+      <ol class="steps">
+        <li>Open the <strong>Resources</strong> tab of the stack.</li>
+        <li>Click the S3 bucket resource link to open it in the S3 console.</li>
+        <li>Verify that the bucket exists and is empty.</li>
+      </ol>
+    </section>
+
+    <!-- 9 -->
+    <section class="card" id="s9">
+      <h2>9. Practical Lab 2 &mdash; Create an EC2 Instance Using CloudFormation</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <h3>Prerequisites</h3>
+      <ul>
+        <li><strong>VPC</strong> &mdash; the network your instance launches into (the default VPC works for learning).</li>
+        <li><strong>Subnet</strong> &mdash; a slice of the VPC; usually chosen automatically if not specified for a default VPC.</li>
+        <li><strong>Security Group</strong> &mdash; controls inbound/outbound traffic (built in Lab 3).</li>
+        <li><strong>Key Pair</strong> &mdash; used for SSH access; must already exist in your account/region.</li>
+        <li><strong>AMI</strong> &mdash; the image (OS) the instance boots from.</li>
+        <li><strong>Instance Type</strong> &mdash; the instance size, e.g. <code>t3.micro</code>.</li>
+      </ul>
+
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Parameters</span>:
+  <span class="y-k">InstanceType</span>:
+    <span class="y-k">Type</span>: <span class="y-s">String</span>
+    <span class="y-k">Default</span>: <span class="y-s">t3.micro</span>
+
+  <span class="y-k">KeyName</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::KeyPair::KeyName</span>
+
+  <span class="y-k">AMIId</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Image::Id</span>
+
+<span class="y-k">Resources</span>:
+  <span class="y-k">MyEC2</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">ImageId</span>: !Ref AMIId
+      <span class="y-k">InstanceType</span>: !Ref InstanceType
+      <span class="y-k">KeyName</span>: !Ref KeyName</code></pre>
+      </div>
+      <ul>
+        <li><code>Parameters.InstanceType</code> &mdash; a string input with a sensible default (<code>t3.micro</code>).</li>
+        <li><code>Parameters.KeyName</code> &mdash; a special parameter type that lets the Console show a dropdown of your existing key pairs.</li>
+        <li><code>Parameters.AMIId</code> &mdash; a special parameter type for AMI IDs, also shown as a picker in the Console.</li>
+        <li><code>Resources.MyEC2.Properties.ImageId/InstanceType/KeyName</code> &mdash; each uses <code>!Ref</code> to pull in the value supplied for that parameter at deploy time.</li>
+      </ul>
+
+      <div class="box bad">
+        <strong class="t">AMI IDs are region-specific</strong>
+        Never hard-code an AMI ID into a template you plan to reuse across regions. An AMI ID that works in one region (e.g. <code>ap-south-1</code>) will not exist in another region (e.g. <code>eu-north-1</code>). That's why this template takes the AMI ID as a <strong>parameter</strong> instead of hardcoding it.
+      </div>
+      <h3>How to find the AMI ID</h3>
+      <ol class="steps">
+        <li>Open the <strong>EC2 Console</strong> in the same region you plan to deploy in.</li>
+        <li>Click <strong>Launch instance</strong> (you don't have to finish this &mdash; just browse).</li>
+        <li>Under <strong>Application and OS Images</strong>, pick an OS (e.g. Amazon Linux) and note the AMI ID shown.</li>
+        <li>Copy that AMI ID to use as the parameter value when deploying your stack.</li>
+      </ol>
+      <h3>How to find Key Pair / VPC / Subnet / Security Group</h3>
+      <ul>
+        <li><strong>Key Pair:</strong> EC2 Console &rarr; Key Pairs (create one first if you don't have any; download the <code>.pem</code>/<code>.ppk</code> file and keep it safe).</li>
+        <li><strong>VPC:</strong> VPC Console &rarr; Your VPCs (the default VPC is fine for this lab).</li>
+        <li><strong>Subnet:</strong> VPC Console &rarr; Subnets (pick one inside the VPC you're using).</li>
+        <li><strong>Security Group:</strong> built in the next lab, or EC2 Console &rarr; Security Groups to see existing ones.</li>
+      </ul>
+
+      <h3>Deploy, verify, and clean up</h3>
+      <ol class="steps">
+        <li>Follow the same <strong>Create stack</strong> flow as Lab 1, uploading this template.</li>
+        <li>Fill in the parameters (Instance Type, Key Pair, AMI ID) on the parameters screen.</li>
+        <li>Submit and watch the <strong>Events</strong> tab until status is <code>CREATE_COMPLETE</code>.</li>
+        <li>Open <strong>Resources</strong> &rarr; click the EC2 instance link to confirm it's running in the EC2 Console.</li>
+        <li>To remove it, delete the <strong>stack</strong> (not just the instance) from the CloudFormation Console &mdash; this terminates the EC2 instance along with any other resources in the stack.</li>
+      </ol>
+    </section>
+
+    <!-- 10 -->
+    <section class="card" id="s10">
+      <h2>10. Practical Lab 3 &mdash; EC2 + Security Group</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <p>This template creates a <strong>Security Group</strong> allowing SSH (22) and HTTP (80), then an EC2 instance using that Security Group.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Resources</span>:
+  <span class="y-k">MySecurityGroup</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::SecurityGroup</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">GroupDescription</span>: <span class="y-s">Allow SSH and HTTP</span>
+      <span class="y-k">SecurityGroupIngress</span>:
+        - <span class="y-k">IpProtocol</span>: <span class="y-s">tcp</span>
+          <span class="y-k">FromPort</span>: <span class="y-n">22</span>
+          <span class="y-k">ToPort</span>: <span class="y-n">22</span>
+          <span class="y-k">CidrIp</span>: <span class="y-s">0.0.0.0/0</span>
+
+        - <span class="y-k">IpProtocol</span>: <span class="y-s">tcp</span>
+          <span class="y-k">FromPort</span>: <span class="y-n">80</span>
+          <span class="y-k">ToPort</span>: <span class="y-n">80</span>
+          <span class="y-k">CidrIp</span>: <span class="y-s">0.0.0.0/0</span>
+
+  <span class="y-k">MyEC2</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">ImageId</span>: !Ref AMIId
+      <span class="y-k">InstanceType</span>: !Ref InstanceType
+      <span class="y-k">KeyName</span>: !Ref KeyName
+      <span class="y-k">SecurityGroupIds</span>:
+        - !Ref MySecurityGroup</code></pre>
+      </div>
+      <p><code>AWS::EC2::SecurityGroup</code> acts as a virtual firewall. Each entry under <code>SecurityGroupIngress</code> is one allowed inbound rule (protocol, port range, and allowed source CIDR).</p>
+      <div class="box bad">
+        <strong class="t">Security risk: SSH from 0.0.0.0/0</strong>
+        <code>CidrIp: 0.0.0.0/0</code> on port 22 means <strong>anyone on the internet</strong> can attempt to SSH into this instance. This is acceptable only for quick, temporary learning. For real projects, restrict SSH to your own IP, e.g. <code>CidrIp: YOUR.PUBLIC.IP.ADDRESS/32</code>, or access via a bastion host/VPN instead.
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="card" id="s11">
+      <h2>11. Practical Lab 4 &mdash; EC2 Web Server Using UserData</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <p>This template creates a Security Group, an EC2 instance, installs Apache automatically, starts it, and serves a simple HTML page &mdash; all without logging in manually.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">MyEC2</span>:
+  <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+  <span class="y-k">Properties</span>:
+    <span class="y-k">ImageId</span>: !Ref AMIId
+    <span class="y-k">InstanceType</span>: !Ref InstanceType
+    <span class="y-k">KeyName</span>: !Ref KeyName
+    <span class="y-k">SecurityGroupIds</span>:
+      - !Ref MySecurityGroup
+    <span class="y-k">UserData</span>:
+      Fn::Base64: !Sub |
+        #!/bin/bash
+        dnf update -y
+        dnf install -y httpd
+        systemctl start httpd
+        systemctl enable httpd
+
+        echo "&lt;h1&gt;Hello from CloudFormation&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre>
+      </div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Part</th><th>Meaning</th></tr>
+        <tr><td><code>UserData</code></td><td>A script that runs automatically the first time the instance boots.</td></tr>
+        <tr><td><code>Fn::Base64</code></td><td>CloudFormation must pass UserData to EC2 as Base64; this function encodes it for you.</td></tr>
+        <tr><td><code>!Sub |</code></td><td>Lets you write a multi-line script and optionally substitute <code>${Parameter}</code> values into it.</td></tr>
+        <tr><td><code>dnf update -y</code> / <code>dnf install -y httpd</code></td><td>Updates packages and installs the Apache web server (<code>httpd</code>) on Amazon Linux.</td></tr>
+        <tr><td><code>systemctl start httpd</code></td><td>Starts the Apache service immediately.</td></tr>
+        <tr><td><code>systemctl enable httpd</code></td><td>Makes Apache start automatically on every reboot.</td></tr>
+        <tr><td><code>echo "..." &gt; /var/www/html/index.html</code></td><td>Writes a simple HTML page that Apache will serve as the homepage.</td></tr>
+      </table>
+      </div>
+      <p><strong>Accessing the site:</strong> once the instance is running and the Security Group allows port 80, open a browser and go to <code>http://PUBLIC-IP</code> (replace with the instance's actual public IP, available in the EC2 Console or via an Output &mdash; see <a href="#s17">Outputs</a>).</p>
+    </section>
+
+    <!-- 12 -->
+    <section class="card" id="s12">
+      <h2>12. Practical Lab 5 &mdash; Create S3 + EC2 Together</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <p>A single template can describe several resources at once. CloudFormation figures out the right creation order based on how resources reference each other.</p>
+      <div class="arch">CloudFormation
+       |
+       +---- S3
+       |
+       +---- Security Group
+       |
+       +---- EC2 (uses Security Group)</div>
+      <p>Here, <code>MyEC2</code> references <code>MySecurityGroup</code> via <code>SecurityGroupIds: [!Ref MySecurityGroup]</code>. CloudFormation detects this reference and automatically creates the Security Group <em>before</em> the EC2 instance, even though the S3 bucket has no dependency and could be created at any point.</p>
+      <p>Combine the S3 bucket resource from Lab 1, the Security Group from Lab 3, and the EC2 instance from Lab 4 into one <code>Resources:</code> section to try this yourself.</p>
+    </section>
+
+    <!-- 13 -->
+    <section class="card" id="s13">
+      <h2>13. Parameters</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>Parameters let the <em>same</em> template be reused with different inputs (e.g. different environments), instead of duplicating templates.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Parameters</span>:
+  <span class="y-k">Environment</span>:
+    <span class="y-k">Type</span>: <span class="y-s">String</span>
+    <span class="y-k">Default</span>: <span class="y-s">dev</span>
+    <span class="y-k">AllowedValues</span>:
+      - <span class="y-s">dev</span>
+      - <span class="y-s">test</span>
+      - <span class="y-s">prod</span></code></pre>
+      </div>
+      <ul>
+        <li><code>Type: String</code> &mdash; the kind of value expected (other types include <code>Number</code>, <code>AWS::EC2::KeyPair::KeyName</code>, <code>AWS::EC2::Image::Id</code>, etc.).</li>
+        <li><code>Default: dev</code> &mdash; used if the deployer doesn't provide a value.</li>
+        <li><code>AllowedValues</code> &mdash; restricts input to a fixed list, preventing typos like <code>Prodd</code>.</li>
+      </ul>
+      <p>Other useful parameters for a real project: <code>InstanceType</code>, <code>KeyName</code>, <code>AMIId</code> (as shown in Lab 2).</p>
+    </section>
+
+    <!-- 14 -->
+    <section class="card" id="s14">
+      <h2>14&ndash;16. Intrinsic Functions: !Ref, !GetAtt, !Sub</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+
+      <h3>14. !Ref</h3>
+      <p><code>!Ref</code> returns a resource's "primary" identifying value, or a parameter's value.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Outputs</span>:
+  <span class="y-k">BucketName</span>:
+    <span class="y-k">Value</span>: !Ref MyBucket</code></pre>
+      </div>
+      <ul>
+        <li>For an <strong>S3 bucket</strong>, <code>!Ref</code> returns the bucket name.</li>
+        <li>For an <strong>EC2 instance</strong>, <code>!Ref</code> returns the instance ID.</li>
+        <li>For a <strong>Parameter</strong>, <code>!Ref</code> returns whatever value was supplied for that parameter.</li>
+      </ul>
+
+      <h3>15. !GetAtt</h3>
+      <p><code>!GetAtt</code> returns a specific <strong>attribute</strong> of a resource &mdash; something more specific than what plain <code>!Ref</code> gives you.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Outputs</span>:
+  <span class="y-k">InstancePublicIP</span>:
+    <span class="y-k">Value</span>: !GetAtt MyEC2.PublicIp</code></pre>
+      </div>
+      <div class="box tip">
+        <strong class="t">!Ref vs !GetAtt</strong>
+        <code>!Ref MyEC2</code> gives the instance ID. <code>!GetAtt MyEC2.PublicIp</code> gives the public IP address specifically &mdash; an attribute that <code>!Ref</code> alone can't give you. Use <code>!GetAtt</code> whenever you need something more specific than the resource's primary identifier.
+      </div>
+
+      <h3>16. !Sub</h3>
+      <p><code>!Sub</code> substitutes <code>${...}</code> placeholders inside a string with parameter or resource values.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">UserData</span>:
+  Fn::Base64: !Sub |
+    echo "Environment: <span class="y-n">${Environment}</span>"</code></pre>
+      </div>
+      <p>Here <code>${Environment}</code> is replaced with the actual value of the <code>Environment</code> parameter when the template is deployed &mdash; useful for building dynamic scripts or strings like URLs.</p>
+    </section>
+
+    <!-- 17 -->
+    <section class="card" id="s17">
+      <h2>17. Outputs</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>Outputs return useful information after a stack is created, visible in the Console's <strong>Outputs</strong> tab (or via CLI).</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Outputs</span>:
+  <span class="y-k">InstanceId</span>:
+    <span class="y-k">Value</span>: !Ref MyEC2
+
+  <span class="y-k">PublicIP</span>:
+    <span class="y-k">Value</span>: !GetAtt MyEC2.PublicIp
+
+  <span class="y-k">BucketName</span>:
+    <span class="y-k">Value</span>: !Ref MyS3Bucket
+
+  <span class="y-k">WebsiteURL</span>:
+    <span class="y-k">Description</span>: <span class="y-s">Website URL</span>
+    <span class="y-k">Value</span>: !Sub <span class="y-s">"http://${MyEC2.PublicIp}"</span></code></pre>
+      </div>
+      <p>Common outputs: EC2 Instance ID, Public IP, S3 Bucket Name, and a ready-to-click Website URL built with <code>!Sub</code>.</p>
+    </section>
+
+    <!-- 18 -->
+    <section class="card" id="s18">
+      <h2>18. DependsOn</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>CloudFormation <strong>automatically</strong> detects most dependencies when one resource references another (e.g. via <code>!Ref</code>). <code>DependsOn</code> is for the rare cases where a dependency exists but <em>isn't</em> visible through a reference.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">MyEC2</span>:
+  <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+  <span class="y-k">DependsOn</span>: MyS3Bucket
+  <span class="y-k">Properties</span>:
+    <span class="y-k">ImageId</span>: !Ref AMIId
+    ...</code></pre>
+      </div>
+      <p>Use <code>DependsOn</code> when a resource must exist first for a reason CloudFormation can't infer (e.g. an application expects a bucket to already exist when it boots, even though nothing in the template's properties references it directly).</p>
+    </section>
+
+    <!-- 19 -->
+    <section class="card" id="s19">
+      <h2>19. Conditions</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>Conditions let a template create (or configure) resources differently depending on parameter values.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Conditions</span>:
+  <span class="y-k">IsProduction</span>:
+    Fn::Equals:
+      - !Ref Environment
+      - <span class="y-s">prod</span>
+
+<span class="y-k">Resources</span>:
+  <span class="y-k">MyEC2</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+    <span class="y-k">Condition</span>: IsProduction
+    <span class="y-k">Properties</span>:
+      ...</code></pre>
+      </div>
+      <p>Here, <code>MyEC2</code> is only created when the <code>Environment</code> parameter equals <code>prod</code>. This lets one template safely serve multiple environments with different resources.</p>
+    </section>
+
+    <!-- 20 -->
+    <section class="card" id="s20">
+      <h2>20. Mappings</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>Mappings are fixed lookup tables, commonly used to pick a value based on region.</p>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">Mappings</span>:
+  <span class="y-k">RegionMap</span>:
+    <span class="y-k">us-east-1</span>:
+      <span class="y-k">AMI</span>: <span class="y-s">ami-xxxxxxxx</span>
+    <span class="y-k">eu-north-1</span>:
+      <span class="y-k">AMI</span>: <span class="y-s">ami-yyyyyyyy</span>
+
+<span class="y-k">Resources</span>:
+  <span class="y-k">MyEC2</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">ImageId</span>: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]</code></pre>
+      </div>
+      <div class="box warn">
+        <strong class="t">Why hardcoding region-specific values is risky</strong>
+        An AMI ID, endpoint, or other value that's correct in one region will often be wrong (or non-existent) in another. Hardcoding it means the template silently breaks when deployed elsewhere. A Mapping keeps all region-specific values in one clearly labeled place.
+      </div>
+    </section>
+
+    <!-- 21 -->
+    <section class="card" id="s21">
+      <h2>21. CloudFormation Change Sets</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <p>A <strong>Change Set</strong> is a preview of what would happen if you applied an update, without actually applying it yet.</p>
+      <div class="arch">Existing Stack
+      |
+      v
+Modify Template
+      |
+      v
+Create Change Set
+      |
+      v
+Review Changes
+      |
+      v
+Execute Change Set</div>
+      <ol class="steps">
+        <li>Open the stack in the CloudFormation Console.</li>
+        <li>Click <strong>Update</strong>.</li>
+        <li>Upload the modified template.</li>
+        <li>Choose <strong>Create change set</strong> instead of applying immediately.</li>
+        <li>Review the listed changes &mdash; CloudFormation shows which resources will be <em>Modified</em>, <em>Added</em>, <em>Removed</em>, or <em>Replaced</em>.</li>
+        <li>If everything looks correct, click <strong>Execute change set</strong> to apply it.</li>
+      </ol>
+    </section>
+
+    <!-- 22 -->
+    <section class="card" id="s22">
+      <h2>22. Update a CloudFormation Stack</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <p><strong>Example:</strong> change the EC2 instance type from <code>t3.micro</code> to <code>t3.small</code>.</p>
+      <ol class="steps">
+        <li>Open <strong>CloudFormation</strong>.</li>
+        <li>Select the stack.</li>
+        <li>Click <strong>Update</strong>.</li>
+        <li>Upload the new template (or edit parameters, e.g. change <code>InstanceType</code> to <code>t3.small</code>).</li>
+        <li>Review the changes shown.</li>
+        <li>Optionally create a Change Set first if you want a preview (see <a href="#s21">section 21</a>).</li>
+        <li>Click <strong>Execute</strong> / <strong>Update stack</strong>.</li>
+        <li>Monitor the <strong>Events</strong> tab as it applies.</li>
+      </ol>
+      <p>During an update, you may see statuses like <code>UPDATE_IN_PROGRESS</code> and <code>UPDATE_COMPLETE</code>. Some property changes (like instance type) can be updated in place; others may require replacing the resource entirely &mdash; the Change Set preview tells you which.</p>
+    </section>
+
+    <!-- 23 -->
+    <section class="card" id="s23">
+      <h2>23. Stack Rollback</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="arch">CloudFormation tries to create/update resources
+        |
+        v
+Something fails
+        |
+        v
+CloudFormation rolls back
+        |
+        v
+Previous state is restored / partially-created resources are cleaned up</div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Status</th><th>Meaning</th></tr>
+        <tr><td><code>UPDATE_ROLLBACK_IN_PROGRESS</code></td><td>An update failed and CloudFormation is undoing it, restoring the previous configuration.</td></tr>
+        <tr><td><code>UPDATE_ROLLBACK_COMPLETE</code></td><td>The rollback from a failed update finished; the stack is back to its last working state.</td></tr>
+        <tr><td><code>ROLLBACK_COMPLETE</code></td><td>A brand-new stack's creation failed and was rolled back; the stack must usually be <strong>deleted</strong> before you can try again.</td></tr>
+      </table>
+      </div>
+      <h3>What to do when deployment fails</h3>
+      <ol class="steps">
+        <li>Open the <strong>Events</strong> tab and find the first <code>*_FAILED</code> event (later events are usually just the rollback cascade).</li>
+        <li>Read the <strong>Status reason</strong> column for the actual error message.</li>
+        <li>Fix the template or parameter causing the issue.</li>
+        <li>If the stack is in <code>ROLLBACK_COMPLETE</code>, delete it and create a new stack with the corrected template.</li>
+      </ol>
+    </section>
+
+    <!-- 24 -->
+    <section class="card" id="s24">
+      <h2>24. Delete a CloudFormation Stack</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <ol class="steps">
+        <li>Open <strong>CloudFormation</strong>.</li>
+        <li>Select the stack.</li>
+        <li>Click <strong>Delete</strong>.</li>
+        <li>Confirm the deletion.</li>
+        <li>Monitor the <strong>Events</strong> tab until it disappears from the stack list (deletion complete).</li>
+      </ol>
+      <p>Resources managed by the stack are generally deleted along with the stack, unless a resource has been configured otherwise (see <strong>DeletionPolicy</strong> below).</p>
+    </section>
+
+    <!-- 25 -->
+    <section class="card" id="s25">
+      <h2>25. DeletionPolicy</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Value</th><th>Behavior</th></tr>
+        <tr><td><code>Delete</code> (default for most resources)</td><td>The resource is deleted when the stack (or the resource from the template) is removed.</td></tr>
+        <tr><td><code>Retain</code></td><td>The resource is kept in AWS even after the stack is deleted.</td></tr>
+        <tr><td><code>Snapshot</code></td><td>A final snapshot is taken before deletion (supported for certain resource types like RDS instances and EBS volumes).</td></tr>
+      </table>
+      </div>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">MyDatabase</span>:
+  <span class="y-k">Type</span>: <span class="y-s">AWS::RDS::DBInstance</span>
+  <span class="y-k">DeletionPolicy</span>: Snapshot
+  <span class="y-k">Properties</span>:
+    ...</code></pre>
+      </div>
+      <div class="box warn">
+        <strong class="t">Why databases and important data may need Retain/Snapshot</strong>
+        Deleting a stack that includes an RDS database or an S3 bucket with important files, using the default <code>Delete</code> policy, can permanently destroy real data. Set <code>DeletionPolicy: Retain</code> or <code>DeletionPolicy: Snapshot</code> (where supported) on resources holding data you can't afford to lose.
+      </div>
+    </section>
+
+    <!-- 26 -->
+    <section class="card" id="s26">
+      <h2>26. Drift Detection</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p><strong>Example:</strong> CloudFormation created an EC2 Security Group. Later, someone manually edits that Security Group directly from the AWS Console (adds/removes a rule).</p>
+      <div class="tablewrap">
+      <table>
+        <tr><th>CloudFormation template says</th><th>Actual resource is</th></tr>
+        <tr><td>Original configuration (what was deployed)</td><td>Changed configuration (edited by hand afterward)</td></tr>
+      </table>
+      </div>
+      <div class="box warn">
+        <strong class="t">Template &ne; Actual Infrastructure</strong>
+        Once a manual change happens outside CloudFormation, the template no longer matches reality. Drift Detection finds this mismatch.
+      </div>
+      <ol class="steps">
+        <li>Open the <strong>Stack</strong>.</li>
+        <li>Open <strong>Stack actions</strong>.</li>
+        <li>Click <strong>Detect drift</strong>.</li>
+        <li>Wait, then check the <strong>drift status</strong> shown on the stack.</li>
+        <li>Click through to <strong>view drift details</strong> to see exactly which properties differ.</li>
+      </ol>
+    </section>
+
+    <!-- 27 -->
+    <section class="card" id="s27">
+      <h2>27&ndash;28. Nested Stacks and StackSets</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <h3>27. Nested Stacks</h3>
+      <div class="arch">Main Stack
+    |
+    +--- Network Stack
+    |
+    +--- Database Stack
+    |
+    +--- Application Stack</div>
+      <p>A nested stack is a stack created as a <em>resource</em> inside a parent stack. It's useful for breaking large infrastructure into smaller, reusable, independently-maintained templates (e.g. a shared Network Stack reused by several applications).</p>
+
+      <h3>28. StackSets</h3>
+      <div class="arch">One CloudFormation template
+        |
+        v
+Multiple AWS accounts
+        |
+        v
+Multiple AWS regions</div>
+      <p>A StackSet deploys the same template as separate stacks across many accounts and/or regions from one place &mdash; useful for organization-wide baselines like security guardrails, logging setups, or standard tagging policies.</p>
+    </section>
+
+    <!-- 29 -->
+    <section class="card" id="s29">
+      <h2>29. CloudFormation CLI Commands</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td><code>aws cloudformation create-stack</code></td><td>Creates a new stack from a template.</td></tr>
+        <tr><td><code>aws cloudformation describe-stacks</code></td><td>Shows details/status of one or all stacks.</td></tr>
+        <tr><td><code>aws cloudformation describe-stack-events</code></td><td>Shows the event history (useful for troubleshooting).</td></tr>
+        <tr><td><code>aws cloudformation update-stack</code></td><td>Updates an existing stack with a new template/parameters.</td></tr>
+        <tr><td><code>aws cloudformation delete-stack</code></td><td>Deletes a stack and (usually) its resources.</td></tr>
+      </table>
+      </div>
+      <p>Throughout the examples, replace <code>YOUR-STACK-NAME</code> and <code>YOUR-TEMPLATE-FILE.yaml</code> with your own values &mdash; never use real credentials in a template or command.</p>
+    </section>
+
+    <!-- 30 -->
+    <section class="card" id="s30">
+      <h2>30. Practical CLI Deployment</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+
+      <ol class="steps">
+        <li>Install the <strong>AWS CLI</strong> for your operating system.</li>
+        <li>Configure credentials:
+          <div class="codewrap">
+            <div class="codehead"><span>bash</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-f">aws</span> configure</code></pre>
+          </div>
+          Enter: <strong>Access Key ID</strong>, <strong>Secret Access Key</strong>, <strong>Region</strong>, and <strong>Output format</strong> (e.g. <code>json</code>).
+          <div class="box bad">
+            <strong class="t">Never commit AWS access keys to GitHub</strong>
+            Keep credentials out of source code, config files pushed to Git, and screenshots. Use least-privilege IAM users, and rotate keys you no longer need.
+          </div>
+        </li>
+        <li>Verify your identity:
+          <div class="codewrap">
+            <div class="codehead"><span>bash</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-f">aws</span> sts get-caller-identity</code></pre>
+          </div>
+        </li>
+        <li>Deploy the stack:
+          <div class="codewrap">
+            <div class="codehead"><span>bash</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-f">aws</span> cloudformation create-stack \
+  --stack-name my-s3-stack \
+  --template-body file://s3-bucket.yaml</code></pre>
+          </div>
+        </li>
+        <li>Check the stack status:
+          <div class="codewrap">
+            <div class="codehead"><span>bash</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-f">aws</span> cloudformation describe-stacks \
+  --stack-name my-s3-stack</code></pre>
+          </div>
+        </li>
+        <li>Check events (useful when something goes wrong):
+          <div class="codewrap">
+            <div class="codehead"><span>bash</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-f">aws</span> cloudformation describe-stack-events \
+  --stack-name my-s3-stack</code></pre>
+          </div>
+        </li>
+        <li>Delete the stack when finished:
+          <div class="codewrap">
+            <div class="codehead"><span>bash</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-f">aws</span> cloudformation delete-stack \
+  --stack-name my-s3-stack</code></pre>
+          </div>
+        </li>
+      </ol>
+
+      <div class="box tip">
+        <strong class="t">Windows PowerShell note</strong>
+        The commands above work the same in PowerShell. For multi-line commands, PowerShell uses a backtick (<code>`</code>) instead of a backslash (<code>\</code>) as the line-continuation character:
+        <div class="codewrap">
+          <div class="codehead"><span>powershell</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-f">aws</span> cloudformation create-stack `
+  --stack-name my-s3-stack `
+  --template-body file://s3-bucket.yaml</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 31 -->
+    <section class="card" id="s31">
+      <h2>31. Practical MERN Application Example</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="arch">User
+ |
+ v
+Route 53
+ |
+ v
+ALB
+ |
+ v
+EC2 / Auto Scaling
+ |
+ v
+Node.js Backend
+ |
+ v
+RDS
+ |
+ v
+S3</div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Component</th><th>Role, and where CloudFormation fits</th></tr>
+        <tr><td>IAM</td><td>Roles/policies granting EC2 or other services the exact permissions they need &mdash; defined in the template.</td></tr>
+        <tr><td>CloudWatch</td><td>Monitoring/alarms for the deployed resources &mdash; can be defined alongside the resources in the same template.</td></tr>
+        <tr><td>Security Groups</td><td>Firewall rules for ALB, EC2 and RDS &mdash; each defined as its own resource.</td></tr>
+        <tr><td>VPC</td><td>The network the whole application runs inside &mdash; can be created by the template or referenced if it already exists.</td></tr>
+        <tr><td>CloudFormation</td><td>The tool tying all of the above together as one manageable stack, created/updated/deleted as a unit.</td></tr>
+      </table>
+      </div>
+      <p>CloudFormation can provision every AWS piece of this architecture &mdash; the React frontend itself is typically built and hosted separately (e.g. on S3/CloudFront), while CloudFormation focuses on the backend infrastructure: networking, compute, database and storage.</p>
+    </section>
+
+    <!-- 32 -->
+    <section class="card" id="s32">
+      <h2>32. Complete MERN CloudFormation Project (Simplified)</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <p>Frontend: React &bull; Backend: Node.js + Express &bull; Database: RDS MySQL/PostgreSQL &bull; File Storage: S3 &bull; Infrastructure: CloudFormation</p>
+      <div class="arch">Developer
+ |
+ v
+CloudFormation Template
+ |
+ v
+VPC
+ |
+ v
+Security Groups
+ |
+ v
+EC2
+ |
+ v
+Backend (Node.js/Express)
+ |
+ v
+RDS
+ |
+ v
+S3</div>
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">AWSTemplateFormatVersion</span>: <span class="y-s">'2010-09-09'</span>
+<span class="y-k">Description</span>: <span class="y-s">Simplified MERN-style backend infrastructure</span>
+
+<span class="y-k">Parameters</span>:
+  <span class="y-k">KeyName</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::KeyPair::KeyName</span>
+  <span class="y-k">AMIId</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Image::Id</span>
+  <span class="y-k">DBPassword</span>:
+    <span class="y-k">Type</span>: <span class="y-s">String</span>
+    <span class="y-k">NoEcho</span>: true
+
+<span class="y-k">Resources</span>:
+  <span class="y-k">AppSecurityGroup</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::SecurityGroup</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">GroupDescription</span>: <span class="y-s">Allow HTTP and SSH to app server</span>
+      <span class="y-k">SecurityGroupIngress</span>:
+        - <span class="y-k">IpProtocol</span>: <span class="y-s">tcp</span>
+          <span class="y-k">FromPort</span>: <span class="y-n">80</span>
+          <span class="y-k">ToPort</span>: <span class="y-n">80</span>
+          <span class="y-k">CidrIp</span>: <span class="y-s">0.0.0.0/0</span>
+        - <span class="y-k">IpProtocol</span>: <span class="y-s">tcp</span>
+          <span class="y-k">FromPort</span>: <span class="y-n">22</span>
+          <span class="y-k">ToPort</span>: <span class="y-n">22</span>
+          <span class="y-k">CidrIp</span>: <span class="y-s">YOUR.IP.ADDRESS/32</span>
+
+  <span class="y-k">AppServer</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">ImageId</span>: !Ref AMIId
+      <span class="y-k">InstanceType</span>: <span class="y-s">t3.micro</span>
+      <span class="y-k">KeyName</span>: !Ref KeyName
+      <span class="y-k">SecurityGroupIds</span>:
+        - !Ref AppSecurityGroup
+
+  <span class="y-k">AppDatabase</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::RDS::DBInstance</span>
+    <span class="y-k">DeletionPolicy</span>: Snapshot
+    <span class="y-k">Properties</span>:
+      <span class="y-k">Engine</span>: <span class="y-s">mysql</span>
+      <span class="y-k">DBInstanceClass</span>: <span class="y-s">db.t3.micro</span>
+      <span class="y-k">AllocatedStorage</span>: <span class="y-s">"20"</span>
+      <span class="y-k">MasterUsername</span>: <span class="y-s">admin</span>
+      <span class="y-k">MasterUserPassword</span>: !Ref DBPassword
+
+  <span class="y-k">AppBucket</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::S3::Bucket</span>
+
+<span class="y-k">Outputs</span>:
+  <span class="y-k">AppServerPublicIP</span>:
+    <span class="y-k">Value</span>: !GetAtt AppServer.PublicIp
+  <span class="y-k">DatabaseEndpoint</span>:
+    <span class="y-k">Value</span>: !GetAtt AppDatabase.Endpoint.Address
+  <span class="y-k">BucketName</span>:
+    <span class="y-k">Value</span>: !Ref AppBucket</code></pre>
+      </div>
+      <p><code>NoEcho: true</code> on <code>DBPassword</code> hides the value in the Console and CLI output. Replace <code>YOUR.IP.ADDRESS/32</code> with your actual public IP before deploying. This is intentionally simplified &mdash; a production setup would typically add a VPC with private subnets, an RDS Proxy, and a load balancer.</p>
+    </section>
+
+    <!-- 33 -->
+    <section class="card" id="s33">
+      <h2>33. CloudFormation vs Terraform</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Feature</th><th>CloudFormation</th><th>Terraform</th></tr>
+        <tr><td>Provider</td><td>AWS (built-in AWS service)</td><td>HashiCorp (third-party, open-source core)</td></tr>
+        <tr><td>AWS integration</td><td>Native, usually supports new AWS features quickly</td><td>Strong, via the AWS provider; may lag slightly behind brand-new features</td></tr>
+        <tr><td>Multi-cloud</td><td>AWS-only</td><td>Supports many cloud providers with one tool</td></tr>
+        <tr><td>Syntax</td><td>YAML or JSON</td><td>HashiCorp Configuration Language (HCL)</td></tr>
+        <tr><td>State management</td><td>Managed by AWS automatically (the stack itself is the state)</td><td>Maintains its own state file, which you must store/manage (e.g. in S3)</td></tr>
+        <tr><td>Drift</td><td>Built-in Drift Detection</td><td>Detected via <code>terraform plan</code>/<code>refresh</code></td></tr>
+        <tr><td>Community</td><td>Large, AWS-focused</td><td>Very large, broad multi-cloud ecosystem</td></tr>
+        <tr><td>Typical use cases</td><td>AWS-only projects wanting a native, no-extra-setup tool</td><td>Multi-cloud projects, or teams preferring HCL and an existing Terraform workflow</td></tr>
+      </table>
+      </div>
+      <p>Neither is universally "better" &mdash; the right choice depends on whether you're AWS-only, your team's existing skills, and whether multi-cloud support matters for your project.</p>
+    </section>
+
+    <!-- 34 -->
+    <section class="card" id="s34">
+      <h2>34. CloudFormation vs Manual AWS Console</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="arch">Manual:      AWS Console -> Click -> Configure -> Create
+CloudFormation: Template -> Stack -> Resources</div>
+      <div class="tablewrap">
+      <table>
+        <tr><th></th><th>Manual (Console)</th><th>CloudFormation</th></tr>
+        <tr><td>Speed for one-off resources</td><td>Fast for a single, simple resource</td><td>Slight upfront effort to write the template</td></tr>
+        <tr><td>Repeatability</td><td>Hard to reproduce exactly</td><td>Same template = same result every time</td></tr>
+        <tr><td>Tracking changes</td><td>No built-in history</td><td>Template can live in Git; stack tracks events</td></tr>
+        <tr><td>Cleanup</td><td>Must remember/find every resource to delete</td><td>Delete the stack, related resources go too</td></tr>
+      </table>
+      </div>
+    </section>
+
+    <!-- 35 -->
+    <section class="card" id="s35">
+      <h2>35. Common Errors</h2>
+      <div class="badges"><span class="badge important">Important</span></div>
+      <div class="term-card">
+        <h4>1. YAML indentation error</h4>
+        <p><strong>Why:</strong> inconsistent spacing or tabs. <strong>Check:</strong> the error message usually points to a line number. <strong>Fix:</strong> re-indent consistently with spaces only.</p>
+      </div>
+      <div class="term-card">
+        <h4>2. Invalid AMI ID</h4>
+        <p><strong>Why:</strong> typo, or the AMI ID doesn't exist. <strong>Check:</strong> the Events tab error message. <strong>Fix:</strong> copy the AMI ID fresh from the EC2 Console.</p>
+      </div>
+      <div class="term-card">
+        <h4>3. AMI not available in region</h4>
+        <p><strong>Why:</strong> AMI IDs are region-specific (see <a href="#s9">section 9</a>). <strong>Fix:</strong> find the correct AMI ID for the region you're deploying to, or use a Mapping.</p>
+      </div>
+      <div class="term-card">
+        <h4>4. Key pair does not exist</h4>
+        <p><strong>Why:</strong> the key pair name doesn't exist in this account/region. <strong>Fix:</strong> create a key pair first, or select an existing one from the parameter dropdown.</p>
+      </div>
+      <div class="term-card">
+        <h4>5. Security group error</h4>
+        <p><strong>Why:</strong> invalid port range, protocol, or referencing a security group from a different VPC. <strong>Fix:</strong> check the properties match a valid rule and the same VPC.</p>
+      </div>
+      <div class="term-card">
+        <h4>6. IAM permission denied</h4>
+        <p><strong>Why:</strong> the user/role deploying the stack lacks permission to create one of the resources. <strong>Fix:</strong> grant the needed IAM permissions (least privilege, not full admin).</p>
+      </div>
+      <div class="term-card">
+        <h4>7. CREATE_FAILED</h4>
+        <p><strong>Why:</strong> any resource-level failure during creation. <strong>Check:</strong> the Status reason next to the failed resource in Events. <strong>Fix:</strong> depends on the specific reason shown.</p>
+      </div>
+      <div class="term-card">
+        <h4>8. ROLLBACK_COMPLETE</h4>
+        <p><strong>Why:</strong> initial stack creation failed and was rolled back. <strong>Fix:</strong> delete the stack, fix the template, and create it again.</p>
+      </div>
+      <div class="term-card">
+        <h4>9. UPDATE_ROLLBACK_FAILED</h4>
+        <p><strong>Why:</strong> CloudFormation couldn't even undo a failed update (e.g. a resource was manually modified). <strong>Fix:</strong> use "Continue update rollback," skipping the problem resource if needed.</p>
+      </div>
+      <div class="term-card">
+        <h4>10. Resource already exists</h4>
+        <p><strong>Why:</strong> a resource with the exact requested name already exists outside this stack. <strong>Fix:</strong> choose a different name, or import the existing resource instead.</p>
+      </div>
+      <div class="term-card">
+        <h4>11. Bucket name already exists</h4>
+        <p><strong>Why:</strong> S3 bucket names must be globally unique across all AWS accounts. <strong>Fix:</strong> choose a more unique name, or omit <code>BucketName</code> to let AWS auto-generate one.</p>
+      </div>
+      <div class="term-card">
+        <h4>12. Invalid property</h4>
+        <p><strong>Why:</strong> a property name is misspelled or doesn't apply to that resource type. <strong>Fix:</strong> check the AWS resource type reference for the correct property names.</p>
+      </div>
+      <div class="term-card">
+        <h4>13. Invalid template</h4>
+        <p><strong>Why:</strong> broken YAML/JSON syntax. <strong>Fix:</strong> validate the file's structure (correct indentation, matching brackets/quotes).</p>
+      </div>
+      <div class="term-card">
+        <h4>14. Dependency failure</h4>
+        <p><strong>Why:</strong> a resource depended on another resource that failed to create. <strong>Fix:</strong> fix the root failure first &mdash; dependent resources will then succeed on retry.</p>
+      </div>
+    </section>
+
+    <!-- 36 -->
+    <section class="card" id="s36">
+      <h2>36. Best Practices</h2>
+      <div class="badges"><span class="badge important">Important</span></div>
+      <ul>
+        <li>Use <strong>Parameters</strong> instead of hardcoding values that change per environment.</li>
+        <li>Use <strong>Outputs</strong> to surface important information (IPs, URLs, names).</li>
+        <li>Avoid hardcoding region-specific values (AMI IDs, etc.) &mdash; use Parameters or Mappings.</li>
+        <li>Store templates in <strong>version control</strong> (e.g. Git).</li>
+        <li>Use meaningful <strong>logical IDs</strong> (e.g. <code>AppSecurityGroup</code>, not <code>SG1</code>).</li>
+        <li>Use <strong>tags</strong> on resources for cost tracking and organization.</li>
+        <li>Use <strong>least-privilege IAM</strong> for whoever/whatever deploys the stack.</li>
+        <li>Use <strong>Change Sets</strong> before applying updates to important stacks.</li>
+        <li>Test templates on a small/dev stack before touching production.</li>
+        <li>Keep environments (dev/staging/prod) <strong>separated</strong> (separate stacks/parameters).</li>
+        <li>Protect production resources with <strong>Stack Policies</strong> and careful <strong>DeletionPolicy</strong> choices.</li>
+        <li><strong>Never commit AWS credentials</strong> to any repository.</li>
+        <li>Avoid opening SSH (port 22) to the entire internet (<code>0.0.0.0/0</code>).</li>
+        <li>Keep large templates <strong>modular</strong> (nested stacks) rather than one giant file.</li>
+      </ul>
+    </section>
+
+    <!-- 37 -->
+    <section class="card" id="s37">
+      <h2>37. Complete Practical Lab &mdash; &ldquo;CloudFormation Web Server&rdquo;</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <div class="arch">CloudFormation
+       |
+       v
+Security Group
+       |
+       v
+EC2
+       |
+       v
+Apache
+       |
+       v
+HTML Website
+       |
+       v
+Public IP</div>
+
+      <div class="codewrap">
+        <div class="codehead"><span>yaml</span><button class="copy-btn">Copy</button></div>
+<pre><code><span class="y-k">AWSTemplateFormatVersion</span>: <span class="y-s">'2010-09-09'</span>
+<span class="y-k">Description</span>: <span class="y-s">CloudFormation Web Server lab</span>
+
+<span class="y-k">Parameters</span>:
+  <span class="y-k">InstanceType</span>:
+    <span class="y-k">Type</span>: <span class="y-s">String</span>
+    <span class="y-k">Default</span>: <span class="y-s">t3.micro</span>
+  <span class="y-k">KeyName</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::KeyPair::KeyName</span>
+  <span class="y-k">AMIId</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Image::Id</span>
+
+<span class="y-k">Resources</span>:
+  <span class="y-k">WebServerSG</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::SecurityGroup</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">GroupDescription</span>: <span class="y-s">Allow HTTP and SSH</span>
+      <span class="y-k">SecurityGroupIngress</span>:
+        - <span class="y-k">IpProtocol</span>: <span class="y-s">tcp</span>
+          <span class="y-k">FromPort</span>: <span class="y-n">80</span>
+          <span class="y-k">ToPort</span>: <span class="y-n">80</span>
+          <span class="y-k">CidrIp</span>: <span class="y-s">0.0.0.0/0</span>
+        - <span class="y-k">IpProtocol</span>: <span class="y-s">tcp</span>
+          <span class="y-k">FromPort</span>: <span class="y-n">22</span>
+          <span class="y-k">ToPort</span>: <span class="y-n">22</span>
+          <span class="y-k">CidrIp</span>: <span class="y-s">0.0.0.0/0</span>
+
+  <span class="y-k">WebServer</span>:
+    <span class="y-k">Type</span>: <span class="y-s">AWS::EC2::Instance</span>
+    <span class="y-k">Properties</span>:
+      <span class="y-k">ImageId</span>: !Ref AMIId
+      <span class="y-k">InstanceType</span>: !Ref InstanceType
+      <span class="y-k">KeyName</span>: !Ref KeyName
+      <span class="y-k">SecurityGroupIds</span>:
+        - !Ref WebServerSG
+      <span class="y-k">UserData</span>:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          dnf update -y
+          dnf install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          echo "&lt;h1&gt;Hello from CloudFormation&lt;/h1&gt;" &gt; /var/www/html/index.html
+
+<span class="y-k">Outputs</span>:
+  <span class="y-k">WebsiteURL</span>:
+    <span class="y-k">Description</span>: <span class="y-s">Open this in your browser</span>
+    <span class="y-k">Value</span>: !Sub <span class="y-s">"http://${WebServer.PublicIp}"</span></code></pre>
+      </div>
+
+      <ol class="steps">
+        <li>Create a new file named <code>web-server.yaml</code>.</li>
+        <li>Copy the YAML code above into it.</li>
+        <li>Open the <strong>AWS Console</strong>.</li>
+        <li>Open <strong>CloudFormation</strong>.</li>
+        <li>Click <strong>Create Stack</strong> &rarr; <strong>With new resources (standard)</strong>.</li>
+        <li>Choose <strong>Upload a template file</strong> and select <code>web-server.yaml</code>.</li>
+        <li>Enter a stack name, e.g. <code>cfn-web-server-lab</code>.</li>
+        <li>Configure the parameters (<code>InstanceType</code>, <code>KeyName</code>, <code>AMIId</code>).</li>
+        <li>Review the summary.</li>
+        <li>Click <strong>Submit</strong>.</li>
+        <li>Monitor the <strong>Events</strong> tab until status is <code>CREATE_COMPLETE</code>.</li>
+        <li>Open the <strong>Resources</strong> tab and confirm the Security Group and EC2 instance were created.</li>
+        <li>Open the <strong>Outputs</strong> tab and copy the <code>WebsiteURL</code> value.</li>
+        <li>Open a new browser tab.</li>
+        <li>Paste the URL and confirm you see &ldquo;Hello from CloudFormation.&rdquo;</li>
+        <li>To modify the website, edit the <code>echo "..."</code> line in the template (e.g. change the heading text).</li>
+        <li>Go back to the stack, click <strong>Update</strong>, and upload the modified template.</li>
+        <li>After the update completes, refresh the browser tab and verify the new content. (Note: UserData typically only runs on first boot &mdash; a plain template update alone may not re-run it. For learning purposes, verifying the stack update completed successfully is the main goal here.)</li>
+        <li>When finished, select the stack and click <strong>Delete</strong>.</li>
+        <li>Verify the stack disappears from the list and the EC2 instance is terminated in the EC2 Console.</li>
+      </ol>
+    </section>
+
+    <!-- 38 -->
+    <section class="card" id="s38">
+      <h2>38. Practical Verification Checklist</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <ul class="check">
+        <li>CloudFormation service opened</li>
+        <li>Template created</li>
+        <li>Template uploaded without a syntax error</li>
+        <li>Stack created</li>
+        <li>Stack status <code>CREATE_COMPLETE</code></li>
+        <li>EC2 instance created</li>
+        <li>Security Group created</li>
+        <li>Apache installed (checked via the site loading)</li>
+        <li>Port 80 accessible</li>
+        <li>Website opened successfully in browser</li>
+        <li>Stack updated</li>
+        <li>Change verified</li>
+        <li>Stack deleted</li>
+        <li>Resources confirmed cleaned up (EC2 terminated, no leftover charges expected)</li>
+      </ul>
+    </section>
+
+    <!-- 39 -->
+    <section class="card" id="s39">
+      <h2>39. Interview Questions &amp; Answers</h2>
+      <div class="badges"><span class="badge interview">Interview</span></div>
+      <div class="qa"><div class="q">Q1. What is AWS CloudFormation?</div><div class="a">An AWS service that creates and manages infrastructure from code (templates) instead of manual console clicks.</div></div>
+      <div class="qa"><div class="q">Q2. What is IaC?</div><div class="a">Infrastructure as Code &mdash; describing infrastructure in a file so it can be created, versioned and repeated automatically.</div></div>
+      <div class="qa"><div class="q">Q3. What is a CloudFormation template?</div><div class="a">The YAML/JSON file that defines what AWS resources to create and how.</div></div>
+      <div class="qa"><div class="q">Q4. What is a CloudFormation stack?</div><div class="a">A deployed instance of a template; the group of resources CloudFormation manages together as one unit.</div></div>
+      <div class="qa"><div class="q">Q5. What is a resource?</div><div class="a">A single AWS item defined in the template, e.g. an EC2 instance or S3 bucket.</div></div>
+      <div class="qa"><div class="q">Q6. What is a parameter?</div><div class="a">An input value supplied at deploy time, making templates reusable across environments.</div></div>
+      <div class="qa"><div class="q">Q7. What is an output?</div><div class="a">A value returned after stack creation, such as a resource's public IP or name.</div></div>
+      <div class="qa"><div class="q">Q8. What is !Ref?</div><div class="a">An intrinsic function that returns a resource's primary identifier or a parameter's value.</div></div>
+      <div class="qa"><div class="q">Q9. What is !GetAtt?</div><div class="a">An intrinsic function that returns a specific attribute of a resource, e.g. an EC2 instance's public IP.</div></div>
+      <div class="qa"><div class="q">Q10. What is !Sub?</div><div class="a">An intrinsic function that substitutes <code>${...}</code> placeholders in a string with parameter/resource values.</div></div>
+      <div class="qa"><div class="q">Q11. What is DependsOn?</div><div class="a">An explicit way to tell CloudFormation one resource must be created before another, when the dependency isn't inferred automatically.</div></div>
+      <div class="qa"><div class="q">Q12. What is a Change Set?</div><div class="a">A preview of what an update would change before actually applying it.</div></div>
+      <div class="qa"><div class="q">Q13. What is Drift Detection?</div><div class="a">A check comparing the template's expected configuration against the actual, possibly manually-changed, resource state.</div></div>
+      <div class="qa"><div class="q">Q14. What is DeletionPolicy?</div><div class="a">A setting controlling what happens to a resource when it's removed from the stack: Delete, Retain, or Snapshot.</div></div>
+      <div class="qa"><div class="q">Q15. What is a StackSet?</div><div class="a">A way to deploy one template as stacks across multiple AWS accounts and regions.</div></div>
+      <div class="qa"><div class="q">Q16. What is a Nested Stack?</div><div class="a">A stack created as a resource inside another (parent) stack, used to organize large templates.</div></div>
+      <div class="qa"><div class="q">Q17. What happens if stack creation fails?</div><div class="a">CloudFormation rolls back and removes whatever it had already created, ending in <code>ROLLBACK_COMPLETE</code>.</div></div>
+      <div class="qa"><div class="q">Q18. What is rollback?</div><div class="a">Automatically undoing changes to return to the last known good state after a failure.</div></div>
+      <div class="qa"><div class="q">Q19. CloudFormation vs Terraform?</div><div class="a">CloudFormation is AWS-native (YAML/JSON, AWS-managed state); Terraform is multi-cloud (HCL, its own state file). Neither is universally better.</div></div>
+      <div class="qa"><div class="q">Q20. CloudFormation vs manual deployment?</div><div class="a">Manual deployment is quick for one-off resources but hard to repeat/track; CloudFormation is repeatable, trackable and easier to clean up.</div></div>
+      <div class="qa"><div class="q">Q21. Why use Parameters?</div><div class="a">To make one template reusable across environments/accounts without hardcoding values.</div></div>
+      <div class="qa"><div class="q">Q22. Why use Outputs?</div><div class="a">To easily retrieve important information (URLs, IPs, names) after deployment, without manually digging through the Console.</div></div>
+      <div class="qa"><div class="q">Q23. How do you update a stack?</div><div class="a">Open the stack, choose Update, provide the new template/parameters, review the changes, and execute the update.</div></div>
+      <div class="qa"><div class="q">Q24. How do you delete a stack?</div><div class="a">Select the stack in the Console (or use the CLI delete-stack command) and confirm deletion; resources are removed per their DeletionPolicy.</div></div>
+      <div class="qa"><div class="q">Q25. How do you troubleshoot CREATE_FAILED?</div><div class="a">Check the Events tab for the Status reason on the failed resource, fix the underlying issue (permissions, invalid value, etc.), then retry.</div></div>
+    </section>
+
+    <!-- 40 -->
+    <section class="card" id="s40">
+      <h2>40. Quick Revision</h2>
+      <div class="badges"><span class="badge interview">Interview</span></div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Term</th><th>Simple meaning</th></tr>
+        <tr><td><strong>CloudFormation</strong></td><td>Infrastructure as Code service for AWS.</td></tr>
+        <tr><td><strong>Template</strong></td><td>Code/blueprint describing the infrastructure.</td></tr>
+        <tr><td><strong>Stack</strong></td><td>Collection of AWS resources managed together.</td></tr>
+        <tr><td><strong>Resource</strong></td><td>An AWS service/resource created by the template.</td></tr>
+        <tr><td><strong>Parameter</strong></td><td>Input provided during deployment.</td></tr>
+        <tr><td><strong>Output</strong></td><td>Information returned after deployment.</td></tr>
+        <tr><td><strong>Change Set</strong></td><td>Preview of changes before applying an update.</td></tr>
+        <tr><td><strong>Drift</strong></td><td>Difference between the template and the actual resource.</td></tr>
+        <tr><td><strong>Rollback</strong></td><td>Return to the previous stable state after a failure.</td></tr>
+      </table>
+      </div>
+    </section>
+
+    <!-- 41 -->
+    <section class="card" id="s41">
+      <h2>41. Final Real-World Flow</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="arch">Developer
+   |
+   v
+CloudFormation YAML
+   |
+   v
+GitHub
+   |
+   v
+CloudFormation Stack
+   |
+   v
++--------------------------------+
+| VPC | EC2 | ALB | RDS | S3     |
++--------------------------------+
+   |
+   v
+Application</div>
+      <p>In practice: a developer writes the CloudFormation YAML template describing the required infrastructure, and stores it in <strong>GitHub</strong> for version control and team review. When deployed, this template becomes a <strong>CloudFormation Stack</strong>, which creates the actual <strong>VPC, EC2, ALB, RDS and S3</strong> resources the application needs, tracked and managed together. The running <strong>Application</strong> sits on top of this infrastructure. Any future change goes back through the same cycle: edit the template, review via a Change Set, and update the stack &mdash; keeping infrastructure changes as trackable and repeatable as application code changes.</p>
+    </section>
+
+  </div>
+
+  <footer class="end">End of AWS CloudFormation Notes</footer>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  // Sidebar toggle (mobile)
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var wrap = btn.closest('.codewrap');
+      var codeEl = wrap.querySelector('pre');
+      var text = codeEl.innerText;
+      function done(){
+        var old = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+  });
+  function fallbackCopy(text, cb){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    cb();
+  }
+
+  // Sidebar search/filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // Active link highlighting on scroll
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.card[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

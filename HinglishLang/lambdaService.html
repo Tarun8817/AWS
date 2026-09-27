@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="hi-Latn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS Lambda Study Notes (Hinglish)</title>
+<style>
+  :root {
+    --bg:#f4f6f9; --sidebar-bg:#151c2c; --card:#fff; --ink:#1e2a38; --muted:#5a6878; --line:#dbe2ea;
+    --brand:#a34a12; --brand-soft:#fdf1e7;
+    --ok:#1d7a46; --ok-soft:#e5f5ec;
+    --warn:#9a6200; --warn-soft:#fff4dc;
+    --bad:#b02a2a; --bad-soft:#fdeaea;
+    --code-bg:#14202e; --code-ink:#e3ebf3;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --card:#161e2d; --ink:#e6ecf5; --muted:#9aa7bb; --line:#2a3448;
+    --brand:#ffa760; --brand-soft:#2a1810;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --code-bg:#0a1220; --code-ink:#dce6f2;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:280px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:7px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:6px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:6px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+  header.top { background:var(--brand); color:#fff; padding:32px 22px; border-radius:10px; margin-bottom:20px; }
+  header.top h1 { margin:0 0 6px; font-size:2rem; line-height:1.25; }
+  header.top p { margin:0; opacity:.95; }
+  section.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:22px 24px; margin-bottom:20px; scroll-margin-top:70px; }
+  section.card > h2 { margin:0 0 14px; font-size:1.42rem; color:var(--brand); padding-bottom:8px; border-bottom:2px solid var(--brand-soft); }
+  h3 { margin:20px 0 6px; font-size:1.1rem; }
+  p { margin:8px 0; }
+  ul, ol { margin:8px 0; padding-left:24px; }
+  li { margin-bottom:4px; }
+  .box { border-left:5px solid var(--brand); background:var(--brand-soft); padding:10px 14px; border-radius:6px; margin:14px 0; }
+  .box.good { border-color:var(--ok); background:var(--ok-soft); }
+  .box.warn { border-color:var(--warn); background:var(--warn-soft); }
+  .box.bad { border-color:var(--bad); background:var(--bad-soft); }
+  .box strong.t { display:block; margin-bottom:2px; }
+  pre { background:var(--code-bg); color:var(--code-ink); padding:14px 16px; border-radius:8px; overflow-x:auto; font-family:Consolas,"Courier New",monospace; font-size:.86rem; line-height:1.5; margin:12px 0; white-space:pre; }
+  code { font-family:Consolas,"Courier New",monospace; background:#eef1f5; padding:1px 6px; border-radius:4px; font-size:.9em; }
+  pre code { background:none; padding:0; font-size:inherit; }
+  .k{color:#7fc4ff;} .s{color:#a5e08a;} .c{color:#8395a7;font-style:italic;} .f{color:#ffd479;} .n{color:#f2a2c0;}
+  table { width:100%; border-collapse:collapse; margin:12px 0; font-size:.93rem; }
+  th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--brand-soft); }
+  .tablewrap { overflow-x:auto; }
+  .arch { background:#fdfaf7; border:1px dashed #d6a98a; font-family:Consolas,"Courier New",monospace; font-size:.9rem; padding:14px; border-radius:8px; overflow-x:auto; white-space:pre; line-height:1.4; margin:12px 0; }
+  [data-theme="dark"] .arch { border-color:#6b4a2a; }
+  .qa { border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin:10px 0; background:#fdfcfb; }
+  .qa .q { font-weight:700; color:var(--brand); }
+  .qa .a { margin-top:4px; }
+  .check li { list-style:none; margin-left:-20px; }
+  .check li::before { content:"\2610  "; }
+  footer { text-align:center; color:var(--muted); font-size:1rem; margin-top:36px; padding:22px; border-top:1px solid var(--line); font-weight:600; }
+
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+  #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+    header.top { padding:26px 18px; }
+    header.top h1 { font-size:1.5rem; }
+  }
+  @media (max-width:640px){ body{font-size:16px;} header.top h1{font-size:1.5rem;} section.card{padding:16px 14px;} }
+  @media print {
+    #sidebar, .topbar, #backtotop { display:none !important; }
+    body { display:block; background:#fff;font-size:12pt;} .content{max-width:100%;padding:0;}
+    header.top{background:#fff;color:#000;border:2px solid #000;}
+    section.card{border:1px solid #999;} section.card>h2{page-break-after:avoid;}
+    pre,.arch,table,.qa,.box{page-break-inside:avoid;}
+    pre{background:#f2f2f2;color:#000;border:1px solid #999;white-space:pre-wrap;}
+    .k,.s,.c,.f,.n{color:#000;} a{text-decoration:none;color:#000;}
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">⚡</span><span class="name">Lambda Notes (Hinglish)</span></div>
+  <a href="../index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Sections filter karein...">
+  <h2>Core Concepts</h2>
+  <ul id="toc-core">
+    <li><a href="#s1">1. Introduction</a></li>
+    <li><a href="#s2">2. Image Upload Example</a></li>
+    <li><a href="#s3">3. MERN Project</a></li>
+    <li><a href="#s4">4. EC2 vs Lambda</a></li>
+    <li><a href="#s5">5. Lambda Function</a></li>
+    <li><a href="#s6">6. Runtimes</a></li>
+    <li><a href="#s9">9. Handler</a></li>
+    <li><a href="#s10">10. Event & Context</a></li>
+    <li><a href="#s11">11. Invoke Tareeke</a></li>
+  </ul>
+  <h2>Getting Started</h2>
+  <ul id="toc-getting-started">
+    <li><a href="#s7">7. Function Banana</a></li>
+    <li><a href="#s8">8. Pehla Code</a></li>
+    <li><a href="#s12">12. Console Test</a></li>
+    <li><a href="#s23">23. IAM Role</a></li>
+    <li><a href="#s24">24. Environment Vars</a></li>
+    <li><a href="#s25">25. Lambda Layers</a></li>
+    <li><a href="#s26">26. Timeout & Memory</a></li>
+  </ul>
+  <h2>Integrations</h2>
+  <ul id="toc-integrations">
+    <li><a href="#s13">13. API Gateway</a></li>
+    <li><a href="#s14">14. MERN API</a></li>
+    <li><a href="#s15">15. DynamoDB Setup</a></li>
+    <li><a href="#s16">16. DynamoDB CRUD</a></li>
+    <li><a href="#s17">17. Lambda + S3</a></li>
+    <li><a href="#s18">18. S3 Trigger</a></li>
+    <li><a href="#s19">19. DynamoDB Streams</a></li>
+    <li><a href="#s20">20. SQS</a></li>
+    <li><a href="#s21">21. EventBridge</a></li>
+    <li><a href="#s22">22. SNS</a></li>
+  </ul>
+  <h2>Advanced</h2>
+  <ul id="toc-advanced">
+    <li><a href="#s27">27. Cold Start</a></li>
+    <li><a href="#s28">28. Scaling</a></li>
+    <li><a href="#s29">29. Database, VPC, URL</a></li>
+    <li><a href="#s30">30. Logs & Monitoring</a></li>
+    <li><a href="#s31">31. Deployment</a></li>
+    <li><a href="#s32">32. Security & Cost</a></li>
+  </ul>
+  <h2>Reference</h2>
+  <ul id="toc-reference">
+    <li><a href="#s33">33. Real Projects</a></li>
+    <li><a href="#s34">34. Common Mistakes</a></li>
+    <li><a href="#s35">35. Interview Q&A</a></li>
+    <li><a href="#s36">36. Architectures</a></li>
+    <li><a href="#s37">37. Quick Summary</a></li>
+    <li><a href="#s38">38. Revision Table</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS Lambda &mdash; Hinglish Guide</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+  <div class="content">
+
+<header class="top">
+  <h1>AWS Lambda &mdash; Beginner Study Notes</h1>
+  <p>Hinglish edition &bull; padhai, revision, MERN developers, aur AWS interview preparation ke liye</p>
+</header>
+
+<!-- 1 -->
+<section class="card" id="s1">
+  <h2>1. AWS Lambda Introduction</h2>
+  <div class="box">
+    <strong class="t">Aasaan definition</strong>
+    AWS Lambda AWS ki serverless compute service hai. Isme hume server create, maintain, patch ya continuously run karne ki zarurat nahi hoti. Hum apna code Lambda function ke form mein deploy karte hain aur AWS us code ko required time par run karta hai.
+  </div>
+
+  <h3>Lambda kya hai?</h3>
+  <p>Ek service jahan hum code (&ldquo;function&rdquo;) upload karte hain, aur AWS use tab chalata hai jab koi cheez use trigger kare &mdash; HTTP request, file upload, schedule, etc.</p>
+
+  <h3>Hum Lambda kyun use karte hain?</h3>
+  <ul>
+    <li>Server setup ya patch karne ki zarurat nahi.</li>
+    <li>Demand ke hisaab se automatically scale hota hai.</li>
+    <li>Mainly actual usage ka payment, idle time ka nahi.</li>
+    <li>Event-driven aur API workloads ke liye achha fit.</li>
+  </ul>
+
+  <h3>&ldquo;Serverless&rdquo; ka matlab kya hai? Kya isme servers hote hi nahi?</h3>
+  <div class="box bad">
+    <strong class="t">Important</strong>
+    Serverless ka matlab ye nahi ki servers hote hi nahi. Servers abhi bhi exist karte hain, lekin AWS underlying infrastructure hamare liye manage karta hai.
+  </div>
+
+  <h3>Infrastructure kaun manage karta hai? Lambda kab execute hota hai?</h3>
+  <p>AWS servers, OS patching aur scaling manage karta hai. Aapka code sirf tab execute hota hai jab function <strong>invoke</strong> (trigger) hota hai &mdash; server ki tarah hamesha nahi chalta rehta.</p>
+</section>
+
+<!-- 2 -->
+<section class="card" id="s2">
+  <h2>2. Simple Real-World Example: Image Upload</h2>
+<div class="arch">User
+ |
+ v
+S3
+ |
+ v
+Lambda
+ |
+ v
+Process Image
+ |
+ v
+Save Result</div>
+  <ol>
+    <li>User S3 par image upload karta hai.</li>
+    <li>S3 ek event generate karta hai.</li>
+    <li>Lambda trigger hota hai.</li>
+    <li>Lambda image download/read karta hai.</li>
+    <li>Lambda image process karta hai (jaise resize).</li>
+    <li>Lambda result store karta hai (jaise wapas S3 mein, ya metadata DynamoDB mein).</li>
+  </ol>
+  <p>User image upload karta hai, S3 event fire karta hai, Lambda automatically chalta hai, image process hoti hai, aur result save ho jata hai &mdash; koi server hamesha chalu rakhne ki zarurat nahi.</p>
+</section>
+
+<!-- 3 -->
+<section class="card" id="s3">
+  <h2>3. MERN-style Project Example</h2>
+  <p>Frontend: React &bull; Backend logic: Node.js-style code &bull; Database: MongoDB / DynamoDB &bull; Serverless function: AWS Lambda</p>
+<div class="arch">React
+ |
+ v
+API Gateway
+ |
+ v
+AWS Lambda
+ |
+ v
+DynamoDB
+ |
+ v
+Response
+ |
+ v
+React</div>
+  <p>MERN developer EC2 par hamesha chalne wale Express backend ke bajay Lambda use kar sakta hai. Existing Express applications ko Lambda ke andar chalane ke liye adapt kiya ja sakta hai (ek adapter library ke saath), lekin Lambda functions aksar ek hamesha-chalne-wale app ke bajay individual API/event handlers ke around design hote hain.</p>
+  <p>Normal MERN mein Express server EC2 par hamesha chalta rehta hai. Serverless approach mein har API route ek chhota Lambda function ban sakta hai, jo sirf request aane par chalta hai.</p>
+</section>
+
+<!-- 4 -->
+<section class="card" id="s4">
+  <h2>4. EC2 vs Lambda</h2>
+  <p><strong>EC2:</strong> hum virtual server manage karte hain, wo continuously chalta hai, hum OS/config manage karte hain, hum instance size choose karte hain, hum allocated/running infrastructure ka payment karte hain.</p>
+  <p><strong>Lambda:</strong> koi server management nahi, code invoke hone par chalta hai, AWS infrastructure manage karta hai, execution capacity automatically handle hoti hai, pricing current Lambda pricing model ke hisaab se usage par based hoti hai.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Feature</th><th>EC2</th><th>Lambda</th></tr>
+    <tr><td>Server management</td><td>Hum OS/server manage karte hain</td><td>Poori tarah AWS manage karta hai</td></tr>
+    <tr><td>Scaling</td><td>Hum configure karte hain (ya Auto Scaling groups)</td><td>Invocation demand ke hisaab se automatic</td></tr>
+    <tr><td>Execution</td><td>Continuous process</td><td>Sirf invoke hone par chalta hai</td></tr>
+    <tr><td>Billing</td><td>Running instance time/size ke liye</td><td>Mainly requests + duration ke liye (current pricing dekho)</td></tr>
+    <tr><td>OS management</td><td>Hamari zimmedari</td><td>Applicable nahi / AWS manage karta hai</td></tr>
+    <tr><td>Use cases</td><td>Lambe chalne wale apps, custom server needs</td><td>APIs, events, automation, scheduled tasks</td></tr>
+    <tr><td>Max execution duration</td><td>Koi inherent limit nahi (ye server hai)</td><td>Har invocation ke liye limited (current AWS docs dekho)</td></tr>
+    <tr><td>Deployment</td><td>Server khud configure/patch karo</td><td>Code/zip/container image upload karo</td></tr>
+  </table>
+  </div>
+  <div class="box">
+    <strong class="t">Hinglish</strong>
+    EC2 mein server hamesha chalta hai aur hum use manage karte hain. Lambda mein server dikhta nahi, code sirf zarurat par chalta hai aur AWS scaling sambhalta hai. Koi bhi ek doosre se hamesha better nahi hai; use case dekh kar choose karo.
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="card" id="s5">
+  <h2>5. Lambda Function Kya Hai?</h2>
+  <div class="box">
+    <strong class="t">Definition</strong>
+    Lambda function ek code ka piece hai jise AWS kisi event ya invocation ke response mein chalata hai.
+  </div>
+  <p>Lambda function in cheezon se milkar bana hota hai:</p>
+  <ul>
+    <li><strong>Code</strong> &mdash; hamara logic</li>
+    <li><strong>Runtime</strong> &mdash; language environment (Node.js, Python, etc.)</li>
+    <li><strong>Handler</strong> &mdash; entry-point function</li>
+    <li><strong>Configuration</strong> &mdash; memory, timeout, etc.</li>
+    <li><strong>Permissions</strong> &mdash; execution role (IAM)</li>
+    <li><strong>Environment variables</strong> &mdash; config values</li>
+    <li><strong>Memory</strong> &mdash; allocated resources</li>
+    <li><strong>Timeout</strong> &mdash; per invocation maximum run time</li>
+  </ul>
+</section>
+
+<!-- 6 -->
+<section class="card" id="s6">
+  <h2>6. Supported Runtimes</h2>
+  <ul>
+    <li>Node.js</li>
+    <li>Python</li>
+    <li>Java</li>
+    <li>.NET</li>
+    <li>Go</li>
+    <li>Ruby</li>
+  </ul>
+  <div class="box warn">
+    <strong class="t">Dhyan rakho</strong>
+    AWS Lambda ke runtime options (aur exact supported versions) time ke saath badalte hain, isliye function banane se pehle current AWS-supported runtime list check karo.
+  </div>
+  <p>Ye note mainly <strong>Node.js</strong> par focus karta hai, kyunki learner ek MERN developer hai.</p>
+</section>
+
+<!-- 7 -->
+<section class="card" id="s7">
+  <h2>7. Apna Pehla Lambda Function Kaise Banayein</h2>
+  <ol>
+    <li><strong>AWS Console</strong> mein login karo.</li>
+    <li><strong>Lambda</strong> search karo.</li>
+    <li><strong>AWS Lambda</strong> kholo.</li>
+    <li><strong>Create function</strong> par click karo.</li>
+    <li><strong>Author from scratch</strong> select karo.</li>
+    <li>Function name: <code>helloLambda</code></li>
+    <li>Runtime: <strong>Node.js</strong> (Console jo current version dikhaye wo use karo).</li>
+    <li>Architecture: default rakho.</li>
+    <li>Permissions: AWS aapke liye ek basic <strong>execution role</strong> bana sakta hai (isse function ko logs likhne ki permission milti hai, aur baad mein aur permissions add kar sakte ho).</li>
+    <li><strong>Create function</strong> par click karo.</li>
+  </ol>
+  <p>Console ki screens badal sakti hain, lekin flow same rehta hai: naam do, runtime chuno, aur execution role banne do. Baad mein role mein zaroorat ke hisaab se permissions add kar sakte ho.</p>
+</section>
+
+<!-- 8 -->
+<section class="card" id="s8">
+  <h2>8. Pehla Lambda Code</h2>
+<pre><code>exports.handler = <span class="k">async</span> (event) =&gt; {
+    <span class="k">return</span> {
+        statusCode: <span class="n">200</span>,
+        body: JSON.<span class="f">stringify</span>({
+            message: <span class="s">"Hello from AWS Lambda"</span>
+        })
+    };
+};</code></pre>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Part</th><th>Matlab</th></tr>
+    <tr><td><code>exports.handler</code></td><td>Function ko export karta hai taaki AWS use dhundh kar call kar sake (entry point).</td></tr>
+    <tr><td><code>async</code></td><td>Function ko asynchronous banata hai, taaki andar <code>await</code> use kar sako.</td></tr>
+    <tr><td><code>event</code></td><td>Wo input data jo batata hai ki is invocation ko kisne trigger kiya.</td></tr>
+    <tr><td><code>return</code></td><td>Result ko wapas invoke karne wale ko bhejta hai.</td></tr>
+    <tr><td><code>statusCode</code></td><td>Response ka HTTP-style status code (200 = success).</td></tr>
+    <tr><td><code>body</code></td><td>Response ka content, usually string ke roop mein.</td></tr>
+    <tr><td><code>JSON.stringify</code></td><td>JavaScript object ko response body ke liye JSON string mein badalta hai.</td></tr>
+  </table>
+  </div>
+  <p><strong>Handler wahi function hai jise AWS invoke karta hai.</strong> Jab bhi Lambda trigger hota hai, AWS isi <code>handler</code> function ko call karta hai.</p>
+</section>
+
+<!-- 9 -->
+<section class="card" id="s9">
+  <h2>9. Lambda Handler</h2>
+  <p><strong>Handler</strong> = Lambda function ka entry point &mdash; wo exact function jise AWS execution start karne ke liye call karta hai. Example: <code>exports.handler</code>.</p>
+  <p>Lambda configuration ki handler setting is format mein hoti hai:</p>
+<pre><code>filename.functionName</code></pre>
+  <p>Agar file <code>index.js</code> hai aur exported function <code>handler</code> hai, to handler configuration hai:</p>
+<pre><code>index.handler</code></pre>
+  <p>Ek aur example: agar file <code>app.js</code> hai aur exported function <code>handler</code> hai, to configuration <code>app.handler</code> hoga.</p>
+  <p>Handler setting AWS ko batati hai ki kaunsi file ke andar kaunsa function call karna hai. Format hamesha <code>filename.functionName</code> hota hai.</p>
+</section>
+
+<!-- 10 -->
+<section class="card" id="s10">
+  <h2>10. Event aur Context</h2>
+<pre><code>exports.handler = <span class="k">async</span> (event, context) =&gt; {
+    console.<span class="f">log</span>(event);
+    console.<span class="f">log</span>(context);
+
+    <span class="k">return</span> {
+        statusCode: <span class="n">200</span>,
+        body: <span class="s">"Hello"</span>
+    };
+};</code></pre>
+  <ul>
+    <li><strong>event</strong> &mdash; ismein wo jaankari hoti hai ki Lambda ko kisne trigger kiya (jaise API Gateway se aayi HTTP request ka body/headers, ya S3 file ki details).</li>
+    <li><strong>context</strong> &mdash; ismein Lambda execution environment aur is invocation ki jaankari hoti hai (jaise kitna time bacha hai, request ID, function name).</li>
+  </ul>
+  <p><code>event</code> mein bataya jata hai ki trigger kis cheez ne kiya aur kya data bheja gaya. <code>context</code> mein invocation aur environment ki jaankari hoti hai, jaise kitna time bacha hai.</p>
+</section>
+
+<!-- 11 -->
+<section class="card" id="s11">
+  <h2>11. Lambda Invoke Karne Ke Tareeke</h2>
+  <ol>
+    <li>AWS Console</li>
+    <li>AWS CLI</li>
+    <li>API Gateway</li>
+    <li>S3</li>
+    <li>DynamoDB Streams</li>
+    <li>EventBridge</li>
+    <li>SQS</li>
+    <li>SNS</li>
+    <li>Doosre AWS services</li>
+    <li>AWS SDK</li>
+  </ol>
+  <div class="box">
+    <strong class="t">Yaad rakho</strong>
+    Lambda ko sirf HTTP request se hi call karna zaroori nahi hai. Kai AWS services use seedha trigger kar sakti hain.
+  </div>
+  <p>Lambda sirf HTTP request se hi nahi chalta; S3 upload, DynamoDB change, schedule, queue message &mdash; sab isse trigger kar sakte hain.</p>
+</section>
+
+<!-- 12 -->
+<section class="card" id="s12">
+  <h2>12. AWS Console Se Lambda Test Karna</h2>
+  <ol>
+    <li>Apna Lambda function kholo.</li>
+    <li><strong>Test</strong> par click karo.</li>
+    <li>Ek test event banao.</li>
+    <li>Sample JSON daalo.</li>
+    <li><strong>Test</strong> par click karo.</li>
+    <li>Response dekho.</li>
+  </ol>
+  <p>Example test event:</p>
+<pre><code>{
+    <span class="s">"name"</span>: <span class="s">"Tarun"</span>
+}</code></pre>
+  <p>Example code:</p>
+<pre><code>exports.handler = <span class="k">async</span> (event) =&gt; {
+
+    <span class="k">return</span> {
+        statusCode: <span class="n">200</span>,
+        body: JSON.<span class="f">stringify</span>({
+            message: <span class="s">`Hello ${event.name}`</span>
+        })
+    };
+
+};</code></pre>
+  <p>Expected output body: <code>{"message":"Hello Tarun"}</code>. Test event ek <code>event</code> object ban jata hai; <code>event.name</code> se hum us JSON ki value nikal lete hain.</p>
+</section>
+
+<!-- 13 -->
+<section class="card" id="s13">
+  <h2>13. Lambda + API Gateway</h2>
+<div class="arch">User
+ |
+ v
+API Gateway
+ |
+ v
+Lambda
+ |
+ v
+DynamoDB</div>
+  <p><strong>API Gateway</strong> ek HTTP/HTTPS API endpoint deta hai. <strong>Lambda</strong> request process karta hai. <strong>DynamoDB</strong> data store karta hai.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Method</th><th>Route</th></tr>
+    <tr><td>GET</td><td><code>/users</code></td></tr>
+    <tr><td>POST</td><td><code>/users</code></td></tr>
+    <tr><td>GET</td><td><code>/users/{id}</code></td></tr>
+    <tr><td>DELETE</td><td><code>/users/{id}</code></td></tr>
+  </table>
+  </div>
+  <p><strong>Request flow:</strong> Client API Gateway URL call karta hai &rarr; API Gateway request ko sahi Lambda tak route karta hai &rarr; Lambda apna logic chalata hai (aksar DynamoDB read/write karke) &rarr; Lambda response return karta hai &rarr; API Gateway wo response client ko bhejta hai.</p>
+  <p>API Gateway ek entry door hai; wahi request ko sahi Lambda tak pahunchati hai. Lambda kaam karke response deta hai, jo wapas client tak jata hai.</p>
+</section>
+
+<!-- 14 -->
+<section class="card" id="s14">
+  <h2>14. Lambda Use Karke MERN API Example</h2>
+<div class="arch">React
+ |
+ v
+API Gateway
+ |
+ v
+Lambda
+ |
+ v
+DynamoDB</div>
+  <p><code>POST /users</code> request:</p>
+<pre><code>{
+    <span class="s">"name"</span>: <span class="s">"Tarun"</span>,
+    <span class="s">"email"</span>: <span class="s">"tarun@example.com"</span>
+}</code></pre>
+  <p>Lambda: request receive karta hai &rarr; data validate karta hai &rarr; user ko DynamoDB mein store karta hai &rarr; response return karta hai.</p>
+<pre><code>{
+    <span class="s">"message"</span>: <span class="s">"User created successfully"</span>
+}</code></pre>
+  <p>React se request aati hai, API Gateway se hoti hui Lambda tak pahunchti hai. Lambda data validate karke DynamoDB mein save karta hai aur success message wapas bhejta hai.</p>
+</section>
+
+<!-- 15 -->
+<section class="card" id="s15">
+  <h2>15. Lambda + DynamoDB (Setup)</h2>
+<div class="arch">Lambda
+ |
+ v
+AWS SDK
+ |
+ v
+DynamoDB</div>
+<pre><code><span class="f">npm</span> install @aws-sdk/client-dynamodb
+<span class="f">npm</span> install @aws-sdk/lib-dynamodb</code></pre>
+<pre><code><span class="k">const</span> {
+    DynamoDBClient
+} = <span class="f">require</span>(<span class="s">"@aws-sdk/client-dynamodb"</span>);
+
+<span class="k">const</span> {
+    DynamoDBDocumentClient,
+    PutCommand
+} = <span class="f">require</span>(<span class="s">"@aws-sdk/lib-dynamodb"</span>);
+
+<span class="k">const</span> client = <span class="k">new</span> <span class="f">DynamoDBClient</span>({
+    region: process.env.AWS_REGION
+});
+
+<span class="k">const</span> dynamoDB = DynamoDBDocumentClient.<span class="f">from</span>(client);</code></pre>
+  <ul>
+    <li><code>DynamoDBClient</code> &mdash; low-level client jo DynamoDB se baat karta hai.</li>
+    <li><code>DynamoDBDocumentClient</code> &mdash; ek wrapper jisse hum DynamoDB ke typed attribute format ke bajay normal JavaScript objects use kar sakte hain.</li>
+    <li><code>region: process.env.AWS_REGION</code> &mdash; kaunsa AWS region use karna hai, environment variable se aata hai.</li>
+    <li><code>DynamoDBDocumentClient.from(client)</code> &mdash; base client ke upar aasaan document client banata hai.</li>
+  </ul>
+  <p>Lambda mein bhi normal Node.js code jaisa hi AWS SDK use hota hai. Document client se JSON values seedhe use kar sakte hain, DynamoDB type (S/N) likhne ki zarurat nahi.</p>
+</section>
+
+<!-- 16 -->
+<section class="card" id="s16">
+  <h2>16. Lambda + DynamoDB CRUD</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Operation</th><th>Route</th></tr>
+    <tr><td>Create</td><td><code>POST /users</code></td></tr>
+    <tr><td>Read</td><td><code>GET /users/{id}</code></td></tr>
+    <tr><td>Update</td><td><code>PUT /users/{id}</code></td></tr>
+    <tr><td>Delete</td><td><code>DELETE /users/{id}</code></td></tr>
+  </table>
+  </div>
+<pre><code><span class="c">// Create</span>
+exports.createUser = <span class="k">async</span> (event) =&gt; {
+    <span class="k">const</span> body = JSON.<span class="f">parse</span>(event.body);
+    <span class="k">await</span> dynamoDB.<span class="f">send</span>(<span class="k">new</span> <span class="f">PutCommand</span>({
+        TableName: <span class="s">"Users"</span>,
+        Item: { userId: body.userId, name: body.name, email: body.email }
+    }));
+    <span class="k">return</span> { statusCode: <span class="n">201</span>, body: JSON.<span class="f">stringify</span>({ message: <span class="s">"Created"</span> }) };
+};
+
+<span class="c">// Read</span>
+exports.getUser = <span class="k">async</span> (event) =&gt; {
+    <span class="k">const</span> out = <span class="k">await</span> dynamoDB.<span class="f">send</span>(<span class="k">new</span> <span class="f">GetCommand</span>({
+        TableName: <span class="s">"Users"</span>, Key: { userId: event.pathParameters.id }
+    }));
+    <span class="k">return</span> { statusCode: <span class="n">200</span>, body: JSON.<span class="f">stringify</span>(out.Item) };
+};</code></pre>
+  <p>Update aur Delete bhi isi pattern se hote hain, <code>UpdateCommand</code> aur <code>DeleteCommand</code> use karke (poori syntax ke liye DynamoDB notes dekho). Har route ke liye alag Lambda function banana ek common serverless pattern hai.</p>
+  <p>Har route ke liye alag chhota function likhna common practice hai. Isse code samajhna aur deploy karna aasaan rehta hai.</p>
+</section>
+
+<!-- 17 -->
+<section class="card" id="s17">
+  <h2>17. Lambda + S3</h2>
+<div class="arch">User
+ |
+ v
+S3
+ |
+ v
+S3 Event
+ |
+ v
+Lambda
+ |
+ v
+Process File
+ |
+ v
+DynamoDB/S3</div>
+  <p>Example: user <code>profile.jpg</code> upload karta hai. S3 Lambda ko trigger karta hai. Lambda ye kaam kar sakta hai:</p>
+  <ul>
+    <li>file validate karna</li>
+    <li>image resize karna</li>
+    <li>metadata extract karna</li>
+    <li>thumbnail banana</li>
+    <li>metadata store karna (jaise DynamoDB mein)</li>
+    <li>notification bhejna</li>
+  </ul>
+  <p>File upload hote hi S3 event bana deta hai, Lambda us event se trigger hokar file par kaam karta hai &mdash; jaise thumbnail banana ya metadata save karna.</p>
+</section>
+
+<!-- 18 -->
+<section class="card" id="s18">
+  <h2>18. S3 Trigger</h2>
+  <p><strong>Trigger</strong> wo event hai jo Lambda ko execute karwata hai.</p>
+<div class="arch">S3 Object Created
+        |
+        v
+Lambda Function</div>
+  <p>Configured S3 bucket/prefix mein jab koi object create hota hai, to Lambda automatically invoke ho sakta hai. Iske liye event notifications aur permissions (Lambda resource policy aur execution role) sahi configure hone chahiye.</p>
+  <p>Trigger configure karte time bucket, prefix aur permissions sahi set karna zaroori hai, warna Lambda call hi nahi hoga.</p>
+</section>
+
+<!-- 19 -->
+<section class="card" id="s19">
+  <h2>19. Lambda + DynamoDB Streams</h2>
+<div class="arch">DynamoDB
+ |
+ v
+DynamoDB Streams
+ |
+ v
+Lambda
+ |
+ v
+Process Change</div>
+  <p>Example: user apna profile update karta hai &rarr; DynamoDB update store karta hai &rarr; Stream us change ko capture karta hai &rarr; Lambda event receive karta hai &rarr; Lambda notification bhejta hai ya koi aur kaam karta hai.</p>
+  <p>Table mein koi change ho to Stream us change ko capture karta hai, aur Lambda us par react karke agla kaam (jaise notification) kar sakta hai.</p>
+</section>
+
+<!-- 20 -->
+<section class="card" id="s20">
+  <h2>20. Lambda + SQS</h2>
+<div class="arch">Producer
+ |
+ v
+SQS Queue
+ |
+ v
+Lambda
+ |
+ v
+Process Message</div>
+  <p>Example: order service ek order banata hai &rarr; message SQS mein jata hai &rarr; Lambda us message ko process karta hai.</p>
+  <p><strong>Queues kyun useful hain:</strong></p>
+  <ul>
+    <li>Decoupling (producer aur processor ko ek doosre ko directly janna nahi padta)</li>
+    <li>Asynchronous processing</li>
+    <li>Traffic spikes handle karna</li>
+    <li>Failed messages ke liye retry behavior</li>
+  </ul>
+  <p>Queue use karne se producer aur processor alag-alag speed par kaam kar sakte hain, aur traffic spike mein bhi messages safely wait karte hain.</p>
+</section>
+
+<!-- 21 -->
+<section class="card" id="s21">
+  <h2>21. Lambda + EventBridge</h2>
+<div class="arch">EventBridge (scheduled)
+ |
+ v
+Lambda
+ |
+ v
+Run cleanup task</div>
+  <p>Example: har raat ek scheduled time par, EventBridge Lambda ko cleanup task chalane ke liye trigger karta hai. Aur examples:</p>
+  <ul>
+    <li>Temporary records delete karna</li>
+    <li>Reports generate karna</li>
+    <li>Reminders bhejna</li>
+    <li>Scheduled jobs chalana</li>
+  </ul>
+  <p>EventBridge ek scheduler ki tarah kaam karta hai; ye rules ke hisaab se (jaise &ldquo;roz raat 2 baje&rdquo;) Lambda ko trigger karta hai.</p>
+</section>
+
+<!-- 22 -->
+<section class="card" id="s22">
+  <h2>22. Lambda + SNS</h2>
+<div class="arch">SNS
+ |
+ v
+Lambda
+ |
+ v
+Process Notification</div>
+  <p>Example: jab koi important event hota hai, SNS message bhejta hai, Lambda use receive karta hai aur koi action karta hai (jaise email bhejna ya record update karna).</p>
+  <p>SNS ek notification/broadcast service hai; jab koi event hota hai to wo message bhejta hai, aur Lambda us par kaam karta hai.</p>
+</section>
+
+<!-- 23 -->
+<section class="card" id="s23">
+  <h2>23. IAM Role aur Execution Role</h2>
+  <p>Lambda ko AWS resources access karne ke liye permissions chahiye.</p>
+<div class="arch">Lambda
+ |
+ v
+IAM Execution Role
+ |
+ v
+DynamoDB</div>
+  <p><strong>Execution role</strong> AWS ko batati hai ki Lambda function kya access kar sakta hai.</p>
+  <p>DynamoDB ke liye example permissions:</p>
+<pre><code>dynamodb:GetItem
+dynamodb:PutItem
+dynamodb:UpdateItem
+dynamodb:DeleteItem</code></pre>
+  <p>Almost har function ko logging permissions bhi chahiye:</p>
+<pre><code>logs:CreateLogGroup
+logs:CreateLogStream
+logs:PutLogEvents</code></pre>
+  <div class="box good">
+    <strong class="t">Least privilege</strong>
+    Sirf wahi actions aur resources do jo function ko waqai chahiye. Production Lambda function ke liye <code>AdministratorAccess</code> recommend ya attach mat karo.
+  </div>
+
+  <h3>IAM User vs IAM Role vs Lambda Execution Role</h3>
+  <ul>
+    <li><strong>IAM User:</strong> kisi person ya application ke liye long-term identity, usually static credentials ke saath.</li>
+    <li><strong>IAM Role:</strong> permissions ka set jo koi trusted identity ya service temporarily assume kar sakti hai (long-term keys nahi).</li>
+    <li><strong>Lambda Execution Role:</strong> wo specific IAM role jise Lambda function chalte time assume karta hai, jisse use us invocation ke liye temporary AWS permissions milti hain.</li>
+  </ul>
+  <p>Lambda function chalte time apni execution role &ldquo;assume&rdquo; karta hai, aur usse temporary permissions milti hain. Hamesha least privilege follow karo.</p>
+</section>
+
+<!-- 24 -->
+<section class="card" id="s24">
+  <h2>24. Environment Variables</h2>
+<pre><code>DB_TABLE=Users
+AWS_REGION=eu-north-1
+API_SECRET=example</code></pre>
+<pre><code><span class="k">const</span> tableName = process.env.DB_TABLE;</code></pre>
+  <p>Environment variables se hum config (table names, regions, flags) code badle bina change kar sakte hain, aur same code ko har environment (dev/staging/prod) mein alag tarah se behave karwa sakte hain.</p>
+  <div class="box bad">
+    <strong class="t">Important</strong>
+    Passwords ya secrets kabhi source code mein direct mat likho. Bahut sensitive secrets ke liye plain environment variables ke bajay <strong>AWS Secrets Manager</strong> ya koi aisa hi secret-management mechanism use karo.
+  </div>
+  <p>Config values environment variables mein rakho, code mein hard-code mat karo. Bahut sensitive secrets (jaise DB password) ke liye Secrets Manager jaisa tool use karo.</p>
+</section>
+
+<!-- 25 -->
+<section class="card" id="s25">
+  <h2>25. Lambda Layers</h2>
+  <div class="box">
+    <strong class="t">Definition</strong>
+    Lambda Layer code ya dependencies ka ek reusable package hai jise multiple Lambda functions ke beech share kiya ja sakta hai.
+  </div>
+<div class="arch">Function A
+ |
+ v
+Layer
+
+Function B
+ |
+ v
+Layer</div>
+  <p><strong>Use cases:</strong> shared libraries, common dependencies, utility code jo kai functions ko chahiye.</p>
+  <p>Agar ek hi library ya utility code kai functions mein chahiye, to use ek Layer mein daal do, taaki har function mein alag se copy na karni pade.</p>
+</section>
+
+<!-- 26 -->
+<section class="card" id="s26">
+  <h2>26. Timeout aur Memory</h2>
+  <h3>Timeout</h3>
+  <p>Har Lambda function ki ek maximum execution duration (timeout) hoti hai &mdash; ek invocation ke liye ye maximum time hai jitna wo chal sakta hai. Agar function configured timeout se zyada time le, to execution ruk jata hai.</p>
+  <div class="box warn">
+    <strong class="t">Dhyan rakho</strong>
+    Exact maximum duration ke liye current AWS Lambda documentation/console dekho, kisi purani value ko hard-code mat karo, kyunki limits badal sakti hain.
+  </div>
+
+  <h3>Memory</h3>
+  <p>Memory configuration function ko milne wale resources ko affect karti hai, CPU allocation samet &mdash; zyada memory se zyada CPU bhi mil sakta hai. Chhote workload ke liye kam memory kaafi hai; heavy processing ke liye zyada memory chahiye ho sakti hai. Memory badhane se cost par asar padta hai, kyunki Lambda pricing configured resources aur execution duration se judi hoti hai.</p>
+  <p>Timeout se zyada time lage to Lambda ruk jata hai. Memory jitni zyada, utna CPU bhi mil sakta hai, lekin cost bhi badh sakti hai &mdash; workload ke hisaab se balance karo.</p>
+</section>
+
+<!-- 27 -->
+<section class="card" id="s27">
+  <h2>27. Cold Start aur Concurrency</h2>
+  <h3>Cold start</h3>
+  <p><strong>Cold start</strong> tab hota hai jab function chalane se pehle AWS ko naya execution environment initialize karna padta hai. <strong>Warm invocation</strong> existing environment reuse karta hai (fast); <strong>cold invocation</strong> ko naya environment chahiye (thoda zyada time le sakta hai).</p>
+  <p>Pehli request thodi slow ho sakti hai (cold start), lekin agar environment reuse ho jaye to baad ki requests fast hoti hain (warm).</p>
+
+  <h3>Concurrency</h3>
+  <p><strong>Concurrency</strong> = ek saath process ho rahe Lambda invocations ki sankhya. 1 request &rarr; 1 execution; 100 simultaneous requests &rarr; potentially kai concurrent executions. Lambda AWS limits aur aapke account/function configuration ke hisaab se concurrent executions scale kar sakta hai.</p>
+
+  <h3>Reserved concurrency</h3>
+  <p>Kisi specific function ke liye concurrency limit reserve/set karta hai. Ye help karta hai: concurrency control karne mein, downstream services (jaise database) ko protect karne mein, aur ek function ko poori account ki concurrency use karne se rokne mein.</p>
+
+  <h3>Provisioned concurrency</h3>
+  <p>Execution environments ko pehle se initialize aur ready rakhta hai, taaki supported workloads ke liye cold-start latency kam ho (extra cost par).</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th></th><th>Reserved concurrency</th><th>Provisioned concurrency</th></tr>
+    <tr><td>Purpose</td><td>Ek concurrency ceiling limit/guarantee karna</td><td>Environments ko pehle se garam rakh kar cold starts kam karna</td></tr>
+    <tr><td>Cost par asar</td><td>Apne aap koi extra cost nahi</td><td>Ready-rakhe gaye environments ke liye extra cost</td></tr>
+    <tr><td>Typical use</td><td>Downstream DB ko protect karna, noisy function ko limit karna</td><td>Latency-sensitive APIs</td></tr>
+  </table>
+  </div>
+  <p>Reserved concurrency limit lagata hai (kitne max invocations chalein), aur Provisioned concurrency environments ko pehle se garam rakhta hai taaki cold start kam ho.</p>
+</section>
+
+<!-- 28 -->
+<section class="card" id="s28">
+  <h2>28. Lambda Scaling aur Statelessness</h2>
+  <h3>Scaling</h3>
+<div class="arch">Traditional EC2:
+Traffic -> Manually/automatically servers add karna
+
+Lambda:
+Traffic -> AWS execution environments aur concurrency manage karta hai</div>
+  <p>Invocation demand badhne par Lambda automatically extra execution environments bana sakta hai, service/account limits ke andar.</p>
+
+  <h3>Statelessness</h3>
+  <p>Lambda functions ko generally <strong>stateless</strong> treat karna chahiye. Permanent application data ke liye local execution environment storage par depend mat karo. Lambda ka local <code>/tmp</code> storage <strong>temporary</strong> hai aur permanent database storage jaisa treat nahi karna chahiye.</p>
+  <p>Persistent data ke liye DynamoDB, S3, RDS, ya koi doosri persistent service use karo.</p>
+  <p>Lambda ko permanent storage mat samjho; important data hamesha DynamoDB/S3/RDS jaisi persistent service mein save karo.</p>
+</section>
+
+<!-- 29 -->
+<section class="card" id="s29">
+  <h2>29. Database, VPC aur Function URL</h2>
+  <h3>Lambda + Database options</h3>
+<div class="arch">Option 1:  Lambda -> DynamoDB
+Option 2:  Lambda -> RDS
+Option 3:  Lambda -> MongoDB Atlas</div>
+  <p>Relational database connections ko dhyan se manage karna padta hai, kyunki Lambda kai concurrent execution environments tak scale ho sakta hai, aur har ek apna alag DB connection khol sakta hai. Jahan appropriate ho wahan <strong>connection pooling</strong> aur <strong>RDS Proxy</strong> jaisi services consider karo.</p>
+
+  <h3>Lambda + RDS</h3>
+<div class="arch">API Gateway
+ |
+ v
+Lambda
+ |
+ v
+RDS MySQL</div>
+  <p>Agar RDS private hai, to Lambda ko sahi VPC/subnets ke andar sahi security configuration ke saath chalana pad sakta hai.</p>
+<div class="arch">Lambda Security Group
+        |
+        v
+RDS Security Group
+        |
+        v
+TCP 3306</div>
+  <div class="box bad">
+    <strong class="t">Important</strong>
+    Sirf isliye RDS ko public mat karo kyunki Lambda ko access chahiye. Iske bajay networking (VPC/security groups) configure karo.
+  </div>
+
+  <h3>Lambda VPC</h3>
+  <p>Lambda ko specific subnets aur security groups se attach karke VPC ke andar ke resources (jaise private RDS instance) access karne ke liye configure kiya ja sakta hai.</p>
+  <div class="box warn">
+    <strong class="t">Important</strong>
+    Lambda ko VPC mein daalne se use automatically internet access nahi mil jata. Private subnets se outbound internet access ke liye zarurat padne par NAT Gateway jaisi appropriate networking chahiye ho sakti hai.
+  </div>
+
+  <h3>Lambda Function URL</h3>
+  <div class="box">
+    <strong class="t">Definition</strong>
+    Lambda Function URL ek HTTPS endpoint deta hai jo seedha ek Lambda function se associated hota hai.
+  </div>
+<div class="arch">User
+ |
+ v
+HTTPS
+ |
+ v
+Lambda Function URL
+ |
+ v
+Lambda</div>
+  <div class="tablewrap">
+  <table>
+    <tr><th></th><th>API Gateway</th><th>Function URL</th></tr>
+    <tr><td>Setup</td><td>Zyada configuration, zyada features</td><td>Simple, quick setup</td></tr>
+    <tr><td>Routing</td><td>Full routing, multiple methods/resources</td><td>Ek URL, ek function se juda hua</td></tr>
+    <tr><td>Auth/authorization options</td><td>Zyada options (API keys, authorizers, etc.)</td><td>Simpler options</td></tr>
+    <tr><td>Best for</td><td>Bahut saare routes wali full APIs</td><td>Ek simple HTTP-triggered function</td></tr>
+  </table>
+  </div>
+  <div class="box warn">
+    <strong class="t">Dhyan rakho</strong>
+    Function URL aur API Gateway bilkul same nahi hain, aur koi bhi hamesha better nahi hai &mdash; aapko kitni API functionality chahiye, us hisaab se choose karo.
+  </div>
+  <p>Function URL simple, seedha HTTPS endpoint deta hai. API Gateway zyada features (routing, auth options) deta hai lekin setup thoda zyada hota hai.</p>
+</section>
+
+<!-- 30 -->
+<section class="card" id="s30">
+  <h2>30. Logs, Monitoring, Error Handling, Retries, DLQ</h2>
+  <h3>Logs</h3>
+  <p>AWS Lambda <strong>Amazon CloudWatch Logs</strong> ke saath integrate hai. Aap jo bhi <code>console.log(...)</code> karte ho wo wahan bhej diya jata hai.</p>
+<pre><code>console.<span class="f">log</span>(<span class="s">"User created"</span>);</code></pre>
+<div class="arch">Lambda
+ |
+ v
+CloudWatch Logs</div>
+  <p>Logs dekhne ke liye: Lambda kholo &rarr; function kholo &rarr; <strong>Monitor</strong> par jao &rarr; CloudWatch logs kholo &rarr; log group kholo &rarr; ek log stream kholo.</p>
+
+  <h3>Monitoring</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Metric</th><th>Simple matlab</th></tr>
+    <tr><td>Invocations</td><td>Function kitni baar call hua.</td></tr>
+    <tr><td>Errors</td><td>Kitne invocations mein error aaya.</td></tr>
+    <tr><td>Duration</td><td>Har invocation mein kitna time laga.</td></tr>
+    <tr><td>Throttles</td><td>Concurrency limits hit hone ki wajah se reject hui invocations.</td></tr>
+    <tr><td>Concurrent executions</td><td>Ek saath kitni invocations chal rahi hain.</td></tr>
+    <tr><td>Iterator age (jahan relevant ho)</td><td>Stream-based sources ke liye, processing kitni peeche hai.</td></tr>
+  </table>
+  </div>
+
+  <h3>Error handling</h3>
+<pre><code>exports.handler = <span class="k">async</span> (event) =&gt; {
+
+    <span class="k">try</span> {
+
+        <span class="c">// application logic</span>
+
+        <span class="k">return</span> {
+            statusCode: <span class="n">200</span>,
+            body: JSON.<span class="f">stringify</span>({
+                message: <span class="s">"Success"</span>
+            })
+        };
+
+    } <span class="k">catch</span> (error) {
+
+        console.<span class="f">error</span>(error);
+
+        <span class="k">return</span> {
+            statusCode: <span class="n">500</span>,
+            body: JSON.<span class="f">stringify</span>({
+                message: <span class="s">"Internal Server Error"</span>
+            })
+        };
+    }
+};</code></pre>
+  <p><code>try</code> normal logic chalata hai; agar koi error throw ho, to <code>catch</code> use handle karta hai aur crash hone ke bajay ek proper error response return karta hai.</p>
+
+  <h3>Retries</h3>
+  <p>Lambda ka retry behavior <strong>invocation type</strong> aur <strong>event source</strong> par depend karta hai:</p>
+  <ul>
+    <li><strong>Synchronous invocation</strong> (jaise API Gateway se): caller ko result/error directly milta hai; Lambda khud automatically retry nahi karta.</li>
+    <li><strong>Asynchronous invocation</strong> (jaise S3, SNS se): AWS Lambda ke asynchronous invocation behavior ke hisaab se failed invocations retry kar sakta hai.</li>
+    <li><strong>Event-source mappings</strong> (jaise SQS, DynamoDB Streams): in services ka apna retry/visibility/dead-letter behavior hota hai.</li>
+  </ul>
+  <div class="box warn">Retry behavior har trigger ke liye <strong>same nahi</strong> hota &mdash; us specific service ki documentation check karo.</div>
+
+  <h3>Dead Letter Queue (DLQ)</h3>
+  <p><strong>DLQ</strong> = Dead Letter Queue.</p>
+<div class="arch">Lambda
+ |
+ v
+Processing fails
+ |
+ v
+Retry
+ |
+ v
+Phir bhi fail
+ |
+ v
+DLQ</div>
+  <p>DLQ support/configuration invocation type aur architecture par depend karta hai (jaise asynchronous invocations aur kuch event sources DLQ ya similar failure-destination configurations support karte hain).</p>
+  <p>Agar processing baar baar fail ho, to failed message/event ko DLQ mein bhej diya jata hai taaki wo lost na ho aur baad mein inspect kiya ja sake.</p>
+</section>
+
+<!-- 31 -->
+<section class="card" id="s31">
+  <h2>31. Deployment aur Versioning</h2>
+  <h3>Deployment methods</h3>
+  <ol>
+    <li>AWS Console</li>
+    <li>AWS CLI</li>
+    <li>AWS SAM</li>
+    <li>AWS CDK</li>
+    <li>Terraform</li>
+    <li>Serverless Framework</li>
+    <li>CI/CD pipeline</li>
+  </ol>
+  <p>Beginner level ke liye mainly <strong>AWS Console</strong> aur <strong>AWS CLI</strong> par focus karo.</p>
+
+  <h3>ZIP deployment</h3>
+  <p>Lambda code ko ZIP file ke roop mein package kiya ja sakta hai.</p>
+<pre><code>lambda-project/
+ |-- index.js
+ |-- package.json
+ `-- node_modules/</code></pre>
+<pre><code><span class="f">npm</span> install</code></pre>
+  <p>Phir folder contents ka ZIP banao aur Lambda par upload karo (Console ya CLI se).</p>
+
+  <h3>Useful AWS CLI commands</h3>
+<pre><code><span class="c"># Functions list karo</span>
+<span class="f">aws</span> lambda list-functions --region eu-north-1
+
+<span class="c"># Function invoke karo</span>
+<span class="f">aws</span> lambda invoke \
+  --function-name helloLambda \
+  response.json \
+  --region eu-north-1
+
+<span class="c"># Response dekho (Windows)</span>
+<span class="f">type</span> response.json</code></pre>
+
+  <h3>Versioning aur Aliases</h3>
+  <p><strong>Versions</strong> se function ke immutable snapshots publish kar sakte ho (jaise Version 1, Version 2, Version 3) &mdash; changes track karne aur zarurat par rollback karne ke liye useful.</p>
+  <p><strong>Aliases</strong> specific versions ke naam wale pointers hote hain, jaise <code>dev &rarr; version 2</code>, <code>prod &rarr; version 3</code>. Isse production application ek stable version par point kar sakti hai, jab development naye version par chalta rahe.</p>
+
+  <h3>Environments ke saath deployment</h3>
+<div class="arch">dev        -> Lambda version
+staging    -> Lambda version
+production -> Lambda version</div>
+  <p>Har environment (dev/staging/production) ke liye alag configuration rakhne se production data ya traffic par directly changes test karne se bacha ja sakta hai.</p>
+  <p>Versions se hum purane snapshots rakh sakte hain, aur aliases se ye control karte hain ki dev/staging/prod kaunsa version use kare.</p>
+</section>
+
+<!-- 32 -->
+<section class="card" id="s32">
+  <h2>32. Security, Cost aur Limitations</h2>
+  <h3>Security</h3>
+  <ul>
+    <li>IAM aur execution roles &mdash; least privilege</li>
+    <li>Config ke liye environment variables; sensitive secrets ke liye Secrets Manager</li>
+    <li>Encryption (at rest/in transit, jahan applicable ho)</li>
+    <li>Visibility ke liye CloudWatch Logs</li>
+    <li>Private resources access karte time VPC security groups</li>
+    <li>API authentication (jaise API Gateway authorizers se)</li>
+  </ul>
+  <div class="box bad">
+    <strong class="t">Important</strong>
+    AWS access keys Lambda code mein directly mat daalo. AWS services access karne ke liye Lambda execution role prefer karo.
+  </div>
+
+  <h3>Cost</h3>
+  <p>Lambda pricing generally in factors par based hoti hai: requests ki sankhya, duration, configured memory/resources, aur use ki gayi additional features/services. Lambda function ko &ldquo;on&rdquo; rakhne ke liye normally hume continuously chalne wale EC2 server ka payment nahi karna padta.</p>
+  <div class="box warn">
+    <strong class="t">Important</strong>
+    Lambda hamesha free nahi hota. AWS Free Tier eligibility aur limits badal sakti hain &mdash; current AWS pricing check karo.
+  </div>
+
+  <h3>Limitations</h3>
+  <ul>
+    <li>Maximum execution duration (timeout)</li>
+    <li>Memory limits</li>
+    <li>Package/deployment size limits</li>
+    <li>Concurrency limits</li>
+    <li>Cold starts</li>
+    <li>Stateless execution model</li>
+    <li>Har workload ke liye ideal nahi hai</li>
+  </ul>
+  <p><strong>Achha fit:</strong> APIs, event processing, automation, scheduled tasks, file processing, serverless applications.</p>
+  <p><strong>Kam suitable ho sakta hai:</strong> lambe chalne wale processes, persistent processes wale workloads, kuch highly stateful applications.</p>
+  <p>Lambda short, event-driven kaamon ke liye badhiya hai. Lambe chalne wale ya bahut stateful processes ke liye EC2/ECS jaisa option better ho sakta hai.</p>
+</section>
+
+<!-- 33 -->
+<section class="card" id="s33">
+  <h2>33. Real-World Project Examples</h2>
+  <h3>1. Image Processing Application</h3>
+<div class="arch">React
+ |
+ v
+S3
+ |
+ v
+Lambda
+ |
+ v
+Image Processing
+ |
+ v
+S3</div>
+  <p>User React app ke through S3 par image upload karta hai &rarr; S3 Lambda ko trigger karta hai &rarr; Lambda image ko process/resize karta hai &rarr; result wapas S3 mein store hota hai.</p>
+
+  <h3>2. Serverless MERN-style API</h3>
+<div class="arch">React
+ |
+ v
+API Gateway
+ |
+ v
+Lambda
+ |
+ v
+DynamoDB</div>
+  <p>APIs: <code>POST /users</code>, <code>GET /users/{id}</code>, <code>PUT /users/{id}</code>, <code>DELETE /users/{id}</code>. Har route ko Lambda logic handle karta hai jo DynamoDB read/write karta hai, koi server manage nahi karna padta.</p>
+
+  <h3>3. Order Processing System</h3>
+<div class="arch">React
+ |
+ v
+API Gateway
+ |
+ v
+Lambda
+ |
+ v
+DynamoDB
+ |
+ v
+EventBridge/SQS
+ |
+ v
+Doosra Lambda
+ |
+ v
+Notification</div>
+  <p>Pehla Lambda order DynamoDB mein create karta hai, phir ek event/message doosre Lambda ko notification (jaise email/SMS) bhejne ke liye trigger karta hai &mdash; alag Lambda functions alag, focused kaam karte hain.</p>
+  <p>Ek Lambda order create karta hai, doosra Lambda alag se notification bhejta hai. Har function chhota aur ek hi kaam ke liye focused rehta hai.</p>
+</section>
+
+<!-- 34 -->
+<section class="card" id="s34">
+  <h2>34. Lambda vs Node.js Server, aur Common Mistakes</h2>
+  <h3>Lambda vs traditional Node.js server</h3>
+<div class="arch">Traditional Node.js:
+Client -> EC2 -> Node.js Server -> Database
+
+Serverless:
+Client -> API Gateway -> Lambda -> Database</div>
+  <p>Traditional Node server ek <strong>continuously running application process</strong> hai. Lambda invocations ke response mein functions chalata hai, requests ke beech mein koi process nahi chalta rehta.</p>
+
+  <h3>Common Lambda mistakes</h3>
+  <ol>
+    <li>Credentials hard-code karna</li>
+    <li>Bina zarurat AdministratorAccess dena</li>
+    <li>Timeout settings ignore karna</li>
+    <li>Memory configuration ignore karna</li>
+    <li>Unnecessary/repeated database connections banana</li>
+    <li>Ye maan lena ki local (<code>/tmp</code>) storage permanent hai</li>
+    <li>Errors handle na karna</li>
+    <li>Logs monitor na karna</li>
+    <li>Lambda ko lambe chalne wale workloads ke liye use karna</li>
+    <li>Concurrency control na karna</li>
+    <li>Latency-sensitive apps mein cold starts ignore karna</li>
+    <li>Kharab IAM permissions (bahut broad ya bahut narrow)</li>
+    <li>Secrets ko directly code mein daalna</li>
+  </ol>
+  <p>Sabse common galtiyan: credentials hard-code karna, zyada IAM permissions dena, aur Lambda ko lambi-chalne-wali processes ke liye use karna.</p>
+</section>
+
+<!-- 35 -->
+<section class="card" id="s35">
+  <h2>35. Interview Questions &amp; Answers</h2>
+  <div class="qa"><div class="q">Q1. AWS Lambda kya hai?</div><div class="a">Ek serverless compute service jo events ke response mein aapka code chalati hai, bina aapko servers manage karne ki zarurat ke.</div></div>
+  <div class="qa"><div class="q">Q2. Serverless kya hai?</div><div class="a">Ek model jisme AWS underlying servers/infrastructure aapke liye manage karta hai.</div></div>
+  <div class="qa"><div class="q">Q3. Kya serverless ka matlab hai servers hote hi nahi?</div><div class="a">Nahi. Servers abhi bhi exist karte hain; AWS unhe aapki jagah manage karta hai.</div></div>
+  <div class="qa"><div class="q">Q4. Lambda function kya hai?</div><div class="a">Code ka ek piece jise AWS kisi event ya invocation ke response mein chalata hai.</div></div>
+  <div class="qa"><div class="q">Q5. Lambda handler kya hai?</div><div class="a">Wo entry-point function jise AWS execution start karne ke liye call karta hai, jaise <code>exports.handler</code>.</div></div>
+  <div class="qa"><div class="q">Q6. Event kya hai?</div><div class="a">Wo input data jo batata hai ki invocation ko kisne trigger kiya.</div></div>
+  <div class="qa"><div class="q">Q7. Context object kya hai?</div><div class="a">Execution environment aur current invocation ki jaankari (jaise bacha hua time, request ID).</div></div>
+  <div class="qa"><div class="q">Q8. Lambda trigger kya hai?</div><div class="a">Ek event source (S3, API Gateway, SQS, EventBridge, etc.) jo Lambda ko execute karwata hai.</div></div>
+  <div class="qa"><div class="q">Q9. Lambda API Gateway ke saath kaise kaam karta hai?</div><div class="a">API Gateway ek HTTP endpoint deta hai, requests ko Lambda tak route karta hai, aur Lambda ka response client ko wapas deta hai.</div></div>
+  <div class="qa"><div class="q">Q10. Lambda DynamoDB ke saath kaise kaam karta hai?</div><div class="a">Lambda AWS SDK use karke (IAM execution role ke saath) DynamoDB tables mein items read/write karta hai.</div></div>
+  <div class="qa"><div class="q">Q11. Lambda S3 ke saath kaise kaam karta hai?</div><div class="a">S3 events (jaise object created) Lambda ko trigger kar sakte hain, taaki wo uploaded file process kare.</div></div>
+  <div class="qa"><div class="q">Q12. IAM execution role kya hai?</div><div class="a">Wo IAM role jise Lambda function chalte samay assume karta hai, jisse use AWS resources access karne ki temporary permissions milti hain.</div></div>
+  <div class="qa"><div class="q">Q13. Lambda Layer kya hai?</div><div class="a">Code/dependencies ka ek reusable package jo multiple Lambda functions mein share hota hai.</div></div>
+  <div class="qa"><div class="q">Q14. Cold start kya hai?</div><div class="a">Wo delay jab AWS ko function chalane se pehle naya execution environment initialize karna padta hai.</div></div>
+  <div class="qa"><div class="q">Q15. Concurrency kya hai?</div><div class="a">Ek saath chal rahi Lambda invocations ki sankhya.</div></div>
+  <div class="qa"><div class="q">Q16. Reserved concurrency kya hai?</div><div class="a">Kisi specific function ke liye set kiya gaya concurrency limit/reservation.</div></div>
+  <div class="qa"><div class="q">Q17. Provisioned concurrency kya hai?</div><div class="a">Pehle se initialize aur ready rakhe gaye execution environments, jo cold starts kam karne ke liye garam rakhe jate hain.</div></div>
+  <div class="qa"><div class="q">Q18. Lambda timeout kya hai?</div><div class="a">Wo maximum time jitna ek invocation chal sakta hai, uske baad wo ruk jata hai.</div></div>
+  <div class="qa"><div class="q">Q19. Kya Lambda RDS access kar sakta hai?</div><div class="a">Haan, aksar Lambda ko sahi VPC/subnets ke andar sahi security group rules ke saath chalakar, ideally connection pooling ya RDS Proxy ke saath.</div></div>
+  <div class="qa"><div class="q">Q20. Lambda Function URL kya hai?</div><div class="a">Ek built-in HTTPS endpoint jo seedha ek Lambda function se juda hota hai, API Gateway setup karne se simpler.</div></div>
+  <div class="qa"><div class="q">Q21. Lambda vs EC2?</div><div class="a">EC2 ek continuously chalne wala server hai jise hum manage karte hain; Lambda code sirf invoke hone par chalata hai aur AWS infrastructure manage karta hai.</div></div>
+  <div class="qa"><div class="q">Q22. Lambda vs ECS?</div><div class="a">ECS containers chalata hai jo aap zyada directly manage karte ho (aksar lambe chalne wali services); Lambda kam operational overhead ke saath short, event-driven functions chalata hai.</div></div>
+  <div class="qa"><div class="q">Q23. Lambda ko kaise monitor karte hain?</div><div class="a">CloudWatch metrics (invocations, errors, duration, throttles) aur CloudWatch Logs use karke.</div></div>
+  <div class="qa"><div class="q">Q24. Lambda ke logs kahan store hote hain?</div><div class="a">Amazon CloudWatch Logs mein.</div></div>
+  <div class="qa"><div class="q">Q25. Lambda ko kaise secure karte hain?</div><div class="a">Least-privilege IAM roles, hard-coded credentials nahi, secrets ke liye Secrets Manager, sahi VPC/security groups, aur zarurat par API authentication.</div></div>
+  <div class="qa"><div class="q">Q26. Secrets kahan store karte hain?</div><div class="a">AWS Secrets Manager (ya isi jaisi secret-management service) use karke, plain code ya bahut sensitive values ke liye plain environment variables ke bajay.</div></div>
+  <div class="qa"><div class="q">Q27. Lambda ko S3 se kaise trigger karte hain?</div><div class="a">S3 event notification (jaise object created) ko function invoke karne ke liye configure karke.</div></div>
+  <div class="qa"><div class="q">Q28. Lambda ko DynamoDB Streams se kaise trigger karte hain?</div><div class="a">Table par stream enable karke aur stream se Lambda function tak ek event source mapping banakar.</div></div>
+  <div class="qa"><div class="q">Q29. Lambda kaise scale hota hai?</div><div class="a">Invocation demand badhne par AWS automatically extra execution environments banata hai, service/account limits ke andar.</div></div>
+  <div class="qa"><div class="q">Q30. Kya Lambda hamesha free hai?</div><div class="a">Nahi. Pricing requests, duration aur resources par depend karti hai; Free Tier terms aur limits badal sakti hain, isliye current AWS pricing check karo.</div></div>
+</section>
+
+<!-- 36 -->
+<section class="card" id="s36">
+  <h2>36. Important Architectures</h2>
+<div class="arch">1) User -> API Gateway -> Lambda -> DynamoDB
+
+2) User -> S3 -> Lambda -> S3
+
+3) User -> API Gateway -> Lambda -> RDS
+
+4) User -> API Gateway -> Lambda -> SQS -> Lambda -> DynamoDB
+
+5) EventBridge -> Lambda -> DynamoDB</div>
+  <div class="tablewrap">
+  <table>
+    <tr><th>#</th><th>Ye kis liye hai</th></tr>
+    <tr><td>1</td><td>DynamoDB par based typical serverless API.</td></tr>
+    <tr><td>2</td><td>Upload se trigger hone wala file/image processing.</td></tr>
+    <tr><td>3</td><td>Relational database par based serverless API.</td></tr>
+    <tr><td>4</td><td>Decoupled processing: ek Lambda kaam queue karta hai, doosra Lambda SQS se use process karta hai.</td></tr>
+    <tr><td>5</td><td>Ek scheduled/automated task jisme koi direct user request nahi hoti.</td></tr>
+  </table>
+  </div>
+  <p>Ye common patterns hain jo interview aur real projects dono mein baar baar dikhte hain &mdash; inhe yaad rakhna useful hai.</p>
+</section>
+
+<!-- 37 -->
+<section class="card" id="s37">
+  <h2>37. AWS Lambda in One Minute</h2>
+  <div class="box"><strong class="t">AWS Lambda = Serverless compute service.</strong></div>
+  <p>Ye bina hume servers manage karwaye code chalata hai.</p>
+  <p><strong>Basic flow:</strong></p>
+<div class="arch">Event
+ |
+ v
+Lambda
+ |
+ v
+Code execute hota hai
+ |
+ v
+Response</div>
+  <p><strong>MERN-style application:</strong></p>
+<div class="arch">React -> API Gateway -> Lambda -> DynamoDB</div>
+  <p><strong>Image processing:</strong></p>
+<div class="arch">S3 -> Lambda -> Process Image -> S3</div>
+  <p><strong>Scheduled tasks:</strong></p>
+<div class="arch">EventBridge -> Lambda -> Task</div>
+  <ul class="check">
+    <li>Lambda serverless hai</li>
+    <li>AWS infrastructure manage karta hai</li>
+    <li>Lambda invocations ke response mein code chalata hai</li>
+    <li>IAM execution roles AWS permissions control karti hain</li>
+    <li>Logs aur monitoring ke liye CloudWatch use hota hai</li>
+    <li>Lambda S3, DynamoDB, RDS, SQS, SNS, EventBridge aur API Gateway ke saath kaam karta hai</li>
+    <li>Lambda event-driven workloads ke liye design hua hai</li>
+    <li>Lambda har type ki application ke liye suitable nahi hai</li>
+    <li>AWS credentials hard-code mat karo</li>
+    <li>Serverless ka matlab &ldquo;no servers&rdquo; nahi hai</li>
+  </ul>
+</section>
+
+<!-- 38 -->
+<section class="card" id="s38">
+  <h2>38. Quick Revision Table</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Term</th><th>Simple Meaning</th></tr>
+    <tr><td><strong>Lambda</strong></td><td>AWS ki serverless compute service jo invocation par code chalati hai.</td></tr>
+    <tr><td><strong>Serverless</strong></td><td>AWS underlying servers manage karta hai; hum code par focus karte hain.</td></tr>
+    <tr><td><strong>Function</strong></td><td>Code ki wo unit jise Lambda chalata hai.</td></tr>
+    <tr><td><strong>Handler</strong></td><td>Wo entry-point function jise AWS call karta hai.</td></tr>
+    <tr><td><strong>Event</strong></td><td>Input data jo batata hai ki invocation ko kisne trigger kiya.</td></tr>
+    <tr><td><strong>Context</strong></td><td>Execution environment/invocation ki jaankari.</td></tr>
+    <tr><td><strong>Trigger</strong></td><td>Wo event source jo Lambda ko invoke karta hai.</td></tr>
+    <tr><td><strong>Runtime</strong></td><td>Language environment (Node.js, Python, etc.).</td></tr>
+    <tr><td><strong>Execution Role</strong></td><td>Permissions ke liye Lambda jo IAM role assume karta hai.</td></tr>
+    <tr><td><strong>Environment Variable</strong></td><td>Function ko diya gaya config value.</td></tr>
+    <tr><td><strong>Layer</strong></td><td>Functions ke beech shared code/dependency package.</td></tr>
+    <tr><td><strong>Cold Start</strong></td><td>Naya execution environment initialize hone ki delay.</td></tr>
+    <tr><td><strong>Warm Start</strong></td><td>Existing execution environment reuse karna (faster).</td></tr>
+    <tr><td><strong>Concurrency</strong></td><td>Ek saath chal rahi invocations ki sankhya.</td></tr>
+    <tr><td><strong>Reserved Concurrency</strong></td><td>Function ke liye ek set concurrency limit.</td></tr>
+    <tr><td><strong>Provisioned Concurrency</strong></td><td>Cold starts kam karne ke liye pre-warmed environments.</td></tr>
+    <tr><td><strong>Timeout</strong></td><td>Per invocation maximum run time.</td></tr>
+    <tr><td><strong>API Gateway</strong></td><td>HTTP APIs expose karne wali managed service jo Lambda invoke kar sakti hai.</td></tr>
+    <tr><td><strong>Function URL</strong></td><td>Ek Lambda function ke liye direct HTTPS endpoint.</td></tr>
+    <tr><td><strong>CloudWatch</strong></td><td>Logs aur monitoring metrics ke liye AWS service.</td></tr>
+    <tr><td><strong>DynamoDB</strong></td><td>AWS ka NoSQL database, aksar Lambda ke saath use hota hai.</td></tr>
+    <tr><td><strong>S3</strong></td><td>AWS object storage; Lambda ke liye ek common trigger source.</td></tr>
+    <tr><td><strong>SQS</strong></td><td>Decoupled processing ke liye managed message queue.</td></tr>
+    <tr><td><strong>EventBridge</strong></td><td>Event bus/scheduler jo Lambda ko trigger kar sakta hai.</td></tr>
+  </table>
+  </div>
+</section>
+
+  </div>
+
+  <footer>AWS Lambda study note (Hinglish) &mdash; Complete guide with sidebar navigation</footer>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.card[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS S3 — Complete Guide</title>
+<style>
+  :root {
+    --bg: #f7f9fc; --card-bg: #ffffff; --text: #1e2430; --text-soft: #4b5567;
+    --heading: #0f172a; --accent: #ff9900; --accent-dark: #cc7a00; --accent-soft: #fff4e0;
+    --blue: #146eb4; --blue-dark: #0d4f82; --blue-soft: #e8f2fb;
+    --green: #1a7f5a; --green-soft: #e7f7f0; --purple: #6b46c1; --purple-soft: #f1ebfb;
+    --red: #c0392b; --red-soft: #fdecea; --border: #e3e8ef;
+    --code-bg: #0f172a; --code-text: #e2e8f0;
+    --important-bg: #fff8e6; --important-border: #e6a700;
+    --note-bg: #fff1f0; --note-border: #e64545;
+    --table-head-bg: #146eb4; --table-head-text: #ffffff; --table-row-alt: #f4f8fc;
+    --toc-bg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+      --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+      --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+      --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+      --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+      --code-bg: #05070d; --code-text: #d7ecff;
+      --important-bg: #2a2210; --important-border: #ffcc4d;
+      --note-bg: #2a1414; --note-border: #ff6b6b;
+      --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+      --toc-bg: #161d2b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+    --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+    --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+    --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+    --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+    --code-bg: #05070d; --code-text: #d7ecff;
+    --important-bg: #2a2210; --important-border: #ffcc4d;
+    --note-bg: #2a1414; --note-border: #ff6b6b;
+    --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+    --toc-bg: #161d2b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65; padding: 2.5rem 1rem 5rem;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto;  padding: 2rem 2rem 5rem; }
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #b34700 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2rem; letter-spacing: -0.02em; color:#1a1300; }
+  .title-card p { margin: 0; font-size: 1.05rem; opacity: 0.85; }
+  .toc { background: var(--toc-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.6rem; margin-bottom: 2rem; }
+  .toc h2 { margin-top: 0; border: none; padding: 0; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.15rem 1.5rem; list-style: none; padding: 0; margin: 0; font-size: 0.87rem; }
+  .toc-grid a { color: var(--accent-dark); text-decoration: none; }
+  .toc-grid a:hover { text-decoration: underline; }
+  @media (max-width: 640px) { .toc-grid { grid-template-columns: 1fr; } }
+  h2 {
+    color: var(--heading); font-size: 1.3rem; margin-top: 2.4rem; margin-bottom: 0.85rem;
+    padding-bottom: 0.4rem; border-bottom: 3px solid var(--accent);
+    display: flex; align-items: center; gap: 0.5rem; scroll-margin-top: 1rem;
+  }
+  h3 { color: var(--blue); font-size: 1.08rem; margin-top: 1.5rem; margin-bottom: 0.55rem; }
+  h4 { color: var(--purple); font-size: 0.98rem; margin-top: 1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text-soft); }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.4rem; margin-bottom: 1rem; }
+  .definition {
+    background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 8px;
+    padding: 0.85rem 1.1rem; margin: 0.7rem 0 1rem; font-weight: 600; color: var(--text);
+  }
+  .keypoints { list-style: none; padding-left: 0; margin: 0.5rem 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.5rem 0.85rem; margin-bottom: 0.45rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  .concept-list { list-style: none; padding-left: 0; margin: 0.5rem 0; }
+  .concept-list li { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px; padding: 0.5rem 0.85rem; margin-bottom: 0.45rem; color: var(--text); }
+  .concept-list li strong { color: var(--blue-dark); }
+  .purple-list { list-style: none; padding-left: 0; margin: 0.5rem 0; }
+  .purple-list li { background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px; padding: 0.5rem 0.85rem; margin-bottom: 0.45rem; color: var(--text); }
+  .purple-list li strong { color: var(--purple); }
+  .green-list { list-style: none; padding-left: 0; margin: 0.5rem 0; }
+  .green-list li { background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 6px; padding: 0.5rem 0.85rem; margin-bottom: 0.45rem; color: var(--text); }
+  .green-list li strong { color: var(--green); }
+  .steps-block { background: var(--blue-soft); border-radius: 10px; padding: 1rem 1.3rem 1rem 1.6rem; margin: 0.7rem 0 1.2rem 0; border: 1px solid var(--border); }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.3rem; }
+  ol.steps li { padding: 0.28rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--blue-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--blue-dark); }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.85rem 1.05rem; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.86rem; margin: 0.55rem 0 1rem; white-space: pre; border: 1px solid var(--border); }
+  code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.86em; }
+  p code, li code, td code { background: var(--blue-soft); color: var(--blue-dark); padding: 0.15rem 0.4rem; border-radius: 4px; }
+  .diagram { background: var(--code-bg); color: #dce6f2; border: 1px solid var(--border); padding: 0.95rem 1.2rem; border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; text-align: center; line-height: 1.65; margin: 0.9rem 0; white-space: pre; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 0.9rem 0 1.4rem; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.65rem 0.9rem; font-size: 0.85rem; }
+  tbody td { padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.85rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+  .important { background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1.1rem 0; color: var(--text); }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.55rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.4rem; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.85rem 1.15rem; margin: 0.9rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 0.9rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .hinglish-line { background: var(--purple-soft); border-left: 5px solid var(--purple); border-radius: 8px; padding: 0.85rem 1.15rem; margin: 0.9rem 0; color: var(--text); }
+  .hinglish-line strong { color: var(--purple); }
+  .troubleshoot { background: var(--red-soft); border-left: 5px solid var(--red); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 0.9rem 0; color: var(--text); }
+  .qa { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1.1rem; margin-bottom: 0.65rem; }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.3rem; font-size: 0.9rem; }
+  .qa .a { color: var(--text-soft); margin: 0; font-size: 0.87rem; }
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.1rem; }
+  @media (max-width: 700px) { .qa-grid { grid-template-columns: 1fr; } }
+  hr.divider { border: none; border-top: 2px dashed var(--border); margin: 2.3rem 0; }
+  .section-icon { font-size: 1.1rem; }
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.35rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before { content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.2rem; font-size: 0.7rem; text-transform: uppercase; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="title-card">
+    <h1>🪣 AWS S3 — Complete Guide</h1>
+    <p>Simple Storage Service basics se advanced tak — Hinglish mein, beginner-friendly aur interview-ready</p>
+  </div>
+
+  <div class="toc">
+    <h2>📑 Contents</h2>
+    <ul class="toc-grid">
+      <li><a href="#s1">1. What is AWS S3?</a></li>
+      <li><a href="#s2">2. Why Do We Use S3?</a></li>
+      <li><a href="#s3">3. Important S3 Terms</a></li>
+      <li><a href="#s4">4. S3 Basic Structure</a></li>
+      <li><a href="#s5">5. Create S3 Bucket (Console)</a></li>
+      <li><a href="#s6">6. Bucket Naming Rules</a></li>
+      <li><a href="#s7">7. Upload Files to S3</a></li>
+      <li><a href="#s8">8. Download an Object</a></li>
+      <li><a href="#s9">9. Delete an Object</a></li>
+      <li><a href="#s10">10. S3 Storage Classes</a></li>
+      <li><a href="#s11">11. S3 Versioning</a></li>
+      <li><a href="#s12">12. Versioning &amp; Delete Markers</a></li>
+      <li><a href="#s13">13. S3 Encryption</a></li>
+      <li><a href="#s14">14. Block Public Access</a></li>
+      <li><a href="#s15">15. S3 Bucket Policy</a></li>
+      <li><a href="#s16">16. IAM + S3</a></li>
+      <li><a href="#s17">17. S3 Access Control</a></li>
+      <li><a href="#s18">18. Static Website Hosting</a></li>
+      <li><a href="#s19">19. S3 + CloudFront</a></li>
+      <li><a href="#s20">20. S3 Lifecycle Rules</a></li>
+      <li><a href="#s21">21. S3 Replication</a></li>
+      <li><a href="#s22">22. S3 Object Lock</a></li>
+      <li><a href="#s23">23. S3 Presigned URL</a></li>
+      <li><a href="#s24">24. S3 Multipart Upload</a></li>
+      <li><a href="#s25">25. S3 CLI Commands</a></li>
+      <li><a href="#s26">26. AWS CLI Configuration</a></li>
+      <li><a href="#s27">27. Bucket Policy Example</a></li>
+      <li><a href="#s28">28. Permissions Troubleshooting</a></li>
+      <li><a href="#s29">29. S3 Security Best Practices</a></li>
+      <li><a href="#s30">30. S3 vs EBS vs EFS</a></li>
+      <li><a href="#s31">31. S3 vs EC2 Storage</a></li>
+      <li><a href="#s32">32. S3 Cost Concepts</a></li>
+      <li><a href="#s33">33. Project: Website Backup</a></li>
+      <li><a href="#s34">34. Project: Static Website</a></li>
+      <li><a href="#s35">35. S3 + EC2 Architecture</a></li>
+      <li><a href="#s36">36. Interview Questions</a></li>
+      <li><a href="#s37">37. Complete Architecture Revision</a></li>
+      <li><a href="#s38">38. Quick Revision</a></li>
+    </ul>
+  </div>
+
+  <!-- 1 -->
+  <h2 id="s1"><span class="section-icon">1️⃣</span> What is AWS S3?</h2>
+  <div class="definition">Amazon S3 (Simple Storage Service) is an AWS object storage service used to store and retrieve files/data from anywhere over the internet.</div>
+  <p>S3 ko hum files/data store karne ke liye use karte hain, jaise:</p>
+  <ul class="concept-list">
+    <li>Images</li>
+    <li>Videos</li>
+    <li>Documents</li>
+    <li>PDFs</li>
+    <li>Backups</li>
+    <li>Logs</li>
+    <li>Static website files</li>
+    <li>Application files</li>
+    <li>Data archives</li>
+  </ul>
+  <div class="diagram">Local Computer
+     ↓
+    S3
+     ↓
+Images / Videos / PDFs / Backups</div>
+  <div class="example">
+    <strong>Real-world example</strong>
+    <p style="margin-bottom:0;">Socho tumhare phone mein 1000 photos hain aur phone ka storage full ho raha hai. Tum un sabko S3 pe upload kar sakte ho — ab wo internet ke through kahin se bhi accessible hongi, aur phone ka space bhi bach jaayega.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2 -->
+  <h2 id="s2"><span class="section-icon">💡</span> Why Do We Use S3?</h2>
+  <ul class="keypoints">
+    <li><strong>File storage</strong> — kisi bhi type ki file store karna</li>
+    <li><strong>Backup</strong> — important data ka backup rakhna</li>
+    <li><strong>Static website hosting</strong> — HTML/CSS/JS files serve karna</li>
+    <li><strong>Application data storage</strong> — app ke uploads, media store karna</li>
+    <li><strong>Log storage</strong> — server/application logs rakhna</li>
+    <li><strong>Data lakes</strong> — large-scale analytics data store karna</li>
+    <li><strong>Media storage</strong> — images, videos, audio</li>
+    <li><strong>Disaster recovery</strong> — critical data ka safe copy</li>
+    <li><strong>Sharing files</strong> — links ke through data share karna</li>
+    <li><strong>Storing build/deployment files</strong> — CI/CD artifacts</li>
+  </ul>
+  <p style="margin-bottom:0;">S3 EC2 server pe directly files store karne se alag hai kyunki S3 <strong>durable</strong>, <strong>highly scalable</strong>, aur EC2 instance se <strong>independent</strong> hota hai — agar EC2 instance delete/fail ho jaaye, S3 mein data safe rehta hai. S3 practically unlimited storage deta hai, jabki EC2 ki disk limited hoti hai.</p>
+
+  <hr class="divider">
+
+  <!-- 3 -->
+  <h2 id="s3"><span class="section-icon">🧩</span> Important S3 Terms</h2>
+
+  <h3>Bucket</h3>
+  <div class="definition">Bucket is a container in S3 where objects/files are stored.</div>
+  <div class="diagram">S3
+ ↓
+Bucket
+ ↓
+Files / Objects</div>
+
+  <h3>Object</h3>
+  <div class="definition">Object is the actual file stored inside an S3 bucket.</div>
+  <div class="diagram">photo.jpg
+resume.pdf
+video.mp4
+index.html</div>
+  <p style="margin-bottom:0;">Ek S3 object mein <strong>data</strong> (actual file content) plus <strong>metadata</strong> (jaise content type, size, custom tags) hota hai, aur har object ki ek unique <strong>key</strong> hoti hai.</p>
+
+  <h3>Object Key</h3>
+  <p>Object key wo naam/path hai jisse ek object ko bucket ke andar identify kiya jaata hai.</p>
+  <div class="diagram">images/profile.jpg
+documents/resume.pdf</div>
+
+  <h3>Region</h3>
+  <p style="margin-bottom:0;">Ek S3 bucket kisi specific AWS Region mein create hota hai — data usi Region ke data centers mein store hota hai.</p>
+
+  <h3>Prefix</h3>
+  <div class="diagram">images/
+documents/
+videos/
+backups/</div>
+  <p style="margin-bottom:0;">S3 asal mein ek <strong>flat object namespace</strong> use karta hai — matlab andar koi real "folders" nahi hote. Console mein <code>images/</code> jaisa prefix ek folder ki tarah dikhta hai, lekin actually ye poora string sirf object key ka ek part hota hai.</p>
+
+  <hr class="divider">
+
+  <!-- 4 -->
+  <h2 id="s4"><span class="section-icon">🏗️</span> S3 Basic Structure</h2>
+  <div class="diagram">AWS Account
+    ↓
+S3
+    ↓
+Bucket
+    ↓
+Objects
+    ↓
+Files</div>
+  <p>Example:</p>
+  <pre><code>my-company-bucket
+│
+├── images/
+│   ├── logo.png
+│   └── profile.jpg
+│
+├── documents/
+│   ├── resume.pdf
+│   └── report.pdf
+│
+└── backups/
+    └── backup.zip</code></pre>
+  <ul class="concept-list">
+    <li><strong>my-company-bucket</strong> — ye poora bucket hai.</li>
+    <li><strong>images/, documents/, backups/</strong> — ye "prefixes" hain, folder jaise dikhte hain.</li>
+    <li><strong>logo.png, resume.pdf, backup.zip</strong> — ye actual objects (files) hain.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 5 -->
+  <h2 id="s5"><span class="section-icon">🛠️</span> How to Create an S3 Bucket Using AWS Console</h2>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>AWS Management Console open karo.</li>
+      <li><b>S3</b> search karo.</li>
+      <li>Amazon S3 open karo.</li>
+      <li><b>Create bucket</b> click karo.</li>
+      <li>Ek globally unique <b>bucket name</b> enter karo.</li>
+      <li><b>AWS Region</b> select karo.</li>
+      <li><b>Object Ownership</b> configure karo.</li>
+      <li><b>Block Public Access</b> settings configure karo.</li>
+      <li>Zaroorat ho to <b>Bucket Versioning</b> configure karo.</li>
+      <li>Zaroorat ho to <b>Tags</b> configure karo.</li>
+      <li><b>Default Encryption</b> configure karo.</li>
+      <li>Configuration <b>review</b> karo.</li>
+      <li><b>Create bucket</b> click karo.</li>
+      <li>Newly created bucket open karo.</li>
+    </ol>
+  </div>
+  <ul class="concept-list">
+    <li><strong>Bucket name</strong> — poore AWS mein globally unique hona chahiye.</li>
+    <li><strong>Region</strong> — decide karta hai data physically kaha store hoga.</li>
+    <li><strong>Object Ownership</strong> — decide karta hai object ka access control kaise manage hoga (Bucket owner enforced recommended hai).</li>
+    <li><strong>Block Public Access</strong> — by default sab kuch private/blocked rakhta hai, jab tak explicitly change na karo.</li>
+    <li><strong>Versioning</strong> — object ke multiple versions rakhne ke liye.</li>
+    <li><strong>Default Encryption</strong> — bucket mein automatically saari files ko encrypt karta hai.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 6 -->
+  <h2 id="s6"><span class="section-icon">📛</span> S3 Bucket Naming Rules</h2>
+  <ul class="keypoints">
+    <li>Bucket name <strong>globally unique</strong> hona chahiye (poore AWS mein, sirf tumhare account mein nahi).</li>
+    <li><strong>Lowercase letters</strong> use karo.</li>
+    <li>Spaces avoid karo.</li>
+    <li>Zaroorat ke hisaab se <strong>numbers aur hyphens</strong> use karo.</li>
+    <li>Bucket names ko AWS ke naming requirements follow karne chahiye.</li>
+  </ul>
+  <p><strong>Valid examples:</strong></p>
+  <div class="diagram">tarun-demo-bucket-2026
+my-company-files-123</div>
+  <div class="note">
+    <strong>Invalid examples aur unki wajah:</strong>
+    <ul style="margin: 0.5rem 0 0; padding-left: 1.2rem;">
+      <li><code>My_Bucket_Name</code> — uppercase letters aur underscores allowed nahi hain.</li>
+      <li><code>my bucket</code> — spaces allowed nahi hain.</li>
+      <li><code>bucket..name</code> — consecutive periods allowed nahi hain.</li>
+      <li><code>192.168.1.1</code> jaisa naam — IP address format jaisa naam allowed nahi hai.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 7 -->
+  <h2 id="s7"><span class="section-icon">⬆️</span> Upload Files to S3</h2>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>S3</b> open karo.</li>
+      <li>Bucket open karo.</li>
+      <li><b>Upload</b> click karo.</li>
+      <li><b>Add files</b> click karo.</li>
+      <li>File select karo.</li>
+      <li>Zaroorat ho to permissions/options configure karo.</li>
+      <li><b>Upload</b> click karo.</li>
+      <li>Verify karo ki object bucket ke andar dikh raha hai.</li>
+    </ol>
+  </div>
+  <div class="diagram">Computer
+   ↓
+Upload
+   ↓
+S3 Bucket
+   ↓
+S3 Object</div>
+
+  <hr class="divider">
+
+  <!-- 8 -->
+  <h2 id="s8"><span class="section-icon">⬇️</span> Download an Object from S3</h2>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>S3</b> open karo.</li>
+      <li>Bucket open karo.</li>
+      <li>Object select karo.</li>
+      <li><b>Download</b> click karo.</li>
+      <li>Downloaded file verify karo.</li>
+    </ol>
+  </div>
+  <p>AWS CLI se download karne ke liye:</p>
+  <pre><code>aws s3 cp s3://BUCKET-NAME/file.txt .</code></pre>
+  <div class="card">
+    <p><code>aws s3 cp</code> — S3 mein files copy karne (upload/download dono) ke liye command.</p>
+    <p><code>s3://BUCKET-NAME/file.txt</code> — S3 mein source file ka path.</p>
+    <p style="margin-bottom:0;"><code>.</code> — destination, current directory (jaha se command run kiya).</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 9 -->
+  <h2 id="s9"><span class="section-icon">🗑️</span> Delete an Object</h2>
+  <h3>Console</h3>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Bucket open karo.</li>
+      <li>Object select karo.</li>
+      <li><b>Delete</b> click karo.</li>
+      <li>Deletion <b>confirm</b> karo.</li>
+    </ol>
+  </div>
+  <h3>CLI</h3>
+  <pre><code>aws s3 rm s3://BUCKET-NAME/file.txt</code></pre>
+  <p style="margin-bottom:0;"><code>aws s3 rm</code> — S3 se object delete karne ke liye command. Yaad rakho — agar bucket pe <strong>versioning enabled</strong> hai, to normal delete se file poori tarah remove nahi hoti; iske bajaye ek <strong>delete marker</strong> add ho jaata hai, aur purani version still exist karti hai.</p>
+
+  <hr class="divider">
+
+  <!-- 10 -->
+  <h2 id="s10"><span class="section-icon">🏷️</span> S3 Storage Classes</h2>
+
+  <h3>S3 Standard</h3>
+  <p>Frequently accessed data ke liye — high durability aur availability ke saath.</p>
+
+  <h3>S3 Intelligent-Tiering</h3>
+  <p>Jab access pattern <strong>unknown ya changing</strong> ho — S3 khud data ko cost-effective tier mein move karta rehta hai.</p>
+
+  <h3>S3 Standard-IA</h3>
+  <p>Infrequently accessed data ke liye jise multi-AZ resilience chahiye.</p>
+
+  <h3>S3 One Zone-IA</h3>
+  <p>Infrequently accessed data jo single-AZ storage tolerate kar sake (thoda kam durable, thoda sasta).</p>
+
+  <h3>S3 Glacier Instant Retrieval</h3>
+  <p>Archive data jise fast retrieval chahiye (milliseconds mein access).</p>
+
+  <h3>S3 Glacier Flexible Retrieval</h3>
+  <p>Long-term archive, retrieval time mein flexibility ke saath (minutes se hours).</p>
+
+  <h3>S3 Glacier Deep Archive</h3>
+  <p>Bahut long-term archive ke liye — sabse sasta storage, lekin retrieval mein zyada time lagta hai (hours).</p>
+
+  <table>
+    <thead><tr><th>Storage Class</th><th>Typical Use</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Storage Class">Standard</td><td data-label="Typical Use">Frequently accessed data</td></tr>
+      <tr><td data-label="Storage Class">Intelligent-Tiering</td><td data-label="Typical Use">Unknown/changing access patterns</td></tr>
+      <tr><td data-label="Storage Class">Standard-IA</td><td data-label="Typical Use">Infrequently accessed data needing multi-AZ resilience</td></tr>
+      <tr><td data-label="Storage Class">One Zone-IA</td><td data-label="Typical Use">Infrequently accessed data that can tolerate single-AZ storage</td></tr>
+      <tr><td data-label="Storage Class">Glacier Instant Retrieval</td><td data-label="Typical Use">Archive data needing fast retrieval</td></tr>
+      <tr><td data-label="Storage Class">Glacier Flexible Retrieval</td><td data-label="Typical Use">Long-term archive with flexible retrieval</td></tr>
+      <tr><td data-label="Storage Class">Glacier Deep Archive</td><td data-label="Typical Use">Very long-term archive</td></tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Note:</strong> Ye document specific prices claim nahi karta — AWS pricing time ke saath change hoti hai, isliye current pricing hamesha AWS ki official pricing page pe verify karo.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 11 -->
+  <h2 id="s11"><span class="section-icon">🔄</span> S3 Versioning</h2>
+  <div class="definition">Versioning keeps multiple versions of an object in the same bucket.</div>
+  <p><strong>Versioning ke bina problem:</strong></p>
+  <div class="diagram">file.txt
+   ↓
+Updated
+   ↓
+Old file may be overwritten</div>
+  <p><strong>Versioning ke saath:</strong></p>
+  <div class="diagram">file.txt
+ ↓
+Version 1
+Version 2
+Version 3</div>
+  <ul class="keypoints">
+    <li><strong>Accidental deletion protection</strong></li>
+    <li><strong>Accidental overwrite protection</strong></li>
+    <li><strong>Recovery of previous versions</strong></li>
+  </ul>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>S3</b> open karo.</li>
+      <li>Bucket select karo.</li>
+      <li><b>Properties</b> pe jao.</li>
+      <li><b>Bucket Versioning</b> dhundo.</li>
+      <li><b>Edit</b> click karo.</li>
+      <li><b>Enable Versioning</b> karo.</li>
+      <li>Changes <b>save</b> karo.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Previous versions dekhne/restore karne ke liye, bucket ke andar object select karo, aur <strong>"Show versions"</strong> toggle karo — waha se puraani version download ya restore kar sakte ho.</p>
+
+  <hr class="divider">
+
+  <!-- 12 -->
+  <h2 id="s12"><span class="section-icon">🏷️</span> S3 Bucket Versioning and Delete Markers</h2>
+  <p>Jab versioning enabled ho aur ek object normally delete kiya jaaye, to S3 usse permanently remove karne ke bajaye ek <strong>delete marker</strong> place kar deta hai.</p>
+  <div class="diagram">Object
+ ↓
+Delete
+ ↓
+Delete Marker
+ ↓
+Previous Version still exists</div>
+  <p style="margin-bottom:0;">Kisi particular object version ko <strong>permanently</strong> delete karne ke liye, "Show versions" enable karke us specific version ID ko select karo aur usse explicitly delete karo — sirf tab wo version hamesha ke liye remove hoga.</p>
+
+  <hr class="divider">
+
+  <!-- 13 -->
+  <h2 id="s13"><span class="section-icon">🔐</span> S3 Encryption</h2>
+  <p>Encryption important hai kyunki ye ensure karta hai ki data — chahe rest mein ho (storage mein) — unauthorized access se protected rahe.</p>
+
+  <h3>Server-Side Encryption</h3>
+  <ul class="concept-list">
+    <li><strong>SSE-S3</strong> — AWS khud encryption keys manage karta hai; simple aur default option.</li>
+    <li><strong>SSE-KMS</strong> — AWS KMS (Key Management Service) use karta hai, jo extra control aur audit logging deta hai key usage ke liye.</li>
+    <li><strong>DSSE-KMS</strong> — dual-layer server-side encryption with KMS, extra-sensitive data ke liye.</li>
+  </ul>
+  <p><strong>SSE-S3 vs SSE-KMS:</strong> SSE-S3 simpler hai — AWS sab kuch automatically manage karta hai. SSE-KMS mein tumhe zyada control milta hai (kaun keys use kar sakta hai, key rotation, detailed audit trail) lekin thoda zyada configuration aur cost involve hoti hai.</p>
+  <div class="diagram">User
+ ↓
+Upload File
+ ↓
+S3
+ ↓
+Encrypted at Rest</div>
+  <p style="margin-bottom:0;"><strong>Client-side encryption</strong> mein data ko upload karne se pehle hi client (application) khud encrypt kar deta hai — S3 sirf already-encrypted data store karta hai.</p>
+
+  <hr class="divider">
+
+  <!-- 14 -->
+  <h2 id="s14"><span class="section-icon">🚫</span> S3 Block Public Access</h2>
+  <div class="definition">Block Public Access helps prevent unintended public access to S3 buckets and objects.</div>
+  <p>Iske chaar high-level settings hote hain jo control karti hain ki:</p>
+  <ul class="concept-list">
+    <li>New ACLs se public access allow ho ya nahi</li>
+    <li>Any ACLs se public access allow ho ya nahi</li>
+    <li>New public bucket policies allow ho ya nahi</li>
+    <li>Public access ko bucket policies ke through cross-account access sahit block kiya jaaye ya nahi</li>
+  </ul>
+  <p>Normally public access <strong>blocked</strong> rehna chahiye jab tak koi specific requirement (jaise static website hosting) na ho.</p>
+  <div class="diagram">Private Bucket
+     ↓
+Only authorized users/services
+     ↓
+Access S3 Objects</div>
+  <p style="margin-bottom:0;">Public website hosting ek special use case hai jise deliberately, sochh samajh kar configure karna chahiye — accidental public exposure se sensitive data leak ho sakta hai.</p>
+
+  <hr class="divider">
+
+  <!-- 15 -->
+  <h2 id="s15"><span class="section-icon">📜</span> S3 Bucket Policy</h2>
+  <div class="definition">Bucket Policy is a resource-based JSON policy attached to an S3 bucket that controls access to the bucket and its objects.</div>
+  <ul class="concept-list">
+    <li><strong>Principal</strong> — kaun (user/account/service) is policy se affect hota hai</li>
+    <li><strong>Action</strong> — kaunsa operation (jaise <code>s3:GetObject</code>) allow/deny hota hai</li>
+    <li><strong>Resource</strong> — kaunsa bucket/object is policy se affect hota hai</li>
+    <li><strong>Effect</strong> — Allow ya Deny</li>
+    <li><strong>Condition</strong> — additional rules jo policy ko apply hone se pehle check hoti hain</li>
+  </ul>
+  <div class="note">
+    <strong>Yaad rakho:</strong> Koi bhi policy example use karte waqt, placeholder bucket names/ARNs ko apne actual values se replace karna zaroori hai.
+  </div>
+  <p style="margin-bottom:0;"><strong>IAM Policy vs Bucket Policy:</strong> IAM Policy ek <em>identity</em> (user/role/group) se attach hoti hai aur batati hai wo identity kya kar sakti hai. Bucket Policy ek <em>resource</em> (bucket) se attach hoti hai aur batati hai us bucket ko kaun access kar sakta hai — chahe wo request kisi bhi identity se aaye.</p>
+
+  <hr class="divider">
+
+  <!-- 16 -->
+  <h2 id="s16"><span class="section-icon">🔗</span> IAM + S3</h2>
+  <p>IAM users, roles, aur policies S3 ko access control karne ke liye use hote hain.</p>
+  <div class="diagram">EC2
+ ↓
+IAM Role
+ ↓
+IAM Policy
+ ↓
+S3 Bucket
+ ↓
+Object</div>
+  <p>EC2 instance pe long-lived AWS access keys rakhne ke bajaye <strong>IAM Role</strong> attach karna generally better hai kyunki:</p>
+  <ul class="concept-list">
+    <li>Keys kabhi hardcode ya leak nahi hoti</li>
+    <li>Credentials automatically rotate hoti hain</li>
+    <li>Access ko easily revoke ya modify kiya ja sakta hai</li>
+  </ul>
+  <div class="example">
+    <strong>Practical example</strong>
+    <p style="margin-bottom:0;">Ek EC2 server ko application backups S3 pe upload karne hain. Recommended architecture: EC2 → IAM Role (jisme S3 upload permission ho) → Permission → S3. Isse server code mein koi access key store nahi karna padta.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 17 -->
+  <h2 id="s17"><span class="section-icon">🔑</span> S3 Access Control</h2>
+  <ul class="concept-list">
+    <li><strong>IAM policies</strong> — identity-based permissions</li>
+    <li><strong>Bucket policies</strong> — resource-based permissions</li>
+    <li><strong>Block Public Access</strong> — accidental public exposure rokta hai</li>
+    <li><strong>Object Ownership</strong> — decide karta hai bucket owner ya uploader object ko control karega</li>
+    <li><strong>ACLs</strong> — legacy access control mechanism</li>
+  </ul>
+  <p style="margin-bottom:0;">Modern S3 configurations generally <strong>Bucket owner enforced</strong> Object Ownership use karte hain aur ACL-based access control avoid karte hain, jab tak koi specific legacy/integration requirement na ho — ye access management ko simpler aur zyada secure banata hai.</p>
+
+  <hr class="divider">
+
+  <!-- 18 -->
+  <h2 id="s18"><span class="section-icon">🌐</span> S3 Static Website Hosting</h2>
+  <div class="definition">S3 can host static websites containing HTML, CSS, JavaScript, images, and other static assets.</div>
+  <div class="diagram">index.html
+style.css
+script.js
+images/</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>Bucket create</b> karo.</li>
+      <li>Website files <b>upload</b> karo.</li>
+      <li><b>Static website hosting</b> configure karo.</li>
+      <li><b>Index document</b> set karo.</li>
+      <li>Access ko appropriately <b>configure</b> karo.</li>
+      <li>Website endpoint <b>test</b> karo.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Public access ke security implications samajhna zaroori hai — jab website hosting enable karte ho, bucket ke content ko public readable banana padta hai, isliye sirf website files hi is bucket mein hone chahiye, koi sensitive data nahi. Production public website ke liye generally <strong>CloudFront + S3</strong> use hota hai, jaha access is tarah configure kiya jaata hai ki bucket khud publicly readable na ho — CloudFront hi S3 se files fetch karta hai.</p>
+
+  <hr class="divider">
+
+  <!-- 19 -->
+  <h2 id="s19"><span class="section-icon">🚀</span> S3 + CloudFront</h2>
+  <div class="diagram">User
+  ↓
+CloudFront
+  ↓
+S3 Bucket
+  ↓
+Website Files</div>
+  <ul class="keypoints">
+    <li><strong>CDN</strong> — content globally distributed edge locations se serve hota hai</li>
+    <li><strong>Lower latency</strong> — user ke nazdeek se content serve hota hai</li>
+    <li><strong>Caching</strong> — repeated requests fast hoti hain</li>
+    <li><strong>HTTPS</strong> — encrypted connection asaan se enable ho jaati hai</li>
+    <li><strong>Global distribution</strong> — duniya bhar mein fast access</li>
+    <li><strong>Reduced direct access to S3</strong> — S3 ko public expose karne ki zaroorat kam ho jaati hai</li>
+  </ul>
+  <p style="margin-bottom:0;">Modern recommended pattern ye hai ki CloudFront ko S3 ke saath restricted access ke saath use kiya jaaye — matlab sirf CloudFront hi S3 bucket ko access kar sake, general public directly bucket access na kar sake.</p>
+
+  <hr class="divider">
+
+  <!-- 20 -->
+  <h2 id="s20"><span class="section-icon">♻️</span> S3 Lifecycle Rules</h2>
+  <div class="definition">Lifecycle rules automatically transition or expire objects based on defined conditions.</div>
+  <div class="diagram">Day 0
+ ↓
+S3 Standard
+
+After 30 days
+ ↓
+Infrequent Access
+
+After 90 days
+ ↓
+Glacier
+
+After 365 days
+ ↓
+Delete</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Bucket open karo.</li>
+      <li><b>Management</b> pe jao.</li>
+      <li><b>Create lifecycle rule</b> click karo.</li>
+      <li>Rule ka <b>name</b> enter karo.</li>
+      <li><b>Scope/filter</b> select karo.</li>
+      <li><b>Transitions</b> configure karo.</li>
+      <li>Zaroorat ho to <b>expiration</b> configure karo.</li>
+      <li><b>Review</b> karo.</li>
+      <li>Rule <b>create</b> karo.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Lifecycle rules storage cost kam karne mein aur data management automate karne mein help karti hain — purani, rarely-accessed files automatically cheaper storage classes mein move ho jaati hain, aur agar zaroorat na ho to expire (delete) bhi ho sakti hain.</p>
+
+  <hr class="divider">
+
+  <!-- 21 -->
+  <h2 id="s21"><span class="section-icon">🔁</span> S3 Replication</h2>
+
+  <h3>Same-Region Replication (SRR)</h3>
+  <p>Ek hi AWS Region ke andar do buckets ke beech objects replicate karne ke liye use hota hai.</p>
+
+  <h3>Cross-Region Replication (CRR)</h3>
+  <p>Alag-alag AWS Regions ke buckets ke beech objects replicate karne ke liye use hota hai.</p>
+  <div class="diagram">Bucket A
+   ↓
+Replication
+   ↓
+Bucket B</div>
+  <ul class="concept-list">
+    <li><strong>Disaster recovery</strong></li>
+    <li><strong>Compliance</strong></li>
+    <li><strong>Data locality</strong></li>
+    <li><strong>Backup</strong></li>
+    <li><strong>Multi-region architectures</strong></li>
+  </ul>
+  <p style="margin-bottom:0;"><strong>Important prerequisite:</strong> Replication ke liye source aur destination dono buckets pe <strong>versioning enabled</strong> hona zaroori hai.</p>
+
+  <hr class="divider">
+
+  <!-- 22 -->
+  <h2 id="s22"><span class="section-icon">🔒</span> S3 Object Lock</h2>
+  <div class="definition">S3 Object Lock helps prevent objects from being deleted or overwritten for a defined retention period or until a legal hold is removed.</div>
+  <ul class="concept-list">
+    <li><strong>Retention period</strong> — kitne time tak object protected rahega</li>
+    <li><strong>Governance mode</strong> — special permissions ke saath override kiya ja sakta hai</li>
+    <li><strong>Compliance mode</strong> — retention period ke dauraan kisi ke bhi through override nahi ho sakta, root user tak nahi</li>
+    <li><strong>Legal hold</strong> — retention period se independent, jab tak explicitly remove na ho tab tak lock rehta hai</li>
+  </ul>
+  <div class="example">
+    <strong>Real-world example</strong>
+    <p style="margin-bottom:0;">Ek company ke financial records ko regulation ke according 7 saal tak modify/delete nahi kiya ja sakta. Object Lock (Compliance mode) enable karke ye guarantee kiya ja sakta hai ki koi bhi — accidentally ya intentionally — un records ko delete/overwrite nahi kar payega.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 23 -->
+  <h2 id="s23"><span class="section-icon">🔗</span> S3 Presigned URL</h2>
+  <div class="definition">A presigned URL provides temporary access to a specific S3 object without making the object publicly accessible.</div>
+  <div class="diagram">Private S3 Object
+      ↓
+Presigned URL
+      ↓
+Temporary Access</div>
+  <ul class="concept-list">
+    <li><strong>Private file downloads</strong></li>
+    <li><strong>User uploads</strong> — bina application server ke through file route kiye, seedha S3 pe upload</li>
+    <li><strong>Temporary sharing</strong></li>
+    <li><strong>Application file access</strong></li>
+  </ul>
+  <p style="margin-bottom:0;">Har presigned URL ka ek <strong>expiration time</strong> hota hai — us time ke baad URL kaam karna band kar deta hai, isliye object hamesha ke liye publicly exposed nahi hota.</p>
+
+  <hr class="divider">
+
+  <!-- 24 -->
+  <h2 id="s24"><span class="section-icon">📦</span> S3 Multipart Upload</h2>
+  <p>Large files ko multiple parts mein upload kiya ja sakta hai.</p>
+  <div class="diagram">Large File
+    ↓
+Part 1
+Part 2
+Part 3
+Part 4
+    ↓
+S3
+    ↓
+Complete Object</div>
+  <ul class="keypoints">
+    <li><strong>Better handling of large files</strong> — bade files ko chote-chote parts mein todkar upload karna aasan hota hai</li>
+    <li><strong>Parallel uploads</strong> — multiple parts ek saath upload ho sakte hain, jisse speed badhti hai</li>
+    <li><strong>Ability to retry failed parts</strong> — agar ek part fail ho jaaye, sirf usi part ko dobara upload karna padta hai, poori file nahi</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 25 -->
+  <h2 id="s25"><span class="section-icon">💻</span> S3 CLI Commands</h2>
+
+  <h4>List buckets</h4>
+  <pre><code>aws s3 ls</code></pre>
+  <p>Account ke saare S3 buckets list karta hai.</p>
+
+  <h4>Create bucket</h4>
+  <p style="margin-bottom:0.4rem;">Bucket create karne ki exact syntax Region ke hisaab se thodi vary kar sakti hai; recommended tareeka hai AWS Console ya current AWS CLI documentation follow karna taaki sahi Region-specific syntax use ho.</p>
+
+  <h4>List objects</h4>
+  <pre><code>aws s3 ls s3://BUCKET-NAME</code></pre>
+  <p>Ek specific bucket ke andar ke objects list karta hai.</p>
+
+  <h4>Upload file</h4>
+  <pre><code>aws s3 cp file.txt s3://BUCKET-NAME/</code></pre>
+  <p>Local file ko S3 bucket mein upload karta hai.</p>
+
+  <h4>Download file</h4>
+  <pre><code>aws s3 cp s3://BUCKET-NAME/file.txt .</code></pre>
+  <p>S3 se ek file ko current directory mein download karta hai.</p>
+
+  <h4>Upload folder</h4>
+  <pre><code>aws s3 cp ./my-folder s3://BUCKET-NAME/my-folder/ --recursive</code></pre>
+  <p><code>--recursive</code> flag poore folder aur uske andar ke sabhi files/subfolders ko upload karta hai.</p>
+
+  <h4>Download folder</h4>
+  <pre><code>aws s3 cp s3://BUCKET-NAME/my-folder ./my-folder --recursive</code></pre>
+  <p>S3 ke ek poore folder ko local machine pe download karta hai.</p>
+
+  <h4>Sync local folder with S3</h4>
+  <pre><code>aws s3 sync ./website s3://BUCKET-NAME/</code></pre>
+  <p>Local folder aur S3 bucket ko sync karta hai — sirf changed/naye files hi upload hoti hain, poore folder ko dobara upload nahi karna padta.</p>
+
+  <h4>Delete object</h4>
+  <pre><code>aws s3 rm s3://BUCKET-NAME/file.txt</code></pre>
+  <p>Ek specific object ko S3 se delete karta hai.</p>
+
+  <h4>Delete bucket contents</h4>
+  <div class="note">
+    <strong>Important:</strong> Bucket ke saare objects delete karna, aur bucket ko khud delete karna — ye do alag operations hain. Neeche wala command sirf contents delete karta hai, bucket ko nahi.
+  </div>
+  <pre><code>aws s3 rm s3://BUCKET-NAME --recursive</code></pre>
+
+  <hr class="divider">
+
+  <!-- 26 -->
+  <h2 id="s26"><span class="section-icon">⚙️</span> AWS CLI Configuration</h2>
+  <pre><code>aws configure</code></pre>
+  <ul class="concept-list">
+    <li><strong>AWS Access Key ID</strong> — tumhari identity ka public part</li>
+    <li><strong>AWS Secret Access Key</strong> — tumhari identity ka secret/private part</li>
+    <li><strong>Default Region</strong> — commands by default kis Region mein run honge</li>
+    <li><strong>Output format</strong> — CLI output kis format mein dikhega (json, text, table)</li>
+  </ul>
+  <div class="important">
+    <div class="important-title">⚠️ Security Best Practice</div>
+    <p style="margin:0;"><strong>AWS access keys ko kabhi hardcode ya share mat karo.</strong> EC2 instances ke liye, long-lived access keys store karne ke bajaye ek <strong>IAM role</strong> use karna preferred approach hai.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 27 -->
+  <h2 id="s27"><span class="section-icon">📄</span> S3 Bucket Policy Example</h2>
+  <p>Educational purpose ke liye ek simple JSON example:</p>
+  <pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::BUCKET-NAME/*"
+    }
+  ]
+}</code></pre>
+  <div class="important">
+    <div class="important-title">⚠️ Important</div>
+    <ul>
+      <li>Ye example <strong>public object read access</strong> allow karta hai.</li>
+      <li>Isse blindly use nahi karna chahiye.</li>
+      <li>Public access sirf tab enable karo jab intentionally required ho.</li>
+      <li><code>BUCKET-NAME</code> ko actual bucket name se replace karo.</li>
+      <li>Private buckets ke liye Block Public Access enabled hi rakho.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 28 -->
+  <h2 id="s28"><span class="section-icon">🧯</span> S3 Permissions Troubleshooting</h2>
+
+  <div class="troubleshoot">
+    <h4 style="margin-top:0; color: var(--red);">AccessDenied Error</h4>
+    <p>Possible reasons:</p>
+    <ul>
+      <li>IAM policy missing hai</li>
+      <li>Bucket policy access deny kar rahi hai</li>
+      <li>Block Public Access enabled hai</li>
+      <li>Galat bucket/object ARN use ho raha hai</li>
+      <li>Galat AWS account se request aa rahi hai</li>
+      <li>Incorrect IAM role attached hai</li>
+      <li>Object ownership/access configuration mismatch</li>
+    </ul>
+  </div>
+  <div class="diagram">Request
+  ↓
+IAM permissions?
+  ↓
+Bucket policy?
+  ↓
+Block Public Access?
+  ↓
+Object Ownership / ACL?
+  ↓
+Correct resource ARN?</div>
+
+  <hr class="divider">
+
+  <!-- 29 -->
+  <h2 id="s29"><span class="section-icon">✅</span> S3 Security Best Practices</h2>
+  <div class="important">
+    <div class="important-title">⚠️ IMPORTANT</div>
+    <ul>
+      <li>Block Public Access enabled rakho, jab tak public access explicitly required na ho.</li>
+      <li><strong>Least-privilege</strong> IAM permissions use karo.</li>
+      <li><strong>Encryption</strong> use karo.</li>
+      <li>Important data ke liye <strong>versioning</strong> enable karo.</li>
+      <li><strong>Lifecycle rules</strong> use karo.</li>
+      <li>Auditing ke liye <strong>CloudTrail/data events</strong> use karo jaha appropriate ho.</li>
+      <li>Secrets ko directly S3 mein store karne se bacho.</li>
+      <li>Temporary access ke liye <strong>presigned URLs</strong> use karo.</li>
+      <li>Long-lived credentials ke bajaye <strong>IAM roles</strong> use karo.</li>
+      <li>Immutable backup/compliance use cases ke liye <strong>Object Lock</strong> consider karo.</li>
+      <li>Unexpected access aur configuration changes ko <strong>monitor</strong> karo.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 30 -->
+  <h2 id="s30"><span class="section-icon">⚖️</span> S3 vs EBS vs EFS</h2>
+  <table>
+    <thead><tr><th>Feature</th><th>S3</th><th>EBS</th><th>EFS</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Feature">Type</td><td data-label="S3">Object storage</td><td data-label="EBS">Block storage</td><td data-label="EFS">File storage</td></tr>
+      <tr><td data-label="Feature">Attached to EC2</td><td data-label="S3">No</td><td data-label="EBS">Yes</td><td data-label="EFS">Can be mounted</td></tr>
+      <tr><td data-label="Feature">Access</td><td data-label="S3">API/HTTP</td><td data-label="EBS">Block device</td><td data-label="EFS">File system</td></tr>
+      <tr><td data-label="Feature">Use case</td><td data-label="S3">Files/backups</td><td data-label="EBS">EC2 disk</td><td data-label="EFS">Shared file system</td></tr>
+      <tr><td data-label="Feature">Scalability</td><td data-label="S3">Very high</td><td data-label="EBS">Volume-based</td><td data-label="EFS">Elastic</td></tr>
+      <tr><td data-label="Feature">Typical example</td><td data-label="S3">Images/backups</td><td data-label="EBS">OS/database disk</td><td data-label="EFS">Shared application files</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-bottom:0;"><strong>Kab use karein:</strong> Independent, durable object storage (files, backups, media) ke liye <strong>S3</strong>; ek single EC2 instance ke dedicated disk (OS, database) ke liye <strong>EBS</strong>; multiple EC2 instances ke beech shared file system chahiye to <strong>EFS</strong>.</p>
+
+  <hr class="divider">
+
+  <!-- 31 -->
+  <h2 id="s31"><span class="section-icon">🆚</span> S3 vs EC2 Storage</h2>
+  <h3>EC2 storage</h3>
+  <div class="diagram">EC2
+ ↓
+EBS
+ ↓
+Application Files</div>
+  <h3>S3</h3>
+  <div class="diagram">Application
+ ↓
+S3 API
+ ↓
+Bucket
+ ↓
+Object</div>
+  <p style="margin-bottom:0;">S3 durable object storage ke liye useful hai jo EC2 instance se <strong>independent</strong> rehta hai — agar instance terminate ho jaaye, S3 mein stored data safe rehta hai. Isse compare mein, EBS volume generally ek specific EC2 instance se tightly linked hota hai.</p>
+
+  <hr class="divider">
+
+  <!-- 32 -->
+  <h2 id="s32"><span class="section-icon">💰</span> S3 Cost Concepts</h2>
+  <ul class="keypoints">
+    <li><strong>Storage amount</strong> — kitna data store kiya gaya hai</li>
+    <li><strong>Storage class</strong> — Standard, IA, Glacier, etc.</li>
+    <li><strong>Number/type of requests</strong> — GET, PUT, LIST jaisi requests ki count</li>
+    <li><strong>Data retrieval</strong> — khaaskar Glacier jaisi classes se data nikalna</li>
+    <li><strong>Data transfer</strong> — S3 se internet pe data bhejna</li>
+    <li><strong>Replication</strong> — extra copies rakhna</li>
+    <li><strong>Lifecycle transitions</strong> — ek storage class se doosri mein move karna</li>
+    <li><strong>Monitoring/analytics features</strong></li>
+  </ul>
+  <div class="note">
+    <strong>Note:</strong> Ye document specific outdated prices claim nahi karta, kyunki AWS pricing change hoti rehti hai — current pricing hamesha AWS ki official pricing page pe verify karo. Alag-alag storage classes ki storage aur retrieval economics alag-alag hoti hain.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 33 -->
+  <h2 id="s33"><span class="section-icon">🏗️</span> Practical Project: Upload Website Backup to S3</h2>
+  <p><strong>Scenario:</strong> Ek EC2 Apache server mein hai <code>/var/www/html</code>.</p>
+  <p>Backup/archive create karo:</p>
+  <pre><code>sudo tar -czf website-backup.tar.gz /var/www/html</code></pre>
+  <div class="card">
+    <p><code>tar</code> — files/folders ko ek single archive file mein compress karta hai.</p>
+    <p><code>-czf</code> — <code>c</code> (create), <code>z</code> (gzip compression), <code>f</code> (output filename specify karna).</p>
+    <p style="margin-bottom:0;"><code>website-backup.tar.gz</code> — output archive file ka naam.</p>
+  </div>
+  <p>Fir upload karo:</p>
+  <pre><code>aws s3 cp website-backup.tar.gz s3://BUCKET-NAME/backups/</code></pre>
+  <p style="margin-bottom:0;">Ye command local archive file ko S3 bucket ke <code>backups/</code> prefix ke andar upload karta hai. Isko kaam karne ke liye, EC2 instance ke paas S3 pe upload karne ki appropriate permissions honi chahiye — preferably ek <strong>IAM role</strong> ke through, na ki hardcoded access keys ke through.</p>
+
+  <hr class="divider">
+
+  <!-- 34 -->
+  <h2 id="s34"><span class="section-icon">🌐</span> Practical Project: S3 Static Website</h2>
+  <pre><code>index.html
+style.css</code></pre>
+  <p>Dono files ko S3 pe upload karo aur bucket ko static website hosting ke liye configure karo.</p>
+  <div class="diagram">User
+ ↓
+S3 Website
+ ↓
+index.html
+ ↓
+style.css</div>
+  <p>Zyada production-oriented architecture:</p>
+  <div class="diagram">User
+ ↓
+CloudFront
+ ↓
+S3</div>
+
+  <hr class="divider">
+
+  <!-- 35 -->
+  <h2 id="s35"><span class="section-icon">🏛️</span> S3 + EC2 Architecture</h2>
+  <div class="diagram">                User
+                  ↓
+                ALB
+                  ↓
+                 EC2
+                  ↓
+             IAM Role
+                  ↓
+                 S3
+                  ↓
+        Images / Backups / Files</div>
+  <p style="margin-bottom:0;"><strong>IAM Role</strong> EC2 aur S3 ke beech isliye use hota hai kyunki ye secure, temporary, automatically-rotating credentials provide karta hai — application code mein koi hardcoded access key rakhne ki zaroorat nahi padti, jo security ko kaafi improve karta hai.</p>
+
+  <hr class="divider">
+
+  <!-- 36 -->
+  <h2 id="s36"><span class="section-icon">🎯</span> Important S3 Interview Questions</h2>
+  <div class="qa-grid">
+    <div class="qa"><p class="q">Q1: What is Amazon S3?</p><p class="a">A: Ek AWS object storage service jo internet ke through files/data store aur retrieve karne deti hai.</p></div>
+    <div class="qa"><p class="q">Q2: What is an S3 bucket?</p><p class="a">A: Ek container jisme S3 objects/files store hote hain.</p></div>
+    <div class="qa"><p class="q">Q3: What is an S3 object?</p><p class="a">A: Bucket ke andar store ki gayi actual file, data + metadata ke saath.</p></div>
+    <div class="qa"><p class="q">Q4: What is an object key?</p><p class="a">A: Bucket ke andar object ko identify karne wala naam/path.</p></div>
+    <div class="qa"><p class="q">Q5: Is S3 a file system?</p><p class="a">A: Nahi — S3 ek flat object storage hai, traditional hierarchical file system nahi.</p></div>
+    <div class="qa"><p class="q">Q6: What are S3 storage classes?</p><p class="a">A: Alag-alag access-pattern/cost trade-offs ke liye storage tiers — jaise Standard, IA, Glacier.</p></div>
+    <div class="qa"><p class="q">Q7: What is S3 Versioning?</p><p class="a">A: Ek feature jo ek hi bucket mein object ke multiple versions rakhne deta hai.</p></div>
+    <div class="qa"><p class="q">Q8: What is a delete marker?</p><p class="a">A: Ek marker jo versioned bucket mein normal delete pe place hota hai, jabki previous version still exist karti hai.</p></div>
+    <div class="qa"><p class="q">Q9: What is S3 Lifecycle?</p><p class="a">A: Rules jo objects ko automatically alag storage class mein transition ya expire karte hain.</p></div>
+    <div class="qa"><p class="q">Q10: What is S3 Bucket Policy?</p><p class="a">A: Ek resource-based JSON policy jo bucket ke access ko control karti hai.</p></div>
+    <div class="qa"><p class="q">Q11: What is an IAM Policy?</p><p class="a">A: Ek identity-based policy jo batati hai ek user/role/group kya kar sakta hai.</p></div>
+    <div class="qa"><p class="q">Q12: Difference between IAM Policy and Bucket Policy?</p><p class="a">A: IAM Policy identity se attach hoti hai; Bucket Policy resource (bucket) se attach hoti hai.</p></div>
+    <div class="qa"><p class="q">Q13: What is Block Public Access?</p><p class="a">A: Ek setting jo bucket/objects ko accidental public exposure se protect karti hai.</p></div>
+    <div class="qa"><p class="q">Q14: What is S3 encryption?</p><p class="a">A: Data ko rest mein (storage mein) protect karne ka mechanism — server-side ya client-side.</p></div>
+    <div class="qa"><p class="q">Q15: Difference between SSE-S3 and SSE-KMS?</p><p class="a">A: SSE-S3 mein AWS khud keys manage karta hai; SSE-KMS extra control aur audit logging ke saath KMS use karta hai.</p></div>
+    <div class="qa"><p class="q">Q16: What is S3 Static Website Hosting?</p><p class="a">A: S3 ka feature jo HTML/CSS/JS jaisi static files ko directly website ki tarah serve karne deta hai.</p></div>
+    <div class="qa"><p class="q">Q17: What is a presigned URL?</p><p class="a">A: Ek temporary URL jo private S3 object ko bina publicly expose kiye access karne deta hai.</p></div>
+    <div class="qa"><p class="q">Q18: What is S3 Replication?</p><p class="a">A: Objects ko ek bucket se doosre bucket mein automatically copy karne ka feature.</p></div>
+    <div class="qa"><p class="q">Q19: Difference between SRR and CRR?</p><p class="a">A: SRR same Region ke buckets ke beech replicate karta hai; CRR alag-alag Regions ke beech.</p></div>
+    <div class="qa"><p class="q">Q20: What is S3 Object Lock?</p><p class="a">A: Ek feature jo objects ko ek retention period ke liye delete/overwrite hone se rokta hai.</p></div>
+    <div class="qa"><p class="q">Q21: What is Multipart Upload?</p><p class="a">A: Large files ko multiple parts mein upload karne ka tareeka, jisse reliability aur speed improve hoti hai.</p></div>
+    <div class="qa"><p class="q">Q22: What is S3 Versioning used for?</p><p class="a">A: Accidental delete/overwrite se protection, aur purani versions recover karne ke liye.</p></div>
+    <div class="qa"><p class="q">Q23: How do you upload a file using AWS CLI?</p><p class="a">A: <code>aws s3 cp file.txt s3://BUCKET-NAME/</code> command se.</p></div>
+    <div class="qa"><p class="q">Q24: How do you download an S3 object using CLI?</p><p class="a">A: <code>aws s3 cp s3://BUCKET-NAME/file.txt .</code> command se.</p></div>
+    <div class="qa"><p class="q">Q25: How does EC2 access S3?</p><p class="a">A: Generally ek IAM Role ke through jo EC2 instance ko attach kiya jaata hai.</p></div>
+    <div class="qa"><p class="q">Q26: Why should we use IAM Roles with EC2?</p><p class="a">A: Kyunki ye long-lived access keys store karne se zyada secure hai — credentials temporary aur auto-rotating hoti hain.</p></div>
+    <div class="qa"><p class="q">Q27: What happens when Block Public Access is enabled?</p><p class="a">A: Bucket/objects ko public banane wali policies/ACLs effectively block ho jaati hain, jab tak deliberately allow na kiya jaaye.</p></div>
+    <div class="qa"><p class="q">Q28: Why use CloudFront with S3?</p><p class="a">A: Better performance (CDN, caching, lower latency), HTTPS, aur S3 ki direct public exposure kam karne ke liye.</p></div>
+    <div class="qa"><p class="q">Q29: Difference between S3, EBS, and EFS?</p><p class="a">A: S3 object storage hai (independent), EBS block storage hai (ek EC2 se attached), EFS shared file storage hai (multiple EC2 se mount ho sakta hai).</p></div>
+    <div class="qa"><p class="q">Q30: How can S3 be used for backups?</p><p class="a">A: Application/server data ko archive karke S3 pe upload kiya ja sakta hai, versioning/lifecycle ke saath.</p></div>
+    <div class="qa"><p class="q">Q31: How can S3 help with disaster recovery?</p><p class="a">A: Cross-region replication ke through data ko alag Region mein bhi durable rakh kar.</p></div>
+    <div class="qa"><p class="q">Q32: What happens if an object is deleted from a versioned bucket?</p><p class="a">A: Ek delete marker add ho jaata hai, aur previous version(s) still exist karti hain jab tak explicitly permanently delete na ki jaayein.</p></div>
+    <div class="qa"><p class="q">Q33: What causes an S3 AccessDenied error?</p><p class="a">A: Missing IAM permission, restrictive bucket policy, Block Public Access, galat ARN, ya galat account/role.</p></div>
+    <div class="qa"><p class="q">Q34: How can you make an S3 object temporarily accessible?</p><p class="a">A: Ek presigned URL generate karke, jiski expiration time hoti hai.</p></div>
+    <div class="qa"><p class="q">Q35: How can you reduce S3 storage costs?</p><p class="a">A: Lifecycle rules use karke data ko cheaper storage classes mein move ya expire karke.</p></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 37 -->
+  <h2 id="s37"><span class="section-icon">🗺️</span> Complete S3 Architecture Revision</h2>
+  <div class="diagram">                         USER
+                           │
+                           ▼
+                    CloudFront / App
+                           │
+                           ▼
+                          S3
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+           Images       Documents     Backups
+              │            │            │
+              └────────────┼────────────┘
+                           │
+                    Lifecycle Rules
+                           │
+                           ▼
+                  Different Storage Classes</div>
+
+  <hr class="divider">
+
+  <!-- 38 -->
+  <h2 id="s38"><span class="section-icon">🗒️</span> Quick Revision</h2>
+  <div class="diagram">S3 = Object Storage
+
+Bucket = Container
+
+Object = File/Data
+
+Object Key = Object's name/path
+
+Versioning = Keeps object versions
+
+Lifecycle = Automatically transitions/deletes objects
+
+Bucket Policy = Resource-based access policy
+
+IAM Policy = Identity-based permissions
+
+Presigned URL = Temporary access
+
+Replication = Copy objects between buckets
+
+Object Lock = Protect objects from deletion/overwrite
+
+CloudFront = CDN in front of S3
+
+S3 + IAM Role = Secure EC2-to-S3 access</div>
+
+  <div class="diagram">S3 = Store
+IAM = Control Access
+Versioning = Protect Versions
+Lifecycle = Automate Storage Management
+Replication = Copy Data
+CloudFront = Deliver Faster
+Presigned URL = Temporary Access
+Object Lock = Protect Data</div>
+
+</div>
+</body>
+</html>

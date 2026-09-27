@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS Account & Billing Management — Complete Guide</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#146eb4; --table-head-text:#ffffff; --table-row-alt:#f4f8fc;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#12314d; --table-head-text:#d7ecff; --table-row-alt:#131a29;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #b34700 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#1a1300; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #1a1300; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #2a1b00; }
+
+  /* Badges */
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-right:8px; vertical-align:middle; }
+  .badge-theory { background:var(--badge-theory); color:#fff; }
+  .badge-practical { background:var(--badge-practical); color:#fff; }
+  .badge-important { background:var(--badge-important); color:#fff; }
+  .badge-interview { background:var(--badge-interview); color:#fff; }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); color:#fff; }
+
+  /* TOC */
+  .toc { background: var(--toc-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
+  .toc h2 { margin-top: 0; border: none; padding: 0; font-size: 1.2rem; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem 1.5rem; list-style: none; padding: 0; margin: 0; font-size: 0.88rem; }
+  .toc-grid a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .toc-grid a:hover { text-decoration: underline; color: var(--brand); }
+  @media (max-width: 680px) { .toc-grid { grid-template-columns: 1fr; } }
+
+  /* Headings & Text */
+  h2 {
+    color: var(--heading); font-size: 1.35rem; margin-top: 2.6rem; margin-bottom: 0.85rem;
+    padding-bottom: 0.45rem; border-bottom: 3px solid var(--accent);
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; scroll-margin-top: 4.5rem;
+  }
+  h3 { color: var(--blue); font-size: 1.1rem; margin-top: 1.6rem; margin-bottom: 0.55rem; }
+  h4 { color: var(--purple); font-size: 1rem; margin-top: 1.1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text); margin: 0.65rem 0; }
+
+  /* Cards & Callouts */
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; }
+  .definition {
+    background: var(--accent-soft); border-left: 5px solid var(--accent); border-radius: 8px;
+    padding: 0.95rem 1.2rem; margin: 0.8rem 0 1.1rem; font-weight: 500; color: var(--text);
+  }
+  .keypoints { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  .concept-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .concept-list li { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .concept-list li strong { color: var(--blue-dark); }
+  .purple-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .purple-list li { background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .purple-list li strong { color: var(--purple); }
+  .green-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .green-list li { background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .green-list li strong { color: var(--green); }
+
+  .steps-block { background: var(--blue-soft); border-radius: 10px; padding: 1.1rem 1.4rem 1.1rem 1.6rem; margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border); }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.3rem; }
+  ol.steps li { padding: 0.35rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--blue-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--blue-dark); }
+
+  .important { background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1.1rem 0; color: var(--text); }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.55rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.4rem; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .tip-line { background: var(--tip-soft); border-left: 5px solid var(--tip); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .tip-line strong { color: var(--tip); }
+  .troubleshoot { background: var(--red-soft); border-left: 5px solid var(--red); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .troubleshoot strong { color: var(--red); }
+
+  /* Code Block with Copy */
+  .code-container { position: relative; margin: 0.8rem 0 1.2rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .code-header { background: var(--code-head); color: #8ea1c9; padding: 5px 12px; font-size: 0.78rem; font-family: monospace; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; }
+  .copy-btn { background: #263859; color: #dce6f2; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer; transition: all .2s; }
+  .copy-btn:hover { background: var(--brand); color: #fff; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem; margin: 0; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; line-height: 1.55; white-space: pre; }
+  code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88em; }
+  p code, li code, td code { background: var(--brand-soft); color: var(--brand); padding: 0.15rem 0.4rem; border-radius: 4px; }
+
+  /* Architecture Diagrams */
+  .diagram { background: var(--code-bg); color: #9fe2bf; border: 1px solid var(--border); padding: 1.1rem 1.3rem; border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; text-align: left; line-height: 1.55; margin: 1rem 0; white-space: pre; overflow-x: auto; }
+  .diagram strong { color: #f9ca24; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.75rem 0.95rem; font-size: 0.88rem; }
+  tbody td { padding: 0.7rem 0.95rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.88rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+
+  /* Interview Q&A Cards & Unboxed List */
+  .qa { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.85rem; }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.94rem; display: flex; align-items: baseline; gap: 0.4rem; }
+  .qa .a { color: var(--text); margin: 0; font-size: 0.9rem; line-height: 1.6; }
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  @media (max-width: 768px) { .qa-grid { grid-template-columns: 1fr; } }
+
+  /* Simple Unboxed Interview List */
+  .interview-list { margin: 1.2rem 0 2.2rem; }
+  .interview-item {
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .interview-item:first-child { padding-top: 0.2rem; }
+  .interview-item:last-child { border-bottom: none; }
+  .interview-q {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 0.45rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    line-height: 1.4;
+  }
+  .interview-q .q-num {
+    color: var(--accent-dark);
+    font-weight: 800;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .interview-a {
+    font-size: 0.96rem;
+    line-height: 1.68;
+    color: var(--text);
+    margin: 0 0 0.35rem;
+  }
+  .interview-key {
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    background: var(--brand-soft);
+    border-left: 3px solid var(--brand);
+    padding: 0.4rem 0.8rem;
+    border-radius: 0 6px 6px 0;
+    margin-top: 0.5rem;
+  }
+  .interview-key strong { color: var(--brand); }
+
+  /* Checklists */
+  .checklist { list-style: none; padding: 0; margin: 0.8rem 0; }
+  .checklist li { padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] { transform: scale(1.15); accent-color: var(--ok); cursor: pointer; }
+
+  /* Footer */
+  .footer-end { text-align: center; padding: 3rem 1rem 2rem; font-size: 1.1rem; font-weight: 700; color: var(--muted); border-top: 2px dashed var(--line); margin-top: 3rem; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.6rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before { content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.2rem; font-size: 0.72rem; text-transform: uppercase; }
+  }
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+  }
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="brand"><span class="logo">💳</span><span class="name">AWS Billing Guide</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter topics...">
+
+  <h2>1. Account & Hierarchy</h2>
+  <ul>
+    <li><a href="#s1">1. What is an AWS Account?</a></li>
+    <li><a href="#s2">2. AWS Account Structure</a></li>
+    <li><a href="#s3">3. Root User & MFA</a></li>
+    <li><a href="#s4">4. IAM User & Policies</a></li>
+    <li><a href="#s5">5. AWS Account ID & Alias</a></li>
+    <li><a href="#s6">6. Regions & AZs Impact</a></li>
+  </ul>
+
+  <h2>2. Billing & Pricing Models</h2>
+  <ul>
+    <li><a href="#s7">7. AWS Billing Fundamentals</a></li>
+    <li><a href="#s8">8. Billing Dashboard</a></li>
+    <li><a href="#s9">9. AWS Free Tier Limits</a></li>
+    <li><a href="#s10">10. AWS Pricing Models</a></li>
+    <li><a href="#s11">11. AWS Cost Explorer</a></li>
+    <li><a href="#s12">12. AWS Budgets</a></li>
+  </ul>
+
+  <h2>3. Alerts & Practical Labs</h2>
+  <ul>
+    <li><a href="#s13">13. Practical: Create Budget</a></li>
+    <li><a href="#s14">14. Billing Alerts & CloudWatch</a></li>
+    <li><a href="#s15">15. Payment Methods & Status</a></li>
+    <li><a href="#s16">16. AWS Bills & Invoices</a></li>
+    <li><a href="#s17">17. Cost Allocation Tags</a></li>
+    <li><a href="#s18">18. Cost Optimization Tips</a></li>
+  </ul>
+
+  <h2>4. Architectures & Security</h2>
+  <ul>
+    <li><a href="#s19">19. Cost-Generating Resources</a></li>
+    <li><a href="#s20">20. MERN Stack Billing Flow</a></li>
+    <li><a href="#s21">21. Account & Billing Security</a></li>
+    <li><a href="#s22">22. Practical: Check Costs</a></li>
+    <li><a href="#s23">23. Practical: Find Idle Resources</a></li>
+    <li><a href="#s24">24. Best Practices Checklist</a></li>
+  </ul>
+
+  <h2>5. Comparisons & Interviews</h2>
+  <ul>
+    <li><a href="#s25">25. Important Differences</a></li>
+    <li><a href="#s26">26. 20+ Interview Questions</a></li>
+    <li><a href="#s27">27. Real-World Architecture Flow</a></li>
+    <li><a href="#s28">28. Quick Revision Cheatsheet</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle Menu">☰ Menu</button>
+      <strong>AWS Account & Billing Guide</strong>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- TITLE CARD -->
+    <div class="title-card">
+      <h1>AWS Account & Billing Management</h1>
+      <p class="subtitle">Complete Study & Operations Guide</p>
+      <p class="desc">"Master Cloud Financial Management, Account Security, Free Tier Governance, Budgets, and Cost Optimization in AWS."</p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+      <h2>📑 Quick Navigation Overview</h2>
+      <ul class="toc-grid">
+        <li><a href="#s1">1. What is an AWS Account?</a></li>
+        <li><a href="#s2">2. AWS Account Structure</a></li>
+        <li><a href="#s3">3. Root User & Security</a></li>
+        <li><a href="#s4">4. IAM User & Least Privilege</a></li>
+        <li><a href="#s5">5. AWS Account ID & Alias</a></li>
+        <li><a href="#s6">6. Regions & Availability Zones</a></li>
+        <li><a href="#s7">7. AWS Billing Fundamentals</a></li>
+        <li><a href="#s8">8. Billing Dashboard</a></li>
+        <li><a href="#s9">9. AWS Free Tier Limits</a></li>
+        <li><a href="#s10">10. AWS Pricing Models</a></li>
+        <li><a href="#s11">11. Cost Explorer Analytics</a></li>
+        <li><a href="#s12">12. AWS Budgets</a></li>
+        <li><a href="#s13">13. Practical: Create a Budget</a></li>
+        <li><a href="#s14">14. Billing Alerts</a></li>
+        <li><a href="#s15">15. Payment Methods & Verification</a></li>
+        <li><a href="#s16">16. Bills & Itemized Invoices</a></li>
+        <li><a href="#s17">17. Cost Allocation Tags</a></li>
+        <li><a href="#s18">18. Cost Optimization Strategies</a></li>
+        <li><a href="#s19">19. Cost-Generating Resources</a></li>
+        <li><a href="#s20">20. Billing for a MERN Stack App</a></li>
+        <li><a href="#s21">21. Account & Financial Security</a></li>
+        <li><a href="#s22">22. Practical: Check Current Costs</a></li>
+        <li><a href="#s23">23. Practical: Find Running Resources</a></li>
+        <li><a href="#s24">24. Best Practices Checklist</a></li>
+        <li><a href="#s25">25. Important Comparisons</a></li>
+        <li><a href="#s26">26. 20+ Interview Questions</a></li>
+        <li><a href="#s27">27. Real-World Example Flow</a></li>
+        <li><a href="#s28">28. Quick Revision Cheat Sheet</a></li>
+      </ul>
+    </div>
+
+    <div class="important">
+      <div class="important-title">⚠️ Real-World Pricing & Free Tier Disclaimer</div>
+      <p>AWS pricing, tier limits, and eligible instance types evolve over time and vary slightly across geographic Regions. Always confirm current rates on the official AWS Pricing and Free Tier pages before making business decisions. These study notes focus on core <strong>concepts, architecture, and practical governance</strong>.</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <h2 id="s1"><span class="badge badge-theory">THEORY</span> 1. What is an AWS Account?</h2>
+    <div class="card">
+      <div class="definition">
+        "An <strong>AWS Account</strong> is a secure, isolated container that holds all your AWS cloud resources, users, security credentials, and financial billing records."
+      </div>
+      <p>Think of an AWS Account like your private safe-deposit locker inside Amazon's global data center building. Everything you build on AWS — virtual servers (EC2), object storage buckets (S3), relational databases (RDS) — lives inside this single account container, and all monthly charges link directly to it.</p>
+      
+      <h3>Key Elements Inside an AWS Account:</h3>
+      <ul class="concept-list">
+        <li><strong>AWS Account ID:</strong> A unique 12-digit number (e.g., <code>123456789012</code>) that permanently identifies your account.</li>
+        <li><strong>Root User:</strong> The master administrative identity created at initial signup with full, unrestricted access.</li>
+        <li><strong>IAM Users & Roles:</strong> Individual sub-identities and temporary permission sets created for engineers and microservices.</li>
+        <li><strong>AWS Resources:</strong> The actual compute, networking, and database workloads you deploy.</li>
+        <li><strong>Billing & Cost Management:</strong> The tracking engine that calculates consumption and generates invoices.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 2 -->
+    <h2 id="s2"><span class="badge badge-theory">THEORY</span> 2. AWS Account Structure</h2>
+    <div class="card">
+      <div class="diagram">
+                           ┌──────────────────────────────┐
+                           │         AWS ACCOUNT          │
+                           │   (12-Digit ID: Container)   │
+                           └──────────────┬───────────────┘
+                                          │
+        ┌───────────────────┬─────────────┴───────┬────────────────────┐
+        ▼                   ▼                     ▼                    ▼
+ ┌──────────────┐    ┌──────────────┐      ┌──────────────┐     ┌──────────────┐
+ │  Root User   │    │  IAM Users   │      │ AWS Services │     │   Billing    │
+ │ (Master Pwd  │    │ (Scoped Team │      │ (EC2, S3,    │     │ (Dashboard,  │
+ │  + MFA Key)  │    │  Logins)     │      │  RDS, VPC)   │     │  Invoices)   │
+ └──────────────┘    └──────────────┘      └──────────────┘     └──────────────┘</div>
+
+      <p>Every operational and security boundary traces back to this hierarchy. Without an account container, no AWS service can be provisioned or metered.</p>
+    </div>
+
+    <!-- SECTION 3 -->
+    <h2 id="s3"><span class="badge badge-theory">THEORY</span> 3. The Root User</h2>
+    <div class="card">
+      <div class="definition">
+        The <strong>Root User</strong> is the super-administrator identity created automatically when you first sign up for AWS with an email address and password. It possesses total, irrevocable control over every resource, setting, and financial detail in the account.
+      </div>
+
+      <h3>Why You Must Never Use the Root User for Daily Tasks:</h3>
+      <ul class="keypoints">
+        <li><strong>Infinite Power:</strong> Root access cannot be restricted by IAM policies. A single accidental click can terminate your entire production database or delete your VPC.</li>
+        <li><strong>Catastrophic Breach Risk:</strong> If Root credentials are stolen, an attacker can spin up thousands of expensive crypto-mining servers or permanently delete your backups.</li>
+      </ul>
+
+      <div class="important">
+        <div class="important-title">🔒 Essential Root User Security Checklist:</div>
+        <ul>
+          <li><strong>Enable Multi-Factor Authentication (MFA):</strong> Require a hardware security key (YubiKey) or authenticator app (Google Authenticator) on every login.</li>
+          <li><strong>Lock Away Root Credentials:</strong> Use a long (20+ character) unique password and store it in an enterprise password vault.</li>
+          <li><strong>Never Generate Root Access Keys:</strong> Do not create programmatic CLI access keys for the Root User.</li>
+          <li><strong>Use IAM for Daily Work:</strong> Create dedicated IAM users or federated SSO logins with least-privilege permissions.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <h2 id="s4"><span class="badge badge-theory">THEORY</span> 4. IAM Users & The Principle of Least Privilege</h2>
+    <div class="card">
+      <div class="definition">
+        An <strong>IAM (Identity and Access Management) User</strong> is an identity that you create inside your AWS account for a specific team member, developer, or automated application with strictly scoped permissions.
+      </div>
+
+      <h3>Core Components of an IAM User:</h3>
+      <ul class="concept-list">
+        <li><strong>Username & Password:</strong> Used to sign in to the AWS Management Console via a custom account URL.</li>
+        <li><strong>Access Keys (Access Key ID + Secret Access Key):</strong> Cryptographic credentials used to interact with AWS via CLI, SDKs, or APIs.</li>
+        <li><strong>IAM Policies:</strong> JSON documents attached to users or groups that define exact actions allowed or denied (e.g., allow S3 read-only, deny EC2 deletion).</li>
+      </ul>
+
+      <h3>Root User vs IAM User Comparison:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th>Root User</th>
+            <th>IAM User</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Creation</strong></td>
+            <td>Created automatically at account signup</td>
+            <td>Created manually by administrators inside IAM</td>
+          </tr>
+          <tr>
+            <td><strong>Permissions Scope</strong></td>
+            <td>Unrestricted; full administrative access</td>
+            <td>Granular; explicitly granted by IAM policies</td>
+          </tr>
+          <tr>
+            <td><strong>Login Identifier</strong></td>
+            <td>Account owner's Email address</td>
+            <td>Username + Account ID / Alias</td>
+          </tr>
+          <tr>
+            <td><strong>Recommended Usage</strong></td>
+            <td>Account-level tasks only (e.g., closing account, changing tax ID)</td>
+            <td>Daily engineering, DevOps, and deployment tasks</td>
+          </tr>
+          <tr>
+            <td><strong>Security Risk</strong></td>
+            <td>Catastrophic if compromised</td>
+            <td>Contained to explicit policy boundaries</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 5 & 6 -->
+    <h2 id="s5"><span class="badge badge-theory">THEORY</span> 5 & 6. AWS Account ID, Alias, Regions & Availability Zones</h2>
+    <div class="card">
+      <h3>5. Account ID vs Account Alias</h3>
+      <p>Your <strong>Account ID</strong> is a permanent 12-digit number (e.g., <code>559988112233</code>). An <strong>Account Alias</strong> is a human-friendly name (e.g., <code>acme-corp-prod</code>) that replaces the 12-digit number in the console sign-in URL:</p>
+      <div class="example">
+        <strong>Standard Sign-in URL:</strong> <code>https://559988112233.signin.aws.amazon.com/console</code><br>
+        <strong>Custom Alias Sign-in URL:</strong> <code>https://acme-corp-prod.signin.aws.amazon.com/console</code>
+      </div>
+
+      <h3>6. Global Regions, AZs & Financial Impact</h3>
+      <p>AWS operates across dozens of physical <strong>Regions</strong> worldwide, each housing multiple isolated <strong>Availability Zones (AZs)</strong>. Pricing varies between Regions due to local real estate, electricity, and telecommunication costs. Deploying resources in Stockholm (<code>eu-north-1</code>) or N. Virginia (<code>us-east-1</code>) may carry different hourly rates than São Paulo (<code>sa-east-1</code>).</p>
+    </div>
+
+    <!-- SECTION 7 & 8 -->
+    <h2 id="s7"><span class="badge badge-theory">THEORY</span> 7 & 8. AWS Billing Fundamentals & Billing Dashboard</h2>
+    <div class="card">
+      <div class="definition">
+        <strong>AWS Billing</strong> operates on a consumption-based <strong>Pay-as-you-go</strong> model. You pay only for the exact compute seconds, gigabytes stored, or data transmitted, with zero mandatory upfront commitments.
+      </div>
+
+      <h3>8. The Billing & Cost Management Dashboard</h3>
+      <p>The Billing Dashboard is your financial control center, displaying:</p>
+      <ul class="concept-list">
+        <li><strong>Current Month-to-Date Balance:</strong> Real-time accrued expenditure for the active billing cycle.</li>
+        <li><strong>Month-End Cost Forecast:</strong> Machine-learning projected spending based on current run-rate.</li>
+        <li><strong>Spend by Service & Region:</strong> Visual breakdown highlighting which services drive costs.</li>
+      </ul>
+
+      <div class="steps-block">
+        <h3>How to Open the Billing Dashboard:</h3>
+        <ol class="steps">
+          <li>Sign in to the AWS Management Console.</li>
+          <li>Click your account name/ID in the top-right navigation bar.</li>
+          <li>Select <strong>Billing and Cost Management</strong>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 9 & 10 -->
+    <h2 id="s9"><span class="badge badge-theory">THEORY</span> 9 & 10. AWS Free Tier & Cloud Pricing Models</h2>
+    <div class="card">
+      <h3>9. The 3 Types of AWS Free Tier Offers</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Free Tier Model</th>
+            <th>How it Works</th>
+            <th>Common Service Examples</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>12-Months Free</strong></td>
+            <td>Available for the first 12 months following account activation.</td>
+            <td>750 hrs/mo <code>t2.micro</code> / <code>t3.micro</code> EC2, 5 GB S3 standard storage, 750 hrs/mo RDS db.t3.micro.</td>
+          </tr>
+          <tr>
+            <td><strong>Always Free</strong></td>
+            <td>Never expires; available to all AWS accounts indefinitely up to monthly limits.</td>
+            <td>1,000,000 AWS Lambda requests/month, 25 GB Amazon DynamoDB storage, 10 custom CloudWatch metrics.</td>
+          </tr>
+          <tr>
+            <td><strong>Short-Term Trials</strong></td>
+            <td>Time-bound trial periods activated on first use of a specific service.</td>
+            <td>Amazon Redshift (2-month free trial), Amazon Inspector (15-day trial).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>10. The 5 Pillars of AWS Pricing</h3>
+      <ul class="keypoints">
+        <li><strong>1. Compute:</strong> Billed per millisecond/hour while instances run (EC2, ECS, Lambda).</li>
+        <li><strong>2. Storage:</strong> Billed per GB-month for data retained on disks (EBS, S3, EFS).</li>
+        <li><strong>3. Data Transfer OUT:</strong> Billed per GB for data exiting AWS to the public internet (inbound data is free).</li>
+        <li><strong>4. API Requests:</strong> Billed per million operations (S3 PUT/GET, DynamoDB read/write units).</li>
+        <li><strong>5. Dedicated Static IPs & Gateways:</strong> Hourly charges for provisioned gateways (NAT Gateway) or unattached Elastic IPs.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 11, 12, 13, 14 -->
+    <h2 id="s11"><span class="badge badge-practical">PRACTICAL</span> 11, 12, 13 & 14. COST EXPLORER, BUDGETS & BILLING ALERTS</h2>
+    <div class="card">
+      <h3>11. AWS Cost Explorer</h3>
+      <p>Cost Explorer lets you visualize, understand, and manage your AWS costs and usage over time with granular filtering by Service, Region, Instance Type, and Cost Allocation Tag.</p>
+
+      <h3>12. AWS Budgets vs Billing Alerts</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>AWS Budgets</th>
+            <th>CloudWatch Billing Alarms</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Primary Purpose</strong></td>
+            <td>Custom financial planning, threshold alerts, and automated actions</td>
+            <td>Basic threshold alarms on estimated total account charges</td>
+          </tr>
+          <tr>
+            <td><strong>Granularity</strong></td>
+            <td>High: Filter by specific service, tag, usage type, or linked account</td>
+            <td>Low: Account-wide estimated charges metric</td>
+          </tr>
+          <tr>
+            <td><strong>Alert Mechanisms</strong></td>
+            <td>Direct Email, Amazon SNS, AWS Chatbot (Slack)</td>
+            <td>Amazon SNS notifications (Email/SMS)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="steps-block">
+        <h3>13. Hands-on Lab: Create an AWS Cost Budget</h3>
+        <ol class="steps">
+          <li>Navigate to <strong>Billing and Cost Management</strong> &rarr; click <strong>Budgets</strong> in the left sidebar.</li>
+          <li>Click the orange <strong>Create budget</strong> button.</li>
+          <li>Under <em>Budget setup</em>, choose <strong>Cost budget (Recommended)</strong> &rarr; click <em>Next</em>.</li>
+          <li>Configure Budget Parameters:
+            <ul>
+              <li><strong>Budget name:</strong> <code>Monthly-Learning-Budget</code></li>
+              <li><strong>Period:</strong> <em>Monthly</em> &bull; <strong>Budget effective date:</strong> <em>Recurring budget</em></li>
+              <li><strong>Budgeting method:</strong> <em>Fixed</em> &bull; <strong>Target amount:</strong> <code>$10.00</code></li>
+            </ul>
+          </li>
+          <li>Set Alert Thresholds:
+            <ul>
+              <li><strong>Threshold 1:</strong> <code>80%</code> of budgeted amount ($8.00) &rarr; Trigger: <em>Actual spend</em>.</li>
+              <li><strong>Threshold 2:</strong> <code>100%</code> of budgeted amount ($10.00) &rarr; Trigger: <em>Forecasted spend</em>.</li>
+              <li><strong>Notification email:</strong> Enter your personal email address.</li>
+            </ul>
+          </li>
+          <li>Review and click <strong>Create budget</strong>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 15, 16, 17 -->
+    <h2 id="s15"><span class="badge badge-theory">THEORY</span> 15, 16 & 17. PAYMENTS, INVOICES & COST ALLOCATION TAGS</h2>
+    <div class="card">
+      <h3>15. Payment Methods & Verification</h3>
+      <p>AWS requires a valid credit/debit card upon signup for identity verification and overage billing. If a monthly transaction fails (due to expiry, international transaction blocks, or insufficient balance), AWS attempts retries before placing the account in restricted status.</p>
+
+      <h3>16. Itemized Invoices</h3>
+      <p>At the close of each billing cycle (1st of every month), AWS finalizes an official tax invoice itemizing charges by service, consumption tier, and local regulatory taxes (GST/VAT). You can view and download invoices in PDF and CSV format under the <strong>Bills / Invoices</strong> tab.</p>
+
+      <h3>17. Cost Allocation Tags</h3>
+      <p>Tags are custom key-value pairs assigned to resources (e.g., <code>Project = MERN-App</code>, <code>Environment = Production</code>). Once activated in the Cost Allocation Tags console, you can filter and visualize costs per business project in Cost Explorer:</p>
+
+      <div class="diagram">
+[ AWS Account Monthly Spend: $500 ]
+                │
+    ┌───────────┴───────────┐
+    ▼                       ▼
+Environment=Production   Environment=Development
+(Tagged Spend: $420)     (Tagged Spend: $80)</div>
+    </div>
+
+    <!-- SECTION 18 & 19 -->
+    <h2 id="s18"><span class="badge badge-theory">THEORY</span> 18 & 19. COST OPTIMIZATION STRATEGIES & TOP COST DRIVERS</h2>
+    <div class="card">
+      <h3>18. 10 Golden Rules of AWS Cost Optimization</h3>
+      <ul class="green-list">
+        <li><strong>1. Terminate Idle EC2 Instances:</strong> A running server consumes money every second, even if CPU usage is 0%.</li>
+        <li><strong>2. Delete Unattached EBS Volumes:</strong> When you terminate an EC2 instance, verify whether attached EBS storage volumes were orphaned.</li>
+        <li><strong>3. Release Disassociated Elastic IPs:</strong> AWS charges an hourly penalty for public IPv4 addresses not actively mapped to running instances.</li>
+        <li><strong>4. Clean Up Forgotten S3 Buckets & Snapshots:</strong> Stale backups and raw log files accumulate storage fees indefinitely.</li>
+        <li><strong>5. Monitor NAT Gateways:</strong> NAT Gateways charge ~$0.045/hour (~$32/month) plus data processing. Use Gateway Endpoints for S3/DynamoDB instead!</li>
+        <li><strong>6. Delete Empty Load Balancers:</strong> Application Load Balancers incur hourly base charges regardless of whether requests are received.</li>
+        <li><strong>7. Right-Size Workloads:</strong> Do not run a <code>t3.xlarge</code> when a <code>t3.micro</code> handles the memory load comfortably.</li>
+        <li><strong>8. Use S3 Lifecycle Policies:</strong> Automatically transition older objects to S3 Infrequent Access or Glacier deep archive.</li>
+        <li><strong>9. Leverage AWS Savings Plans & Reserved Instances:</strong> Commit to 1 or 3-year steady-state workloads for up to 72% discounts.</li>
+        <li><strong>10. Automate Shutdown Schedules:</strong> Stop staging/dev servers during nights and weekends using AWS Instance Scheduler or Lambda.</li>
+      </ul>
+
+      <h3>19. Top Resources That Generate Hidden Charges:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Resource Type</th>
+            <th>Charging Mechanism</th>
+            <th>Optimization Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>EC2 Instances</strong></td>
+            <td>Per second of running state</td>
+            <td>Stop when not in use; autoscale based on demand.</td>
+          </tr>
+          <tr>
+            <td><strong>EBS Storage Disks</strong></td>
+            <td>Per GB-month provisioned (even if EC2 is stopped)</td>
+            <td>Delete orphaned volumes; take snapshots and delete disk.</td>
+          </tr>
+          <tr>
+            <td><strong>Elastic IPs</strong></td>
+            <td>Hourly fee when unattached or attached to stopped server</td>
+            <td>Release unused Elastic IPs immediately.</td>
+          </tr>
+          <tr>
+            <td><strong>NAT Gateway</strong></td>
+            <td>Hourly fee (~$32/mo) + per GB processed</td>
+            <td>Delete after labs; use VPC Gateway Endpoints for S3.</td>
+          </tr>
+          <tr>
+            <td><strong>Application Load Balancers</strong></td>
+            <td>Hourly fee (~$18/mo) + LCU usage</td>
+            <td>Delete test load balancers when testing completes.</td>
+          </tr>
+          <tr>
+            <td><strong>Data Transfer Out</strong></td>
+            <td>Per GB exiting AWS to internet</td>
+            <td>Cache static assets on Amazon CloudFront.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 20 & 21 -->
+    <h2 id="s20"><span class="badge badge-theory">THEORY</span> 20 & 21. MERN APPLICATION BILLING FLOW & SECURITY CONTROLS</h2>
+    <div class="card">
+      <h3>20. Billing Breakdown for a Production MERN Stack</h3>
+      <div class="diagram">
+End Users Browsing Web
+         │
+         ▼
+[ Route 53 ] ──────────────► Hosted Zone ($0.50/mo) + DNS Query costs
+         │
+         ▼
+[ CloudFront CDN ] ────────► Data Transfer Out to internet + HTTPS requests
+         │
+         ▼
+[ Application Load Balancer] ─► Base hourly charge + LCU data processed
+         │
+         ▼
+[ EC2 / ECS Containers ] ──► Compute hours (Node.js API execution)
+         │
+         ▼
+[ RDS PostgreSQL / Atlas ] ─► Database instance compute + Multi-AZ storage
+         │
+         ▼
+[ Amazon S3 ] ─────────────► File uploads (GB storage + PUT/GET requests)</div>
+
+      <h3>21. Essential Financial Security Controls</h3>
+      <ul class="keypoints">
+        <li><strong>Never Hardcode API Keys:</strong> Never commit AWS Access Keys to public GitHub repositories. Automated bots scan commits within seconds and launch unauthorized crypto-mining servers.</li>
+        <li><strong>Activate IAM User Access to Billing:</strong> By default, IAM users cannot view billing. The Root user must explicitly activate <em>"IAM User and Role Access to Billing Information"</em> in Account Settings.</li>
+        <li><strong>Set Dual Alert Thresholds:</strong> Configure budgets for both <em>Actual</em> and <em>Forecasted</em> spend to catch run-rate spikes before month-end.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 22 & 23 -->
+    <h2 id="s22"><span class="badge badge-practical">PRACTICAL</span> 22 & 23. PRACTICAL LABS: AUDIT COSTS & FIND RUNNING RESOURCES</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>22. Step-by-Step: Identify Top Cost-Driving Services</h3>
+        <ol class="steps">
+          <li>Open <strong>Cost Explorer</strong> from the Billing console left menu.</li>
+          <li>Set <strong>Date range</strong> to <em>Current month</em> or <em>Last 30 days</em>.</li>
+          <li>Set <strong>Granularity</strong> to <em>Daily</em> or <em>Monthly</em>.</li>
+          <li>Click the <strong>Group by</strong> dropdown and select <strong>Service</strong>.</li>
+          <li>Review the stacked bar chart. Identify the highest bar (e.g., EC2-Other or RDS) to pinpoint where your cloud budget is being consumed.</li>
+        </ol>
+      </div>
+
+      <div class="steps-block">
+        <h3>23. Step-by-Step: Hunting & Terminating Orphaned Resources</h3>
+        <ol class="steps">
+          <li><strong>EC2 Instances:</strong> Open EC2 Console &rarr; <em>Instances</em> &rarr; filter by <code>Instance state = running</code>. Stop/terminate unused servers.</li>
+          <li><strong>EBS Volumes:</strong> In EC2 Console &rarr; <em>Volumes</em> &rarr; filter by <code>State = available</code> (unattached disks). Select &rarr; <em>Actions</em> &rarr; <em>Delete volume</em>.</li>
+          <li><strong>Elastic IPs:</strong> In EC2 Console &rarr; <em>Elastic IPs</em> &rarr; check for entries with no <em>Associated instance ID</em>. Select &rarr; <em>Actions</em> &rarr; <em>Release Elastic IP addresses</em>.</li>
+          <li><strong>NAT Gateways:</strong> Open VPC Console &rarr; <em>NAT Gateways</em> &rarr; select test gateway &rarr; <em>Actions</em> &rarr; <em>Delete NAT Gateway</em>.</li>
+          <li><strong>Load Balancers:</strong> In EC2 Console &rarr; <em>Load Balancers</em> &rarr; select test ALB &rarr; <em>Actions</em> &rarr; <em>Delete load balancer</em>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 24 -->
+    <h2 id="s24"><span class="badge badge-important">REVISION</span> 24. AWS ACCOUNT & BILLING BEST PRACTICES CHECKLIST</h2>
+    <div class="card">
+      <p>Use this interactive checklist to audit the financial hygiene of your AWS account:</p>
+      
+      <ul class="checklist">
+        <li><label><input type="checkbox"> Multi-Factor Authentication (MFA) enabled on the Root User account.</label></li>
+        <li><label><input type="checkbox"> Root user access keys deleted and never used for daily work.</label></li>
+        <li><label><input type="checkbox"> Dedicated IAM users/roles created following the Principle of Least Privilege.</label></li>
+        <li><label><input type="checkbox"> Monthly AWS Cost Budget created with automated email threshold alerts (80% & 100%).</label></li>
+        <li><label><input type="checkbox"> Free Tier usage dashboard monitored weekly to avoid inadvertent limit overages.</label></li>
+        <li><label><input type="checkbox"> Cost Allocation Tags enabled and consistently applied across project workloads.</label></li>
+        <li><label><input type="checkbox"> Unattached EBS volumes and unassociated Elastic IPs audited and removed.</label></li>
+        <li><label><input type="checkbox"> Test NAT Gateways and Load Balancers deleted immediately after lab exercises.</label></li>
+        <li><label><input type="checkbox"> Cost Explorer reviewed monthly to detect anomalies and trend shifts.</label></li>
+        <li><label><input type="checkbox"> Official monthly itemized PDF invoice verified against expected project budget.</label></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 25 -->
+    <h2 id="s25"><span class="badge badge-theory">THEORY</span> 25. IMPORTANT CORE COMPARISONS</h2>
+    <div class="card">
+      <h3>1. Root User vs IAM User</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Root User</th>
+            <th>IAM User</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Master owner identity; unrestricted account power.</td>
+            <td>Individual user identity; restricted by attached IAM policies.</td>
+          </tr>
+          <tr>
+            <td>Used exclusively for account-level changes.</td>
+            <td>Used for standard daily software engineering and administration.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2. IAM User vs IAM Role</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>IAM User</th>
+            <th>IAM Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Permanent identity with fixed long-term credentials (password/access key).</td>
+            <td>Temporary identity assumed by users or services with time-limited STS credentials.</td>
+          </tr>
+          <tr>
+            <td>Associated with a specific human developer or system.</td>
+            <td>Assumed on-the-fly by EC2 instances, Lambda functions, or cross-account users.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3. Billing Dashboard vs Cost Explorer</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Billing Dashboard</th>
+            <th>Cost Explorer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>High-level summary of current invoices and high-level service spend.</td>
+            <td>Deep analytical engine with multidimensional charting, filtering, and forecasting.</td>
+          </tr>
+          <tr>
+            <td>Quick status checks and invoice downloads.</td>
+            <td>Root-cause financial analysis, tag-based accounting, and trend forecasting.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 26 -->
+    <h2 id="s26"><span class="badge badge-interview">INTERVIEW</span> 26. TOP 25+ AWS BILLING & ACCOUNT INTERVIEW QUESTIONS & ANSWERS</h2>
+    
+    <div class="interview-list">
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q1.</span> What is an AWS Account, and how does it act as an isolation boundary?</div>
+        <p class="interview-a">An AWS Account is the foundational security, administrative, and financial container in the AWS cloud. Every resource created belongs strictly to one account. By default, resources in one account cannot see, access, or communicate with resources in another account unless explicit cross-account IAM roles, VPC Peering, or AWS Resource Access Manager (RAM) shares are configured.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Account boundaries provide 100% blast-radius containment for enterprise security and cost segregation.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q2.</span> What is the AWS Root User, and why should you NEVER use it for daily administrative work?</div>
+        <p class="interview-a">The Root User is the master identity created when the AWS account is first registered using an email address and password. It possesses absolute, unrestricted privileges across all AWS services, resources, and billing operations. Using it for daily tasks presents catastrophic risks: if root credentials leak or a human mistake occurs, entire production infrastructures can be deleted with zero recovery.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Secure Root with hardware/virtual MFA, lock away its credentials, and perform 100% of daily engineering through scoped IAM users or roles.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q3.</span> What is the Principle of Least Privilege in IAM, and why is it vital for cost governance?</div>
+        <p class="interview-a">The Principle of Least Privilege states that users, roles, applications, or services should be granted only the absolute minimum permissions strictly necessary to perform their assigned job functions. From a cost governance perspective, this prevents unauthorized developers or test scripts from spinning up expensive GPU compute instances, enterprise RDS clusters, or high-throughput NAT Gateways.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Always start with zero permissions, scope actions to specific resource ARNs, and restrict instance types using IAM policy conditions.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q4.</span> What is the Pay-As-You-Go pricing model, and how does AWS calculate resource billing?</div>
+        <p class="interview-a">Pay-as-you-go means you pay strictly for the actual cloud capacity you consume per second, minute, or hour, with zero upfront capital investment (CapEx) and zero long-term commitments. Compute is billed per second/minute of running state, storage is billed per GB-month, and outbound internet traffic is billed per GB. When a resource is stopped or deleted, ongoing compute charges immediately halt.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Transforms heavy upfront capital expenditures into flexible, pay-for-what-you-use operating expenses (OpEx).</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q5.</span> What is the exact difference between AWS Budgets and AWS Cost Explorer?</div>
+        <p class="interview-a"><strong>Cost Explorer</strong> is a reactive and diagnostic reporting tool used for visual graphing, root-cause cost breakdown, historical spending analysis, and future trend forecasting. <strong>AWS Budgets</strong> is a proactive governance tool that allows you to set custom monthly spending or usage limits (e.g., $100/month) and triggers automated email/SNS alerts or automated actions (e.g., attaching SCPs) when actual or forecasted costs cross your defined thresholds.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Cost Explorer tells you <em>where money was spent</em>; AWS Budgets <em>alerts you before you overspend</em>.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q6.</span> What are the three distinct categories of the AWS Free Tier?</div>
+        <p class="interview-a">1) <strong>12-Months Free:</strong> Available for the first 12 months after account creation (e.g., 750 hours/month of <code>t2.micro</code>/<code>t3.micro</code> EC2, 5 GB S3 Standard storage, 750 hours RDS Single-AZ).<br>2) <strong>Always Free:</strong> Never expires, available to all accounts indefinitely (e.g., 1 Million AWS Lambda requests/month, 25 GB DynamoDB NoSQL storage, 10 custom CloudWatch alarms).<br>3) <strong>Short-Term Trials:</strong> Time-limited trials that activate when a specific service is first used (e.g., Amazon GuardDuty 30-day trial, Redshift 2-month trial).</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Free tier limits are calculated per calendar month; any consumption exceeding the allocated limits is billed at standard On-Demand rates.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q7.</span> How does AWS charge for Data Transfer (Inbound vs Outbound vs Inter-Region)?</div>
+        <p class="interview-a"><strong>Inbound Data Transfer</strong> (uploading data from the internet into AWS) is always <strong>100% Free</strong>. <strong>Outbound Data Transfer</strong> (downloading/serving data from AWS out to the public internet) is charged per GB (first 100 GB/month is free globally across all services, then ~$0.09/GB). Data transfer between AWS Regions is billed at ~$0.02/GB, and data transfer across different Availability Zones (AZs) in the same region incurs ~$0.01/GB in each direction.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Serving heavy file or video downloads directly from EC2 is expensive; caching static assets via Amazon CloudFront dramatically lowers egress costs.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q8.</span> Why does an unallocated or unattached Elastic IP (EIP) cost money?</div>
+        <p class="interview-a">Public IPv4 addresses are scarce global internet resources. To prevent developers from allocating and hoarding public IPv4 addresses without actively utilizing them, AWS charges an hourly fee (~$0.005/hour) whenever an allocated Elastic IP is not mapped to an active, running EC2 instance or Network Interface (ENI).</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Always release unattached Elastic IPs immediately in the VPC Console to eliminate unnecessary recurring idle fees.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q9.</span> What are Cost Allocation Tags, and what must be done before they appear in billing reports?</div>
+        <p class="interview-a">Cost Allocation Tags are key-value metadata labels (e.g., <code>Environment: Production</code>, <code>Project: MERN-Store</code>, <code>CostCenter: Engineering</code>) attached to AWS resources. Tags do <strong>NOT</strong> appear in billing dashboards or Cost Explorer automatically. An administrator must navigate to <strong>Billing Console → Cost Allocation Tags</strong> and explicitly <strong>Activate</strong> the desired user-defined or AWS-generated tags. Once activated, AWS indexes the tagged costs within 24 hours.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Tagging is the essential foundation for showback and chargeback accounting across corporate departments.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q10.</span> What happens if an AWS monthly invoice payment fails or the registered card expires?</div>
+        <p class="interview-a">When an automatic card payment fails, AWS sends immediate email notifications to the account root and alternate billing contacts. AWS retries payment attempts periodically over several days. If payment remains unpaid for 30–60 days, AWS enters a grace period and will eventually restrict new resource creation, stop running EC2 instances, and ultimately suspend the entire account until the outstanding invoice is resolved.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Always configure Alternate Billing Contacts and maintain a backup payment method on file.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q11.</span> What is the fundamental architectural difference between an IAM User and an IAM Role?</div>
+        <p class="interview-a">An <strong>IAM User</strong> represents a permanent identity created for a person or external system with long-term credentials (password for Console, Access Key ID & Secret Access Key for CLI/SDK). An <strong>IAM Role</strong> has no long-term passwords or keys; it is an identity assumed dynamically by AWS services (like EC2, Lambda, ECS) or federated users to obtain temporary, self-expiring security tokens via AWS STS (Security Token Service).</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Never embed permanent IAM user access keys in application code; always assign IAM roles to compute workloads.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q12.</span> What are the top practical best practices to avoid unexpected AWS bills?</div>
+        <p class="interview-a">1) Create dual AWS Budgets with alerts at 50%, 80%, and 100% of actual budget, plus 100% of forecasted budget.<br>2) Enable CloudWatch Billing Alarms in the <code>us-east-1</code> (N. Virginia) global region.<br>3) Enforce MFA across Root and IAM user accounts.<br>4) Regularly audit and delete unattached EBS volumes, unattached Elastic IPs, and idle NAT Gateways.<br>5) Enable AWS Cost Anomaly Detection for automated ML-powered spike alerts.<br>6) Immediately terminate sandbox and lab instances after practice sessions.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Automated multi-tier budget alerts combined with routine resource cleanup habits prevent 99% of accidental cloud bills.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q13.</span> How do you pinpoint which AWS service, region, or operation is driving up costs in Cost Explorer?</div>
+        <p class="interview-a">Open <strong>AWS Cost Explorer</strong>, set time granularity to "Daily", and adjust the <strong>Group By</strong> dimension: Group by <strong>Service</strong> to identify the top offending service (e.g., EC2 vs RDS); Group by <strong>Region</strong> to see geographic distribution; and Group by <strong>Usage Type</strong> or <strong>API Operation</strong> to isolate the exact micro-charge (e.g., <code>NatGateway-Hours</code> vs <code>BoxUsage:t3.xlarge</code> vs <code>TimedStorage-ByteHrs</code>).</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Grouping by "Usage Type" reveals the exact line-item component causing unexpected spending increases.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q14.</span> Why does an idle NAT Gateway incur recurring costs even when passing zero network traffic?</div>
+        <p class="interview-a">A NAT Gateway is a fully managed, highly available networking appliance deployed across a specific Availability Zone. AWS charges a flat hourly base provisioning fee (~$0.045/hour = ~$32.40/month per NAT Gateway) simply for keeping the infrastructure running, regardless of whether traffic passes through it, plus ~$0.045 per GB of data processed.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> In a 3-AZ VPC with 3 NAT Gateways, baseline idle cost is ~$100/month. Always delete test NAT Gateways after completing lab exercises.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q15.</span> How do you grant an IAM user permission to view the AWS Billing & Cost Management Console?</div>
+        <p class="interview-a">Enabling billing access requires two mandatory steps:<br>1) The <strong>Root User</strong> must sign in, open <strong>Account Settings</strong>, scroll to <strong>IAM User and Role Access to Billing Information</strong>, click <strong>Edit</strong>, check <strong>Activate IAM Access</strong>, and click <strong>Update</strong>.<br>2) An administrator must then attach an IAM policy containing billing permissions (e.g., <code>BillingReadOnlyAccess</code> or <code>AWSBillingConductorFullAccess</code>) to the IAM User or Group.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Without Step 1 (the Root account activation toggle), attaching billing IAM policies will result in an "Access Denied" error.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q16.</span> What is an AWS Account Alias, and why is it recommended for production setups?</div>
+        <p class="interview-a">An Account Alias is a custom, human-readable name that replaces the random 12-digit AWS Account ID in your console login URL (e.g., <code>https://my-company-prod.signin.aws.amazon.com/console</code> instead of <code>https://123456789012.signin.aws.amazon.com/console</code>). It simplifies team access and prevents engineers from confusing Development, Staging, and Production accounts.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Account Aliases must be globally unique across all AWS accounts worldwide.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q17.</span> What is the difference between On-Demand Instances, Reserved Instances (RIs), and Savings Plans?</div>
+        <p class="interview-a"><strong>On-Demand:</strong> Maximum flexibility, pay per second, zero commitment, highest unit price.<br><strong>Reserved Instances (RI):</strong> Commitment to a specific instance type, OS, and region for 1 or 3 years in exchange for up to 72% discount.<br><strong>Compute Savings Plans:</strong> Commitment to a consistent hourly spend (e.g., $10/hour) for 1 or 3 years; automatically applies up to 66% discounts across EC2 instances, AWS Fargate containers, and AWS Lambda functions regardless of family, region, or OS.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Compute Savings Plans provide the greatest flexibility across modern containerized and serverless architectures.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q18.</span> What is the AWS Pricing Calculator, and when should it be used?</div>
+        <p class="interview-a">The AWS Pricing Calculator (<code>calculator.aws</code>) is a free web modeling tool that enables cloud architects and engineers to estimate total monthly and annual infrastructure costs before launching resources. It allows you to configure instances, storage types, egress bandwidth, database clusters, and backup retention to export formal architectural cost estimates (PDF/CSV) for managerial approval.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Always calculate upfront cost models prior to provisioning production workloads to prevent architectural budget overruns.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q19.</span> What is AWS Consolidated Billing in AWS Organizations, and what financial advantages does it provide?</div>
+        <p class="interview-a">Consolidated Billing aggregates the billing records and payments from multiple AWS member accounts into a single master management account. Financial benefits include: 1) One unified monthly invoice and payment method. 2) Volume tier discounts: storage and data transfer across all accounts are combined to reach cheaper volume pricing tiers faster. 3) Shared Savings: unused Reserved Instance or Savings Plan hours in one account automatically discount eligible usage in other accounts.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Centralizes corporate financial governance while maximizing volume tier discounts.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q20.</span> What is AWS Cost Anomaly Detection, and how does machine learning prevent runaway bills?</div>
+        <p class="interview-a">AWS Cost Anomaly Detection is a free, machine-learning-driven service that continuously monitors your account's historical spending trends to detect unexpected cost spikes or abnormal provisioning patterns. When an anomaly occurs (e.g., a misconfigured script repeatedly launching high-end EC2 instances), it calculates the root cause (account, service, region) and immediately dispatches an alert via email or Slack (via Amazon SNS).</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Catches runaway loops or compromised API keys before bills escalate into thousands of dollars.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q21.</span> What is AWS Compute Optimizer, and how does it prevent resource over-provisioning?</div>
+        <p class="interview-a">AWS Compute Optimizer utilizes machine learning algorithms to evaluate historical CloudWatch utilization data (CPU utilization, memory usage, network throughput, disk I/O) over a 14-day window. It provides actionable right-sizing recommendations for EC2 instances, EBS volumes, Auto Scaling Groups, and Lambda functions, identifying oversized resources that can be downsized to cheaper instance families without compromising performance.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Eliminates waste from over-provisioned infrastructure while ensuring adequate application headroom.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q22.</span> How do Amazon S3 Lifecycle Rules optimize long-term storage expenditures?</div>
+        <p class="interview-a">S3 Lifecycle Rules automatically migrate objects between storage classes based on object age without changing file access URLs: moving data from <strong>S3 Standard</strong> ($0.023/GB) → <strong>S3 Standard-IA</strong> ($0.0125/GB) after 30 days → <strong>S3 Glacier Flexible</strong> ($0.0036/GB) after 90 days → <strong>S3 Glacier Deep Archive</strong> ($0.00099/GB) after 180 days, or permanently deleting old versions.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Archiving compliance logs into Glacier Deep Archive reduces storage costs by up to 95% compared to Standard S3.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q23.</span> What are Service Control Policies (SCPs) in AWS Organizations, and how do they enforce hard cost guardrails?</div>
+        <p class="interview-a">SCPs are central guardrail policies applied at the AWS Organization, OU (Organizational Unit), or account level. Unlike IAM policies, SCPs define the <em>maximum permissible boundaries</em> for an account. An administrator can attach an SCP that explicitly denies provisioning of expensive instance types (e.g., denying <code>ec2:RunInstances</code> for non-free-tier instance families) or blocks unauthorized expensive regions entirely across all sub-accounts.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Even the Root User of a member account cannot override or bypass an Organization SCP guardrail.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q24.</span> What is the difference between AWS Service Quotas (Hard Limits) and Billing Alarms?</div>
+        <p class="interview-a"><strong>Billing Alarms:</strong> Purely observational and informational notifications that alert you when monetary spending thresholds are crossed; they do <em>not</em> stop or prevent workloads from running.<br><strong>Service Quotas:</strong> Physical infrastructure capacity caps imposed by AWS per region (e.g., maximum 32 vCPUs for running On-Demand standard instances). When a quota limit is reached, AWS actively blocks further provisioning API calls until a quota increase is submitted and approved.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Alarms provide visibility into cost; quotas enforce physical circuit breakers against runaway provisioning.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q25.</span> How do you properly close an AWS Account to ensure zero lingering charges?</div>
+        <p class="interview-a">1) Sign in as the <strong>Root User</strong>.<br>2) Manually terminate and delete all active resources across ALL regions (terminate EC2 instances, delete EBS volumes/snapshots, release Elastic IPs, delete NAT Gateways, empty and delete S3 buckets, delete RDS databases).<br>3) Open <strong>Account Settings</strong> → scroll to the bottom → select <strong>Close Account</strong> → check all confirmation acknowledgments and click <strong>Close Account</strong>.<br>AWS provides a 90-day post-closure period before permanent deletion, during which no active resources generate charges.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Only the Root User can close an account; always clean up provisioned resources prior to closing to ensure a clean final invoice.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 27 & 28 -->
+    <h2 id="s27"><span class="badge badge-theory">THEORY</span> 27 & 28. REAL-WORLD ARCHITECTURE & QUICK REVISION CHEATSHEET</h2>
+    <div class="card">
+      <h3>27. Enterprise Cloud Governance Flow</h3>
+      <div class="diagram">
+                        ENTERPRISE AWS ACCOUNT
+                                   │
+                                   ▼
+             ┌───────────────────────────────────────────┐
+             │       IAM Identity & Access Governance    │
+             │   (Root MFA + Scoped Least-Privilege IAM) │
+             └─────────────────────┬─────────────────────┘
+                                   │
+                                   ▼
+             ┌───────────────────────────────────────────┐
+             │      Workload Provisioning & Tagging      │
+             │     (EC2, S3, RDS with Project Tags)      │
+             └─────────────────────┬─────────────────────┘
+                                   │
+                                   ▼
+             ┌───────────────────────────────────────────┐
+             │      CloudWatch & AWS Budgets Telemetry   │
+             │     (Real-time Threshold Email Alerts)    │
+             └─────────────────────┬─────────────────────┘
+                                   │
+                                   ▼
+             ┌───────────────────────────────────────────┐
+             │      Cost Explorer & Optimization Review  │
+             │    (Weekly Cleanup of Idle Disks & EIPs)  │
+             └───────────────────────────────────────────┘</div>
+
+      <h3>28. Quick Revision Flashcards</h3>
+      <ul class="concept-list">
+        <li><strong>AWS Account =</strong> The root security and financial container for all your resources.</li>
+        <li><strong>Root User =</strong> Master owner login with unrestricted access — secure with MFA.</li>
+        <li><strong>IAM User =</strong> Scoped login created for daily engineering with least-privilege permissions.</li>
+        <li><strong>Pay-as-you-go =</strong> Billing model where you pay solely for actual consumption.</li>
+        <li><strong>Billing Dashboard =</strong> Single-pane summary of current charges, invoices, and forecasts.</li>
+        <li><strong>AWS Budgets =</strong> Automated tool to enforce spending thresholds and dispatch early email alerts.</li>
+        <li><strong>Cost Explorer =</strong> Interactive graph engine to dissect spending by service, region, and tag.</li>
+        <li><strong>Free Tier =</strong> Time-bound and always-free usage allowances to explore AWS safely.</li>
+        <li><strong>Cost Allocation Tags =</strong> Key-value metadata labels used to split costs across projects.</li>
+        <li><strong>Cost Optimization =</strong> Terminating idle compute, deleting orphaned disks, and right-sizing workloads.</li>
+      </ul>
+    </div>
+
+    <div class="footer-end">
+      End of AWS Account & Billing Notes
+    </div>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

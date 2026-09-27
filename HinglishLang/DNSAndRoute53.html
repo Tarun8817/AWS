@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNS & AWS Route 53 — Complete Hinglish Guide (Beginner to Advanced)</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#0284c7; --brand-soft:#e0f2fe;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#0284c7; --table-head-text:#ffffff; --table-row-alt:#f0f9ff;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#38bdf8; --brand-soft:#0c2538;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#073352; --table-head-text:#e0f2fe; --table-row-alt:#0d1d2b;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, #0284c7 0%, #034b75 100%);
+    color: #ffffff; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(2,132,199,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#ffffff; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #e0f2fe; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #bae6fd; }
+
+  /* Section Cards */
+  .card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:24px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.03);
+  }
+  .card h2 { margin-top:0; margin-bottom:12px; font-size:1.45rem; color:var(--heading); display:flex; align-items:center; gap:10px; flex-wrap:wrap; border-bottom: 2px solid var(--brand); padding-bottom: 6px; }
+  .card h3 { color:var(--blue); font-size:1.15rem; margin-top:20px; margin-bottom:8px; }
+  .card h4 { color:var(--purple); font-size:1rem; margin-top:16px; margin-bottom:6px; }
+
+  /* Badges */
+  .badge {
+    font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 8px; border-radius:4px; color:#fff; display:inline-block; vertical-align:middle;
+  }
+  .badge-theory { background:var(--badge-theory); }
+  .badge-practical { background:var(--badge-practical); }
+  .badge-interview { background:var(--badge-interview); }
+  .badge-important { background:var(--badge-important); }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); }
+
+  /* Callout Boxes */
+  .box { padding:14px 18px; border-radius:8px; margin:16px 0; font-size:.95rem; }
+  .box-tip { background:var(--tip-soft); border-left:4px solid var(--tip); color:var(--ink); }
+  .box-warn { background:var(--warn-soft); border-left:4px solid var(--warn); color:var(--ink); }
+  .box-bad { background:var(--bad-soft); border-left:4px solid var(--bad); color:var(--ink); }
+  .box-ok { background:var(--ok-soft); border-left:4px solid var(--ok); color:var(--ink); }
+  .box-important { background:var(--important-bg); border-left:4px solid var(--important-border); color:var(--ink); }
+
+  /* Code Block */
+  .code-container {
+    background:var(--code-bg); border-radius:8px; overflow:hidden; margin:16px 0; border:1px solid var(--line);
+  }
+  .code-header {
+    background:var(--code-head); padding:6px 14px; display:flex; justify-content:space-between; align-items:center;
+    font-size:.78rem; font-family:monospace; color:#8ea1c9; text-transform:uppercase;
+  }
+  .copy-btn {
+    background:#2b3a5c; color:#fff; border:none; border-radius:4px; padding:3px 8px;
+    font-size:.75rem; cursor:pointer; font-family:sans-serif; transition:all .2s;
+  }
+  .copy-btn:hover { background:var(--brand); }
+  pre { margin:0; padding:14px; overflow-x:auto; font-family:"Cascadia Code",Consolas,"Courier New",monospace; font-size:.88rem; color:var(--code-ink); line-height:1.5; }
+  code { font-family:"Cascadia Code",Consolas,"Courier New",monospace; }
+  p code, li code { background:var(--brand-soft); color:var(--brand); padding:2px 6px; border-radius:4px; font-size:.88rem; }
+
+  /* Diagrams & Visuals */
+  .diagram {
+    background:var(--code-bg); color:#9fe2bf; padding:16px; border-radius:8px;
+    font-family:monospace; font-size:.88rem; overflow-x:auto; line-height:1.45; border:1px solid var(--line); margin:16px 0;
+  }
+
+  /* Tables */
+  .table-wrapper { overflow-x:auto; margin:16px 0; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; }
+  th, td { padding:10px 14px; border:1px solid var(--line); text-align:left; }
+  th { background:var(--table-head-bg); color:var(--table-head-text); font-weight:600; }
+  tr:nth-child(even) { background:var(--table-row-alt); }
+
+  /* Steps List */
+  .steps-list { list-style:none; padding-left:0; counter-reset:step-counter; }
+  .steps-list li {
+    position:relative; padding-left:42px; margin-bottom:14px;
+  }
+  .steps-list li::before {
+    content:counter(step-counter); counter-increment:step-counter;
+    position:absolute; left:0; top:0; width:28px; height:28px; border-radius:50%;
+    background:var(--brand); color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Grid Layouts */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  @media(max-width:720px) { .grid-2 { grid-template-columns:1fr; } }
+
+  /* Back to top */
+  #backtotop {
+    position:fixed; bottom:25px; right:25px; background:var(--brand); color:#fff; border:none;
+    border-radius:50%; width:44px; height:44px; font-size:1.2rem; cursor:pointer; display:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:90;
+  }
+
+  /* Responsive */
+  @media(max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); }
+    #sidebar.open { transform:translateX(0); }
+    #menu-btn { display:inline-block; }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:45; }
+    #backdrop.show { display:block; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<nav id="sidebar">
+  <div id="brand">
+    <span class="logo">🌐</span>
+    <span class="name">DNS & Route 53 Hinglish</span>
+  </div>
+  <a href="../index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="🔍 Search DNS topics..." aria-label="Search topics">
+
+  <h2>1. DNS Fundamentals</h2>
+  <ul>
+    <li><a href="#sec-1">1. DNS Kya Hota Hai?</a></li>
+    <li><a href="#sec-2">2. Domain Name Ke Parts</a></li>
+    <li><a href="#sec-3">3. DNS Kaise Kaam Karta Hai?</a></li>
+    <li><a href="#sec-4">4. DNS Resolvers & Hierarchy</a></li>
+    <li><a href="#sec-5">5. Essential DNS Records</a></li>
+    <li><a href="#sec-6">6. A & AAAA Records</a></li>
+    <li><a href="#sec-7">7. CNAME Records</a></li>
+    <li><a href="#sec-8">8. MX & TXT Records</a></li>
+    <li><a href="#sec-9">9. NS & SOA Records</a></li>
+    <li><a href="#sec-10">10. TTL & Caching</a></li>
+    <li><a href="#sec-11">11. DNS Propagation</a></li>
+  </ul>
+
+  <h2>2. Amazon Route 53</h2>
+  <ul>
+    <li><a href="#sec-12">12. Amazon Route 53 Kya Hai?</a></li>
+    <li><a href="#sec-13">13. Public vs Private Hosted Zones</a></li>
+    <li><a href="#sec-14">14. Practical: Hosted Zone Banana</a></li>
+    <li><a href="#sec-15">15. Nameservers Point Karna</a></li>
+    <li><a href="#sec-16">16. Practical: A Record Banana</a></li>
+    <li><a href="#sec-17">17. Route 53 + EC2 Instance</a></li>
+    <li><a href="#sec-18">18. Route 53 + ALB Load Balancer</a></li>
+    <li><a href="#sec-19">19. Route 53 Alias vs CNAME</a></li>
+  </ul>
+
+  <h2>3. Routing Policies & Health Checks</h2>
+  <ul>
+    <li><a href="#sec-20">20. 8 Routing Policies Explained</a></li>
+    <li><a href="#sec-21">21. Route 53 Health Checks & Failover</a></li>
+    <li><a href="#sec-22">22. DNS + HTTPS Connection</a></li>
+    <li><a href="#sec-23">23. DNS Testing Tools (dig & nslookup)</a></li>
+    <li><a href="#sec-24">24. Troubleshooting DNS Issues</a></li>
+    <li><a href="#sec-25">25. Real-World Architecture</a></li>
+  </ul>
+
+  <h2>4. Interview & Revision</h2>
+  <ul>
+    <li><a href="#sec-26">26. 40+ DNS Interview Q&As</a></li>
+    <li><a href="#sec-27">27. Quick Revision Flashcards</a></li>
+  </ul>
+</nav>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">☰ Menu</button>
+      <span style="font-weight:700; color:var(--brand);">DNS & Amazon Route 53 Hinglish Guide</span>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- Title Card -->
+    <div class="title-card">
+      <h1>Domain Name System (DNS)</h1>
+      <p class="subtitle">Amazon Route 53 & Global Traffic Management</p>
+      <p class="desc">"Human-Readable Domain Names ko Machine IP Addresses mein Convert Karein"</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section class="card" id="sec-1">
+      <h2>1. DNS (Domain Name System) Kya Hai? <span class="badge badge-theory">Theory</span></h2>
+      <div class="box box-tip">
+        <strong>Simple Definition in Hinglish:</strong><br>
+        <em>"DNS (Domain Name System) internet ka phonebook hai. Hum insaan <code>google.com</code> ya <code>amazon.com</code> jaise aasan domain names yaad rakhte hain, lekin computers ek doosre se IP addresses (jaise <code>142.250.190.46</code>) ke zariye baat karte hain. DNS domain name ko uske corresponding IP address mein convert karta hai."</em>
+      </div>
+
+      <div class="diagram">
+BINA DNS KE (Mushkil):
+Aapko har website ka number yaad rakhna padta: http://13.62.102.238
+
+DNS KE SATH (Aasan):
+https://example.com ──► DNS Translation ──► 13.62.102.238 ──► Website Opens!
+      </div>
+    </section>
+
+    <!-- SECTION 2 & 3 -->
+    <section class="card" id="sec-2">
+      <h2>2 & 3. Domain Name Ke Parts & DNS Resolution Flow <span class="badge badge-theory">Architecture</span></h2>
+      
+      <h3>Domain Name Anatomy: <code>www.api.example.com.</code></h3>
+      <ul>
+        <li><strong>Root Domain (<code>.</code>):</strong> Har domain ke aakhiri mein chhipa hua dot.</li>
+        <li><strong>Top-Level Domain (TLD) (<code>.com</code> / <code>.org</code>):</strong> TLD registries dwara manage hota hai.</li>
+        <li><strong>Second-Level Domain (<code>example</code>):</strong> Vo main naam jo aap purchase karte hain (GoDaddy/Namecheap se).</li>
+        <li><strong>Subdomain (<code>www</code> / <code>api</code>):</strong> Specific server ya service ko point karne wala prefix.</li>
+      </ul>
+
+      <h3>DNS Resolution Ka 4-Step Process:</h3>
+      <div class="diagram">
+=============================== STEP-BY-STEP DNS RESOLUTION ===============================
+
+ [ User / Browser ] ──► (1) "What is the IP of example.com?"
+         │
+         ▼
+ [ DNS Recursive Resolver ] (ISP DNS ya 8.8.8.8)
+         │
+         ├────► (2) Root DNS Server (".") se puchta hai ──────► TLD Server IP (".com") deta hai
+         │
+         ├────► (3) TLD DNS Server (".com") se puchta hai ───► Authoritative NS (Route 53) deta hai
+         │
+         └────► (4) Authoritative Nameserver se puchta hai ──► Exact Server IP (13.62.102.238) deta hai
+         │
+         ▼
+ [ Browser connects to IP 13.62.102.238 ] ──► Web Page Loaded!
+=============================================================================================
+      </div>
+    </section>
+
+    <!-- SECTION 5 TO 11 -->
+    <section class="card" id="sec-5">
+      <h2>5 to 11. Important DNS Record Types & TTL <span class="badge badge-important">Important</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Record Type</th>
+              <th>Full Name</th>
+              <th>Meaning & Purpose (Hinglish)</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>A</strong></td><td>Address Record</td><td>Domain ko direct <strong>IPv4</strong> address se map karta hai.</td><td><code>example.com ➔ 13.62.102.238</code></td></tr>
+            <tr><td><strong>AAAA</strong></td><td>IPv6 Address</td><td>Domain ko 128-bit <strong>IPv6</strong> address se map karta hai.</td><td><code>example.com ➔ 2600:1f18:...</code></td></tr>
+            <tr><td><strong>CNAME</strong></td><td>Canonical Name</td><td>Ek domain ko doosre domain name se point karta hai (Alias).</td><td><code>www.example.com ➔ example.com</code></td></tr>
+            <tr><td><strong>MX</strong></td><td>Mail Exchange</td><td>Domain ke incoming email servers ko point karta hai.</td><td><code>example.com ➔ 10 mail.google.com</code></td></tr>
+            <tr><td><strong>TXT</strong></td><td>Text Record</td><td>Domain verification aur anti-spam (SPF, DKIM) data store karta hai.</td><td><code>v=spf1 include:_spf.google.com ~all</code></td></tr>
+            <tr><td><strong>NS</strong></td><td>Name Server</td><td>Batata hai ki domain ke records kaun sa DNS server manage karega.</td><td><code>ns-123.awsdns-15.com</code></td></tr>
+            <tr><td><strong>SOA</strong></td><td>Start of Authority</td><td>Zone ki core administrative info (serial number, admin email) rakhta hai.</td><td>Zone authority timers.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>TTL (Time To Live) Kya Hai?</h3>
+      <p><strong>TTL</strong> seconds mein ek time limit hoti hai jo resolvers ko batati hai ki is DNS record ko kitni der tak apne cache mein store karke rakhna hai. Example: TTL <code>300</code> ka matlab 5 minutes.</p>
+    </section>
+
+    <!-- SECTION 12 TO 19 -->
+    <section class="card" id="sec-12">
+      <h2>12 to 19. Amazon Route 53 & Hosted Zones <span class="badge badge-practical">Route 53</span></h2>
+      
+      <div class="box box-tip">
+        <strong>Amazon Route 53:</strong> AWS ki highly available aur scalable cloud DNS web service (Port 53 par run hone wali) jo 100% availability SLA ke sath domain management aur global routing provide karti hai.
+      </div>
+
+      <h3>Route 53 Alias Record vs Standard CNAME:</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Standard CNAME Record</th>
+              <th>Route 53 ALIAS Record (AWS Only)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Root Apex Support</strong></td><td>❌ Root domain (<code>example.com</code>) par CNAME nahi banta.</td><td>✅ <strong>Yes!</strong> Root domain ko direct ALB/CloudFront se point kar sakte hain.</td></tr>
+            <tr><td><strong>Query Cost</strong></td><td>DNS query ke charges lagte hain.</td><td><strong>Bilkul FREE</strong> jab AWS resources ko point kiya jaye!</td></tr>
+            <tr><td><strong>Dynamic IP Tracking</strong></td><td>IP change hone par break ho sakta hai.</td><td>AWS resources ke changing IPs ko auto-track karta hai.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 20 & 21 -->
+    <section class="card" id="sec-20">
+      <h2>20 & 21. Route 53 Ke 8 Routing Policies <span class="badge badge-theory">Routing Policies</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Policy</th>
+              <th>Kaise Route Karta Hai? (Hinglish)</th>
+              <th>Best Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>1. Simple</strong></td><td>Single IP address ya multiple IPs mein se random return karta hai.</td><td>Basic single server website.</td></tr>
+            <tr><td><strong>2. Weighted</strong></td><td>Percentage ke hisaab se traffic distribute karta hai (e.g. 80% v1, 20% v2).</td><td>A/B Testing, Canary testing.</td></tr>
+            <tr><td><strong>3. Latency-Based</strong></td><td>User ke sabse paas wale lowest-latency AWS region par traffic bhejta hai.</td><td>Global multi-region web apps.</td></tr>
+            <tr><td><strong>4. Failover</strong></td><td>Primary server crash hone par automatically Secondary Disaster Recovery site par switch karta hai.</td><td>High Availability & Disaster Recovery.</td></tr>
+            <tr><td><strong>5. Geolocation</strong></td><td>User ki country/continent ke basis par traffic route karta hai.</td><td>Content localization, legal compliance.</td></tr>
+            <tr><td><strong>6. Geoproximity</strong></td><td>Geographic distance + bias ke hisaab se traffic shift karta hai.</td><td>Advanced multi-datacenter control.</td></tr>
+            <tr><td><strong>7. IP-Based</strong></td><td>User ke client IP subnet ke basis par routing karta hai.</td><td>B2B performance tuning.</td></tr>
+            <tr><td><strong>8. Multi-Value</strong></td><td>Health-checked 8 IPs tak return karta hai client-side balancing ke liye.</td><td>Client load balancing.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 26 -->
+    <section class="card" id="sec-26">
+      <h2>26. 40+ DNS & Route 53 Interview Questions <span class="badge badge-interview">Interview Q&A</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Short & Technical Answer (Hinglish)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>DNS kya hota hai?</td><td>Domain names ko computer readable IP addresses mein translate karne wala system.</td></tr>
+            <tr><td>2</td><td>A Record kya karta hai?</td><td>Hostname ko IPv4 address se map karta hai.</td></tr>
+            <tr><td>3</td><td>AAAA Record kya karta hai?</td><td>Hostname ko IPv6 address se map karta hai.</td></tr>
+            <tr><td>4</td><td>CNAME Record kya hai?</td><td>Ek domain name ko doosre canonical domain name se link karta hai.</td></tr>
+            <tr><td>5</td><td>Route 53 Alias Record kya hai?</td><td>AWS ka free feature jisse root apex domain (<code>example.com</code>) ko direct ALB ya CloudFront se bind kar sakte hain.</td></tr>
+            <tr><td>6</td><td>Hosted Zone kya hoti hai?</td><td>Route 53 ka container jisme ek domain ke saare DNS records store hote hain.</td></tr>
+            <tr><td>7</td><td>Public vs Private Hosted Zone?</td><td>Public internet par globally resolve hoti hai; Private sirf selected AWS VPCs ke andar resolve hoti hai.</td></tr>
+            <tr><td>8</td><td>TTL kya hota hai?</td><td>Time To Live: DNS resolvers kitne seconds tak record ko cache mein rakhenge.</td></tr>
+            <tr><td>9</td><td>Failover Routing policy kya karti hai?</td><td>Health check fail hone par traffic automatically backup disaster recovery server par bhejti hai.</td></tr>
+            <tr><td>10</td><td>Latency Routing kab use karein?</td><td>Jab aap chahein ki global users ko unke closest AWS region se fastest response mile.</td></tr>
+            <tr><td>11</td><td>DNS kaun sa port use karta hai?</td><td>Port 53 (UDP standard queries ke liye, TCP zone transfers aur large packets ke liye).</td></tr>
+            <tr><td>12</td><td>MX record ka kya role hai?</td><td>Domain ke email servers ki priority aur address specify karna.</td></tr>
+            <tr><td>13</td><td>TXT record kyu zaroori hai?</td><td>Domain ownership verify karne aur SPF/DKIM ke through email spam prevent karne ke liye.</td></tr>
+            <tr><td>14</td><td>DNS Cache flush kaise karte hain?</td><td>Windows par <code>ipconfig /flushdns</code> command chala kar.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 27 -->
+    <section class="card" id="sec-27">
+      <h2>27. Quick Revision Flashcards <span class="badge badge-theory">Summary</span></h2>
+      <div class="grid-2">
+        <div class="box box-tip"><strong>DNS</strong> = Domain names ko IP addresses mein badalne wala system</div>
+        <div class="box box-tip"><strong>A Record</strong> = IPv4 mapping | <strong>AAAA</strong> = IPv6 mapping</div>
+        <div class="box box-tip"><strong>CNAME</strong> = Domain to Domain alias</div>
+        <div class="box box-tip"><strong>Route 53 Alias</strong> = Free Apex mapping to ALB/CloudFront</div>
+        <div class="box box-tip"><strong>TTL</strong> = Caching time limit in seconds</div>
+        <div class="box box-tip"><strong>Failover Routing</strong> = Health-check based automatic DR redirection</div>
+      </div>
+
+      <div class="box box-ok" style="text-align:center; font-size:1.15rem; font-weight:700; margin-top:24px;">
+        End of DNS & Route 53 Notes
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

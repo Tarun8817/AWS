@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS VPC — Complete Beginner to Advanced Guide</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#146eb4; --table-head-text:#ffffff; --table-row-alt:#f4f8fc;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#12314d; --table-head-text:#d7ecff; --table-row-alt:#131a29;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #b34700 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#1a1300; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #1a1300; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #2a1b00; }
+
+  /* Badges */
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-right:8px; vertical-align:middle; }
+  .badge-theory { background:var(--badge-theory); color:#fff; }
+  .badge-practical { background:var(--badge-practical); color:#fff; }
+  .badge-important { background:var(--badge-important); color:#fff; }
+  .badge-interview { background:var(--badge-interview); color:#fff; }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); color:#fff; }
+
+  /* TOC */
+  .toc { background: var(--toc-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
+  .toc h2 { margin-top: 0; border: none; padding: 0; font-size: 1.2rem; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem 1.5rem; list-style: none; padding: 0; margin: 0; font-size: 0.88rem; }
+  .toc-grid a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .toc-grid a:hover { text-decoration: underline; color: var(--brand); }
+  @media (max-width: 680px) { .toc-grid { grid-template-columns: 1fr; } }
+
+  /* Headings & Text */
+  h2 {
+    color: var(--heading); font-size: 1.35rem; margin-top: 2.6rem; margin-bottom: 0.85rem;
+    padding-bottom: 0.45rem; border-bottom: 3px solid var(--accent);
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; scroll-margin-top: 4.5rem;
+  }
+  h3 { color: var(--blue); font-size: 1.1rem; margin-top: 1.6rem; margin-bottom: 0.55rem; }
+  h4 { color: var(--purple); font-size: 1rem; margin-top: 1.1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text); margin: 0.65rem 0; }
+
+  /* Cards & Callouts */
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; }
+  .definition {
+    background: var(--accent-soft); border-left: 5px solid var(--accent); border-radius: 8px;
+    padding: 0.95rem 1.2rem; margin: 0.8rem 0 1.1rem; font-weight: 500; color: var(--text);
+  }
+  .keypoints { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  .concept-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .concept-list li { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .concept-list li strong { color: var(--blue-dark); }
+  .purple-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .purple-list li { background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .purple-list li strong { color: var(--purple); }
+  .green-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .green-list li { background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .green-list li strong { color: var(--green); }
+
+  .steps-block { background: var(--blue-soft); border-radius: 10px; padding: 1.1rem 1.4rem 1.1rem 1.6rem; margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border); }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.3rem; }
+  ol.steps li { padding: 0.35rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--blue-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--blue-dark); }
+
+  .important { background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1.1rem 0; color: var(--text); }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.55rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.4rem; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .tip-line { background: var(--tip-soft); border-left: 5px solid var(--tip); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .tip-line strong { color: var(--tip); }
+  .troubleshoot { background: var(--red-soft); border-left: 5px solid var(--red); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .troubleshoot strong { color: var(--red); }
+
+  /* Code Block with Copy */
+  .code-container { position: relative; margin: 0.8rem 0 1.2rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .code-header { background: var(--code-head); color: #8ea1c9; padding: 5px 12px; font-size: 0.78rem; font-family: monospace; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; }
+  .copy-btn { background: #263859; color: #dce6f2; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer; transition: all .2s; }
+  .copy-btn:hover { background: var(--brand); color: #fff; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem; margin: 0; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; line-height: 1.55; white-space: pre; }
+  code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88em; }
+  p code, li code, td code { background: var(--brand-soft); color: var(--brand); padding: 0.15rem 0.4rem; border-radius: 4px; }
+
+  /* Architecture Diagrams */
+  .diagram { background: var(--code-bg); color: #9fe2bf; border: 1px solid var(--border); padding: 1.1rem 1.3rem; border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; text-align: left; line-height: 1.55; margin: 1rem 0; white-space: pre; overflow-x: auto; }
+  .diagram strong { color: #f9ca24; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.75rem 0.95rem; font-size: 0.88rem; }
+  tbody td { padding: 0.7rem 0.95rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.88rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+
+  /* Interview Q&A Cards */
+  .qa { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.85rem; }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.94rem; display: flex; align-items: baseline; gap: 0.4rem; }
+  .qa .a { color: var(--text); margin: 0; font-size: 0.9rem; line-height: 1.6; }
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  @media (max-width: 768px) { .qa-grid { grid-template-columns: 1fr; } }
+
+  /* Checklists */
+  .checklist { list-style: none; padding: 0; margin: 0.8rem 0; }
+  .checklist li { padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] { transform: scale(1.15); accent-color: var(--ok); cursor: pointer; }
+
+  /* Footer */
+  .footer-end { text-align: center; padding: 3rem 1rem 2rem; font-size: 1.1rem; font-weight: 700; color: var(--muted); border-top: 2px dashed var(--line); margin-top: 3rem; }
+
+  /* Responsive & Back to top */
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.6rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before { content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.2rem; font-size: 0.72rem; text-transform: uppercase; }
+  }
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+  }
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="brand"><span class="logo">🌐</span><span class="name">AWS VPC Guide</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter topics...">
+
+  <h2>1. Introduction & Concepts</h2>
+  <ul>
+    <li><a href="#s1">1. What is AWS VPC?</a></li>
+    <li><a href="#s2">2. Why Do We Need VPC?</a></li>
+    <li><a href="#s3">3. VPC Basic Architecture</a></li>
+    <li><a href="#s4">4. 19 Important Components</a></li>
+    <li><a href="#s5">5. Region & AZs</a></li>
+    <li><a href="#s6">6. CIDR Block Explained</a></li>
+    <li><a href="#s7">7. CIDR Practical Example</a></li>
+    <li><a href="#s8">8. Public vs Private Subnet</a></li>
+  </ul>
+
+  <h2>2. Gateways & Routing</h2>
+  <ul>
+    <li><a href="#s9">9. Internet Gateway (IGW)</a></li>
+    <li><a href="#s10">10. Route Tables</a></li>
+    <li><a href="#s11">11. NAT Gateway</a></li>
+    <li><a href="#s12">12. Security Groups</a></li>
+    <li><a href="#s13">13. Network ACLs (NACL)</a></li>
+    <li><a href="#s14">14. Elastic IP (EIP)</a></li>
+    <li><a href="#s15">15. Default VPC</a></li>
+    <li><a href="#s16">16. Custom vs Default VPC</a></li>
+  </ul>
+
+  <h2>3. Hands-on Practicals</h2>
+  <ul>
+    <li><a href="#s17">17. Practical 1: Create VPC</a></li>
+    <li><a href="#s18">18. Practical 2: Create Subnets</a></li>
+    <li><a href="#s19">19. Practical 3: Create IGW</a></li>
+    <li><a href="#s20">20. Practical 4: Public Route Table</a></li>
+    <li><a href="#s21">21. Practical 5: Make Subnet Public</a></li>
+    <li><a href="#s22">22. Practical 6: Launch Public EC2</a></li>
+    <li><a href="#s23">23. Practical 7: Install Apache</a></li>
+    <li><a href="#s24">24. Practical 8: Create Private Subnet</a></li>
+    <li><a href="#s25">25. Practical 9: Create NAT Gateway</a></li>
+    <li><a href="#s26">26. Practical 10: Complete Setup</a></li>
+  </ul>
+
+  <h2>4. Architectures & Deep Dives</h2>
+  <ul>
+    <li><a href="#s27">27. MERN Stack VPC Design</a></li>
+    <li><a href="#s28">28. Chained Security Groups</a></li>
+    <li><a href="#s29">29. VPC Peering</a></li>
+    <li><a href="#s30">30. VPC Endpoints</a></li>
+    <li><a href="#s31">31. VPC Flow Logs</a></li>
+    <li><a href="#s32">32. VPC DNS Settings</a></li>
+    <li><a href="#s33">33. Network Interface (ENI)</a></li>
+    <li><a href="#s34">34. VPC Routing Scenarios</a></li>
+  </ul>
+
+  <h2>5. Lab & CLI Reference</h2>
+  <ul>
+    <li><a href="#s35">35. Complete End-to-End Lab</a></li>
+    <li><a href="#s36">36. Practical Verification List</a></li>
+    <li><a href="#s37">37. AWS CLI Commands</a></li>
+  </ul>
+
+  <h2>6. Troubleshooting & Best Practices</h2>
+  <ul>
+    <li><a href="#s38">38. 15 Common VPC Errors</a></li>
+    <li><a href="#s39">39. Troubleshooting Flows</a></li>
+    <li><a href="#s40">40. VPC Best Practices</a></li>
+    <li><a href="#s41">41. Defense-in-Depth Security</a></li>
+  </ul>
+
+  <h2>7. Comparisons & Interview Q&A</h2>
+  <ul>
+    <li><a href="#s42">42. VPC vs Subnet</a></li>
+    <li><a href="#s43">43. IGW vs NAT Gateway</a></li>
+    <li><a href="#s44">44. Security Group vs NACL</a></li>
+    <li><a href="#s45">45. 30+ Interview Questions</a></li>
+    <li><a href="#s46">46. Real-World 3-Tier VPC</a></li>
+    <li><a href="#s47">47. Final Quick Revision</a></li>
+    <li><a href="#s48">48. Final VPC Architecture Flow</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle Menu">☰ Menu</button>
+      <strong>AWS VPC Complete Guide</strong>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- TITLE CARD -->
+    <div class="title-card">
+      <h1>AWS VPC</h1>
+      <p class="subtitle">Virtual Private Cloud</p>
+      <p class="desc">"Build and Manage Secure Virtual Networks in AWS" — A complete, beginner-friendly, visual, and practical manual for mastering cloud networking.</p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+      <h2>📑 Quick Navigation Overview</h2>
+      <ul class="toc-grid">
+        <li><a href="#s1">1. What is AWS VPC?</a></li>
+        <li><a href="#s2">2. Why Do We Need a VPC?</a></li>
+        <li><a href="#s3">3. VPC Basic Architecture</a></li>
+        <li><a href="#s4">4. 19 VPC Components</a></li>
+        <li><a href="#s5">5. Region & Availability Zones</a></li>
+        <li><a href="#s6">6. CIDR Block Explained</a></li>
+        <li><a href="#s7">7. CIDR Practical Example</a></li>
+        <li><a href="#s8">8. Public vs Private Subnet</a></li>
+        <li><a href="#s9">9. Internet Gateway (IGW)</a></li>
+        <li><a href="#s10">10. Route Tables</a></li>
+        <li><a href="#s11">11. NAT Gateway</a></li>
+        <li><a href="#s12">12. Security Groups</a></li>
+        <li><a href="#s13">13. Network ACLs (NACL)</a></li>
+        <li><a href="#s14">14. Elastic IP (EIP)</a></li>
+        <li><a href="#s15">15. Default VPC</a></li>
+        <li><a href="#s16">16. Custom vs Default VPC</a></li>
+        <li><a href="#s17">17. Practical 1: Custom VPC</a></li>
+        <li><a href="#s18">18. Practical 2: Subnets</a></li>
+        <li><a href="#s19">19. Practical 3: IGW</a></li>
+        <li><a href="#s20">20. Practical 4: Route Tables</a></li>
+        <li><a href="#s21">21. Practical 5: Public Subnet</a></li>
+        <li><a href="#s22">22. Practical 6: Launch EC2</a></li>
+        <li><a href="#s23">23. Practical 7: Install Apache</a></li>
+        <li><a href="#s24">24. Practical 8: Private Subnet</a></li>
+        <li><a href="#s25">25. Practical 9: NAT Gateway</a></li>
+        <li><a href="#s26">26. Practical 10: Complete Arch</a></li>
+        <li><a href="#s27">27. VPC with MERN Stack</a></li>
+        <li><a href="#s28">28. Security Group Practical</a></li>
+        <li><a href="#s29">29. VPC Peering</a></li>
+        <li><a href="#s30">30. VPC Endpoints</a></li>
+        <li><a href="#s31">31. VPC Flow Logs</a></li>
+        <li><a href="#s32">32. VPC DNS Configuration</a></li>
+        <li><a href="#s33">33. Network Interface (ENI)</a></li>
+        <li><a href="#s34">34. VPC Routing Scenarios</a></li>
+        <li><a href="#s35">35. Complete End-to-End Lab</a></li>
+        <li><a href="#s36">36. Practical Verification Checklist</a></li>
+        <li><a href="#s37">37. AWS CLI Commands</a></li>
+        <li><a href="#s38">38. Common VPC Errors</a></li>
+        <li><a href="#s39">39. Troubleshooting Flows</a></li>
+        <li><a href="#s40">40. VPC Best Practices</a></li>
+        <li><a href="#s41">41. VPC Defense-in-Depth</a></li>
+        <li><a href="#s42">42. VPC vs Subnet</a></li>
+        <li><a href="#s43">43. IGW vs NAT Gateway</a></li>
+        <li><a href="#s44">44. Security Group vs NACL</a></li>
+        <li><a href="#s45">45. 30+ Interview Questions</a></li>
+        <li><a href="#s46">46. Real-World 3-Tier VPC</a></li>
+        <li><a href="#s47">47. Final Quick Revision</a></li>
+        <li><a href="#s48">48. Final VPC Architecture Flow</a></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 1 -->
+    <h2 id="s1"><span class="badge badge-theory">THEORY</span> 1. INTRODUCTION — What is AWS VPC?</h2>
+    <div class="card">
+      <div class="definition">
+        "AWS VPC (Virtual Private Cloud) is a logically isolated virtual network in AWS where we can launch and control AWS resources such as EC2 instances, RDS databases, and load balancers."
+      </div>
+      <p>If you are new to networking, think of AWS as a huge physical building. An <strong>AWS VPC</strong> is like renting your own private, locked office floor inside that building. Only people you invite can enter, and you control all the doors, hallways, and security cameras!</p>
+
+      <h3>Deconstructing the Key Networking Terms</h3>
+      <ul class="concept-list">
+        <li><strong>AWS (Amazon Web Services):</strong> The worldwide cloud platform offering compute, storage, databases, and networking on-demand.</li>
+        <li><strong>Network:</strong> Two or more computers linked together to share files, data, and communication.</li>
+        <li><strong>Virtual Network:</strong> A software-defined network. Instead of physical cables, switches, and routers, AWS creates virtual software versions of them.</li>
+        <li><strong>Private Network:</strong> A protected network space that is not directly accessible to anyone on the open public internet unless you explicitly allow it.</li>
+        <li><strong>VPC (Virtual Private Cloud):</strong> Your own custom, isolated slice of the AWS cloud that belongs strictly to your AWS account.</li>
+      </ul>
+
+      <h3>Why is VPC Required?</h3>
+      <p>When you build real-world software, security and isolation are non-negotiable. VPC gives you 100% control over:</p>
+      <ul class="keypoints">
+        <li><strong>IP Address Ranges:</strong> You pick your own custom private IP scheme (e.g., <code>10.0.0.0/16</code>).</li>
+        <li><strong>Subnet Creation:</strong> You can divide your network into public and private areas.</li>
+        <li><strong>Route Tables:</strong> You define exactly where network packets can travel.</li>
+        <li><strong>Security Firewalls:</strong> Multi-layered security using Security Groups and Network ACLs.</li>
+      </ul>
+
+      <div class="important">
+        <div class="important-title">⚠️ What Would Happen Without Networking Isolation?</div>
+        <ul>
+          <li><strong>Direct Internet Exposure:</strong> Every server, database, cache, and microservice would have a public IP and be exposed to global hackers and botnets.</li>
+          <li><strong>No Internal Security Boundaries:</strong> If one web server got compromised, attackers could effortlessly jump straight to your confidential customer database.</li>
+          <li><strong>IP Address Chaos:</strong> No control over private IP ranges, causing routing conflicts with on-premises datacenters and company VPNs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <h2 id="s2"><span class="badge badge-theory">THEORY</span> 2. WHY DO WE NEED A VPC? (Real-World MERN Stack Example)</h2>
+    <div class="card">
+      <p>Let's understand why VPC is critical using a standard <strong>MERN (MongoDB / MySQL, Express, React, Node.js)</strong> application.</p>
+      
+      <p>In a production application, you have 3 distinct layers:</p>
+      <ol class="steps">
+        <li><strong>Frontend (React / Next.js):</strong> Needs to be reached by users on the public internet.</li>
+        <li><strong>Backend API (Node.js / Express):</strong> Processes business logic and talks to the database.</li>
+        <li><strong>Database (MongoDB / Amazon RDS / PostgreSQL):</strong> Stores highly sensitive user credentials, credit card info, and private customer records.</li>
+      </ol>
+
+      <div class="note">
+        <strong>The Golden Security Rule:</strong> We NEVER want our database server to have a public IP or be reachable from the public internet!
+      </div>
+
+      <h3>How VPC Solves This Problem:</h3>
+      <div class="diagram">
++-------------------------------------------------------------------------+
+|                              PUBLIC INTERNET                            |
+|                            (End-Users Browsing)                         |
++-------------------------------------------------------------------------+
+                                    │
+                                    ▼
++-------------------------------------------------------------------------+
+|                  Application Load Balancer (ALB)                        |
+|                     (Accepts HTTPS on Port 443)                         |
++-------------------------------------------------------------------------+
+                                    │
+                                    ▼
++-------------------------------------------------------------------------+
+|                       PUBLIC SUBNET (Frontend / ALB)                    |
+|       Has route to Internet Gateway (Accessible from Internet)          |
++-------------------------------------------------------------------------+
+                                    │ (Internal Private Traffic Only)
+                                    ▼
++-------------------------------------------------------------------------+
+|                       PRIVATE SUBNET 1 (Backend EC2)                    |
+|      Node.js Express API — No Public IP — Internet can't touch it       |
++-------------------------------------------------------------------------+
+                                    │ (Database Port Only e.g., 5432/27017)
+                                    ▼
++-------------------------------------------------------------------------+
+|                       PRIVATE SUBNET 2 (RDS Database)                   |
+|        Database Server — Completely isolated inside private network     |
++-------------------------------------------------------------------------+</div>
+
+      <h3>Why This Architecture is Extremely Secure:</h3>
+      <ul class="green-list">
+        <li><strong>Zero Direct Database Attacks:</strong> Automated scanners on the internet cannot even ping your database because it has no public IP address and no route to the internet.</li>
+        <li><strong>Controlled Entry Points:</strong> The only doorway into your network is the Load Balancer, which inspects SSL certificates and filters malicious requests.</li>
+        <li><strong>Strict Tier Separation:</strong> Backend servers only accept traffic coming from the Load Balancer, and the Database only accepts traffic coming from the Backend servers.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 3 -->
+    <h2 id="s3"><span class="badge badge-theory">THEORY</span> 3. VPC BASIC ARCHITECTURE</h2>
+    <div class="card">
+      <p>Here is how a standard VPC is structured inside an AWS Region:</p>
+      
+      <div class="diagram">
+┌─────────────────────────────────────────────────────────────────────────┐
+│  AWS REGION (e.g., eu-north-1 / us-east-1)                              │
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐   │
+│   │  VPC: my-custom-vpc (10.0.0.0/16)                               │   │
+│   │                                                                 │   │
+│   │   ┌─────────────────────────────┐ ┌───────────────────────────┐ │   │
+│   │   │  PUBLIC SUBNET (10.0.1.0/24)│ │ PRIVATE SUBNET(10.0.2.0/24│ │   │
+│   │   │                             │ │                           │ │   │
+│   │   │   [ Internet Gateway ]      │ │   [ NAT Gateway Route ]   │ │   │
+│   │   │            ▲                │ │            ▲              │ │   │
+│   │   │            │                │ │            │              │ │   │
+│   │   │      ┌───────────┐          │ │      ┌───────────┐        │ │   │
+│   │   │      │ Public EC2│          │ │      │Private EC2│        │ │   │
+│   │   │      │   / ALB   │          │ │      │ / RDS DB  │        │ │   │
+│   │   │      └───────────┘          │ │      └───────────┘        │ │   │
+│   │   └─────────────────────────────┘ └───────────────────────────┘ │   │
+│   └─────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘</div>
+
+      <h3>Core Components Explained at a Glance:</h3>
+      <ul class="concept-list">
+        <li><strong>AWS Region:</strong> The physical geographic area (e.g., Stockholm <code>eu-north-1</code>, N. Virginia <code>us-east-1</code>) where your VPC lives.</li>
+        <li><strong>VPC (Virtual Private Cloud):</strong> Your private network boundary (e.g., <code>10.0.0.0/16</code>) spanning all Availability Zones in that Region.</li>
+        <li><strong>Public Subnet:</strong> A subdivision of your VPC connected to an <strong>Internet Gateway</strong>. Instances here can be given Public IP addresses to talk to the internet.</li>
+        <li><strong>Private Subnet:</strong> A subdivision with no direct path to the Internet Gateway. Perfect for databases and backend microservices.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 4 -->
+    <h2 id="s4"><span class="badge badge-theory">THEORY</span> 4. 19 IMPORTANT VPC COMPONENTS (Master Reference)</h2>
+    <div class="card">
+      <p>Let's explain every single VPC component in crystal-clear language with practical real-world usage:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">Component</th>
+            <th style="width: 28%;">What it is</th>
+            <th style="width: 25%;">Why it is used</th>
+            <th style="width: 25%;">Practical Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Component"><strong>1. VPC</strong></td>
+            <td data-label="What it is">A logically isolated virtual network dedicated to your AWS account.</td>
+            <td data-label="Why it is used">Provides complete isolation and control over your cloud infrastructure.</td>
+            <td data-label="Practical Example">Hosting your company's entire production web platform inside <code>10.0.0.0/16</code>.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>2. CIDR Block</strong></td>
+            <td data-label="What it is">Classless Inter-Domain Routing — a notation representing a block of IP addresses.</td>
+            <td data-label="Why it is used">Defines how many IP addresses your VPC or subnet can have.</td>
+            <td data-label="Practical Example"><code>10.0.0.0/16</code> gives 65,536 IP addresses for your VPC.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>3. Subnet</strong></td>
+            <td data-label="What it is">A smaller section/sub-range of IP addresses inside a VPC, tied to 1 Availability Zone.</td>
+            <td data-label="Why it is used">Organizes resources into isolated segments based on security and routing needs.</td>
+            <td data-label="Practical Example">Creating <code>10.0.1.0/24</code> in AZ-a for frontend servers.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>4. Public Subnet</strong></td>
+            <td data-label="What it is">A subnet whose route table has a direct route (<code>0.0.0.0/0</code>) to an Internet Gateway.</td>
+            <td data-label="Why it is used">To host public-facing servers like Web Servers, Bastion Hosts, and ALBs.</td>
+            <td data-label="Practical Example">Web server running Apache/Nginx accessible by users worldwide.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>5. Private Subnet</strong></td>
+            <td data-label="What it is">A subnet that has NO direct route to an Internet Gateway.</td>
+            <td data-label="Why it is used">To keep critical systems hidden from public internet attacks.</td>
+            <td data-label="Practical Example">PostgreSQL/MySQL RDS database holding customer records.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>6. Availability Zone (AZ)</strong></td>
+            <td data-label="What it is">One or more physical, isolated data centers with redundant power and networking.</td>
+            <td data-label="Why it is used">Ensures High Availability (HA). If one AZ fails, your app runs in another.</td>
+            <td data-label="Practical Example">Launching EC2 instances across <code>eu-north-1a</code> and <code>eu-north-1b</code>.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>7. Route Table</strong></td>
+            <td data-label="What it is">A set of routing rules that determine where network packets are directed.</td>
+            <td data-label="Why it is used">Acts as the traffic police/GPS of your network.</td>
+            <td data-label="Practical Example">Rule: Send all unknown traffic <code>0.0.0.0/0</code> to Internet Gateway <code>igw-12345</code>.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>8. Internet Gateway (IGW)</strong></td>
+            <td data-label="What it is">A horizontally scaled, redundant AWS gateway that connects your VPC to the internet.</td>
+            <td data-label="Why it is used">Allows two-way communication between VPC public resources and the internet.</td>
+            <td data-label="Practical Example">Users visiting your public e-commerce website via browser.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>9. NAT Gateway</strong></td>
+            <td data-label="What it is">Network Address Translation service placed in a public subnet.</td>
+            <td data-label="Why it is used">Allows private instances to reach the internet (for updates/patches) without allowing internet users in.</td>
+            <td data-label="Practical Example">Private EC2 running <code>sudo dnf update</code> to download security patches.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>10. Security Group (SG)</strong></td>
+            <td data-label="What it is">A virtual stateful firewall attached directly to an EC2 instance / ENI.</td>
+            <td data-label="Why it is used">Controls inbound (incoming) and outbound (outgoing) traffic at instance level.</td>
+            <td data-label="Practical Example">Allow Inbound Port 80 (HTTP) and Port 22 (SSH only from your home IP).</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>11. Network ACL (NACL)</strong></td>
+            <td data-label="What it is">A stateless firewall that operates at the subnet boundary level.</td>
+            <td data-label="Why it is used">Provides a second layer of defense with explicit ALLOW and DENY rules.</td>
+            <td data-label="Practical Example">Explicitly BLOCK/DENY a specific malicious hacker IP address (e.g. <code>198.51.100.4/32</code>).</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>12. Elastic IP (EIP)</strong></td>
+            <td data-label="What it is">A static, persistent public IPv4 address allocated to your AWS account.</td>
+            <td data-label="Why it is used">Maintains a constant public IP even if an instance is stopped and restarted.</td>
+            <td data-label="Practical Example">Required static IP attached to a NAT Gateway for outbound internet NATing.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>13. VPC Peering</strong></td>
+            <td data-label="What it is">A direct private network connection between two VPCs.</td>
+            <td data-label="Why it is used">Enables EC2 instances in different VPCs to communicate using private IPs.</td>
+            <td data-label="Practical Example">Connecting <code>VPC-A (Development)</code> with <code>VPC-B (Shared Services)</code> privately.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>14. VPC Endpoint</strong></td>
+            <td data-label="What it is">Private connection between your VPC and supported AWS services (e.g., S3, DynamoDB).</td>
+            <td data-label="Why it is used">Allows private instances to access S3 directly without needing a NAT Gateway.</td>
+            <td data-label="Practical Example">Private backend EC2 saving backup files to S3 bucket via Gateway Endpoint.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>15. DHCP Option Sets</strong></td>
+            <td data-label="What it is">Dynamic Host Configuration Protocol standards configured for your VPC.</td>
+            <td data-label="Why it is used">Configures domain name servers (DNS), domain name, and NTP servers for instances.</td>
+            <td data-label="Practical Example">Setting custom company DNS domain (e.g., <code>corp.mycompany.internal</code>).</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>16. Network Interface (ENI)</strong></td>
+            <td data-label="What it is">A virtual network card attached to an EC2 instance.</td>
+            <td data-label="Why it is used">Holds private IP, MAC address, public IP association, and Security Groups.</td>
+            <td data-label="Practical Example">Attaching a secondary network card to an EC2 instance for management traffic.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>17. Default VPC</strong></td>
+            <td data-label="What it is">A ready-to-use VPC pre-created by AWS in every region.</td>
+            <td data-label="Why it is used">Allows beginners to immediately launch EC2 instances without configuring networking.</td>
+            <td data-label="Practical Example">Quick testing, running tutorials, or spinning up sandbox instances.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>18. Default Route Table</strong></td>
+            <td data-label="What it is">The automatically generated route table created when a VPC is born.</td>
+            <td data-label="Why it is used">Contains the default local routing rule for intra-VPC communication.</td>
+            <td data-label="Practical Example">Enables all subnets in the VPC to communicate with each other locally.</td>
+          </tr>
+          <tr>
+            <td data-label="Component"><strong>19. Main Route Table</strong></td>
+            <td data-label="What it is">The specific route table that implicitly controls any subnet without an explicit association.</td>
+            <td data-label="Why it is used">Acts as a fallback safety route table for unassigned subnets.</td>
+            <td data-label="Practical Example">Keeping the Main Route Table private as a security best practice.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 5 -->
+    <h2 id="s5"><span class="badge badge-theory">THEORY</span> 5. AWS REGION AND AVAILABILITY ZONE</h2>
+    <div class="card">
+      <p>Understanding the hierarchy of AWS infrastructure is fundamental to building high-availability networks.</p>
+
+      <div class="diagram">
+                        AWS GLOBAL INFRASTRUCTURE
+                                    │
+                                    ▼
+                     AWS REGION (e.g., eu-north-1)
+                   (Geographic Area: Stockholm)
+                                    │
+        ┌───────────────────────────┼───────────────────────────┐
+        ▼                           ▼                           ▼
+   AZ: eu-north-1a             AZ: eu-north-1b             AZ: eu-north-1c
+ (Data Center Cluster 1)     (Data Center Cluster 2)     (Data Center Cluster 3)
+        │                           │                           │
+        ▼                           ▼                           ▼
+ Subnet-1 (10.0.1.0/24)      Subnet-2 (10.0.2.0/24)      Subnet-3 (10.0.3.0/24)</div>
+
+      <h3>Key Concepts Explained:</h3>
+      <ul class="concept-list">
+        <li><strong>AWS Region:</strong> A separate physical geographical location in the world (e.g., <code>eu-north-1</code> Stockholm, <code>us-east-1</code> N. Virginia, <code>ap-south-1</code> Mumbai). A VPC spans an entire Region.</li>
+        <li><strong>Availability Zone (AZ):</strong> One or more isolated data centers within a region, connected with ultra-low latency fiber networking. Each AZ is physically isolated from floods, fires, and power outages affecting other AZs.</li>
+        <li><strong>Subnet Rule:</strong> <em>A Subnet can ONLY live in exactly ONE Availability Zone.</em> A subnet cannot span across multiple AZs!</li>
+      </ul>
+
+      <div class="example">
+        <strong>High Availability (HA) Principle:</strong> If you put two Web Servers in <code>eu-north-1a</code> and one data center catches fire, your site goes down. But if you launch Web Server 1 in <code>eu-north-1a</code> and Web Server 2 in <code>eu-north-1b</code> behind a Load Balancer, your website continues running with <strong>zero downtime</strong>!
+      </div>
+
+      <div class="tip-line">
+        <strong>Note on AZ Names:</strong> Exact AZ names (like <code>eu-north-1a</code>) are mapped dynamically per AWS account by AWS for load distribution. Always check the AZs available in your specific console!
+      </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <h2 id="s6"><span class="badge badge-theory">THEORY</span> 6. CIDR BLOCK (Classless Inter-Domain Routing)</h2>
+    <div class="card">
+      <p>CIDR (pronounced "see-der") is simply a standardized way of writing an IP address followed by a slash (<code>/</code>) and a number to specify a <strong>range of IP addresses</strong>.</p>
+
+      <h3>Let's understand <code>10.0.0.0/16</code> in super simple terms:</h3>
+      <ul class="keypoints">
+        <li>An IPv4 address has <strong>32 bits</strong> in total (4 numbers separated by dots, each 0 to 255).</li>
+        <li>The number after the slash (<code>/16</code>) tells you how many bits are <strong>LOCKED (fixed network prefix)</strong>.</li>
+        <li>The remaining bits (32 - 16 = 16 bits) are <strong>FREE</strong> for your devices to use.</li>
+        <li><code>2^16 = 65,536</code> total IP addresses!</li>
+      </ul>
+
+      <h3>Common CIDR Sizes in AWS VPC:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>CIDR Block</th>
+            <th>Slash Prefix</th>
+            <th>Total Available IPs</th>
+            <th>Typical Use in AWS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>10.0.0.0/16</code></td>
+            <td>/16 (16 locked bits)</td>
+            <td><strong>65,536 IPs</strong></td>
+            <td>Standard recommended size for a whole VPC</td>
+          </tr>
+          <tr>
+            <td><code>10.0.1.0/24</code></td>
+            <td>/24 (24 locked bits)</td>
+            <td><strong>256 IPs</strong> (251 usable by you)</td>
+            <td>Standard size for a Subnet</td>
+          </tr>
+          <tr>
+            <td><code>10.0.2.0/24</code></td>
+            <td>/24 (24 locked bits)</td>
+            <td><strong>256 IPs</strong> (251 usable by you)</td>
+            <td>Standard size for a Subnet</td>
+          </tr>
+          <tr>
+            <td><code>10.0.1.50/32</code></td>
+            <td>/32 (32 locked bits)</td>
+            <td><strong>Exactly 1 IP</strong></td>
+            <td>Specific single host / Security Group rule</td>
+          </tr>
+          <tr>
+            <td><code>0.0.0.0/0</code></td>
+            <td>/0 (0 locked bits)</td>
+            <td><strong>All IPs in the World</strong></td>
+            <td>"The entire Internet" / default route</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="important">
+        <div class="important-title">🚨 The 5 Reserved IPs in Every AWS Subnet!</div>
+        <p>In every AWS subnet you create, AWS automatically reserves <strong>5 IP addresses</strong> for internal routing and management. If you create a <code>/24</code> subnet (256 IPs), you get <code>256 - 5 = 251</code> usable IPs:</p>
+        <ul>
+          <li><code>10.0.1.0</code>: Network address (standard network identifier).</li>
+          <li><code>10.0.1.1</code>: Reserved by AWS for the VPC Local Router.</li>
+          <li><code>10.0.1.2</code>: Reserved by AWS for Amazon DNS server.</li>
+          <li><code>10.0.1.3</code>: Reserved by AWS for future internal use.</li>
+          <li><code>10.0.1.255</code>: Network broadcast address (AWS does not support broadcast).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 7 -->
+    <h2 id="s7"><span class="badge badge-theory">THEORY</span> 7. CIDR PRACTICAL EXAMPLE — Subnet Slicing</h2>
+    <div class="card">
+      <p>How do subnet CIDR blocks fit inside a VPC CIDR block? Think of the VPC CIDR as a large whole pizza, and subnets as individual slices!</p>
+
+      <div class="diagram">
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      VPC CIDR: 10.0.0.0/16                              │
+│                   (Total IPs: 10.0.0.0 to 10.0.255.255)                 │
+│                                                                         │
+│   ┌───────────────────────────────┐   ┌───────────────────────────────┐ │
+│   │ PUBLIC SUBNET                 │   │ PRIVATE SUBNET                │ │
+│   │ CIDR: 10.0.1.0/24             │   │ CIDR: 10.0.2.0/24             │ │
+│   │ Range: 10.0.1.0 - 10.0.1.255  │   │ Range: 10.0.2.0 - 10.0.2.255  │ │
+│   │ (Web Servers, ALB)            │   │ (Databases, Backend APIs)     │ │
+│   └───────────────────────────────┘   └───────────────────────────────┘ │
+│                                                                         │
+│   ┌───────────────────────────────┐   ┌───────────────────────────────┐ │
+│   │ SPARE SUBNET AZ-B             │   │ SPARE SUBNET AZ-B             │ │
+│   │ CIDR: 10.0.3.0/24             │   │ CIDR: 10.0.4.0/24             │ │
+│   │ Range: 10.0.3.0 - 10.0.3.255  │   │ Range: 10.0.4.0 - 10.0.4.255  │ │
+│   └───────────────────────────────┘   └───────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘</div>
+
+      <div class="important">
+        <div class="important-title">CRITICAL RULE: Subnet CIDRs Must NEVER Overlap!</div>
+        <p>If you create a subnet with <code>10.0.1.0/24</code>, you CANNOT create another subnet starting at <code>10.0.1.0</code>. The next subnet must start at <code>10.0.2.0/24</code>, <code>10.0.3.0/24</code>, etc. If IP ranges overlap, the router will not know where to deliver your packets!</p>
+      </div>
+    </div>
+
+    <!-- SECTION 8 -->
+    <h2 id="s8"><span class="badge badge-theory">THEORY</span> 8. PUBLIC VS PRIVATE SUBNET (Comparison)</h2>
+    <div class="card">
+      <p>What really makes a subnet "Public" vs "Private"?</p>
+
+      <div class="note">
+        <strong>⚡ CRITICAL EXAM / INTERVIEW POINT:</strong> Simply typing the word <em>"public"</em> in the Subnet Name tag does <strong>NOT</strong> make it public! A subnet is ONLY public if its associated Route Table has a route to an <strong>Internet Gateway (0.0.0.0/0 → igw-xxxx)</strong>!
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Public Subnet</th>
+            <th>Private Subnet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Internet Route</strong></td>
+            <td>Has route <code>0.0.0.0/0 → Internet Gateway</code></td>
+            <td>NO direct route to Internet Gateway (uses NAT GW or none)</td>
+          </tr>
+          <tr>
+            <td><strong>Direct Inbound from Internet</strong></td>
+            <td>✅ Yes (if Security Group allows)</td>
+            <td>❌ No (Completely blocked from internet)</td>
+          </tr>
+          <tr>
+            <td><strong>Direct Outbound to Internet</strong></td>
+            <td>✅ Yes (via Internet Gateway)</td>
+            <td>⚠️ Only via NAT Gateway (outbound only)</td>
+          </tr>
+          <tr>
+            <td><strong>Public IP Addresses</strong></td>
+            <td>Instances get Public IPv4 or Elastic IP</td>
+            <td>Instances have Private IP only (no public IP)</td>
+          </tr>
+          <tr>
+            <td><strong>Typical Resources</strong></td>
+            <td>ALB, Web Servers, Bastion/Jump Host, NAT Gateway</td>
+            <td>RDS Databases, Redis/Memcached, Backend Node/Java APIs</td>
+          </tr>
+          <tr>
+            <td><strong>Security Exposure</strong></td>
+            <td>Medium/High (front-line defence)</td>
+            <td>Highest security (completely isolated)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 9 -->
+    <h2 id="s9"><span class="badge badge-theory">THEORY</span> 9. INTERNET GATEWAY (IGW)</h2>
+    <div class="card">
+      <div class="definition">
+        An <strong>Internet Gateway (IGW)</strong> is a highly available, VPC-level component that allows communication between your VPC and the outside internet. It performs Network Address Translation (NAT) for instances that have public IPv4 addresses.
+      </div>
+
+      <h3>Traffic Flow through Internet Gateway:</h3>
+      <div class="diagram">
+┌─────────────────┐       ┌─────────────────┐       ┌────────────────────────┐       ┌──────────────┐
+│  User on Web    │ ────► │ Internet Gateway│ ────► │  Public Route Table    │ ────► │  Public EC2  │
+│  (Browser Req)  │ ◄──── │   (my-igw)      │ ◄──── │ (0.0.0.0/0 -> igw-xxx) │ ◄──── │ (Web Server) │
+└─────────────────┘       └─────────────────┘       └────────────────────────┘       └──────────────┘</div>
+
+      <h3>Why Internet Gateway is Amazing:</h3>
+      <ul class="concept-list">
+        <li><strong>Fully Managed & Scalable:</strong> You don't manage any servers; AWS scales bandwidth automatically with zero maintenance.</li>
+        <li><strong>1:1 VPC Attachment:</strong> Exactly <strong>ONE</strong> Internet Gateway can be attached to a VPC at any time.</li>
+        <li><strong>Free of Charge:</strong> There is no hourly fee for the Internet Gateway itself (you only pay standard AWS data transfer rates).</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 10 -->
+    <h2 id="s10"><span class="badge badge-theory">THEORY</span> 10. ROUTE TABLE</h2>
+    <div class="card">
+      <div class="definition">
+        "A route table contains a set of rules (called routes) that determine where network traffic from your subnet or gateway is directed."
+      </div>
+
+      <h3>How Route Table Rules Work:</h3>
+      <p>Every route has two parts: <strong>Destination</strong> (where the packet wants to go) and <strong>Target</strong> (the gateway, interface, or router that will handle it).</p>
+
+      <h4>Example Public Route Table:</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Destination (Where traffic wants to go)</th>
+            <th>Target (Who sends it)</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>10.0.0.0/16</code></td>
+            <td><code>local</code></td>
+            <td><strong>Local Route:</strong> Any traffic meant for another server inside this VPC stays inside the VPC. (Default rule, cannot be deleted).</td>
+          </tr>
+          <tr>
+            <td><code>0.0.0.0/0</code></td>
+            <td><code>igw-0123456789abcdef0</code></td>
+            <td><strong>Default Internet Route:</strong> Any traffic for an IP address outside the VPC is sent straight to the Internet Gateway!</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Example Private Route Table:</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Destination</th>
+            <th>Target</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>10.0.0.0/16</code></td>
+            <td><code>local</code></td>
+            <td>Intra-VPC communication between subnets.</td>
+          </tr>
+          <tr>
+            <td><code>0.0.0.0/0</code></td>
+            <td><code>nat-0123456789abcdef0</code></td>
+            <td>Outbound internet requests (e.g. software downloads) are routed through the NAT Gateway.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 11 -->
+    <h2 id="s11"><span class="badge badge-theory">THEORY</span> 11. NAT GATEWAY (Network Address Translation)</h2>
+    <div class="card">
+      <div class="definition">
+        A <strong>NAT Gateway</strong> allows instances in a <em>Private Subnet</em> to initiate outbound connections to the internet (e.g., to download OS updates, npm packages, security patches) while <strong>preventing</strong> anyone on the internet from initiating inbound connections to those private instances!
+      </div>
+
+      <h3>How Outbound NAT Traffic Flows:</h3>
+      <div class="diagram">
+┌──────────────────┐       ┌──────────────────────┐       ┌────────────────────┐       ┌──────────────┐
+│  Private EC2 /   │ ────► │ Private Route Table  │ ────► │    NAT Gateway     │ ────► │   Internet   │
+│  Backend Server  │       │ (0.0.0.0/0 -> nat-xx)│       │ (In Public Subnet) │       │ (OS Updates) │
+└──────────────────┘       └──────────────────────┘       └────────────────────┘       └──────────────┘
+                                                                     │
+                                                    Attached Elastic IP: 52.18.99.12
+                                                    (Internet only sees this Elastic IP!)</div>
+
+      <h3>4 Mandatory Requirements for a NAT Gateway:</h3>
+      <ol class="steps">
+        <li><strong>Must be placed inside a PUBLIC Subnet:</strong> It needs a direct path to the Internet Gateway.</li>
+        <li><strong>Must have an Elastic IP (Static Public IP) attached:</strong> So it can represent private servers on the internet.</li>
+        <li><strong>Private Route Table must point to it:</strong> Route <code>0.0.0.0/0 → nat-gateway-id</code>.</li>
+        <li><strong>Subnet Association:</strong> The private route table must be associated with the private subnet.</li>
+      </ol>
+
+      <h3>Internet Gateway vs NAT Gateway Comparison:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Internet Gateway (IGW)</th>
+            <th>NAT Gateway</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Communication Direction</strong></td>
+            <td>Two-Way (Inbound & Outbound)</td>
+            <td>One-Way (Outbound only initiated by private instance)</td>
+          </tr>
+          <tr>
+            <td><strong>Target Subnet</strong></td>
+            <td>Attached to VPC, used by Public Subnets</td>
+            <td>Placed in Public Subnet, used by Private Subnets</td>
+          </tr>
+          <tr>
+            <td><strong>Elastic IP Required?</strong></td>
+            <td>No</td>
+            <td><strong>Yes</strong> (Mandatory for public NAT gateway)</td>
+          </tr>
+          <tr>
+            <td><strong>Cost</strong></td>
+            <td><strong>Free</strong> (No hourly charge)</td>
+            <td><strong>Paid (~$0.045/hour + data transfer charges)</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 12 -->
+    <h2 id="s12"><span class="badge badge-theory">THEORY</span> 12. SECURITY GROUP (Virtual Firewall)</h2>
+    <div class="card">
+      <div class="definition">
+        A <strong>Security Group (SG)</strong> is a virtual, stateful firewall that controls inbound and outbound network traffic at the <strong>EC2 instance / ENI level</strong>.
+      </div>
+
+      <div class="diagram">
+                           [ INBOUND RULES ]
+Internet (0.0.0.0/0) ── Port 80 (HTTP)  ──► [ ALLOWED ] ──► ┌────────────────┐
+Internet (0.0.0.0/0) ── Port 443 (HTTPS) ─► [ ALLOWED ] ──► │  EC2 INSTANCE  │
+Hacker IP            ── Port 22 (SSH)   ──► [ BLOCKED ]     │   (Web Server) │
+My Home IP (1.2.3.4) ── Port 22 (SSH)   ──► [ ALLOWED ] ──► └────────────────┘
+                                                                     │
+                           [ OUTBOUND RULES ]                        ▼
+                           All Traffic (0.0.0.0/0) ────────► [ ALLOWED ] (Default)</div>
+
+      <h3>Key Characteristics of Security Groups:</h3>
+      <ul class="concept-list">
+        <li><strong>Stateful:</strong> If you allow inbound traffic on port 80, the return response traffic is automatically allowed out, regardless of outbound rules!</li>
+        <li><strong>Default Deny:</strong> By default, all inbound traffic is blocked until you explicitly add an ALLOW rule. (There are no DENY rules in SGs; anything not allowed is denied).</li>
+        <li><strong>Security Group Referencing:</strong> You can set the source of a Security Group rule to be <em>another Security Group ID</em> (e.g., allow database port 5432 ONLY from <code>sg-backend</code>).</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 13 -->
+    <h2 id="s13"><span class="badge badge-theory">THEORY</span> 13. NETWORK ACL (NACL — Subnet Firewall)</h2>
+    <div class="card">
+      <div class="definition">
+        A <strong>Network Access Control List (NACL)</strong> is an optional layer of security for your VPC that acts as a <strong>stateless firewall at the Subnet boundary level</strong>.
+      </div>
+
+      <h3>Security Group vs Network ACL (Master Comparison):</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Security Group</th>
+            <th>Network ACL (NACL)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Level of Operation</strong></td>
+            <td>Instance / ENI Level</td>
+            <td>Subnet Level</td>
+          </tr>
+          <tr>
+            <td><strong>State</strong></td>
+            <td><strong>Stateful</strong> (Return traffic is automatically allowed)</td>
+            <td><strong>Stateless</strong> (Return traffic MUST be explicitly allowed)</td>
+          </tr>
+          <tr>
+            <td><strong>Rule Types</strong></td>
+            <td>ALLOW rules only</td>
+            <td><strong>ALLOW</strong> and <strong>DENY</strong> rules</td>
+          </tr>
+          <tr>
+            <td><strong>Rule Evaluation</strong></td>
+            <td>All rules evaluated before deciding</td>
+            <td>Processed in numerical order (lowest number first, e.g. 100 before 200)</td>
+          </tr>
+          <tr>
+            <td><strong>Default Custom State</strong></td>
+            <td>Denies all inbound, allows all outbound</td>
+            <td>Custom NACL denies all inbound & outbound by default</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 14 -->
+    <h2 id="s14"><span class="badge badge-theory">THEORY</span> 14. ELASTIC IP (EIP)</h2>
+    <div class="card">
+      <div class="definition">
+        An <strong>Elastic IP address (EIP)</strong> is a static, persistent public IPv4 address allocated to your AWS account that does not change when an instance is stopped and restarted.
+      </div>
+      <ul class="keypoints">
+        <li><strong>Why Used:</strong> Regular EC2 public IPs change whenever you Stop and Start an instance. Elastic IPs stay permanent until you explicitly release them.</li>
+        <li><strong>NAT Gateway Requirement:</strong> Every public NAT Gateway requires exactly one Elastic IP.</li>
+        <li><strong>Cost Note:</strong> AWS charges a small fee (~$0.005/hour) for all public IPv4 addresses, and also if an Elastic IP is allocated but <em>not attached</em> to a running instance. Always release unattached Elastic IPs!</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 15 & 16 -->
+    <h2 id="s15"><span class="badge badge-theory">THEORY</span> 15 & 16. DEFAULT VPC VS CUSTOM VPC</h2>
+    <div class="card">
+      <h3>15. What is a Default VPC?</h3>
+      <p>When you open a brand new AWS account, AWS automatically creates a <strong>Default VPC</strong> in every region with a default CIDR (usually <code>172.31.0.0/16</code>), one default public subnet in every Availability Zone, an Internet Gateway attached, and default route table configured.</p>
+      
+      <h3>16. Comparison: Default VPC vs Custom VPC</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Criteria</th>
+            <th>Default VPC</th>
+            <th>Custom VPC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Creation</strong></td>
+            <td>Pre-created automatically by AWS</td>
+            <td>Created manually by you from scratch</td>
+          </tr>
+          <tr>
+            <td><strong>CIDR Block</strong></td>
+            <td>Fixed (typically <code>172.31.0.0/16</code>)</td>
+            <td>Fully customizable (e.g., <code>10.0.0.0/16</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>Subnets</strong></td>
+            <td>All subnets are Public by default</td>
+            <td>You decide how many public and private subnets</td>
+          </tr>
+          <tr>
+            <td><strong>Internet Gateway</strong></td>
+            <td>Pre-attached</td>
+            <td>Created and attached manually</td>
+          </tr>
+          <tr>
+            <td><strong>Production Suitability</strong></td>
+            <td>❌ Not recommended for production</td>
+            <td>✅ Industry standard for production architectures</td>
+          </tr>
+          <tr>
+            <td><strong>Best For</strong></td>
+            <td>Fast learning, experimentation, quick testing</td>
+            <td>Real-world enterprise & secure applications</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 17 -->
+    <h2 id="s17"><span class="badge badge-practical">PRACTICAL</span> 17. PRACTICAL 1 — Create a Custom VPC</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>Step-by-Step AWS Management Console Guide</h3>
+        <ol class="steps">
+          <li>Log in to the <strong>AWS Management Console</strong>.</li>
+          <li>In the top search bar, type <code>VPC</code> and select the <strong>VPC</strong> service.</li>
+          <li>Ensure you are in your desired Region (e.g., <code>Stockholm eu-north-1</code>, <code>N. Virginia us-east-1</code>).</li>
+          <li>Click the orange <strong>Create VPC</strong> button.</li>
+          <li>Under <em>Resources to create</em>, select <strong>VPC only</strong> (this teaches you each component individually).</li>
+          <li>Fill in the details:
+            <ul>
+              <li><strong>Name tag:</strong> <code>my-custom-vpc</code></li>
+              <li><strong>IPv4 CIDR block:</strong> Select <em>IPv4 CIDR manual input</em></li>
+              <li><strong>IPv4 CIDR:</strong> <code>10.0.0.0/16</code></li>
+              <li><strong>Tenancy:</strong> <em>Default</em></li>
+            </ul>
+          </li>
+          <li>Click <strong>Create VPC</strong> at the bottom.</li>
+          <li><strong>Verification:</strong> Look at your newly created VPC. Note down the generated <strong>VPC ID</strong> (e.g., <code>vpc-0a1b2c3d4e5f6g7h8</code>), State: <code>Available</code>, and CIDR: <code>10.0.0.0/16</code>.</li>
+        </ol>
+      </div>
+
+      <div class="example">
+        <strong>What Happened Behind the Scenes:</strong> AWS carved out an isolated software network containing 65,536 private IP addresses and automatically created a Default Route Table, Network ACL, and DHCP options set for this VPC.
+      </div>
+    </div>
+
+    <!-- SECTION 18 -->
+    <h2 id="s18"><span class="badge badge-practical">PRACTICAL</span> 18. PRACTICAL 2 — Create Public & Private Subnets</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>Creating Subnet 1: Public Subnet</h3>
+        <ol class="steps">
+          <li>In the VPC Dashboard left sidebar, click <strong>Subnets</strong>.</li>
+          <li>Click <strong>Create subnet</strong>.</li>
+          <li><strong>VPC ID:</strong> Select your <code>my-custom-vpc</code>.</li>
+          <li><strong>Subnet name:</strong> <code>public-subnet-1a</code></li>
+          <li><strong>Availability Zone:</strong> Choose the first AZ (e.g., <code>eu-north-1a</code>).</li>
+          <li><strong>IPv4 CIDR block:</strong> <code>10.0.1.0/24</code></li>
+          <li>Click <strong>Create subnet</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="steps-block">
+        <h3>Creating Subnet 2: Private Subnet</h3>
+        <ol class="steps">
+          <li>Click <strong>Create subnet</strong> again.</li>
+          <li><strong>VPC ID:</strong> Select <code>my-custom-vpc</code>.</li>
+          <li><strong>Subnet name:</strong> <code>private-subnet-1a</code></li>
+          <li><strong>Availability Zone:</strong> Choose the same or another AZ (e.g., <code>eu-north-1a</code>).</li>
+          <li><strong>IPv4 CIDR block:</strong> <code>10.0.2.0/24</code></li>
+          <li>Click <strong>Create subnet</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="tip-line">
+        <strong>Why <code>10.0.1.0/24</code> and <code>10.0.2.0/24</code>?</strong> Both fit perfectly inside the VPC's <code>10.0.0.0/16</code> range and do not overlap with each other. Each gives 251 usable IP addresses!
+      </div>
+    </div>
+
+    <!-- SECTION 19 -->
+    <h2 id="s19"><span class="badge badge-practical">PRACTICAL</span> 19. PRACTICAL 3 — Create and Attach Internet Gateway</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>Step-by-Step Console Guide</h3>
+        <ol class="steps">
+          <li>In the VPC left sidebar, click <strong>Internet gateways</strong>.</li>
+          <li>Click <strong>Create internet gateway</strong>.</li>
+          <li><strong>Name tag:</strong> <code>my-igw</code></li>
+          <li>Click <strong>Create internet gateway</strong>. (Notice its state is currently <code>Detached</code>).</li>
+          <li>Click the <strong>Actions</strong> dropdown at the top right, then click <strong>Attach to VPC</strong>.</li>
+          <li>Select your <code>my-custom-vpc</code> from the list.</li>
+          <li>Click <strong>Attach internet gateway</strong>. The state will immediately change to <code>Attached</code> in green.</li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Relationship:</strong> The Internet Gateway is now the official border gateway connecting your VPC to the outside world.
+      </div>
+    </div>
+
+    <!-- SECTION 20 & 21 -->
+    <h2 id="s20"><span class="badge badge-practical">PRACTICAL</span> 20 & 21. PRACTICAL 4 & 5 — Public Route Table & Making Subnet Public</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>Step 1: Create the Public Route Table</h3>
+        <ol class="steps">
+          <li>In the VPC left sidebar, click <strong>Route tables</strong>.</li>
+          <li>Click <strong>Create route table</strong>.</li>
+          <li><strong>Name:</strong> <code>public-route-table</code></li>
+          <li><strong>VPC:</strong> Select <code>my-custom-vpc</code>.</li>
+          <li>Click <strong>Create route table</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="steps-block">
+        <h3>Step 2: Add the Internet Route (0.0.0.0/0 → IGW)</h3>
+        <ol class="steps">
+          <li>Select your <code>public-route-table</code>, click the <strong>Routes</strong> tab at the bottom, and click <strong>Edit routes</strong>.</li>
+          <li>Click <strong>Add route</strong>.</li>
+          <li><strong>Destination:</strong> Enter <code>0.0.0.0/0</code> (this means all outside internet traffic).</li>
+          <li><strong>Target:</strong> Select <strong>Internet Gateway</strong>, then choose your <code>my-igw</code>.</li>
+          <li>Click <strong>Save changes</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="steps-block">
+        <h3>Step 3: Associate with Public Subnet</h3>
+        <ol class="steps">
+          <li>Click the <strong>Subnet associations</strong> tab, and click <strong>Edit subnet associations</strong>.</li>
+          <li>Check the checkbox next to <code>public-subnet-1a</code> (10.0.1.0/24).</li>
+          <li>Click <strong>Save associations</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="steps-block">
+        <h3>Step 4: Enable Auto-Assign Public IPv4 on Public Subnet</h3>
+        <ol class="steps">
+          <li>Go to <strong>Subnets</strong> in the left sidebar.</li>
+          <li>Select <code>public-subnet-1a</code>.</li>
+          <li>Click <strong>Actions</strong> → <strong>Edit subnet settings</strong>.</li>
+          <li>Check <strong>Enable auto-assign public IPv4 address</strong>.</li>
+          <li>Click <strong>Save</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="definition">
+        🎯 <strong>The 4 Golden Ingredients that Make a Subnet Public:</strong>
+        <ol>
+          <li>An Internet Gateway is created and attached to the VPC.</li>
+          <li>A Route Table has rule: <code>0.0.0.0/0 → Internet Gateway</code>.</li>
+          <li>The Subnet is associated with that Route Table.</li>
+          <li>Instances launched in the subnet receive a Public IPv4 address.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 22 -->
+    <h2 id="s22"><span class="badge badge-practical">PRACTICAL</span> 22. PRACTICAL 6 — Launch EC2 Instance in Public Subnet</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>Step-by-Step EC2 Launch Guide</h3>
+        <ol class="steps">
+          <li>Navigate to the <strong>EC2</strong> service console.</li>
+          <li>Click the orange <strong>Launch instance</strong> button.</li>
+          <li><strong>Name:</strong> <code>my-public-web-server</code></li>
+          <li><strong>Application and OS Images (AMI):</strong> Select <strong>Amazon Linux 2023 AMI</strong> (Free Tier eligible).</li>
+          <li><strong>Instance type:</strong> <code>t3.micro</code> (or <code>t2.micro</code>).</li>
+          <li><strong>Key pair:</strong> Select an existing key pair or create a new one (e.g. <code>my-vpc-key.pem</code>).</li>
+          <li>Under <strong>Network settings</strong>, click <strong>Edit</strong>:
+            <ul>
+              <li><strong>VPC:</strong> Select <code>my-custom-vpc</code>.</li>
+              <li><strong>Subnet:</strong> Select <code>public-subnet-1a</code>.</li>
+              <li><strong>Auto-assign public IP:</strong> <em>Enable</em>.</li>
+              <li><strong>Firewall (Security Groups):</strong> Choose <em>Create security group</em>.</li>
+              <li><strong>Security group name:</strong> <code>web-server-sg</code></li>
+              <li><strong>Description:</strong> <code>Allow SSH and HTTP traffic</code></li>
+              <li><strong>Inbound Rule 1 (SSH):</strong> Type: <em>SSH</em>, Port: <code>22</code>, Source: <em>My IP</em> (or Anywhere 0.0.0.0/0 for practice).</li>
+              <li><strong>Inbound Rule 2 (HTTP):</strong> Click <em>Add security group rule</em> → Type: <em>HTTP</em>, Port: <code>80</code>, Source: <em>Anywhere (0.0.0.0/0)</em>.</li>
+            </ul>
+          </li>
+          <li>Click <strong>Launch instance</strong>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 23 -->
+    <h2 id="s23"><span class="badge badge-practical">PRACTICAL</span> 23. PRACTICAL 7 — Install Apache Web Server & Verify</h2>
+    <div class="card">
+      <p>Connect to your EC2 instance via <strong>EC2 Instance Connect</strong> (or SSH via terminal), then execute these commands:</p>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>Bash (Amazon Linux 2023)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+        </div>
+        <pre><code># 1. Update system packages
+sudo dnf update -y
+
+# 2. Install Apache HTTP Server
+sudo dnf install httpd -y
+
+# 3. Start Apache service
+sudo systemctl start httpd
+
+# 4. Enable Apache to start automatically on system boot
+sudo systemctl enable httpd
+
+# 5. Create a sample web page
+echo "&lt;h1 style='color: #2451c4; font-family: sans-serif;'&gt;🚀 Hello from AWS Custom VPC!&lt;/h1&gt;&lt;p&gt;Successfully launched in Public Subnet!&lt;/p&gt;" | sudo tee /var/www/html/index.html</code></pre>
+      </div>
+
+      <h3>Testing Your Website:</h3>
+      <ol class="steps">
+        <li>Go back to the EC2 console, select <code>my-public-web-server</code>, and copy its <strong>Public IPv4 address</strong> (e.g. <code>13.51.85.120</code>).</li>
+        <li>Open a new browser tab and navigate to: <code>http://&lt;YOUR-PUBLIC-IP&gt;</code> (Ensure you use <strong>http://</strong>, not https://).</li>
+        <li>You will see: <strong>🚀 Hello from AWS Custom VPC!</strong></li>
+      </ol>
+
+      <div class="troubleshoot">
+        <strong>⚠️ If the page does not load:</strong>
+        <ol>
+          <li>Check that you typed <code>http://</code> and NOT <code>https://</code> in the browser URL.</li>
+          <li>Check that your Security Group has an Inbound rule for <strong>HTTP Port 80 from 0.0.0.0/0</strong>.</li>
+          <li>Check that your Public Route Table has <code>0.0.0.0/0 → igw-xxxx</code> and is associated with your subnet.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 24 & 25 -->
+    <h2 id="s24"><span class="badge badge-practical">PRACTICAL</span> 24 & 25. PRACTICAL 8 & 9 — Private Subnet & NAT Gateway Setup</h2>
+    <div class="card">
+      <h3>24. Understanding the Private Subnet Routing</h3>
+      <p>Our <code>private-subnet-1a</code> (10.0.2.0/24) must <strong>NEVER</strong> have a route pointing directly to the Internet Gateway. To allow servers inside it (e.g. backend apps or database patching) to reach the internet safely, we launch a <strong>NAT Gateway</strong> in the Public Subnet.</p>
+
+      <div class="steps-block">
+        <h3>25. Step-by-Step: Create NAT Gateway & Private Route Table</h3>
+        <ol class="steps">
+          <li>In VPC console left sidebar, click <strong>NAT gateways</strong>.</li>
+          <li>Click <strong>Create NAT gateway</strong>.</li>
+          <li><strong>Name:</strong> <code>my-nat-gateway</code></li>
+          <li><strong>Subnet:</strong> Select <code>public-subnet-1a</code> (<em>MUST be the public subnet!</em>).</li>
+          <li><strong>Connectivity type:</strong> <em>Public</em>.</li>
+          <li><strong>Elastic IP allocation ID:</strong> Click the <strong>Allocate Elastic IP</strong> button (AWS will generate an EIP automatically).</li>
+          <li>Click <strong>Create NAT gateway</strong>. (Status will show <em>Pending</em> for ~1-2 minutes until <em>Available</em>).</li>
+          <li>Now go to <strong>Route tables</strong> → click <strong>Create route table</strong>:
+            <ul>
+              <li><strong>Name:</strong> <code>private-route-table</code></li>
+              <li><strong>VPC:</strong> Select <code>my-custom-vpc</code></li>
+              <li>Click <em>Create route table</em>.</li>
+            </ul>
+          </li>
+          <li>Select <code>private-route-table</code> → <strong>Routes</strong> tab → <strong>Edit routes</strong>:
+            <ul>
+              <li>Click <em>Add route</em>.</li>
+              <li><strong>Destination:</strong> <code>0.0.0.0/0</code></li>
+              <li><strong>Target:</strong> Select <em>NAT Gateway</em>, then pick your <code>my-nat-gateway</code>.</li>
+              <li>Click <em>Save changes</em>.</li>
+            </ul>
+          </li>
+          <li>Click <strong>Subnet associations</strong> tab → <strong>Edit subnet associations</strong>:
+            <ul>
+              <li>Check <code>private-subnet-1a</code> (10.0.2.0/24).</li>
+              <li>Click <em>Save associations</em>.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <div class="important">
+        <div class="important-title">💰 Cost Warning for Beginners:</div>
+        <p>A NAT Gateway costs approximately <strong>$0.045 per hour (~$32/month)</strong> plus data processing fees. After completing your practice lab, remember to <strong>Delete the NAT Gateway</strong> and <strong>Release the Elastic IP</strong> to avoid unexpected charges!</p>
+      </div>
+    </div>
+
+    <!-- SECTION 26 -->
+    <h2 id="s26"><span class="badge badge-theory">THEORY</span> 26. PRACTICAL 10 — Complete Public + Private Architecture</h2>
+    <div class="card">
+      <p>Here is the complete holistic architecture you have built:</p>
+
+      <div class="diagram">
+                                  PUBLIC INTERNET
+                                         │
+                                         ▼
+                             INTERNET GATEWAY (my-igw)
+                                         │
+                 ┌───────────────────────┴───────────────────────┐
+                 │                                               │
+                 ▼                                               ▼
+   ┌───────────────────────────┐                   ┌───────────────────────────┐
+   │ PUBLIC SUBNET (10.0.1.0)  │                   │ PUBLIC SUBNET (10.0.1.0)  │
+   │                           │                   │                           │
+   │  [ App Load Balancer /    │                   │   [ NAT Gateway ]         │
+   │    Public Web Server ]    │                   │   (With Elastic IP)       │
+   └─────────────┬─────────────┘                   └─────────────┬─────────────┘
+                 │ (Inbound User Requests)                       │ (Outbound Only NAT)
+                 ▼                                               ▼
+   ┌───────────────────────────────────────────────────────────────────────────┐
+   │ PRIVATE SUBNET (10.0.2.0/24)                                              │
+   │                                                                           │
+   │    ┌──────────────────────────┐          ┌───────────────────────────┐    │
+   │    │ Backend Node.js API      │ ───────► │ RDS Database (PostgreSQL) │    │
+   │    │ (No Public IP)           │          │ (Completely Protected)    │    │
+   │    └──────────────────────────┘          └───────────────────────────┘    │
+   └───────────────────────────────────────────────────────────────────────────┘</div>
+    </div>
+
+    <!-- SECTION 27 & 28 -->
+    <h2 id="s27"><span class="badge badge-theory">THEORY</span> 27 & 28. MERN APPLICATION ARCHITECTURE & CHAINED SECURITY GROUPS</h2>
+    <div class="card">
+      <h3>27. Production MERN VPC Setup</h3>
+      <ul class="concept-list">
+        <li><strong>Frontend / CDN:</strong> React build hosted on Amazon S3 + CloudFront (or behind an Application Load Balancer in Public Subnets).</li>
+        <li><strong>Backend API:</strong> Express/Node.js running on EC2 or ECS in Private Subnets.</li>
+        <li><strong>Database:</strong> MongoDB Atlas / Amazon RDS in Private Database Subnet.</li>
+        <li><strong>Static Uploads:</strong> User avatars & PDFs stored in private Amazon S3 bucket.</li>
+      </ul>
+
+      <h3>28. Security Group Chaining (The Most Powerful AWS Security Pattern)</h3>
+      <p>Instead of typing IP addresses into Security Groups, you can reference <strong>Security Group IDs</strong> as the source! This ensures zero unauthorized access even if internal IPs change.</p>
+
+      <div class="diagram">
+[ Internet Users ]
+       │ Port 80/443 (Source: 0.0.0.0/0)
+       ▼
+┌──────────────────────────────────────┐
+│  ALB Security Group: sg-alb          │
+└──────────────────────────────────────┘
+       │ Port 5000 / 3000 (Source: sg-alb)  <-- Only ALB allowed!
+       ▼
+┌──────────────────────────────────────┐
+│  Backend Security Group: sg-backend  │
+└──────────────────────────────────────┘
+       │ Port 27017 / 5432 (Source: sg-backend) <-- Only Backend allowed!
+       ▼
+┌──────────────────────────────────────┐
+│  Database Security Group: sg-db      │
+└──────────────────────────────────────┘</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Security Group</th>
+            <th>Inbound Type & Port</th>
+            <th>Allowed Source</th>
+            <th>Security Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>sg-alb</strong></td>
+            <td>HTTP (80) & HTTPS (443)</td>
+            <td><code>0.0.0.0/0</code> (Anywhere)</td>
+            <td>Public users must be able to load the web application.</td>
+          </tr>
+          <tr>
+            <td><strong>sg-backend</strong></td>
+            <td>Custom TCP (Port 5000)</td>
+            <td><code>sg-alb</code> (ALB SG ID)</td>
+            <td>Nobody can bypass the load balancer to hit the backend directly.</td>
+          </tr>
+          <tr>
+            <td><strong>sg-db</strong></td>
+            <td>PostgreSQL (5432) / Mongo (27017)</td>
+            <td><code>sg-backend</code> (Backend SG ID)</td>
+            <td>Only the backend servers can execute database queries.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 29 & 30 -->
+    <h2 id="s29"><span class="badge badge-theory">THEORY</span> 29 & 30. VPC PEERING & VPC ENDPOINTS</h2>
+    <div class="card">
+      <h3>29. VPC Peering</h3>
+      <div class="definition">
+        <strong>VPC Peering</strong> is a direct network connection between two VPCs that enables you to route traffic between them using private IPv4 or IPv6 addresses.
+      </div>
+
+      <div class="diagram">
+┌─────────────────────────┐                            ┌─────────────────────────┐
+│ VPC A (10.0.0.0/16)     │   ◄─── [ VPC PEERING ] ──► │ VPC B (20.0.0.0/16)     │
+│ Production VPC          │         (Private Fiber)    │ Shared Analytics VPC    │
+└─────────────────────────┘                            └─────────────────────────┘</div>
+
+      <ul class="keypoints">
+        <li><strong>No Overlapping CIDRs:</strong> VPC A (<code>10.0.0.0/16</code>) and VPC B (<code>20.0.0.0/16</code>) must have completely distinct IP ranges.</li>
+        <li><strong>No Transitive Peering:</strong> If A is peered with B, and B is peered with C, A CANNOT talk to C through B. (You must create a direct peering between A and C, or use AWS Transit Gateway).</li>
+        <li><strong>Route Table Updates Required:</strong> You must add a route in VPC A pointing to VPC B's CIDR via the peering connection ID (<code>pcx-xxxx</code>).</li>
+      </ul>
+
+      <h3>30. VPC Endpoints (PrivateLink & Gateway Endpoints)</h3>
+      <p>How do private EC2 instances upload logs to Amazon S3 without going over the public internet or paying for a NAT Gateway?</p>
+      <div class="definition">
+        A <strong>VPC Endpoint</strong> enables private connections between your VPC and supported AWS services without requiring an Internet Gateway, NAT device, VPN, or AWS Direct Connect.
+      </div>
+      <ul class="concept-list">
+        <li><strong>Gateway Endpoints (Free):</strong> Used for <strong>Amazon S3</strong> and <strong>Amazon DynamoDB</strong>. You add a route in your route table targeting the endpoint ID (<code>vpce-xxxx</code>).</li>
+        <li><strong>Interface Endpoints (Paid PrivateLink):</strong> Uses an Elastic Network Interface (ENI) with a private IP inside your subnet to connect to services like SQS, SNS, Secrets Manager, etc.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 31, 32, 33, 34 -->
+    <h2 id="s31"><span class="badge badge-theory">THEORY</span> 31, 32, 33 & 34. FLOW LOGS, DNS, ENI & ROUTING SCENARIOS</h2>
+    <div class="card">
+      <h3>31. VPC Flow Logs</h3>
+      <p>VPC Flow Logs captures metadata about IP traffic going to and from network interfaces in your VPC. Logs can be published to <strong>Amazon CloudWatch Logs</strong> or <strong>Amazon S3</strong>.</p>
+      <div class="example">
+        <strong>Sample Flow Log Entry:</strong><br>
+        <code>2 123456789010 eni-abc123de 198.51.100.15 10.0.1.25 443 51234 6 10 8400 1620000000 1620000060 ACCEPT OK</code><br>
+        <em>Shows timestamp, source IP, destination IP, port 443, and whether it was <strong>ACCEPT</strong> (allowed by SG/NACL) or <strong>REJECT</strong> (blocked).</em>
+      </div>
+
+      <h3>32. VPC DNS Settings</h3>
+      <ul class="keypoints">
+        <li><strong>DNS Resolution (<code>enableDnsSupport</code>):</strong> When enabled, AWS resolves DNS hostnames through the Amazon-provided DNS server (at VPC CIDR + 2, e.g. <code>10.0.0.2</code>).</li>
+        <li><strong>DNS Hostnames (<code>enableDnsHostnames</code>):</strong> When enabled, instances launched in the VPC get public DNS hostnames (e.g. <code>ec2-xx-xx-xx.compute.amazonaws.com</code>).</li>
+      </ul>
+
+      <h3>33. Elastic Network Interface (ENI)</h3>
+      <p>An ENI is a virtual network interface card (NIC) that includes: a primary private IPv4, one or more secondary private IPs, an Elastic IP association, MAC address, and Security Groups.</p>
+
+      <h3>34. VPC Routing Scenarios (What Happens Behind the Scenes?)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Route Looked Up</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>EC2-A (10.0.1.5) talks to EC2-B (10.0.2.20)</strong></td>
+            <td><code>10.0.0.0/16 → local</code></td>
+            <td>Packets travel directly over high-speed AWS internal network.</td>
+          </tr>
+          <tr>
+            <td><strong>Public EC2 downloads from <code>google.com</code></strong></td>
+            <td><code>0.0.0.0/0 → igw-xxxx</code></td>
+            <td>IGW performs 1:1 NAT and sends request out to internet.</td>
+          </tr>
+          <tr>
+            <td><strong>Private EC2 downloads npm package</strong></td>
+            <td><code>0.0.0.0/0 → nat-xxxx</code></td>
+            <td>Request goes to NAT GW in public subnet → IGW → internet.</td>
+          </tr>
+          <tr>
+            <td><strong>Hacker tries to connect to Private EC2 (10.0.2.20)</strong></td>
+            <td>No Inbound Route / No Public IP</td>
+            <td><strong>Traffic is physically unroutable</strong> and dropped immediately!</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 35 -->
+    <h2 id="s35"><span class="badge badge-practical">PRACTICAL</span> 35. COMPLETE END-TO-END VPC PRACTICAL LAB</h2>
+    <div class="card">
+      <div class="definition">
+        <strong>Lab Project:</strong> "Build an Enterprise-Ready Custom AWS VPC with Public and Private Subnets from Scratch"
+      </div>
+
+      <h3>Architecture to Build:</h3>
+      <div class="diagram">
+                        [ AWS REGION: eu-north-1 ]
+                                    │
+                                    ▼
+                         VPC: 10.0.0.0/16 (my-lab-vpc)
+                                    │
+    ┌───────────────────────────────┴───────────────────────────────┐
+    │                                                               │
+    ▼                                                               ▼
+PUBLIC SUBNET (10.0.1.0/24)                     PRIVATE SUBNET (10.0.2.0/24)
+├─ IGW: my-lab-igw                              ├─ Route: 0.0.0.0/0 -> NAT-GW
+├─ Route: 0.0.0.0/0 -> IGW                      ├─ Backend EC2 / RDS Database
+├─ Public Web EC2 (Apache)                      └─ Completely Protected
+└─ NAT Gateway (my-lab-nat + EIP)</div>
+
+      <h3>Complete Step-by-Step Execution Plan:</h3>
+      <ol class="steps">
+        <li><strong>Create Custom VPC:</strong> Name: <code>my-lab-vpc</code>, CIDR: <code>10.0.0.0/16</code>.</li>
+        <li><strong>Create Public Subnet:</strong> Name: <code>lab-public-1a</code>, CIDR: <code>10.0.1.0/24</code>, AZ: <code>eu-north-1a</code>.</li>
+        <li><strong>Create Private Subnet:</strong> Name: <code>lab-private-1a</code>, CIDR: <code>10.0.2.0/24</code>, AZ: <code>eu-north-1a</code>.</li>
+        <li><strong>Create Internet Gateway:</strong> Name: <code>lab-igw</code>, attach to <code>my-lab-vpc</code>.</li>
+        <li><strong>Create Public Route Table:</strong> Name: <code>lab-public-rt</code>, add route <code>0.0.0.0/0 → lab-igw</code>, associate with <code>lab-public-1a</code>.</li>
+        <li><strong>Enable Auto-Assign Public IP:</strong> In Subnet settings for <code>lab-public-1a</code>.</li>
+        <li><strong>Create NAT Gateway:</strong> Name: <code>lab-nat</code>, placed in <code>lab-public-1a</code>, allocate Elastic IP.</li>
+        <li><strong>Create Private Route Table:</strong> Name: <code>lab-private-rt</code>, add route <code>0.0.0.0/0 → lab-nat</code>, associate with <code>lab-private-1a</code>.</li>
+        <li><strong>Launch Public Web EC2:</strong> AMI: Amazon Linux 2023, Subnet: <code>lab-public-1a</code>, SG: Allow HTTP (80) & SSH (22). Install Apache.</li>
+        <li><strong>Test & Verify:</strong> Open <code>http://&lt;EC2-PUBLIC-IP&gt;</code> in browser. Verify web server is live!</li>
+      </ol>
+    </div>
+
+    <!-- SECTION 36 -->
+    <h2 id="s36"><span class="badge badge-practical">PRACTICAL</span> 36. VPC PRACTICAL VERIFICATION CHECKLIST</h2>
+    <div class="card">
+      <p>Use this interactive checklist during your hands-on AWS lab to verify everything is properly configured:</p>
+      
+      <ul class="checklist">
+        <li><label><input type="checkbox"> VPC created with CIDR <code>10.0.0.0/16</code> and state is Available.</label></li>
+        <li><label><input type="checkbox"> Public subnet created with CIDR <code>10.0.1.0/24</code>.</label></li>
+        <li><label><input type="checkbox"> Private subnet created with CIDR <code>10.0.2.0/24</code>.</label></li>
+        <li><label><input type="checkbox"> Internet Gateway created and state is <strong>Attached</strong> to VPC.</label></li>
+        <li><label><input type="checkbox"> Public Route Table has target <code>0.0.0.0/0 → igw-xxxx</code>.</label></li>
+        <li><label><input type="checkbox"> Public Subnet is explicitly associated with Public Route Table.</label></li>
+        <li><label><input type="checkbox"> Public Subnet has "Auto-assign public IPv4" enabled.</label></li>
+        <li><label><input type="checkbox"> NAT Gateway created inside Public Subnet with Elastic IP allocated.</label></li>
+        <li><label><input type="checkbox"> Private Route Table has target <code>0.0.0.0/0 → nat-xxxx</code>.</label></li>
+        <li><label><input type="checkbox"> Private Subnet is explicitly associated with Private Route Table.</label></li>
+        <li><label><input type="checkbox"> Security Group created allowing Inbound HTTP (Port 80) from <code>0.0.0.0/0</code>.</label></li>
+        <li><label><input type="checkbox"> Public EC2 instance launched and received a valid Public IPv4 address.</label></li>
+        <li><label><input type="checkbox"> Apache Web Server installed and <code>systemctl status httpd</code> is Active (running).</label></li>
+        <li><label><input type="checkbox"> Web page successfully opens in browser via <code>http://&lt;PUBLIC-IP&gt;</code>.</label></li>
+        <li><label><input type="checkbox"> Verified Private Subnet has NO direct route to Internet Gateway.</label></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 37 -->
+    <h2 id="s37"><span class="badge badge-practical">PRACTICAL</span> 37. USEFUL AWS CLI COMMANDS</h2>
+    <div class="card">
+      <div class="note">
+        <strong>Region Note:</strong> In the commands below, <code>--region eu-north-1</code> is shown as an example. Replace it with your active AWS region!
+      </div>
+
+      <h3>1. Describe VPCs</h3>
+      <div class="code-container">
+        <div class="code-header"><span>AWS CLI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>aws ec2 describe-vpcs --region eu-north-1 --query "Vpcs[*].{VpcId:VpcId,CIDR:CidrBlock,State:State,Name:Tags[?Key=='Name'].Value|[0]}" --output table</code></pre>
+      </div>
+
+      <h3>2. Describe Subnets</h3>
+      <div class="code-container">
+        <div class="code-header"><span>AWS CLI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>aws ec2 describe-subnets --region eu-north-1 --filters "Name=vpc-id,Values=vpc-0123456789abcdef0" --query "Subnets[*].{SubnetId:SubnetId,CIDR:CidrBlock,AZ:AvailabilityZone,PublicIP:MapPublicIpOnLaunch}" --output table</code></pre>
+      </div>
+
+      <h3>3. Describe Route Tables</h3>
+      <div class="code-container">
+        <div class="code-header"><span>AWS CLI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>aws ec2 describe-route-tables --region eu-north-1 --filters "Name=vpc-id,Values=vpc-0123456789abcdef0" --output json</code></pre>
+      </div>
+
+      <h3>4. Describe Internet Gateways & NAT Gateways</h3>
+      <div class="code-container">
+        <div class="code-header"><span>AWS CLI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># Check attached Internet Gateways
+aws ec2 describe-internet-gateways --region eu-north-1 --filters "Name=attachment.vpc-id,Values=vpc-0123456789abcdef0"
+
+# Check NAT Gateways
+aws ec2 describe-nat-gateways --region eu-north-1 --filter "Name=vpc-id,Values=vpc-0123456789abcdef0"</code></pre>
+      </div>
+
+      <h3>5. Describe Security Groups & Network ACLs</h3>
+      <div class="code-container">
+        <div class="code-header"><span>AWS CLI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># List Security Groups in your VPC
+aws ec2 describe-security-groups --region eu-north-1 --filters "Name=vpc-id,Values=vpc-0123456789abcdef0"
+
+# List Network ACLs in your VPC
+aws ec2 describe-network-acls --region eu-north-1 --filters "Name=vpc-id,Values=vpc-0123456789abcdef0"</code></pre>
+      </div>
+    </div>
+
+    <!-- SECTION 38 & 39 -->
+    <h2 id="s38"><span class="badge badge-troubleshoot">TROUBLESHOOTING</span> 38 & 39. 15 COMMON VPC ERRORS & TROUBLESHOOTING FLOWS</h2>
+    <div class="card">
+      <h3>38. Top 15 VPC Errors, Root Causes & Fixes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">Error / Symptom</th>
+            <th style="width:35%;">Possible Root Cause</th>
+            <th style="width:40%;">How to Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. EC2 has no Internet access</strong></td>
+            <td>Missing <code>0.0.0.0/0 → igw-xxxx</code> route in Route Table.</td>
+            <td>Add default route <code>0.0.0.0/0</code> targeting the Internet Gateway in your Route Table.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Website does not load (Browser timeout)</strong></td>
+            <td>Security Group is blocking Inbound HTTP (Port 80) or HTTPS (443).</td>
+            <td>Add Inbound rule to Security Group: Type: <em>HTTP</em>, Port: <code>80</code>, Source: <code>0.0.0.0/0</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>3. SSH connection timed out</strong></td>
+            <td>Security Group Port 22 not open to your current Public IP address.</td>
+            <td>Update Security Group Inbound rule for SSH (Port 22) with your current public IP (or <code>0.0.0.0/0</code> for testing).</td>
+          </tr>
+          <tr>
+            <td><strong>4. Private EC2 cannot run <code>dnf/apt update</code></strong></td>
+            <td>No NAT Gateway or Private Route Table missing <code>0.0.0.0/0 → nat-xxxx</code>.</td>
+            <td>Create NAT Gateway in Public Subnet and add route <code>0.0.0.0/0 → nat-xxxx</code> to Private Route Table.</td>
+          </tr>
+          <tr>
+            <td><strong>5. NAT Gateway status is Pending or Failing</strong></td>
+            <td>Placed in a Private Subnet or missing Elastic IP.</td>
+            <td>Recreate NAT Gateway inside the <strong>Public Subnet</strong> and attach an Elastic IP.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Subnet using wrong route table</strong></td>
+            <td>Subnet not explicitly associated with custom route table (defaults to Main RT).</td>
+            <td>Go to Route Tables → Subnet Associations → Explicitly associate your subnet.</td>
+          </tr>
+          <tr>
+            <td><strong>7. Internet Gateway not working</strong></td>
+            <td>IGW was created but never <strong>Attached</strong> to the VPC.</td>
+            <td>Select IGW → Actions → Attach to VPC → Select your custom VPC.</td>
+          </tr>
+          <tr>
+            <td><strong>8. EC2 instance has NO Public IP</strong></td>
+            <td>"Auto-assign public IPv4" was disabled in subnet settings during launch.</td>
+            <td>Enable auto-assign on subnet or allocate and associate an Elastic IP to the EC2 instance.</td>
+          </tr>
+          <tr>
+            <td><strong>9. Network ACL blocking traffic</strong></td>
+            <td>Custom NACL denying ephemeral ports (1024-65535) or missing outbound allow.</td>
+            <td>Ensure NACL Inbound and Outbound rules allow necessary ports and Ephemeral Return Ports.</td>
+          </tr>
+          <tr>
+            <td><strong>10. Overlapping CIDR block error</strong></td>
+            <td>Tried to create subnet with overlapping IP range or peer with overlapping VPC.</td>
+            <td>Choose a unique non-overlapping CIDR block (e.g. <code>10.0.2.0/24</code> instead of <code>10.0.1.0/24</code>).</td>
+          </tr>
+          <tr>
+            <td><strong>11. EC2 Instance Connect fails</strong></td>
+            <td>Security Group blocks AWS EC2 Instance Connect service IP ranges for Port 22.</td>
+            <td>Allow port 22 in Security Group from EC2 Instance Connect IP block for your region.</td>
+          </tr>
+          <tr>
+            <td><strong>12. RDS database unreachable from backend</strong></td>
+            <td>RDS Security Group not allowing port (5432/3306) from Backend Security Group.</td>
+            <td>Edit RDS Security Group to allow Inbound DB port from <code>sg-backend</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>13. DNS hostnames not resolving</strong></td>
+            <td><code>enableDnsHostnames</code> or <code>enableDnsSupport</code> is set to false.</td>
+            <td>Edit VPC settings and check both <em>Enable DNS resolution</em> and <em>Enable DNS hostnames</em>.</td>
+          </tr>
+          <tr>
+            <td><strong>14. Out of available IP addresses</strong></td>
+            <td>Subnet CIDR too small (e.g. <code>/28</code> = only 11 usable IPs exhausted).</td>
+            <td>Create a larger subnet (e.g. <code>/24</code>) or attach a secondary CIDR block to the VPC.</td>
+          </tr>
+          <tr>
+            <td><strong>15. VPC Peering traffic not flowing</strong></td>
+            <td>Route tables in both VPCs not updated with peering connection route.</td>
+            <td>Add routes in BOTH VPC route tables pointing to the other VPC's CIDR via <code>pcx-xxxx</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>39. Visual Troubleshooting Flowchart</h3>
+      <div class="diagram">
+                        EC2 CANNOT ACCESS INTERNET OR WEBSITE WON'T LOAD
+                                               │
+                                               ▼
+                              Does EC2 have a Public IPv4 Address?
+                                    ├─── [ NO ] ──► Allocate Elastic IP or enable Auto-Assign
+                                    └─── [ YES ]
+                                               │
+                                               ▼
+                               Is Subnet Route Table Configured?
+                                    ├─── [ NO ] ──► Associate Subnet with Public Route Table
+                                    └─── [ YES ]
+                                               │
+                                               ▼
+                               Does Route Table have 0.0.0.0/0 -> IGW?
+                                    ├─── [ NO ] ──► Add Route: Destination: 0.0.0.0/0, Target: igw-xxxx
+                                    └─── [ YES ]
+                                               │
+                                               ▼
+                               Is Internet Gateway Attached to VPC?
+                                    ├─── [ NO ] ──► Go to IGW -> Actions -> Attach to VPC
+                                    └─── [ YES ]
+                                               │
+                                               ▼
+                               Does Security Group Allow Inbound Port 80 / 22?
+                                    ├─── [ NO ] ──► Add Inbound ALLOW rule in Security Group
+                                    └─── [ YES ]
+                                               │
+                                               ▼
+                               Does Network ACL Allow Inbound & Ephemeral Return Ports?
+                                    ├─── [ NO ] ──► Add Allow rule in Subnet NACL
+                                    └─── [ YES ]
+                                               │
+                                               ▼
+                                 🎉 CONNECTION RESTORED & WORKING!</div>
+    </div>
+
+    <!-- SECTION 40 & 41 -->
+    <h2 id="s40"><span class="badge badge-theory">THEORY</span> 40 & 41. VPC BEST PRACTICES & DEFENSE-IN-DEPTH SECURITY</h2>
+    <div class="card">
+      <h3>40. 14 Essential VPC Best Practices</h3>
+      <ul class="green-list">
+        <li><strong>1. Plan CIDR Sizes Carefully:</strong> Use standard RFC 1918 private ranges (<code>10.0.0.0/16</code> is industry standard).</li>
+        <li><strong>2. Prevent CIDR Overlaps:</strong> Ensure your AWS VPC CIDRs never clash with corporate VPNs or other peered VPCs.</li>
+        <li><strong>3. Multi-AZ by Default:</strong> Always create subnets across at least <strong>2 Availability Zones</strong> for high availability.</li>
+        <li><strong>4. Keep Databases in Private Subnets:</strong> Never give an RDS database a public IP or put it in a public subnet.</li>
+        <li><strong>5. Principle of Least Privilege:</strong> Only open exact ports needed (e.g. 443 for HTTPS, never open 0-65535).</li>
+        <li><strong>6. Restrict SSH Access:</strong> Never allow SSH (Port 22) from <code>0.0.0.0/0</code> in production; use AWS SSM Session Manager instead.</li>
+        <li><strong>7. Chain Security Groups:</strong> Reference Security Group IDs rather than hardcoded IP addresses.</li>
+        <li><strong>8. Use VPC Endpoints for S3 & DynamoDB:</strong> Keeps AWS service traffic on private AWS backbone and saves NAT Gateway costs.</li>
+        <li><strong>9. Monitor with VPC Flow Logs:</strong> Enable flow logs for compliance, incident investigation, and network troubleshooting.</li>
+        <li><strong>10. Keep Main Route Table Private:</strong> Leave the default main route table strictly private so new subnets are never accidentally made public.</li>
+        <li><strong>11. Cost Governance:</strong> Delete unused NAT Gateways and release unattached Elastic IPs promptly.</li>
+        <li><strong>12. Use Descriptive Tags:</strong> Tag every resource with <code>Environment=Production</code>, <code>Project=MERN</code>, <code>Owner=TeamDevOps</code>.</li>
+        <li><strong>13. Avoid Unnecessary Public IPs:</strong> Only public-facing Load Balancers and NAT Gateways need public IPs.</li>
+        <li><strong>14. Document Architecture:</strong> Maintain clear architectural network topology diagrams for your team.</li>
+      </ul>
+
+      <h3>41. Defense-in-Depth Network Security Architecture</h3>
+      <div class="diagram">
+[ LAYER 1: AWS Shield / WAF ] ──► Blocks DDoS attacks, SQL injection & XSS
+              │
+              ▼
+[ LAYER 2: Internet Gateway / ALB ] ──► Terminates SSL/TLS certificates securely
+              │
+              ▼
+[ LAYER 3: Subnet Network ACLs ] ──► Stateless subnet boundary filtering (IP blocking)
+              │
+              ▼
+[ LAYER 4: Security Groups ] ──► Stateful instance-level virtual firewall (Least privilege)
+              │
+              ▼
+[ LAYER 5: Private Subnet Isolation ] ──► Physical routing barrier (No public internet entry)
+              │
+              ▼
+[ LAYER 6: AWS KMS Encryption ] ──► Encrypts data at rest (EBS, RDS) and in transit</div>
+    </div>
+
+    <!-- SECTION 42, 43, 44 -->
+    <h2 id="s42"><span class="badge badge-theory">THEORY</span> 42, 43 & 44. CORE COMPONENT COMPARISONS</h2>
+    <div class="card">
+      <h3>42. VPC vs Subnet</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th>VPC (Virtual Private Cloud)</th>
+            <th>Subnet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Scope</strong></td>
+            <td>Spans across an entire AWS Region</td>
+            <td>Confined to exactly ONE Availability Zone</td>
+          </tr>
+          <tr>
+            <td><strong>CIDR Size</strong></td>
+            <td>Large range (e.g. <code>10.0.0.0/16</code> = 65,536 IPs)</td>
+            <td>Sub-slice of VPC CIDR (e.g. <code>10.0.1.0/24</code> = 256 IPs)</td>
+          </tr>
+          <tr>
+            <td><strong>Function</strong></td>
+            <td>Defines the outer network boundary</td>
+            <td>Segments resources into functional tiers (Web, App, DB)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>43. Internet Gateway vs NAT Gateway</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th>Internet Gateway (IGW)</th>
+            <th>NAT Gateway</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Purpose</strong></td>
+            <td>Provides public internet entry & exit</td>
+            <td>Provides outbound-only internet for private servers</td>
+          </tr>
+          <tr>
+            <td><strong>Inbound Initiated Connections</strong></td>
+            <td>Allowed (if SG permits)</td>
+            <td><strong>Strictly Blocked</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Location</strong></td>
+            <td>Attached at VPC level</td>
+            <td>Deployed inside a Public Subnet</td>
+          </tr>
+          <tr>
+            <td><strong>Elastic IP</strong></td>
+            <td>Not needed</td>
+            <td>Required</td>
+          </tr>
+          <tr>
+            <td><strong>Pricing</strong></td>
+            <td>Free</td>
+            <td>Hourly fee + data processing fees</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>44. Security Group vs Network ACL (NACL)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Security Group</th>
+            <th>Network ACL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Placement</strong></td>
+            <td>Virtual NIC / Instance level</td>
+            <td>Subnet boundary level</td>
+          </tr>
+          <tr>
+            <td><strong>State Nature</strong></td>
+            <td><strong>Stateful:</strong> Return traffic automatically allowed</td>
+            <td><strong>Stateless:</strong> Return traffic must be explicitly allowed</td>
+          </tr>
+          <tr>
+            <td><strong>Supported Rules</strong></td>
+            <td>ALLOW rules only</td>
+            <td>ALLOW and DENY rules</td>
+          </tr>
+          <tr>
+            <td><strong>Rule Evaluation</strong></td>
+            <td>All rules evaluated together</td>
+            <td>Evaluated in order by rule number (100, 200, 300)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 45 -->
+    <h2 id="s45"><span class="badge badge-interview">INTERVIEW</span> 45. TOP 30+ AWS VPC INTERVIEW QUESTIONS & ANSWERS</h2>
+    <div class="card">
+      <div class="qa-grid">
+        <div class="qa">
+          <div class="q">Q1. What is an AWS VPC?</div>
+          <p class="a">A logically isolated virtual network dedicated to your AWS account where you launch and manage AWS resources with full control over IP addressing, subnets, and routing.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q2. Why do we need a custom VPC?</div>
+          <p class="a">To establish isolated, secure multi-tier architectures (e.g. keeping databases completely private from the public internet) and customize IP ranges to avoid enterprise routing conflicts.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q3. What is CIDR?</div>
+          <p class="a">Classless Inter-Domain Routing. A notation (e.g. <code>10.0.0.0/16</code>) specifying an IP address and its network mask prefix to define an IP address range.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q4. What is a Subnet?</div>
+          <p class="a">A sub-range of IP addresses inside a VPC that resides inside a single Availability Zone, used to group resources by routing and security needs.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q5. How many IP addresses does AWS reserve in every subnet?</div>
+          <p class="a">Exactly <strong>5 IP addresses</strong> (the first 4 and the last 1: network address, router, DNS, future use, and broadcast).</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q6. What makes a Subnet "Public"?</div>
+          <p class="a">Its associated Route Table has a default route pointing to an Internet Gateway (<code>0.0.0.0/0 → igw-xxxx</code>) and instances have public IPs. Naming it "public" alone does not make it public.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q7. What is a Private Subnet?</div>
+          <p class="a">A subnet whose route table has NO route to an Internet Gateway, keeping resources completely unreachable from the public internet.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q8. What is an Internet Gateway (IGW)?</div>
+          <p class="a">A managed, redundant VPC-level component that enables two-way communication between instances in public subnets and the internet.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q9. How many Internet Gateways can you attach to a single VPC?</div>
+          <p class="a">Exactly <strong>ONE</strong> Internet Gateway per VPC at any time.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q10. What is a NAT Gateway?</div>
+          <p class="a">A managed service in a public subnet allowing private instances to initiate outbound connections to the internet without allowing inbound internet connections in.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q11. Where must a NAT Gateway be deployed?</div>
+          <p class="a">In a <strong>Public Subnet</strong>, because it requires direct internet routing via an Internet Gateway and an Elastic IP.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q12. What is a Route Table?</div>
+          <p class="a">A set of destination-target rules that directs network traffic originating from subnets inside a VPC.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q13. What is a Security Group?</div>
+          <p class="a">A stateful virtual firewall operating at the EC2 instance / ENI level that filters inbound and outbound traffic.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q14. What does "Stateful Firewall" mean?</div>
+          <p class="a">If inbound traffic is allowed, the corresponding outbound response traffic is automatically allowed out, regardless of outbound rules.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q15. What is a Network ACL (NACL)?</div>
+          <p class="a">A stateless firewall operating at the subnet boundary level that supports both ALLOW and DENY rules evaluated in numerical order.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q16. What is the difference between Security Group and NACL?</div>
+          <p class="a">Security Groups operate at the instance level (stateful, allow rules only). NACLs operate at the subnet level (stateless, allow and deny rules).</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q17. What is an Elastic IP (EIP)?</div>
+          <p class="a">A persistent, static public IPv4 address that does not change when an instance stops and starts.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q18. What is VPC Peering?</div>
+          <p class="a">A 1-to-1 private network connection between two VPCs allowing them to communicate via private IPs without traversing the public internet.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q19. Is VPC Peering transitive?</div>
+          <p class="a">No. If VPC A is peered with B, and B with C, A cannot reach C through B without a direct peering connection or AWS Transit Gateway.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q20. What is a VPC Endpoint?</div>
+          <p class="a">A private connection enabling EC2 instances in private subnets to talk to AWS services (like S3 and DynamoDB) without using a NAT Gateway or public internet.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q21. What are the two types of VPC Endpoints?</div>
+          <p class="a">Gateway Endpoints (free, for S3 & DynamoDB) and Interface Endpoints (powered by AWS PrivateLink with an ENI).</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q22. What is VPC Flow Logs?</div>
+          <p class="a">A feature that captures IP network traffic flow data (source, destination, port, accept/reject status) for network monitoring and security audits.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q23. What is an Elastic Network Interface (ENI)?</div>
+          <p class="a">A virtual network card in a VPC that contains private IPs, MAC addresses, and attached Security Groups.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q24. Why should databases (RDS) be in private subnets?</div>
+          <p class="a">To prevent direct internet exposure, brute force attacks, and data breaches. Databases should only be reachable by authorized backend application servers.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q25. Can a Subnet span across multiple Availability Zones?</div>
+          <p class="a">No. A subnet is strictly confined to exactly ONE Availability Zone.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q26. What is the Main Route Table?</div>
+          <p class="a">The default route table automatically assigned to any subnet that is not explicitly associated with another custom route table.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q27. How does an EC2 instance in a private subnet download updates?</div>
+          <p class="a">Via a NAT Gateway located in a Public Subnet with a route <code>0.0.0.0/0 → nat-gateway-id</code> in the private route table.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q28. What is Security Group Referencing?</div>
+          <p class="a">Setting the source of a Security Group rule to another Security Group's ID (e.g. <code>sg-alb</code>), allowing traffic only from instances carrying that specific security group.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q29. How do you troubleshoot an EC2 instance that cannot connect to the internet?</div>
+          <p class="a">Check: 1) Public IP exists, 2) Route table has <code>0.0.0.0/0 → IGW</code>, 3) IGW is attached to VPC, 4) Security Group allows outbound traffic, 5) NACL allows outbound & ephemeral return traffic.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q30. Explain a 3-Tier VPC Architecture.</div>
+          <p class="a">Tier 1: Public Subnet with ALB for internet users; Tier 2: Private Subnet with App/Backend EC2s; Tier 3: Isolated Private Subnet for RDS databases.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 46 -->
+    <h2 id="s46"><span class="badge badge-theory">THEORY</span> 46. REAL-WORLD 3-TIER ENTERPRISE ARCHITECTURE</h2>
+    <div class="card">
+      <p>The 3-tier architecture is the global industry standard for enterprise cloud deployments, separating presentation, logic, and data layers across multiple Availability Zones.</p>
+
+      <div class="diagram">
+                                  PUBLIC INTERNET
+                                         │
+                                         ▼
+                     Route 53 (DNS) ──► Application Load Balancer
+                                         │
+ ════════════════════════════════════════╪════════════════════════════════════════
+ [ TIER 1: PUBLIC SUBNETS ]              │
+   AZ 1 (10.0.1.0/24)                    │             AZ 2 (10.0.4.0/24)
+   ┌──────────────────────────┐          │             ┌──────────────────────────┐
+   │ ALB Listener + NAT-GW 1  │ ◄────────┴───────────► │ ALB Listener + NAT-GW 2  │
+   └────────────┬─────────────┘                        └────────────┬─────────────┘
+ ═══════════════╪═══════════════════════════════════════════════════╪═════════════
+ [ TIER 2: PRIVATE APP SUBNETS ]         │                          │
+   AZ 1 (10.0.2.0/24)                    │             AZ 2 (10.0.5.0/24)
+   ┌──────────────────────────┐          │             ┌──────────────────────────┐
+   │ Backend Node.js / EC2 #1 │ ◄────────┴───────────► │ Backend Node.js / EC2 #2 │
+   └────────────┬─────────────┘                        └────────────┬─────────────┘
+ ═══════════════╪═══════════════════════════════════════════════════╪═════════════
+ [ TIER 3: PRIVATE DATABASE SUBNETS ]    │
+   AZ 1 (10.0.3.0/24)                    ▼             AZ 2 (10.0.6.0/24)
+   ┌──────────────────────────┐   Sync Replication     ┌──────────────────────────┐
+   │ Amazon RDS (Primary DB)  │ ─────────────────────► │ Amazon RDS (Standby DB)  │
+   └──────────────────────────┘                        └──────────────────────────┘</div>
+
+      <h3>Why This Architecture Wins:</h3>
+      <ul class="green-list">
+        <li><strong>Fault Tolerance & High Availability:</strong> If AZ 1 suffers an outage, the ALB and database automatically failover to AZ 2 with zero data loss.</li>
+        <li><strong>Security Isolation:</strong> Databases and application servers have zero public internet attack surface.</li>
+        <li><strong>Independent Scaling:</strong> You can autoscale your Backend EC2 instances without altering database or load balancer configurations.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 47 -->
+    <h2 id="s47"><span class="badge badge-important">REVISION</span> 47. FINAL QUICK REVISION CHEATSHEET</h2>
+    <div class="card">
+      <ul class="concept-list">
+        <li><strong>VPC =</strong> Your logically isolated private cloud network in an AWS region.</li>
+        <li><strong>CIDR =</strong> IP address range definition (e.g. <code>10.0.0.0/16</code> = 65,536 IPs).</li>
+        <li><strong>Subnet =</strong> Smaller IP network slice locked to exactly one Availability Zone.</li>
+        <li><strong>Public Subnet =</strong> Subnet with an explicit route <code>0.0.0.0/0 → Internet Gateway</code>.</li>
+        <li><strong>Private Subnet =</strong> Subnet with NO direct path to the Internet Gateway.</li>
+        <li><strong>Internet Gateway =</strong> Connects public instances to the internet (2-way traffic).</li>
+        <li><strong>NAT Gateway =</strong> Allows private instances outbound internet access without inbound access.</li>
+        <li><strong>Route Table =</strong> The traffic GPS containing destination-to-target routing rules.</li>
+        <li><strong>Security Group =</strong> Stateful virtual firewall at the instance/ENI level.</li>
+        <li><strong>Network ACL =</strong> Stateless firewall with allow/deny rules at the subnet boundary.</li>
+        <li><strong>Elastic IP =</strong> Fixed, static public IPv4 address that never changes.</li>
+        <li><strong>VPC Peering =</strong> Direct private fiber connection linking two distinct VPCs.</li>
+        <li><strong>VPC Endpoint =</strong> Private pathway to S3/DynamoDB without using internet or NAT.</li>
+        <li><strong>VPC Flow Logs =</strong> Network traffic telemetry used for security audits and diagnostics.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 48 -->
+    <h2 id="s48"><span class="badge badge-theory">THEORY</span> 48. FINAL AWS VPC COMPLETE FLOW SUMMARY</h2>
+    <div class="card">
+      <div class="diagram">
+                                  AWS REGION (e.g., eu-north-1)
+                                                │
+                                                ▼
+                                  CUSTOM VPC (10.0.0.0/16)
+                                                │
+                ┌───────────────────────────────┴───────────────────────────────┐
+                │                                                               │
+                ▼                                                               ▼
+  ┌───────────────────────────┐                                   ┌───────────────────────────┐
+  │   PUBLIC SUBNET (AZ-a)    │                                   │   PRIVATE SUBNET (AZ-a)   │
+  │      (10.0.1.0/24)        │                                   │      (10.0.2.0/24)        │
+  │                           │                                   │                           │
+  │   • Public Web Server     │                                   │   • Backend API Server    │
+  │   • Load Balancer (ALB)   │                                   │   • RDS Database          │
+  │   • NAT Gateway + EIP     │                                   │   • Elasticache Cache     │
+  └─────────────┬─────────────┘                                   └─────────────┬─────────────┘
+                │                                                               │
+                ▼                                                               ▼
+  ┌───────────────────────────┐                                   ┌───────────────────────────┐
+  │    Public Route Table     │                                   │    Private Route Table    │
+  │ 10.0.0.0/16  -> local     │                                   │ 10.0.0.0/16  -> local     │
+  │ 0.0.0.0/0    -> my-igw    │                                   │ 0.0.0.0/0    -> my-nat    │
+  └─────────────┬─────────────┘                                   └─────────────┬─────────────┘
+                │                                                               │
+                ▼                                                               ▼
+  ┌───────────────────────────┐                                   ┌───────────────────────────┐
+  │  Internet Gateway (IGW)   │                                   │    NAT Gateway (Public)   │
+  └─────────────┬─────────────┘                                   └─────────────┬─────────────┘
+                │                                                               │
+                ▼                                                               ▼
+  [ Public Internet Traffic ]                                     [ Outbound Updates / S3 ]</div>
+
+      <div class="definition">
+        Congratulations! You now understand everything from fundamental IP addressing and routing to multi-tier production architectures, security group chaining, and troubleshooting in AWS Virtual Private Cloud.
+      </div>
+    </div>
+
+    <div class="footer-end">
+      End of AWS VPC Notes
+    </div>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

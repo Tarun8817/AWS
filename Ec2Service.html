@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS EC2 — Complete Study Notes</title>
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --card-bg: #ffffff;
+    --text: #1e2430;
+    --text-soft: #4b5567;
+    --heading: #0f172a;
+    --accent: #ff9900;
+    --accent-dark: #cc7a00;
+    --accent-soft: #fff4e0;
+    --blue: #146eb4;
+    --blue-dark: #0d4f82;
+    --blue-soft: #e8f2fb;
+    --green: #1a7f5a;
+    --green-soft: #e7f7f0;
+    --purple: #6b46c1;
+    --purple-soft: #f1ebfb;
+    --red: #c0392b;
+    --red-soft: #fdecea;
+    --border: #e3e8ef;
+    --code-bg: #0f172a;
+    --code-text: #e2e8f0;
+    --important-bg: #fff8e6;
+    --important-border: #e6a700;
+    --note-bg: #fff1f0;
+    --note-border: #e64545;
+    --table-head-bg: #146eb4;
+    --table-head-text: #ffffff;
+    --table-row-alt: #f4f8fc;
+    --toc-bg: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+      --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+      --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+      --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+      --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+      --code-bg: #05070d; --code-text: #d7ecff;
+      --important-bg: #2a2210; --important-border: #ffcc4d;
+      --note-bg: #2a1414; --note-border: #ff6b6b;
+      --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+      --toc-bg: #161d2b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+    --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+    --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+    --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+    --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+    --code-bg: #05070d; --code-text: #d7ecff;
+    --important-bg: #2a2210; --important-border: #ffcc4d;
+    --note-bg: #2a1414; --note-border: #ff6b6b;
+    --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+    --toc-bg: #161d2b;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65;
+  }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.25);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.1rem; letter-spacing: -0.02em; }
+  .title-card p { margin: 0; font-size: 1.05rem; opacity: 0.85; }
+
+  .toc {
+    background: var(--toc-bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.2rem 1.6rem; margin-bottom: 2rem;
+  }
+  .toc h2 { margin-top: 0; border: none; padding: 0; }
+  .toc-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 1.5rem;
+    list-style: none; padding: 0; margin: 0; font-size: 0.92rem;
+  }
+  .toc-grid a { color: var(--blue); text-decoration: none; }
+  .toc-grid a:hover { text-decoration: underline; }
+  @media (max-width: 640px) { .toc-grid { grid-template-columns: 1fr; } }
+
+  h2 {
+    color: var(--heading); font-size: 1.4rem; margin-top: 2.6rem; margin-bottom: 0.9rem;
+    padding-bottom: 0.4rem; border-bottom: 3px solid var(--accent);
+    display: flex; align-items: center; gap: 0.55rem; scroll-margin-top: 1rem;
+  }
+  h3 { color: var(--blue); font-size: 1.12rem; margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  h4 { color: var(--purple); font-size: 1rem; margin-top: 1.1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text-soft); }
+
+  .card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.2rem 1.5rem; margin-bottom: 1.1rem;
+  }
+  .badge {
+    display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.6rem;
+  }
+  .badge-theory { background: var(--blue-soft); color: var(--blue-dark); }
+  .badge-practical { background: var(--accent-soft); color: var(--accent-dark); }
+
+  .keypoints { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .keypoints li {
+    background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px;
+    padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text);
+  }
+  .keypoints li strong { color: var(--accent-dark); }
+
+  .concept-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .concept-list li {
+    background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px;
+    padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text);
+  }
+  .concept-list li strong { color: var(--blue-dark); }
+
+  .usecase-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .usecase-list li {
+    background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px;
+    padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text);
+  }
+  .usecase-list li strong { color: var(--purple); }
+
+  .steps-block {
+    background: var(--accent-soft); border-radius: 10px; padding: 1.1rem 1.3rem 1.1rem 1.6rem;
+    margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border);
+  }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.4rem; }
+  ol.steps li { padding: 0.32rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--accent-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--accent-dark); }
+
+  pre {
+    background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem;
+    border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9rem; margin: 0.6rem 0 1rem;
+  }
+  code {
+    font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88em;
+  }
+  p code, li code, td code {
+    background: var(--code-bg); color: var(--code-text); padding: 0.1rem 0.35rem; border-radius: 4px;
+  }
+  .diagram {
+    background: var(--code-bg); color: var(--code-text); padding: 1rem 1.3rem;
+    border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.92rem;
+    text-align: center; line-height: 1.9; margin: 1rem 0; white-space: pre;
+  }
+  .cmd-explain {
+    margin: 0 0 1.2rem 0; padding-left: 0.2rem;
+  }
+  .cmd-explain code {
+    display: inline-block; margin-bottom: 0.2rem;
+  }
+  .cmd-table td:first-child code { white-space: nowrap; }
+
+  table {
+    width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; border-radius: 10px;
+    overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.7rem 1rem; font-size: 0.9rem; }
+  tbody td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.9rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+
+  .important {
+    background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px;
+    padding: 1rem 1.3rem; margin: 1.2rem 0; color: var(--text);
+  }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.45rem; }
+
+  .note {
+    background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px;
+    padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text);
+  }
+  .note strong { color: var(--note-border); }
+
+  .example {
+    background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px;
+    padding: 1rem 1.3rem; margin: 1rem 0; color: var(--text);
+  }
+  .example strong { color: var(--green); }
+
+  .troubleshoot {
+    background: var(--red-soft); border-left: 5px solid var(--red); border-radius: 8px;
+    padding: 1rem 1.3rem; margin: 1rem 0; color: var(--text);
+  }
+  .troubleshoot h4 { margin-top: 0; color: var(--red); }
+  .troubleshoot ul { margin: 0.3rem 0; padding-left: 1.2rem; }
+
+  .task-list {
+    columns: 2; column-gap: 2rem; list-style: none; padding: 0; margin: 0;
+  }
+  .task-list li {
+    break-inside: avoid; background: var(--card-bg); border: 1px solid var(--border);
+    border-left: 4px solid var(--blue); border-radius: 8px; padding: 0.5rem 0.8rem;
+    margin-bottom: 0.6rem; font-size: 0.92rem; display: flex; gap: 0.5rem; align-items: flex-start;
+  }
+  .task-list .num { color: var(--blue); font-weight: 700; min-width: 1.4rem; }
+  @media (max-width: 640px) { .task-list { columns: 1; } }
+
+  .qa {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.9rem 1.2rem; margin-bottom: 0.8rem;
+  }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.35rem; }
+  .qa .a { color: var(--text-soft); margin: 0; }
+
+  hr.divider { border: none; border-top: 2px dashed var(--border); margin: 2.6rem 0; }
+  .section-icon { font-size: 1.2rem; }
+
+  /* Sidebar styles */
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--code-bg); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 80px;
+    transition: transform .25s ease; z-index: 50;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+  #sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  #sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #sidebar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+  }
+  #sidebar h2 { 
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; 
+    color: #8ea1c9; margin: 18px 0 8px; 
+  }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; 
+    text-decoration: none; font-size: .88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { 
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; 
+    border-bottom: 1px solid #263252; margin-bottom: 6px; 
+  }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; 
+    background: #101a2c; color: #e6ecf5; font-size: .85rem; margin-bottom: 6px;
+  }
+
+  /* Main content wrapper */
+  body { display: flex; min-height: 100vh; }
+  #main { flex: 1; min-width: 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; background: var(--card-bg); 
+    border-bottom: 1px solid var(--border); padding: 10px 20px; 
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn {
+    display: none; background: none; border: 1px solid var(--border); 
+    border-radius: 6px; padding: 6px 10px; cursor: pointer; 
+    color: var(--text); font-size: 1rem;
+  }
+  #theme-btn {
+    background: var(--accent-soft); border: 1px solid var(--border); 
+    color: var(--accent-dark); border-radius: 20px; padding: 6px 14px; 
+    cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  #backdrop { 
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; 
+  }
+  #backtotop {
+    position: fixed; bottom: 22px; right: 22px; background: var(--accent); 
+    color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; 
+    font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); 
+    display: none; z-index: 60;
+  }
+
+  @media (max-width: 900px) {
+    #sidebar { 
+      position: fixed; left: 0; top: 0; transform: translateX(-100%); 
+      box-shadow: 0 0 30px rgba(0,0,0,.4); 
+    }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+    #menu-btn { display: inline-block; }
+  }
+
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.5rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before {
+      content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark);
+      margin-bottom: 0.2rem; font-size: 0.75rem; text-transform: uppercase;
+    }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+  }
+
+  /* =========================================================
+     INTERACTIVE EC2 LEARNING FLOW ROADMAP (SECTION 40)
+     ========================================================= */
+  .roadmap-container {
+    margin: 1.8rem 0 2.5rem;
+  }
+  .roadmap-header-card {
+    background: linear-gradient(135deg, rgba(20, 110, 180, 0.08) 0%, rgba(255, 153, 0, 0.1) 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  }
+
+  .roadmap-header-card h3 {
+    margin: 0 0 0.4rem 0;
+    font-size: 1.25rem;
+    color: var(--heading);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .roadmap-header-card p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--text-soft);
+  }
+
+  /* Stage Quick Pipeline Overview */
+  .pipeline-overview {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 6px 2px 14px;
+    margin-bottom: 1.4rem;
+    scrollbar-width: thin;
+  }
+  .pipeline-step {
+    flex: 1;
+    min-width: 135px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .25s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .pipeline-step:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+  .pipeline-step .pipeline-num {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .pipeline-step .pipeline-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--heading);
+    white-space: nowrap;
+  }
+  .pipeline-arrow {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    opacity: 0.4;
+    flex-shrink: 0;
+    font-weight: bold;
+  }
+
+  /* Stage Filter Tabs */
+  .roadmap-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.6rem;
+  }
+  .filter-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-btn:hover {
+    border-color: var(--blue);
+    color: var(--blue-dark);
+  }
+  .filter-btn.active {
+    background: var(--blue);
+    color: #ffffff !important;
+    border-color: var(--blue);
+    box-shadow: 0 2px 8px rgba(20, 110, 180, 0.35);
+  }
+
+  /* Stage Sections */
+  .roadmap-stage {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.4rem;
+    margin-bottom: 1.2rem;
+    transition: all .3s ease;
+    position: relative;
+  }
+  .roadmap-stage:hover {
+    border-color: var(--stage-color, var(--blue));
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  }
+  .stage-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 1rem;
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .stage-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .stage-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    background: var(--stage-soft, var(--blue-soft));
+    color: var(--stage-color, var(--blue));
+    flex-shrink: 0;
+    border: 1px solid var(--stage-color, var(--border));
+  }
+  .stage-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--stage-soft, var(--blue-soft));
+    color: var(--stage-color, var(--blue));
+  }
+  .stage-title {
+    margin: 3px 0 0 0;
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: var(--heading);
+  }
+  .stage-desc {
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    margin: 0;
+    max-width: 600px;
+  }
+
+  /* Step Cards Grid */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .step-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    transition: all .2s ease;
+    position: relative;
+  }
+  .step-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--stage-color, var(--blue));
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+  .step-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step-num {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--stage-color, var(--blue));
+    background: var(--stage-soft, var(--blue-soft));
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--stage-color, var(--border));
+  }
+  .step-icon {
+    font-size: 1.2rem;
+  }
+  .step-name {
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--heading);
+    line-height: 1.3;
+  }
+  .step-text {
+    font-size: 0.83rem;
+    color: var(--text-soft);
+    line-height: 1.45;
+    margin: 0;
+  }
+  .step-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--stage-color, var(--blue));
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--stage-soft, var(--blue-soft));
+    width: fit-content;
+    transition: all .15s ease;
+    margin-top: auto;
+    border: 1px solid transparent;
+  }
+  .step-link:hover {
+    background: var(--stage-color, var(--blue));
+    color: #ffffff !important;
+    border-color: var(--stage-color, var(--blue));
+  }
+
+  /* Stage theme colors */
+  .stage-1 { --stage-color: #2563eb; --stage-soft: #eff6ff; }
+  .stage-2 { --stage-color: #0d9488; --stage-soft: #f0fdfa; }
+  .stage-3 { --stage-color: #10b981; --stage-soft: #ecfdf5; }
+  .stage-4 { --stage-color: #d97706; --stage-soft: #fffbeb; }
+  .stage-5 { --stage-color: #7c3aed; --stage-soft: #f5f3ff; }
+  .stage-6 { --stage-color: #e11d48; --stage-soft: #fff1f2; }
+
+  /* Dark mode overrides for stage colors */
+  [data-theme="dark"] .stage-1, :root:not([data-theme="light"]) .stage-1 { --stage-color: #60a5fa; --stage-soft: #172554; }
+  [data-theme="dark"] .stage-2, :root:not([data-theme="light"]) .stage-2 { --stage-color: #2dd4bf; --stage-soft: #042f2e; }
+  [data-theme="dark"] .stage-3, :root:not([data-theme="light"]) .stage-3 { --stage-color: #34d399; --stage-soft: #064e3b; }
+  [data-theme="dark"] .stage-4, :root:not([data-theme="light"]) .stage-4 { --stage-color: #fbbf24; --stage-soft: #382405; }
+  [data-theme="dark"] .stage-5, :root:not([data-theme="light"]) .stage-5 { --stage-color: #a78bfa; --stage-soft: #2e1065; }
+  [data-theme="dark"] .stage-6, :root:not([data-theme="light"]) .stage-6 { --stage-color: #fb7185; --stage-soft: #4c0519; }
+
+  /* Stage connector */
+  .stage-connector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    color: var(--accent);
+    font-size: 1.3rem;
+    opacity: 0.75;
+  }
+
+  /* Flash highlight animation for target section */
+  @keyframes sectionHighlight {
+    0% { outline: 3px solid var(--accent); box-shadow: 0 0 18px rgba(255, 153, 0, 0.6); }
+    50% { outline: 3px solid var(--accent); box-shadow: 0 0 28px rgba(255, 153, 0, 0.85); }
+    100% { outline: none; box-shadow: none; }
+  }
+  .flash-highlight {
+    animation: sectionHighlight 2s ease-out;
+    border-radius: 8px;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">🖥️</span><span class="name">EC2 Guide</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Basics</h2>
+  <ul>
+    <li><a href="#s1">1. Definition</a></li>
+    <li><a href="#s2">2. Architecture</a></li>
+    <li><a href="#s3">3. Why EC2?</a></li>
+    <li><a href="#s4">4. Components</a></li>
+    <li><a href="#s5">5. Instance Types</a></li>
+    <li><a href="#s6">6. Pricing</a></li>
+  </ul>
+  <h2>Getting Started</h2>
+  <ul>
+    <li><a href="#s7">7. Create Instance</a></li>
+    <li><a href="#s8">8. Instance Details</a></li>
+    <li><a href="#s9">9. Access EC2</a></li>
+    <li><a href="#s10">10. Linux Commands</a></li>
+    <li><a href="#s11">11. Update Server</a></li>
+    <li><a href="#s12">12. Install Apache</a></li>
+    <li><a href="#s13">13. Security Group</a></li>
+    <li><a href="#s14">14. Host Website</a></li>
+    <li><a href="#s15">15. Verify Apache</a></li>
+    <li><a href="#s16">16. Apache Commands</a></li>
+  </ul>
+  <h2>Advanced Features</h2>
+  <ul>
+    <li><a href="#s17">17. User Data</a></li>
+    <li><a href="#s18">18. Stop/Start/Terminate</a></li>
+    <li><a href="#s19">19. Public IP</a></li>
+    <li><a href="#s20">20. EBS Volume</a></li>
+    <li><a href="#s21">21. Format/Mount EBS</a></li>
+    <li><a href="#s22">22. Snapshots</a></li>
+    <li><a href="#s23">23. Create AMI</a></li>
+    <li><a href="#s24">24. Launch from AMI</a></li>
+    <li><a href="#s25">25. Launch Template</a></li>
+    <li><a href="#s26">26. Multiple Instances</a></li>
+    <li><a href="#s27">27. Elastic IP</a></li>
+  </ul>
+  <h2>Operations</h2>
+  <ul>
+    <li><a href="#s28">28. Monitoring</a></li>
+    <li><a href="#s29">29. Status Checks</a></li>
+    <li><a href="#s30">30. Security</a></li>
+    <li><a href="#s31">31. Troubleshooting</a></li>
+    <li><a href="#s32">32. Differences</a></li>
+    <li><a href="#s33">33. Vertical Scaling</a></li>
+    <li><a href="#s34">34. Horizontal Scaling</a></li>
+    <li><a href="#s35">35. Load Balancer</a></li>
+    <li><a href="#s36">36. Auto Scaling</a></li>
+  </ul>
+  <h2>Practice & Interview</h2>
+  <ul>
+    <li><a href="#s37">37. Complete Project</a></li>
+    <li><a href="#s38">38. Task List</a></li>
+    <li><a href="#s39">39. Interview Q&A</a></li>
+    <li><a href="#s40">40. Learning Flow</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS EC2 — Complete Study Notes</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+<div class="wrap">
+
+  <div class="title-card">
+    <h1>🖥️ AWS EC2 — Complete Study Notes</h1>
+    <p>Elastic Compute Cloud, from basic theory to practical implementation — beginner-friendly, interview-ready</p>
+  </div>
+
+  <div class="toc">
+    <h2>📑 Contents</h2>
+    <ul class="toc-grid">
+      <li><a href="#s1">1. Definition</a></li>
+      <li><a href="#s2">2. EC2 Architecture / Flow</a></li>
+      <li><a href="#s3">3. Why Do We Use EC2?</a></li>
+      <li><a href="#s4">4. Important EC2 Components</a></li>
+      <li><a href="#s5">5. EC2 Instance Types</a></li>
+      <li><a href="#s6">6. EC2 Pricing Basics</a></li>
+      <li><a href="#s7">7. Create an EC2 Instance</a></li>
+      <li><a href="#s8">8. Check EC2 Instance Details</a></li>
+      <li><a href="#s9">9. How to Access EC2</a></li>
+      <li><a href="#s10">10. Linux Commands After Connecting</a></li>
+      <li><a href="#s11">11. Update the EC2 Server</a></li>
+      <li><a href="#s12">12. Install Apache Web Server</a></li>
+      <li><a href="#s13">13. Configure Security Group for Apache</a></li>
+      <li><a href="#s14">14. Host a Simple Website</a></li>
+      <li><a href="#s15">15. Verify Apache</a></li>
+      <li><a href="#s16">16. Common Apache Commands</a></li>
+      <li><a href="#s17">17. EC2 User Data</a></li>
+      <li><a href="#s18">18. Stop, Start, Reboot, Terminate</a></li>
+      <li><a href="#s19">19. Public IP Behavior</a></li>
+      <li><a href="#s20">20. Create and Attach EBS Volume</a></li>
+      <li><a href="#s21">21. Format and Mount EBS Volume</a></li>
+      <li><a href="#s22">22. Create EBS Snapshot</a></li>
+      <li><a href="#s23">23. Create AMI</a></li>
+      <li><a href="#s24">24. Launch EC2 From AMI</a></li>
+      <li><a href="#s25">25. Create Launch Template</a></li>
+      <li><a href="#s26">26. Launch Multiple EC2 Instances</a></li>
+      <li><a href="#s27">27. Elastic IP</a></li>
+      <li><a href="#s28">28. EC2 Monitoring</a></li>
+      <li><a href="#s29">29. EC2 Status Checks</a></li>
+      <li><a href="#s30">30. Security Best Practices</a></li>
+      <li><a href="#s31">31. EC2 Troubleshooting</a></li>
+      <li><a href="#s32">32. Important Differences</a></li>
+      <li><a href="#s33">33. Vertical Scaling</a></li>
+      <li><a href="#s34">34. Horizontal Scaling</a></li>
+      <li><a href="#s35">35. EC2 + Load Balancer</a></li>
+      <li><a href="#s36">36. EC2 + Auto Scaling</a></li>
+      <li><a href="#s37">37. Complete Practical Project</a></li>
+      <li><a href="#s38">38. Practical Task List</a></li>
+      <li><a href="#s39">39. Interview Questions</a></li>
+      <li><a href="#s40">40. Final Learning Flow</a></li>
+    </ul>
+  </div>
+
+  <!-- 1 -->
+  <h2 id="s1"><span class="section-icon">1️⃣</span> Definition</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="card">
+    <p><strong>What is AWS EC2?</strong></br></strong> Amazon EC2 (Elastic Compute Cloud) is a web service from AWS that gives you resizable virtual computers ("servers") in the cloud. Instead of buying physical hardware, you rent a computer from AWS and use it over the internet.</p>
+    <p><strong>What does EC2 stand for?</strong></br> <strong>E</strong>lastic <strong>C</strong>ompute <strong>C</strong>loud.</p>
+    <p><strong>What is an EC2 Instance?</strong></br> An EC2 Instance is one single virtual server you create and run inside EC2. Think of it as one computer that AWS gives you to use.</p>
+    <p><strong>Why do we use EC2?</strong></br> It lets you get a server running in minutes, pay only for what you use, resize it (more/less CPU or RAM) whenever needed, and avoid the cost and effort of buying and maintaining physical machines.</p>
+  </div>
+  <div class="example">
+    <strong>Real-world example</strong>
+    <p style="margin-bottom:0;">Imagine you built a website on your laptop. To let the whole world visit it, you need a computer that is always switched on and connected to the internet. Instead of running your own laptop 24/7, you rent an EC2 instance from AWS, put your website on it, and now anyone in the world can open it using its public address.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2 -->
+  <h2 id="s2"><span class="section-icon">🧭</span> EC2 Architecture / Basic Flow</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="diagram">User
+ ↓
+Internet
+ ↓
+Public IP
+ ↓
+Security Group
+ ↓
+EC2 Instance
+ ↓
+Application / Web Server</div>
+  <ul class="concept-list">
+    <li><strong>User</strong> — The person opening a browser and requesting the website or application.</li>
+    <li><strong>Internet</strong> — The public network that carries the request from the user to AWS.</li>
+    <li><strong>Public IP</strong> — The address of your EC2 instance on the internet; without it, the outside world cannot reach your server.</li>
+    <li><strong>Security Group</strong> — A virtual firewall in front of the instance that decides which traffic (ports) is allowed in or out.</li>
+    <li><strong>EC2 Instance</strong> — The actual virtual server that receives the request.</li>
+    <li><strong>Application / Web Server</strong> — The software (like Apache) running inside the instance that actually processes the request and sends back a response.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 3 -->
+  <h2 id="s3"><span class="section-icon">💡</span> Why Do We Use EC2?</h2>
+  <span class="badge badge-theory">Theory</span>
+  <ul class="usecase-list">
+    <li><strong>Website hosting</strong> — Run a company or personal website that is reachable 24/7.</li>
+    <li><strong>Backend/API hosting</strong> — Host REST/GraphQL APIs that mobile or web apps call.</li>
+    <li><strong>Application servers</strong> — Run business software such as CRMs or internal tools.</li>
+    <li><strong>Development environments</strong> — Give each developer or team a remote machine to build and test on.</li>
+    <li><strong>Databases</strong> — Self-manage MySQL, PostgreSQL, MongoDB, etc. on a dedicated server.</li>
+    <li><strong>Docker workloads</strong> — Run containers when you need full control over the host machine.</li>
+    <li><strong>Business applications</strong> — ERP systems, reporting tools, internal dashboards, and more.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 4 -->
+  <h2 id="s4"><span class="section-icon">🧩</span> Important EC2 Components</h2>
+  <span class="badge badge-theory">Theory</span>
+
+  <h3>AMI (Amazon Machine Image)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> An AMI is a pre-built template that contains an operating system and sometimes pre-installed software. It's like a "snapshot recipe" used to create an EC2 instance.</p>
+    <p><strong>Purpose:</strong> It saves you from installing an OS from scratch every time you launch a server.</p>
+    <p><strong>Examples:</strong> Amazon Linux 2023, Ubuntu 22.04, Windows Server 2022, Red Hat Enterprise Linux.</p>
+    <p style="margin-bottom:0;"><strong>How it's used:</strong> When you launch an EC2 instance, the very first choice you make is which AMI to boot from — this decides your operating system.</p>
+  </div>
+
+  <h3>Instance Type</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> The instance type decides how much CPU, RAM, and network performance your virtual server gets.</p>
+    <p><strong>CPU / RAM / Network:</strong> Each type name (like <code>t3.micro</code>) maps to a fixed amount of vCPUs, memory, and network bandwidth.</p>
+    <p style="margin-bottom:0;"><strong>Examples:</strong> <code>t3.micro</code> (2 vCPU, 1 GB RAM — great for learning/free tier), <code>t3.small</code> (2 vCPU, 2 GB RAM), <code>t3.medium</code> (2 vCPU, 4 GB RAM).</p>
+  </div>
+
+  <h3>Key Pair</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> A Key Pair is a set of two cryptographic keys — a <strong>public key</strong> and a <strong>private key</strong> — used to securely log into your instance.</p>
+    <p><strong>Public key</strong> — Stored by AWS on the instance automatically.</p>
+    <p><strong>Private key</strong> — Downloaded once by you as a <code>.pem</code> file; never shared with anyone.</p>
+    <p><strong>Why required:</strong> Linux EC2 instances don't use a password by default — they use key-based login, which is far more secure.</p>
+    <p style="margin-bottom:0;"><strong>How SSH uses it:</strong> When you connect, SSH proves you own the matching private key without ever sending it over the network.</p>
+  </div>
+  <div class="steps-block">
+    <h4>How to create a Key Pair</h4>
+    <ol class="steps">
+      <li>Go to <b>EC2 Dashboard → Key Pairs</b>.</li>
+      <li>Click <b>Create key pair</b>.</li>
+      <li>Enter a name (e.g., <code>my-ec2-key</code>).</li>
+      <li>Choose type <b>RSA</b> and format <b>.pem</b> (for Linux/Mac) or <b>.ppk</b> (for PuTTY on Windows).</li>
+      <li>Click <b>Create key pair</b> — the private key file downloads automatically. Keep it safe; AWS does not store a copy.</li>
+    </ol>
+  </div>
+
+  <h3>Security Group</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> A Security Group is a virtual firewall attached to your EC2 instance that controls incoming and outgoing traffic.</p>
+    <p><strong>Inbound rules</strong> — Control traffic coming <em>into</em> the instance (e.g., allowing SSH or web traffic in).</p>
+    <p><strong>Outbound rules</strong> — Control traffic going <em>out</em> of the instance (usually left open by default).</p>
+  </div>
+  <table>
+    <thead><tr><th>Port</th><th>Protocol</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Port"><code>22</code></td><td data-label="Protocol">SSH</td><td data-label="Purpose">Remote terminal login to Linux servers</td></tr>
+      <tr><td data-label="Port"><code>80</code></td><td data-label="Protocol">HTTP</td><td data-label="Purpose">Normal (unencrypted) website traffic</td></tr>
+      <tr><td data-label="Port"><code>443</code></td><td data-label="Protocol">HTTPS</td><td data-label="Purpose">Encrypted, secure website traffic</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Source IP concept:</strong> Each rule also has a "source" — which IP addresses are allowed to use that port. <code>0.0.0.0/0</code> means "anyone on the internet," while <code>My IP</code> restricts access to only your current IP address.</p>
+
+  <h3>VPC (Virtual Private Cloud)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> A VPC is your own private, isolated network inside AWS where your resources (like EC2) live.</p>
+    <p style="margin-bottom:0;"><strong>Relationship with EC2:</strong> Every EC2 instance must be launched inside a VPC — it defines the private network boundaries and IP ranges the instance can use.</p>
+  </div>
+
+  <h3>Subnet</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> A Subnet is a smaller division of a VPC's IP address range.</p>
+    <p><strong>Public subnet</strong> — Has a route to the internet, so instances here can have a public IP.</p>
+    <p><strong>Private subnet</strong> — Has no direct route to the internet, used for databases or internal-only servers.</p>
+    <p style="margin-bottom:0;"><strong>Relationship with EC2:</strong> Every EC2 instance is launched inside one specific subnet, which determines whether it can be reached from the internet.</p>
+  </div>
+
+  <h3>Availability Zone (AZ)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> An Availability Zone is one physical, isolated data center location within an AWS Region.</p>
+    <p style="margin-bottom:0;"><strong>Why EC2 runs inside an AZ:</strong> Every instance must physically exist somewhere — placing it in a specific AZ helps AWS provide fault isolation (if one AZ has an issue, others are unaffected).</p>
+  </div>
+
+  <h3>Region</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> A Region is a geographic area (e.g., Mumbai, Singapore, N. Virginia) containing multiple Availability Zones.</p>
+    <p style="margin-bottom:0;"><strong>Relationship:</strong> One Region contains many Availability Zones (usually 3 or more), and each AZ contains its own separate data centers.</p>
+  </div>
+
+  <h3>EBS (Elastic Block Store)</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> EBS is persistent block storage attached to an EC2 instance, like a virtual hard drive.</p>
+    <p><strong>Why EC2 uses EBS:</strong> An EC2 instance needs a disk to store the operating system and data — EBS provides that disk, and the data survives even if the instance is stopped.</p>
+    <p><strong>Root volume</strong> — The primary EBS volume that holds the operating system; it's created automatically when you launch the instance.</p>
+    <p style="margin-bottom:0;"><strong>Additional EBS volumes</strong> — Extra disks you can attach later for more storage (e.g., for application data or databases).</p>
+  </div>
+
+  <h3>Public IP</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> A Public IP is an internet-routable address assigned to your instance so it can be reached from outside AWS.</p>
+    <p><strong>Why required:</strong> Without it, no one on the internet can connect to your server.</p>
+    <p style="margin-bottom:0;"><strong>How to find it:</strong> Open <b>EC2 → Instances</b>, select your instance, and look at the <b>Public IPv4 address</b> field in the details panel.</p>
+  </div>
+
+  <h3>Private IP</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> A Private IP is an internal address usable only within the VPC.</p>
+    <p style="margin-bottom:0;"><strong>Internal communication:</strong> It's used when EC2 instances need to talk to each other inside the same network, without going over the public internet.</p>
+  </div>
+
+  <h3>Elastic IP</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> An Elastic IP is a static, fixed public IP address that you allocate and control.</p>
+    <p><strong>Why used:</strong> A normal Public IP changes every time you stop and start an instance; an Elastic IP stays the same.</p>
+    <p style="margin-bottom:0;"><strong>Difference from Public IP:</strong> A regular Public IP is temporary and auto-assigned; an Elastic IP is permanent until you manually release it.</p>
+  </div>
+
+  <h3>User Data</h3>
+  <div class="card">
+    <p><strong>Definition:</strong> User Data is a script you attach to an instance that runs automatically the very first time it boots.</p>
+    <p><strong>Purpose:</strong> To automate setup tasks — installing software, starting services, or configuring the server — without manual work.</p>
+    <p style="margin-bottom:0;"><strong>How to use it:</strong> Paste a shell script into the "User data" field under Advanced Details while launching the instance.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 5 -->
+  <h2 id="s5"><span class="section-icon">🏷️</span> EC2 Instance Types</h2>
+  <span class="badge badge-theory">Theory</span>
+  <table>
+    <thead><tr><th>Category</th><th>Best For</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Category"><strong>General Purpose</strong></td><td data-label="Best For">Balanced CPU/RAM — web servers, small apps, dev/test</td><td data-label="Example"><code>t3.micro</code>, <code>m6i.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Compute Optimized</strong></td><td data-label="Best For">High CPU workloads — batch processing, gaming servers, video encoding</td><td data-label="Example"><code>c6i.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Memory Optimized</strong></td><td data-label="Best For">RAM-heavy workloads — large databases, in-memory caches</td><td data-label="Example"><code>r6i.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Storage Optimized</strong></td><td data-label="Best For">High-speed, high-volume disk I/O — data warehousing, NoSQL databases</td><td data-label="Example"><code>i3.large</code></td></tr>
+      <tr><td data-label="Category"><strong>Accelerated Computing</strong></td><td data-label="Best For">GPU-based work — machine learning, graphics rendering</td><td data-label="Example"><code>g5.xlarge</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 6 -->
+  <h2 id="s6"><span class="section-icon">💰</span> EC2 Pricing Basics</h2>
+  <span class="badge badge-theory">Theory</span>
+  <ul class="keypoints">
+    <li><strong>On-Demand</strong> — Pay by the hour/second with no long-term commitment; most flexible, but most expensive per hour.</li>
+    <li><strong>Reserved Instances</strong> — Commit to 1 or 3 years for a significantly lower hourly rate; good for predictable, steady workloads.</li>
+    <li><strong>Savings Plans</strong> — Commit to a consistent amount of compute usage (in $/hour) for 1–3 years in exchange for lower prices, more flexible than Reserved Instances.</li>
+    <li><strong>Spot Instances</strong> — Use AWS's spare capacity at a steep discount; AWS can reclaim the instance with short notice, so it suits fault-tolerant or flexible workloads.</li>
+    <li><strong>Free Tier</strong> — New AWS accounts can run a <code>t2.micro</code> or <code>t3.micro</code> instance for a limited number of hours per month, free, for 12 months — perfect for learning.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 7 -->
+  <h2 id="s7"><span class="section-icon">🚀</span> How to Create an EC2 Instance</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="diagram">AWS Console
+ ↓
+EC2
+ ↓
+Launch Instance</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li><b>Instance Name</b> — Give it a recognizable name, e.g. <code>my-web-server</code>. This is just a label.</li>
+      <li><b>AMI</b> — Choose the operating system. For a beginner Linux web server, select <b>Amazon Linux 2023</b> (Free tier eligible).</li>
+      <li><b>Instance Type</b> — Choose <code>t3.micro</code> or <code>t2.micro</code> for learning (Free Tier eligible).</li>
+      <li><b>Key Pair</b> — Select an existing key pair or create a new one; download the <code>.pem</code> file and keep it safe.</li>
+      <li><b>VPC</b> — Keep the <b>default VPC</b> unless you have a custom network already set up.</li>
+      <li><b>Subnet</b> — Choose any <b>public subnet</b> (or "No preference") so the instance gets internet access.</li>
+      <li><b>Auto-assign Public IP</b> — Set to <b>Enable</b> so you can reach the instance from the internet.</li>
+      <li><b>Security Group</b> — Create a new one and allow <b>SSH (22)</b> from "My IP" and, for a web server, <b>HTTP (80)</b> from anywhere.</li>
+      <li><b>Storage / EBS</b> — Keep the default 8 GB <code>gp3</code> root volume for a simple test server.</li>
+      <li><b>Advanced Details</b> — Leave defaults unless you need IAM roles or specific settings.</li>
+      <li><b>User Data</b> — Optionally paste a startup script here (see Section 17).</li>
+      <li><b>Launch Instance</b> — Click <b>Launch instance</b>; AWS will boot it within a minute or two.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 8 -->
+  <h2 id="s8"><span class="section-icon">🔍</span> How to Check EC2 Instance Details</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Instances</b>.</li>
+      <li>Click on your instance's <b>Instance ID</b> to open its details page.</li>
+      <li>On the <b>Details</b> tab you can find: <b>Instance ID</b>, <b>Instance State</b>, <b>Instance Type</b>, <b>AMI ID</b>, <b>Public IPv4 address</b>, <b>Private IPv4 address</b>, <b>Public IPv4 DNS</b>, <b>Private DNS</b>, <b>Availability Zone</b>, <b>VPC ID</b>, <b>Subnet ID</b>, <b>Security Group</b>, and <b>Key pair name</b>.</li>
+      <li>Go to the <b>Storage</b> tab to see the attached <b>EBS Volume(s)</b>, their size, and device names.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 9 -->
+  <h2 id="s9"><span class="section-icon">🔑</span> How to Access EC2</h2>
+  <span class="badge badge-practical">Practical</span>
+
+  <h3>Method 1: SSH</h3>
+  <div class="card">
+    <p><strong>What SSH is:</strong> Secure Shell (SSH) is a protocol that lets you open a secure remote terminal session on another computer over the network.</p>
+    <p><strong>Why Port 22:</strong> SSH communicates over TCP port 22 by convention — this is why the Security Group must allow inbound traffic on port 22.</p>
+    <p style="margin-bottom:0;"><strong>Where the <code>.pem</code> file is used:</strong> It's passed to the SSH command to prove your identity instead of typing a password.</p>
+  </div>
+  <pre><code>ssh -i "key.pem" ec2-user@PUBLIC-IP</code></pre>
+  <div class="cmd-explain">
+    <p><code>ssh</code> — the command that starts a secure shell connection.</p>
+    <p><code>-i "key.pem"</code> — tells SSH which private key file to use for authentication.</p>
+    <p><code>ec2-user</code> — the default username for Amazon Linux instances (Ubuntu uses <code>ubuntu</code>).</p>
+    <p style="margin-bottom:0;"><code>@PUBLIC-IP</code> — the public IPv4 address of your EC2 instance.</p>
+  </div>
+
+  <h3>Method 2: EC2 Instance Connect</h3>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Instances</b> and select your instance.</li>
+      <li>Click <b>Connect</b> at the top.</li>
+      <li>Choose the <b>EC2 Instance Connect</b> tab.</li>
+      <li>Click <b>Connect</b> — a browser-based terminal opens directly, no key file needed.</li>
+    </ol>
+  </div>
+  <p><strong>SSH vs EC2 Instance Connect:</strong> SSH requires your own terminal and the private key file; EC2 Instance Connect works straight from the browser using temporary, AWS-managed credentials — convenient for quick access but SSH is more common for regular development work.</p>
+
+  <hr class="divider">
+
+  <!-- 10 -->
+  <h2 id="s10"><span class="section-icon">⌨️</span> Linux Commands After Connecting to EC2</h2>
+  <span class="badge badge-practical">Practical</span>
+  <table class="cmd-table">
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Command"><code>whoami</code></td><td data-label="What it does">Shows the currently logged-in username.</td></tr>
+      <tr><td data-label="Command"><code>pwd</code></td><td data-label="What it does">Prints the current working directory path.</td></tr>
+      <tr><td data-label="Command"><code>ls</code></td><td data-label="What it does">Lists files and folders in the current directory.</td></tr>
+      <tr><td data-label="Command"><code>ls -la</code></td><td data-label="What it does">Lists all files (including hidden ones) with detailed info.</td></tr>
+      <tr><td data-label="Command"><code>cd</code></td><td data-label="What it does">Changes the current directory.</td></tr>
+      <tr><td data-label="Command"><code>mkdir</code></td><td data-label="What it does">Creates a new directory/folder.</td></tr>
+      <tr><td data-label="Command"><code>touch</code></td><td data-label="What it does">Creates a new empty file.</td></tr>
+      <tr><td data-label="Command"><code>cat</code></td><td data-label="What it does">Displays the content of a file.</td></tr>
+      <tr><td data-label="Command"><code>nano</code></td><td data-label="What it does">Opens a simple, beginner-friendly text editor.</td></tr>
+      <tr><td data-label="Command"><code>vi</code></td><td data-label="What it does">Opens the classic, more advanced text editor.</td></tr>
+      <tr><td data-label="Command"><code>cp</code></td><td data-label="What it does">Copies files or folders.</td></tr>
+      <tr><td data-label="Command"><code>mv</code></td><td data-label="What it does">Moves or renames files/folders.</td></tr>
+      <tr><td data-label="Command"><code>rm</code></td><td data-label="What it does">Deletes files or folders.</td></tr>
+      <tr><td data-label="Command"><code>sudo</code></td><td data-label="What it does">Runs a command with administrator (root) privileges.</td></tr>
+      <tr><td data-label="Command"><code>clear</code></td><td data-label="What it does">Clears the terminal screen.</td></tr>
+      <tr><td data-label="Command"><code>history</code></td><td data-label="What it does">Shows a list of previously run commands.</td></tr>
+      <tr><td data-label="Command"><code>df -h</code></td><td data-label="What it does">Shows disk space usage in human-readable format.</td></tr>
+      <tr><td data-label="Command"><code>free -h</code></td><td data-label="What it does">Shows RAM (memory) usage in human-readable format.</td></tr>
+      <tr><td data-label="Command"><code>top</code></td><td data-label="What it does">Shows live CPU and memory usage per process.</td></tr>
+      <tr><td data-label="Command"><code>ps</code></td><td data-label="What it does">Lists currently running processes.</td></tr>
+      <tr><td data-label="Command"><code>ip addr</code></td><td data-label="What it does">Shows the network interfaces and IP addresses of the machine.</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 11 -->
+  <h2 id="s11"><span class="section-icon">🔄</span> Update the EC2 Server</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p>For Amazon Linux, run:</p>
+  <pre><code>sudo dnf update -y</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo</code> — runs the command as administrator, required for system-level changes.</p>
+    <p><code>dnf</code> — the package manager used by Amazon Linux/Fedora/RHEL to install and update software.</p>
+    <p><code>update</code> — tells <code>dnf</code> to fetch and install the latest versions of all installed packages.</p>
+    <p style="margin-bottom:0;"><code>-y</code> — automatically answers "yes" to confirmation prompts, so the update runs without interruption.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 12 -->
+  <h2 id="s12"><span class="section-icon">🌐</span> Install Apache Web Server</h2>
+  <span class="badge badge-practical">Practical</span>
+  <pre><code>sudo dnf install -y httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo systemctl status httpd</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo dnf install -y httpd</code> — installs the Apache web server package (called <code>httpd</code> on Amazon Linux).</p>
+    <p><code>sudo systemctl start httpd</code> — starts the Apache service immediately.</p>
+    <p><code>sudo systemctl enable httpd</code> — configures Apache to start automatically every time the server reboots.</p>
+    <p style="margin-bottom:0;"><code>sudo systemctl status httpd</code> — shows whether Apache is currently running and healthy.</p>
+  </div>
+  <div class="card">
+    <p><strong>What is Apache?</strong> Apache HTTP Server is free, widely-used software that serves web pages to visitors' browsers.</p>
+    <p><strong>Why install it?</strong> An EC2 instance is just a bare server — it needs web server software like Apache to actually respond to website requests.</p>
+    <p><strong>What is <code>systemctl</code>?</strong> It's the tool used on modern Linux systems to control services (start, stop, enable, check status).</p>
+    <p><strong>start</strong> — turns the service on right now.</p>
+    <p><strong>enable</strong> — makes the service start automatically on every boot.</p>
+    <p style="margin-bottom:0;"><strong>status</strong> — reports whether the service is active, and shows recent log lines.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 13 -->
+  <h2 id="s13"><span class="section-icon">🛡️</span> Configure Security Group for Apache</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p>Apache serves web pages over <strong>HTTP port 80</strong>. If this port isn't opened in the Security Group, visitors will never be able to reach the website, no matter how well Apache is configured.</p>
+  <div class="diagram">EC2
+ ↓
+Security Groups
+ ↓
+Inbound Rules
+ ↓
+Edit Inbound Rules
+ ↓
+Add HTTP
+ ↓
+Port 80
+ ↓
+Source 0.0.0.0/0</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Instances</b>, select your instance, and open the <b>Security</b> tab.</li>
+      <li>Click on the attached <b>Security Group</b>.</li>
+      <li>Go to <b>Inbound rules → Edit inbound rules</b>.</li>
+      <li>Click <b>Add rule</b>, choose type <b>HTTP</b> (this auto-fills port <b>80</b>).</li>
+      <li>Set <b>Source</b> to <code>0.0.0.0/0</code> to allow traffic from anywhere.</li>
+      <li>Click <b>Save rules</b>.</li>
+    </ol>
+  </div>
+  <div class="note">
+    <strong>Security note:</strong> <code>0.0.0.0/0</code> means literally anyone on the internet can reach this port. This is normal and expected for a public website on port 80/443, but you should never open sensitive ports like 22 (SSH) or database ports (3306, 5432) to <code>0.0.0.0/0</code> — restrict those to your own IP or a trusted network instead.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 14 -->
+  <h2 id="s14"><span class="section-icon">📄</span> Host a Simple Website on EC2</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p>Apache's default web directory on Amazon Linux is:</p>
+  <pre><code>/var/www/html</code></pre>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Move into the web directory:
+        <pre><code>cd /var/www/html</code></pre>
+      </li>
+      <li>Create the homepage file:
+        <pre><code>sudo nano index.html</code></pre>
+      </li>
+      <li>Paste a simple HTML page:
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;My EC2 Website&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Welcome to AWS EC2!&lt;/h1&gt;
+    &lt;p&gt;This page is hosted on an Amazon EC2 instance.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      </li>
+      <li>Save the file in nano: press <code>Ctrl + O</code>, then <code>Enter</code> to confirm, then <code>Ctrl + X</code> to exit.</li>
+    </ol>
+  </div>
+  <p>Now open a browser and visit:</p>
+  <pre><code>http://PUBLIC-IP</code></pre>
+  <p style="margin-bottom:0;">When you open the Public IP in a browser, the request travels over the internet to your instance's public IP, passes through the Security Group's port 80 rule, reaches Apache, and Apache reads and returns <code>index.html</code> — which the browser then renders as a webpage.</p>
+
+  <hr class="divider">
+
+  <!-- 15 -->
+  <h2 id="s15"><span class="section-icon">✅</span> Verify Apache</h2>
+  <span class="badge badge-practical">Practical</span>
+  <pre><code>sudo systemctl status httpd
+curl localhost
+curl http://localhost</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo systemctl status httpd</code> — confirms whether the Apache service itself is running.</p>
+    <p><code>curl localhost</code> and <code>curl http://localhost</code> — send an HTTP request from inside the server to itself, printing the raw HTML response; if you see your page's HTML, Apache is serving content correctly.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 16 -->
+  <h2 id="s16"><span class="section-icon">🔧</span> Common Apache Commands</h2>
+  <span class="badge badge-practical">Practical</span>
+  <table class="cmd-table">
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Command"><code>sudo systemctl start httpd</code></td><td data-label="What it does">Starts Apache.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl stop httpd</code></td><td data-label="What it does">Stops Apache completely.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl restart httpd</code></td><td data-label="What it does">Stops and starts Apache again (used after major config changes).</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl reload httpd</code></td><td data-label="What it does">Reloads configuration without dropping active connections.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl enable httpd</code></td><td data-label="What it does">Makes Apache start automatically on boot.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl disable httpd</code></td><td data-label="What it does">Stops Apache from auto-starting on boot.</td></tr>
+      <tr><td data-label="Command"><code>sudo systemctl status httpd</code></td><td data-label="What it does">Shows current running state and recent logs.</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 17 -->
+  <h2 id="s17"><span class="section-icon">📜</span> EC2 User Data</h2>
+  <span class="badge badge-theory">Theory</span> <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>What it is:</strong> A shell script attached to an instance at launch time.</p>
+    <p><strong>When it runs:</strong> Automatically, only once, the very first time the instance boots.</p>
+    <p><strong>Why useful:</strong> It fully automates setup — no manual SSH steps required after launch.</p>
+    <p style="margin-bottom:0;"><strong>How to add it:</strong> Paste the script into the <b>User data</b> box under <b>Advanced details</b> while launching the instance.</p>
+  </div>
+  <pre><code>#!/bin/bash
+
+dnf update -y
+dnf install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "&lt;h1&gt;Welcome to AWS EC2&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre>
+  <div class="cmd-explain">
+    <p><code>#!/bin/bash</code> — tells the system this script should run using the Bash shell.</p>
+    <p><code>dnf update -y</code> — updates all installed packages before setting anything up.</p>
+    <p><code>dnf install -y httpd</code> — installs Apache.</p>
+    <p><code>systemctl start httpd</code> — starts Apache immediately.</p>
+    <p><code>systemctl enable httpd</code> — ensures Apache restarts automatically on reboot.</p>
+    <p style="margin-bottom:0;"><code>echo "..." &gt; /var/www/html/index.html</code> — writes a simple welcome heading directly into the homepage file, so the website is live the moment the instance finishes booting.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 18 -->
+  <h2 id="s18"><span class="section-icon">⏯️</span> Stop, Start, Reboot and Terminate</h2>
+  <span class="badge badge-theory">Theory</span> <span class="badge badge-practical">Practical</span>
+
+  <h3>Stop</h3>
+  <div class="card"><p style="margin-bottom:0;">The instance shuts down but is <strong>not deleted</strong>. The EBS root volume and its data remain intact. It can be started again later. Billing for compute usage stops, but EBS storage charges continue.</p></div>
+  <h3>Start</h3>
+  <div class="card"><p style="margin-bottom:0;">Boots up a stopped instance again. It usually gets a <strong>new Public IPv4 address</strong> unless an Elastic IP is attached.</p></div>
+  <h3>Reboot</h3>
+  <div class="card"><p style="margin-bottom:0;">Restarts the operating system without fully stopping the instance. The Public IP <strong>stays the same</strong>, and it's equivalent to restarting a physical computer.</p></div>
+  <h3>Terminate</h3>
+  <div class="card"><p style="margin-bottom:0;">Permanently <strong>deletes</strong> the instance. By default, the root EBS volume is also deleted (unless "Delete on Termination" is disabled). <strong>This cannot be undone</strong> — the instance cannot be recovered.</p></div>
+
+  <div class="steps-block">
+    <h4>AWS Console steps (all four actions)</h4>
+    <ol class="steps">
+      <li>Go to <b>EC2 → Instances</b>.</li>
+      <li>Select the checkbox next to your instance.</li>
+      <li>Click <b>Instance state</b> at the top.</li>
+      <li>Choose <b>Stop instance</b>, <b>Start instance</b>, <b>Reboot instance</b>, or <b>Terminate instance</b>.</li>
+      <li>Confirm the action in the popup dialog.</li>
+    </ol>
+  </div>
+
+  <table>
+    <thead><tr><th>Action</th><th>Data Kept?</th><th>Public IP</th><th>Reversible?</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Action"><strong>Stop</strong></td><td data-label="Data Kept?">Yes</td><td data-label="Public IP">Changes on next start</td><td data-label="Reversible?">Yes — can start again</td></tr>
+      <tr><td data-label="Action"><strong>Reboot</strong></td><td data-label="Data Kept?">Yes</td><td data-label="Public IP">Stays the same</td><td data-label="Reversible?">N/A — instance keeps running</td></tr>
+      <tr><td data-label="Action"><strong>Terminate</strong></td><td data-label="Data Kept?">No (root volume usually deleted)</td><td data-label="Public IP">Released permanently</td><td data-label="Reversible?">No — permanent</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 19 -->
+  <h2 id="s19"><span class="section-icon">🌐</span> Public IP Behavior</h2>
+  <span class="badge badge-theory">Theory</span>
+  <p>By default, the normal Public IPv4 address assigned to an EC2 instance is <strong>not permanent</strong> — it changes every time the instance is stopped and then started again. Rebooting does not change it, but a full stop/start cycle does.</p>
+  <p style="margin-bottom:0;">This is why an <strong>Elastic IP</strong> is used whenever you need a fixed public address — for example, if you've configured a domain name (DNS) to point to your server, or if other systems are hardcoded to connect to a specific IP.</p>
+
+  <hr class="divider">
+
+  <!-- 20 -->
+  <h2 id="s20"><span class="section-icon">💾</span> Create and Attach EBS Volume</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>What is EBS?</strong> Elastic Block Store is persistent, network-attached disk storage for EC2 instances.</p>
+    <p><strong>Why additional storage?</strong> The default root volume may not be enough for application data, logs, or databases, so you attach a second volume dedicated to that data.</p>
+    <p style="margin-bottom:0;"><strong>Same Availability Zone rule:</strong> An EBS volume physically lives inside one Availability Zone, so it can only be attached to an EC2 instance that is running in that same AZ.</p>
+  </div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Elastic Block Store → Volumes</b>.</li>
+      <li>Click <b>Create volume</b>.</li>
+      <li>Choose <b>Volume type</b> (e.g., <code>gp3</code>), <b>Size</b>, and the <b>same Availability Zone</b> as your EC2 instance.</li>
+      <li>Click <b>Create volume</b>.</li>
+      <li>Select the new volume, click <b>Actions → Attach volume</b>.</li>
+      <li>Choose your EC2 instance and confirm the <b>Device name</b> (e.g., <code>/dev/xvdf</code>).</li>
+      <li>Click <b>Attach volume</b>.</li>
+    </ol>
+  </div>
+  <p>To confirm the disk is attached, connect to the instance and run:</p>
+  <pre><code>lsblk</code></pre>
+  <p style="margin-bottom:0;"><code>lsblk</code> lists all block devices; the new volume will appear as an extra disk (e.g., <code>xvdf</code>) with no mount point yet — that's how you identify it.</p>
+
+  <hr class="divider">
+
+  <!-- 21 -->
+  <h2 id="s21"><span class="section-icon">🗂️</span> Format and Mount EBS Volume</h2>
+  <span class="badge badge-practical">Practical</span>
+  <pre><code>sudo mkfs -t xfs /dev/xvdf
+
+sudo mkdir /data
+
+sudo mount /dev/xvdf /data
+
+df -h</code></pre>
+  <div class="cmd-explain">
+    <p><code>sudo mkfs -t xfs /dev/xvdf</code> — formats the raw new volume with the XFS filesystem so Linux can store files on it. This step is only needed once, on a brand-new empty volume.</p>
+    <p><code>sudo mkdir /data</code> — creates an empty folder that will act as the access point for the new disk.</p>
+    <p><code>sudo mount /dev/xvdf /data</code> — attaches ("mounts") the formatted volume to the <code>/data</code> folder, so anything saved inside <code>/data</code> is actually stored on the EBS volume.</p>
+    <p style="margin-bottom:0;"><code>df -h</code> — confirms the mount worked by showing disk usage, including the new <code>/data</code> entry.</p>
+  </div>
+  <div class="note">
+    <strong>Note:</strong> The device name may differ from <code>/dev/xvdf</code> depending on your instance type. Always check the actual name first using <code>lsblk</code> before formatting or mounting.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 22 -->
+  <h2 id="s22"><span class="section-icon">📸</span> Create EBS Snapshot</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>What is a snapshot?</strong> A point-in-time backup copy of an EBS volume, stored in Amazon S3.</p>
+    <p><strong>Why used?</strong> To protect data before risky changes, or to create identical volumes elsewhere.</p>
+    <p style="margin-bottom:0;"><strong>Relation to EBS:</strong> A snapshot is taken *from* an EBS volume, and can later be used to *create* a brand-new EBS volume with the same data.</p>
+  </div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Elastic Block Store → Volumes</b>.</li>
+      <li>Select the volume you want to back up.</li>
+      <li>Click <b>Actions → Create snapshot</b>.</li>
+      <li>Enter a description and click <b>Create snapshot</b>.</li>
+      <li>View it under <b>Elastic Block Store → Snapshots</b>.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 23 -->
+  <h2 id="s23"><span class="section-icon">🖨️</span> Create AMI</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>What is an AMI?</strong> A complete, reusable template of an EC2 instance — its operating system, installed software, and configuration.</p>
+    <p><strong>Why create a custom AMI?</strong> To quickly launch identical copies of a fully configured server, without repeating setup steps manually.</p>
+    <p style="margin-bottom:0;"><strong>What's captured?</strong> The root volume (and any other attached volumes if selected), including the OS, installed packages, and files.</p>
+  </div>
+  <div class="diagram">EC2
+ ↓
+Instances
+ ↓
+Select Instance
+ ↓
+Actions
+ ↓
+Image and templates
+ ↓
+Create image</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Instances</b>.</li>
+      <li>Select the instance you want to capture.</li>
+      <li>Click <b>Actions → Image and templates → Create image</b>.</li>
+      <li>Enter an image name and description.</li>
+      <li>Click <b>Create image</b>. It will appear under <b>AMIs</b> once ready.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 24 -->
+  <h2 id="s24"><span class="section-icon">🚀</span> Launch EC2 From AMI</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → AMIs</b>.</li>
+      <li>Select your custom AMI.</li>
+      <li>Click <b>Launch instance from AMI</b>.</li>
+      <li>Fill in Instance Type, Key Pair, Security Group, and other settings just like a normal launch.</li>
+      <li>Click <b>Launch instance</b>.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Launching from a custom AMI is useful because the new instance boots up already configured — no need to reinstall Apache, reconfigure settings, or redo setup steps.</p>
+
+  <hr class="divider">
+
+  <!-- 25 -->
+  <h2 id="s25"><span class="section-icon">📋</span> Create Launch Template</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="card">
+    <p><strong>What is a Launch Template?</strong> A saved configuration blueprint (AMI, instance type, key pair, security group, etc.) that can be reused to launch instances quickly and consistently.</p>
+    <p><strong>Why useful?</strong> Instead of re-entering every setting each time, you launch straight from the saved template — essential for Auto Scaling and team consistency.</p>
+    <p style="margin-bottom:0;"><strong>AMI vs Launch Template:</strong> An AMI is just the disk image (OS + software); a Launch Template additionally stores instance type, security group, key pair, and other launch settings around that AMI.</p>
+  </div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Launch Templates</b>.</li>
+      <li>Click <b>Create launch template</b>.</li>
+      <li>Enter a template name, choose the AMI, instance type, key pair, and security group.</li>
+      <li>Click <b>Create launch template</b>.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 26 -->
+  <h2 id="s26"><span class="section-icon">🧬</span> Launch Multiple EC2 Instances</h2>
+  <span class="badge badge-practical">Practical</span>
+  <p style="margin-bottom:0;">Once a Launch Template exists, you can select <b>Number of instances</b> when launching from it (or use it with an Auto Scaling Group) to create several servers with identical configuration in one action — useful for scaling an application quickly.</p>
+
+  <hr class="divider">
+
+  <!-- 27 -->
+  <h2 id="s27"><span class="section-icon">📌</span> Elastic IP</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="diagram">EC2
+ ↓
+Elastic IPs
+ ↓
+Allocate Elastic IP
+ ↓
+Associate Elastic IP
+ ↓
+Select EC2 Instance</div>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Network &amp; Security → Elastic IPs</b>.</li>
+      <li>Click <b>Allocate Elastic IP address</b>, then <b>Allocate</b>.</li>
+      <li>Select the new address, click <b>Actions → Associate Elastic IP address</b>.</li>
+      <li>Choose your EC2 instance and click <b>Associate</b>.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Use an Elastic IP whenever your server needs a permanent, unchanging public address — for example, when a domain name (DNS record) points to it.</p>
+
+  <hr class="divider">
+
+  <!-- 28 -->
+  <h2 id="s28"><span class="section-icon">📊</span> EC2 Monitoring</h2>
+  <span class="badge badge-theory">Theory</span> <span class="badge badge-practical">Practical</span>
+  <ul class="concept-list">
+    <li><strong>CloudWatch</strong> — AWS's monitoring service that automatically collects metrics from EC2 instances.</li>
+    <li><strong>CPU Utilization</strong> — Percentage of the instance's CPU capacity currently in use.</li>
+    <li><strong>Network In / Network Out</strong> — Amount of data received and sent by the instance.</li>
+    <li><strong>Status Checks</strong> — Automated health checks AWS runs to verify the instance and its host are functioning correctly.</li>
+  </ul>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2 → Instances</b> and select your instance.</li>
+      <li>Open the <b>Monitoring</b> tab to view CPU, network, and status check graphs.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 29 -->
+  <h2 id="s29"><span class="section-icon">🩺</span> EC2 Instance Status Checks</h2>
+  <span class="badge badge-theory">Theory</span>
+  <ul class="concept-list">
+    <li><strong>System status check</strong> — Monitors the AWS hardware/infrastructure hosting your instance (e.g., power, network, hardware issues on AWS's side).</li>
+    <li><strong>Instance status check</strong> — Monitors your specific instance's software/network configuration (e.g., OS-level networking or kernel issues).</li>
+  </ul>
+  <p style="margin-bottom:0;">A <strong>failed status check</strong> generally means the instance is unreachable or unhealthy — for a beginner, this usually means the instance may need a reboot, or in rarer cases, AWS is resolving an underlying hardware issue.</p>
+
+  <hr class="divider">
+
+  <!-- 30 -->
+  <h2 id="s30"><span class="section-icon">🔒</span> EC2 Security Best Practices</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="important">
+    <div class="important-title">⚠️ IMPORTANT</div>
+    <ul>
+      <li>Do not expose SSH (port 22) to everyone unnecessarily.</li>
+      <li>Prefer <b>My IP</b> as the source for SSH rules when appropriate.</li>
+      <li>Use strong key-pair management — keep <code>.pem</code> files organized and backed up securely.</li>
+      <li>Never share your <code>.pem</code> private key files with anyone.</li>
+      <li>Do not hard-code passwords or secrets inside scripts or code.</li>
+      <li>Use IAM roles and policies properly instead of long-lived credentials.</li>
+      <li>Keep the operating system and packages updated regularly.</li>
+      <li>Open only the ports your application actually needs.</li>
+      <li>Use HTTPS (port 443) for any production website.</li>
+      <li>Stop or terminate unused resources to avoid unnecessary charges.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 31 -->
+  <h2 id="s31"><span class="section-icon">🧯</span> EC2 Troubleshooting</h2>
+  <span class="badge badge-practical">Practical</span>
+
+  <div class="troubleshoot">
+    <h4>Cannot SSH into EC2</h4>
+    <p>Check the following, in order:</p>
+    <ul>
+      <li>Is the instance in a <b>running</b> state?</li>
+      <li>Is the <b>Public IP</b> correct and current?</li>
+      <li>Does the Security Group allow inbound <b>port 22</b> from your IP?</li>
+      <li>Are you using the correct <b>username</b> (e.g., <code>ec2-user</code>)?</li>
+      <li>Are you pointing to the correct <code>.pem</code> file?</li>
+      <li>Is there a network/firewall issue on your own side blocking outbound SSH?</li>
+    </ul>
+  </div>
+
+  <div class="troubleshoot">
+    <h4>Website Not Opening</h4>
+    <ul>
+      <li>Is the instance <b>running</b>?</li>
+      <li>Is <b>Apache</b> running (<code>sudo systemctl status httpd</code>)?</li>
+      <li>Does the Security Group allow inbound <b>port 80</b>?</li>
+      <li>Are you using the correct <b>Public IP</b>?</li>
+      <li>Does <code>/var/www/html/index.html</code> actually exist?</li>
+      <li>Any other Security Group rule silently blocking the traffic?</li>
+    </ul>
+  </div>
+
+  <div class="troubleshoot">
+    <h4>Apache Not Running</h4>
+    <pre style="margin-top:0.4rem;"><code>sudo systemctl status httpd
+sudo systemctl restart httpd</code></pre>
+    <p style="margin-bottom:0;">Check the status first to see the error, then restart the service to attempt recovery.</p>
+  </div>
+
+  <h4>Check Port</h4>
+  <pre><code>sudo ss -tulpn</code></pre>
+  <p><code>ss -tulpn</code> lists all listening TCP/UDP ports along with the process using them — useful to confirm Apache is actually listening on port 80.</p>
+
+  <h4>Check Apache Logs</h4>
+  <pre><code>sudo journalctl -u httpd</code></pre>
+  <p style="margin-bottom:0;"><code>journalctl -u httpd</code> shows the system log entries specifically for the <code>httpd</code> (Apache) service — helpful for spotting startup errors or crashes.</p>
+
+  <hr class="divider">
+
+  <!-- 32 -->
+  <h2 id="s32"><span class="section-icon">📐</span> EC2 Important Differences</h2>
+  <span class="badge badge-theory">Theory</span>
+
+  <h3>Public IP vs Private IP</h3>
+  <table>
+    <thead><tr><th>Public IP</th><th>Private IP</th></tr></thead>
+    <tbody><tr><td data-label="Public IP">Reachable from the internet</td><td data-label="Private IP">Reachable only within the VPC</td></tr></tbody>
+  </table>
+
+  <h3>Public IP vs Elastic IP</h3>
+  <table>
+    <thead><tr><th>Public IP</th><th>Elastic IP</th></tr></thead>
+    <tbody><tr><td data-label="Public IP">Changes on stop/start, auto-assigned</td><td data-label="Elastic IP">Fixed and permanent until manually released</td></tr></tbody>
+  </table>
+
+  <h3>Stop vs Reboot vs Terminate</h3>
+  <table>
+    <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Action"><strong>Stop</strong></td><td data-label="Effect">Shuts down, data kept, can be restarted</td></tr>
+      <tr><td data-label="Action"><strong>Reboot</strong></td><td data-label="Effect">Restarts OS, keeps running, IP unchanged</td></tr>
+      <tr><td data-label="Action"><strong>Terminate</strong></td><td data-label="Effect">Permanently deleted, cannot be recovered</td></tr>
+    </tbody>
+  </table>
+
+  <h3>AMI vs EBS Snapshot</h3>
+  <table>
+    <thead><tr><th>AMI</th><th>EBS Snapshot</th></tr></thead>
+    <tbody><tr><td data-label="AMI">Full instance template (OS + software), used to launch new EC2s</td><td data-label="EBS Snapshot">Backup of a single volume's data only</td></tr></tbody>
+  </table>
+
+  <h3>AMI vs Launch Template</h3>
+  <table>
+    <thead><tr><th>AMI</th><th>Launch Template</th></tr></thead>
+    <tbody><tr><td data-label="AMI">The disk image itself</td><td data-label="Launch Template">A saved launch configuration (which AMI + instance type + key pair + security group, etc.)</td></tr></tbody>
+  </table>
+
+  <h3>Security Group vs Network ACL</h3>
+  <table>
+    <thead><tr><th>Security Group</th><th>Network ACL</th></tr></thead>
+    <tbody><tr><td data-label="Security Group">Instance-level firewall, stateful (return traffic auto-allowed)</td><td data-label="Network ACL">Subnet-level firewall, stateless (both directions must be explicitly allowed)</td></tr></tbody>
+  </table>
+
+  <h3>Vertical Scaling vs Horizontal Scaling</h3>
+  <table>
+    <thead><tr><th>Vertical Scaling</th><th>Horizontal Scaling</th></tr></thead>
+    <tbody><tr><td data-label="Vertical Scaling">Increase the size/power of one instance</td><td data-label="Horizontal Scaling">Add more instances running in parallel</td></tr></tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 33 -->
+  <h2 id="s33"><span class="section-icon">📏</span> Vertical Scaling</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="diagram">t3.micro
+ ↓
+t3.medium</div>
+  <p style="margin-bottom:0;">Vertical scaling means changing an existing instance to a bigger (or smaller) instance type to give it more (or less) CPU and RAM — the same single server just becomes more powerful.</p>
+
+  <hr class="divider">
+
+  <!-- 34 -->
+  <h2 id="s34"><span class="section-icon">↔️</span> Horizontal Scaling</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="diagram">Load Balancer
+      ↓
+ ┌────┼────┐
+ ↓    ↓    ↓
+EC2  EC2  EC2</div>
+  <p style="margin-bottom:0;">Horizontal scaling means adding more EC2 instances to share the workload, instead of making one instance bigger. This is useful because it spreads traffic across multiple servers, improving both performance and reliability — if one instance fails, the others keep serving traffic.</p>
+
+  <hr class="divider">
+
+  <!-- 35 -->
+  <h2 id="s35"><span class="section-icon">⚖️</span> EC2 + Load Balancer</h2>
+  <span class="badge badge-theory">Theory</span>
+  <p style="margin-bottom:0;">A Load Balancer sits in front of multiple EC2 instances and distributes incoming traffic evenly across them. Users always connect to the Load Balancer's address, and it forwards each request to one of the healthy EC2 instances behind it — hiding the individual servers and making it easy to add or remove instances without affecting users.</p>
+
+  <hr class="divider">
+
+  <!-- 36 -->
+  <h2 id="s36"><span class="section-icon">📈</span> EC2 + Auto Scaling</h2>
+  <span class="badge badge-theory">Theory</span>
+  <div class="card">
+    <p><strong>What is Auto Scaling?</strong> A feature that automatically adds or removes EC2 instances based on demand (like CPU usage or traffic levels).</p>
+    <p style="margin-bottom:0;"><strong>Why used?</strong> So your application can handle traffic spikes automatically, and save money by shrinking back down when traffic is low.</p>
+  </div>
+  <div class="diagram">Low Traffic → Few EC2 Instances
+High Traffic → Auto Scaling adds more EC2 Instances
+Traffic drops → Auto Scaling removes extra instances</div>
+  <p style="margin-bottom:0;">Auto Scaling works together with a Launch Template (to know exactly how to create new instances) and typically a Load Balancer (to distribute traffic across whatever instances currently exist).</p>
+
+  <hr class="divider">
+
+  <!-- 37 -->
+  <h2 id="s37"><span class="section-icon">🏗️</span> Complete Practical Project: Host a Static Website on AWS EC2</h2>
+  <span class="badge badge-practical">Practical</span>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Create EC2 instance.</li>
+      <li>Select Amazon Linux as the AMI.</li>
+      <li>Select instance type <code>t3.micro</code>.</li>
+      <li>Create (or select) a Key Pair.</li>
+      <li>Configure Security Group.</li>
+      <li>Allow SSH (port 22) from your IP.</li>
+      <li>Allow HTTP (port 80) from anywhere.</li>
+      <li>Launch the EC2 instance.</li>
+      <li>Find the instance's Public IP.</li>
+      <li>Connect using SSH.</li>
+      <li>Update the server: <code>sudo dnf update -y</code>.</li>
+      <li>Install Apache: <code>sudo dnf install -y httpd</code>.</li>
+      <li>Start Apache: <code>sudo systemctl start httpd</code>.</li>
+      <li>Enable Apache: <code>sudo systemctl enable httpd</code>.</li>
+      <li>Create <code>index.html</code> in <code>/var/www/html</code>.</li>
+      <li>Add HTML content to the file.</li>
+      <li>Verify Apache with <code>curl localhost</code>.</li>
+      <li>Open the Public IP in a browser to see the website.</li>
+      <li>Modify the website content if needed.</li>
+      <li>Restart Apache if configuration changes were made.</li>
+      <li>Stop the instance when not needed.</li>
+      <li>Start the instance again later.</li>
+      <li>Verify the website still works (note: Public IP may have changed).</li>
+      <li>Clean up resources (terminate instance, release Elastic IP, delete volumes) when the project is done.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 38 -->
+  <h2 id="s38"><span class="section-icon">🗒️</span> Practical EC2 Task List</h2>
+  <span class="badge badge-practical">Practical</span>
+  <ol class="task-list">
+    <li><span class="num">1.</span> Create EC2 Instance</li>
+    <li><span class="num">2.</span> Create Key Pair</li>
+    <li><span class="num">3.</span> Configure Security Group</li>
+    <li><span class="num">4.</span> Connect using SSH</li>
+    <li><span class="num">5.</span> Connect using EC2 Instance Connect</li>
+    <li><span class="num">6.</span> Check EC2 details</li>
+    <li><span class="num">7.</span> Install Apache</li>
+    <li><span class="num">8.</span> Install Nginx</li>
+    <li><span class="num">9.</span> Start Apache</li>
+    <li><span class="num">10.</span> Stop Apache</li>
+    <li><span class="num">11.</span> Restart Apache</li>
+    <li><span class="num">12.</span> Enable Apache</li>
+    <li><span class="num">13.</span> Host a Static Website</li>
+    <li><span class="num">14.</span> Configure HTTP</li>
+    <li><span class="num">15.</span> Configure HTTPS</li>
+    <li><span class="num">16.</span> Use User Data</li>
+    <li><span class="num">17.</span> Stop EC2</li>
+    <li><span class="num">18.</span> Start EC2</li>
+    <li><span class="num">19.</span> Reboot EC2</li>
+    <li><span class="num">20.</span> Terminate EC2</li>
+    <li><span class="num">21.</span> Create EBS Volume</li>
+    <li><span class="num">22.</span> Attach EBS Volume</li>
+    <li><span class="num">23.</span> Format EBS Volume</li>
+    <li><span class="num">24.</span> Mount EBS Volume</li>
+    <li><span class="num">25.</span> Store Data</li>
+    <li><span class="num">26.</span> Unmount EBS</li>
+    <li><span class="num">27.</span> Detach EBS</li>
+    <li><span class="num">28.</span> Create EBS Snapshot</li>
+    <li><span class="num">29.</span> Create AMI</li>
+    <li><span class="num">30.</span> Launch EC2 from AMI</li>
+    <li><span class="num">31.</span> Create Launch Template</li>
+    <li><span class="num">32.</span> Launch EC2 from Launch Template</li>
+    <li><span class="num">33.</span> Create Elastic IP</li>
+    <li><span class="num">34.</span> Associate Elastic IP</li>
+    <li><span class="num">35.</span> Monitor EC2</li>
+    <li><span class="num">36.</span> Troubleshoot EC2</li>
+    <li><span class="num">37.</span> Configure Load Balancer</li>
+    <li><span class="num">38.</span> Configure Auto Scaling</li>
+  </ol>
+
+  <hr class="divider">
+
+  <!-- 39 -->
+  <h2 id="s39"><span class="section-icon">🎯</span> EC2 Interview Questions</h2>
+  <span class="badge badge-theory">Interview Prep</span>
+
+  <div class="qa"><p class="q">Q: What is EC2?</p><p class="a">A: A web service providing resizable virtual servers in the cloud.</p></div>
+  <div class="qa"><p class="q">Q: What is an EC2 instance?</p><p class="a">A: One single virtual server created and run within EC2.</p></div>
+  <div class="qa"><p class="q">Q: What is an AMI?</p><p class="a">A: A template containing an OS and optionally pre-installed software, used to launch instances.</p></div>
+  <div class="qa"><p class="q">Q: What is an Instance Type?</p><p class="a">A: A configuration that defines the CPU, RAM, and network performance of an instance.</p></div>
+  <div class="qa"><p class="q">Q: What is a Key Pair?</p><p class="a">A: A public/private key combination used for secure, passwordless login to an instance.</p></div>
+  <div class="qa"><p class="q">Q: What is a Security Group?</p><p class="a">A: A virtual, instance-level firewall controlling inbound and outbound traffic.</p></div>
+  <div class="qa"><p class="q">Q: What is EBS?</p><p class="a">A: Elastic Block Store — persistent block storage attached to EC2 instances.</p></div>
+  <div class="qa"><p class="q">Q: What is a Public IP?</p><p class="a">A: An internet-reachable address assigned to the instance, usually changing on stop/start.</p></div>
+  <div class="qa"><p class="q">Q: What is a Private IP?</p><p class="a">A: An internal address used for communication within the VPC.</p></div>
+  <div class="qa"><p class="q">Q: What is an Elastic IP?</p><p class="a">A: A static, permanent public IP address you allocate and control.</p></div>
+  <div class="qa"><p class="q">Q: What is User Data?</p><p class="a">A: A script that runs automatically the first time an instance boots, used to automate setup.</p></div>
+  <div class="qa"><p class="q">Q: Difference between Stop and Terminate?</p><p class="a">A: Stop keeps the instance and data, reversible; Terminate permanently deletes it.</p></div>
+  <div class="qa"><p class="q">Q: Difference between Stop and Reboot?</p><p class="a">A: Stop fully shuts the instance down; Reboot restarts the OS while the instance keeps running.</p></div>
+  <div class="qa"><p class="q">Q: Difference between AMI and Snapshot?</p><p class="a">A: An AMI is a full instance template; a Snapshot is a backup of a single EBS volume.</p></div>
+  <div class="qa"><p class="q">Q: What is a Launch Template?</p><p class="a">A: A saved, reusable configuration for launching EC2 instances consistently.</p></div>
+  <div class="qa"><p class="q">Q: What is an Availability Zone?</p><p class="a">A: One isolated physical data center location within an AWS Region.</p></div>
+  <div class="qa"><p class="q">Q: What is an AWS Region?</p><p class="a">A: A geographic area containing multiple Availability Zones.</p></div>
+  <div class="qa"><p class="q">Q: How do you connect to a Linux EC2 instance?</p><p class="a">A: Via SSH using its Public IP and private key, or via EC2 Instance Connect from the browser.</p></div>
+  <div class="qa"><p class="q">Q: How do you host a website on EC2?</p><p class="a">A: Install a web server (like Apache), place website files in its web root, and open port 80/443 in the Security Group.</p></div>
+  <div class="qa"><p class="q">Q: How do you troubleshoot an EC2 server that cannot be accessed?</p><p class="a">A: Check instance state, Public IP, Security Group rules, correct username, and correct key file.</p></div>
+  <div class="qa"><p class="q">Q: Why is Port 22 used?</p><p class="a">A: It's the standard port for SSH remote terminal access.</p></div>
+  <div class="qa"><p class="q">Q: Why is Port 80 used?</p><p class="a">A: It's the standard port for unencrypted HTTP web traffic.</p></div>
+  <div class="qa"><p class="q">Q: Why is Port 443 used?</p><p class="a">A: It's the standard port for encrypted HTTPS web traffic.</p></div>
+  <div class="qa"><p class="q">Q: What happens to Public IP after stopping an EC2 instance?</p><p class="a">A: It's released and a new one is assigned when the instance is started again (unless an Elastic IP is attached).</p></div>
+  <div class="qa"><p class="q">Q: Why do we use Elastic IP?</p><p class="a">A: To have a fixed, unchanging public address for the instance.</p></div>
+  <div class="qa"><p class="q">Q: What is vertical scaling?</p><p class="a">A: Increasing the resources (CPU/RAM) of a single existing instance.</p></div>
+  <div class="qa"><p class="q">Q: What is horizontal scaling?</p><p class="a">A: Adding more instances to share the workload.</p></div>
+
+  <hr class="divider">
+
+  <!-- 40 -->
+  <h2 id="s40"><span class="section-icon">🗺️</span> Final EC2 Learning Flow &amp; Roadmap</h2>
+  <span class="badge badge-theory">Complete Learning Path</span>
+  <span class="badge badge-practical">Interactive Roadmap</span>
+
+  <div class="roadmap-container">
+    <div class="roadmap-header-card">
+      <h3>🚀 End-to-End EC2 Mastery Roadmap</h3>
+      <p>From core cloud foundations and virtual server provisioning to web hosting, automated backups, golden AMIs, and high-availability auto-scaling. Click any step below to jump directly to its dedicated study guide section.</p>
+    </div>
+
+    <!-- Quick Pipeline Stage Selector -->
+    <div class="pipeline-overview" aria-label="Roadmap Stages Navigation">
+      <div class="pipeline-step" data-stage="1" title="Click to view Stage 1: Foundations">
+        <span class="pipeline-num" style="background:#eff6ff; color:#2563eb;">Stage 01</span>
+        <span class="pipeline-title">🌐 Foundations</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="2" title="Click to view Stage 2: Provisioning">
+        <span class="pipeline-num" style="background:#f0fdfa; color:#0d9488;">Stage 02</span>
+        <span class="pipeline-title">🚀 Launch &amp; Sizing</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="3" title="Click to view Stage 3: Linux &amp; Web">
+        <span class="pipeline-num" style="background:#ecfdf5; color:#10b981;">Stage 03</span>
+        <span class="pipeline-title">💻 Web &amp; CLI</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="4" title="Click to view Stage 4: Storage &amp; Data">
+        <span class="pipeline-num" style="background:#fffbeb; color:#d97706;">Stage 04</span>
+        <span class="pipeline-title">💾 Storage &amp; IP</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="5" title="Click to view Stage 5: AMI &amp; Fleet">
+        <span class="pipeline-num" style="background:#f5f3ff; color:#7c3aed;">Stage 05</span>
+        <span class="pipeline-title">📦 AMIs &amp; Templates</span>
+      </div>
+      <span class="pipeline-arrow">➔</span>
+      <div class="pipeline-step" data-stage="6" title="Click to view Stage 6: Scaling &amp; HA">
+        <span class="pipeline-num" style="background:#fff1f2; color:#e11d48;">Stage 06</span>
+        <span class="pipeline-title">📈 Load Balance &amp; ASG</span>
+      </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="roadmap-filters">
+      <button class="filter-btn active" data-filter="all">🌟 All Stages (27 Steps)</button>
+      <button class="filter-btn" data-filter="1">🌐 1. Foundations</button>
+      <button class="filter-btn" data-filter="2">🚀 2. Launch &amp; Sizing</button>
+      <button class="filter-btn" data-filter="3">💻 3. Web &amp; CLI</button>
+      <button class="filter-btn" data-filter="4">💾 4. Storage &amp; IP</button>
+      <button class="filter-btn" data-filter="5">📦 5. AMIs &amp; Templates</button>
+      <button class="filter-btn" data-filter="6">📈 6. Scaling &amp; HA</button>
+    </div>
+
+    <!-- STAGE 1 -->
+    <div class="roadmap-stage stage-1" data-stage="1" id="stage-1">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">🌐</div>
+          <div>
+            <span class="stage-badge">Stage 01</span>
+            <h3 class="stage-title">Cloud Infrastructure Foundations</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Prepare security boundaries, geographical regions, and isolated network subnets where your virtual compute will live.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">01</span>
+            <span class="step-icon">🔑</span>
+            <span class="step-name">AWS Account &amp; IAM</span>
+          </div>
+          <p class="step-text">Setup root protection, billing alerts, and least-privilege IAM users/roles.</p>
+          <a href="#s30" class="step-link">Jump to Security Guide ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">02</span>
+            <span class="step-icon">🌍</span>
+            <span class="step-name">AWS Region &amp; AZs</span>
+          </div>
+          <p class="step-text">Select geographic region for low latency &amp; multiple AZs for high fault-tolerance.</p>
+          <a href="#s2" class="step-link">Jump to Architecture ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">03</span>
+            <span class="step-icon">🛡️</span>
+            <span class="step-name">VPC &amp; Subnet Isolation</span>
+          </div>
+          <p class="step-text">Define private/public IPv4 CIDR blocks, route tables, and Internet Gateway access.</p>
+          <a href="#s2" class="step-link">Jump to VPC Placement ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <!-- STAGE 2 -->
+    <div class="roadmap-stage stage-2" data-stage="2" id="stage-2">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">🚀</div>
+          <div>
+            <span class="stage-badge">Stage 02</span>
+            <h3 class="stage-title">EC2 Instance Provisioning &amp; Security</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Configure firewall rules, choose the operating system, compute sizing, and SSH cryptographic keypair.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">04</span>
+            <span class="step-icon">🔒</span>
+            <span class="step-name">Security Group Firewall</span>
+          </div>
+          <p class="step-text">Configure stateful virtual firewall rules for SSH (Port 22), HTTP (80), and HTTPS (443).</p>
+          <a href="#s13" class="step-link">Jump to Security Group ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">05</span>
+            <span class="step-icon">💿</span>
+            <span class="step-name">AMI Selection</span>
+          </div>
+          <p class="step-text">Pick base OS template: Amazon Linux 2023, Ubuntu 22.04/24.04, or Red Hat Enterprise.</p>
+          <a href="#s4" class="step-link">Jump to Components (AMI) ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">06</span>
+            <span class="step-icon">⚡</span>
+            <span class="step-name">Instance Type &amp; Sizing</span>
+          </div>
+          <p class="step-text">Select optimal CPU/RAM balance (General Purpose t3.micro/t3.medium, Compute, Memory).</p>
+          <a href="#s5" class="step-link">Jump to Instance Types ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">07</span>
+            <span class="step-icon">🗝️</span>
+            <span class="step-name">Key Pair Generation</span>
+          </div>
+          <p class="step-text">Create and download <code>.pem</code> / <code>.ppk</code> cryptographic private key for secure authentication.</p>
+          <a href="#s4" class="step-link">Jump to Key Pair Guide ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">08</span>
+            <span class="step-icon">🚀</span>
+            <span class="step-name">Launch EC2 Instance</span>
+          </div>
+          <p class="step-text">Review configurations, launch virtual machine, and monitor initialization status checks.</p>
+          <a href="#s7" class="step-link">Jump to Step-by-Step Launch ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <!-- STAGE 3 -->
+    <div class="roadmap-stage stage-3" data-stage="3" id="stage-3">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">💻</div>
+          <div>
+            <span class="stage-badge">Stage 03</span>
+            <h3 class="stage-title">Remote Connection, Linux &amp; Web Server</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Connect via SSH, run server administration commands, install Apache/Nginx web server, and host live websites.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">09</span>
+            <span class="step-icon">🌐</span>
+            <span class="step-name">Public IP &amp; Hostname</span>
+          </div>
+          <p class="step-text">Verify dynamic public IPv4 address assigned from AWS pool and public DNS name.</p>
+          <a href="#s8" class="step-link">Jump to Instance Details ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">10</span>
+            <span class="step-icon">💻</span>
+            <span class="step-name">SSH &amp; EC2 Instance Connect</span>
+          </div>
+          <p class="step-text">Establish secure terminal session via CLI <code>ssh -i key.pem user@ip</code> or browser-based connect.</p>
+          <a href="#s9" class="step-link">Jump to Access EC2 ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">11</span>
+            <span class="step-icon">⌨️</span>
+            <span class="step-name">Linux Administration</span>
+          </div>
+          <p class="step-text">Run essential commands: <code>sudo su</code>, <code>pwd</code>, <code>systemctl</code>, file navigation and permissions.</p>
+          <a href="#s10" class="step-link">Jump to Linux Commands ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">12</span>
+            <span class="step-icon">🔄</span>
+            <span class="step-name">Update Server Packages</span>
+          </div>
+          <p class="step-text">Patch security vulnerabilities and update packages using <code>sudo dnf update -y</code>.</p>
+          <a href="#s11" class="step-link">Jump to Server Updates ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">13</span>
+            <span class="step-icon">🌐</span>
+            <span class="step-name">Install Apache (HTTPD)</span>
+          </div>
+          <p class="step-text">Install web server package, start the daemon, and enable boot auto-start (<code>systemctl enable httpd</code>).</p>
+          <a href="#s12" class="step-link">Jump to Install Apache ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">14</span>
+            <span class="step-icon">📄</span>
+            <span class="step-name">Host Website &amp; Verify</span>
+          </div>
+          <p class="step-text">Deploy custom HTML to <code>/var/www/html/index.html</code> and browse via Public IP.</p>
+          <a href="#s14" class="step-link">Jump to Host Website ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <!-- STAGE 4 -->
+    <div class="roadmap-stage stage-4" data-stage="4" id="stage-4">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">💾</div>
+          <div>
+            <span class="stage-badge">Stage 04</span>
+            <h3 class="stage-title">EBS Storage, Disaster Recovery &amp; Automation</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Manage block storage volumes, automated bootstrap scripts, point-in-time snapshots, and persistent Elastic IPs.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">15</span>
+            <span class="step-icon">💽</span>
+            <span class="step-name">EBS Storage Volume</span>
+          </div>
+          <p class="step-text">Create and attach network-attached block storage volume (gp3/io2) to your running instance.</p>
+          <a href="#s20" class="step-link">Jump to EBS Volume ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">16</span>
+            <span class="step-icon">📁</span>
+            <span class="step-name">Format &amp; Mount Filesystem</span>
+          </div>
+          <p class="step-text">Format partition using <code>mkfs -t xfs</code>, create mount point, and configure <code>/etc/fstab</code>.</p>
+          <a href="#s21" class="step-link">Jump to Format &amp; Mount ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">17</span>
+            <span class="step-icon">📸</span>
+            <span class="step-name">EBS Snapshot Backup</span>
+          </div>
+          <p class="step-text">Capture incremental point-in-time backups stored securely in Amazon S3 for disaster recovery.</p>
+          <a href="#s22" class="step-link">Jump to Snapshots ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">18</span>
+            <span class="step-icon">📜</span>
+            <span class="step-name">User Data Automation</span>
+          </div>
+          <p class="step-text">Bootstrap automatic package installation and configuration via bash scripts on instance first launch.</p>
+          <a href="#s17" class="step-link">Jump to User Data ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">19</span>
+            <span class="step-icon">📌</span>
+            <span class="step-name">Elastic IP (Static IPv4)</span>
+          </div>
+          <p class="step-text">Allocate fixed, unchanging public IP address to prevent IP changes upon instance reboot/stop.</p>
+          <a href="#s27" class="step-link">Jump to Elastic IP ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <!-- STAGE 5 -->
+    <div class="roadmap-stage stage-5" data-stage="5" id="stage-5">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">📦</div>
+          <div>
+            <span class="stage-badge">Stage 05</span>
+            <h3 class="stage-title">Custom Golden AMI &amp; Launch Templates</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Bake pre-configured operating environments into reusable AMIs and define versioned launch templates for rapid fleet provisioning.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">20</span>
+            <span class="step-icon">📦</span>
+            <span class="step-name">Create Custom AMI</span>
+          </div>
+          <p class="step-text">Bake your installed web server, app code, and configurations into a reusable Golden Image AMI.</p>
+          <a href="#s23" class="step-link">Jump to Create AMI ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">21</span>
+            <span class="step-icon">🚀</span>
+            <span class="step-name">Launch from Custom AMI</span>
+          </div>
+          <p class="step-text">Deploy ready-to-serve instances instantly without needing manual software setup.</p>
+          <a href="#s24" class="step-link">Jump to Launch from AMI ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">22</span>
+            <span class="step-icon">📋</span>
+            <span class="step-name">Launch Template</span>
+          </div>
+          <p class="step-text">Create versioned, standardized specifications (AMI, instance type, SG, user data, tags).</p>
+          <a href="#s25" class="step-link">Jump to Launch Template ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">23</span>
+            <span class="step-icon">👥</span>
+            <span class="step-name">Multiple Instances Fleet</span>
+          </div>
+          <p class="step-text">Deploy standardized instance fleets across multiple availability zones using Launch Templates.</p>
+          <a href="#s26" class="step-link">Jump to Multiple Instances ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-connector">⬇</div>
+
+    <!-- STAGE 6 -->
+    <div class="roadmap-stage stage-6" data-stage="6" id="stage-6">
+      <div class="stage-header">
+        <div class="stage-meta">
+          <div class="stage-icon">📈</div>
+          <div>
+            <span class="stage-badge">Stage 06</span>
+            <h3 class="stage-title">Monitoring, High Availability &amp; Auto Scaling</h3>
+          </div>
+        </div>
+        <p class="stage-desc">Monitor health with CloudWatch, balance traffic with ALB, and automatically scale capacity with Auto Scaling Groups.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">24</span>
+            <span class="step-icon">📊</span>
+            <span class="step-name">CloudWatch Monitoring</span>
+          </div>
+          <p class="step-text">Track CPU utilization, network traffic, system/instance status checks, and configure automated alarms.</p>
+          <a href="#s28" class="step-link">Jump to Monitoring ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">25</span>
+            <span class="step-icon">⚖️</span>
+            <span class="step-name">Application Load Balancer</span>
+          </div>
+          <p class="step-text">Distribute incoming HTTP/HTTPS traffic across target groups with continuous automated health checks.</p>
+          <a href="#s35" class="step-link">Jump to Load Balancer ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">26</span>
+            <span class="step-icon">🔄</span>
+            <span class="step-name">Auto Scaling Group (ASG)</span>
+          </div>
+          <p class="step-text">Dynamically scale instance count (Min, Desired, Max) based on CPU/traffic alarms and replace unhealthy nodes.</p>
+          <a href="#s36" class="step-link">Jump to Auto Scaling ➔</a>
+        </div>
+        <div class="step-card">
+          <div class="step-card-top">
+            <span class="step-num">27</span>
+            <span class="step-icon">🏆</span>
+            <span class="step-name">Complete Production Project</span>
+          </div>
+          <p class="step-text">Implement full end-to-end resilient architecture combining VPC, EC2, User Data, ALB, and ASG.</p>
+          <a href="#s37" class="step-link">Jump to Hands-on Project ➔</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme toggle
+  var themeBtn = document.getElementById('theme-btn');
+  var root = document.documentElement;
+  themeBtn.addEventListener('click', function(){
+    var isDark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  // Sidebar toggle (mobile)
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar search/filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // Active link highlighting on scroll
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+
+  // Roadmap stage filtering
+  var filterBtns = document.querySelectorAll('.roadmap-filters .filter-btn');
+  var roadmapStages = document.querySelectorAll('.roadmap-stage');
+  var stageConnectors = document.querySelectorAll('.stage-connector');
+  
+  filterBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = btn.getAttribute('data-filter');
+      filterBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      
+      roadmapStages.forEach(function(stage){
+        if(target === 'all' || stage.getAttribute('data-stage') === target){
+          stage.style.display = 'block';
+        } else {
+          stage.style.display = 'none';
+        }
+      });
+      stageConnectors.forEach(function(conn){
+        conn.style.display = target === 'all' ? 'flex' : 'none';
+      });
+    });
+  });
+
+  // Pipeline mini-nav clicks
+  document.querySelectorAll('.pipeline-step').forEach(function(step){
+    step.addEventListener('click', function(e){
+      e.preventDefault();
+      var stageNum = step.getAttribute('data-stage');
+      var targetFilterBtn = document.querySelector('.filter-btn[data-filter="' + stageNum + '"]');
+      if (targetFilterBtn) {
+        targetFilterBtn.click();
+        var targetStage = document.getElementById('stage-' + stageNum);
+        if (targetStage) {
+          targetStage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  });
+
+  // Target highlight on clicking step jump links
+  document.querySelectorAll('.step-link').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var targetId = link.getAttribute('href');
+      if (targetId && targetId.startsWith('#')) {
+        var targetEl = document.querySelector(targetId);
+        if (targetEl) {
+          setTimeout(function(){
+            targetEl.classList.add('flash-highlight');
+            setTimeout(function(){ targetEl.classList.remove('flash-highlight'); }, 2000);
+          }, 300);
+        }
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

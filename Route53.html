@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS Route 53 — Complete Guide</title>
+<style>
+  :root {
+    --bg:#f4f6f9; --sidebar-bg:#151c2c; --card:#ffffff; --ink:#1e2a38; --muted:#5a6878; --line:#dbe2ea;
+    --brand:#1a5f9e; --brand-soft:#e6f0fa;
+    --ok:#1d7a46; --ok-soft:#e5f5ec;
+    --warn:#9a6200; --warn-soft:#fff4dc;
+    --bad:#b02a2a; --bad-soft:#fdeaea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --code-bg:#14202e; --code-ink:#e3ebf3;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --ink:#e6ecf5; --muted:#9aa7bb; --line:#2a3448;
+    --brand:#5fa8f5; --brand-soft:#162742;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --code-bg:#0a1220; --code-ink:#dce6f2;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:280px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:7px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:6px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:6px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  header.hero {
+    background:linear-gradient(135deg,var(--brand),#0d3559); color:#fff; padding:34px 28px;
+    border-radius:14px; margin-bottom:24px; box-shadow:0 8px 24px rgba(26,95,158,0.25);
+  }
+  header.hero .kicker { text-transform:uppercase; letter-spacing:.12em; font-size:.78rem; opacity:.85; margin-bottom:6px; }
+  header.hero h1 { margin:0 0 8px; font-size:2rem; line-height:1.25; }
+  header.hero p { margin:0; opacity:.95; font-size:1.05rem; }
+
+  nav.toc {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:18px 22px; margin-bottom:24px;
+  }
+  nav.toc h2 { margin:0 0 12px; font-size:1.15rem; color:var(--brand); border-bottom:none; padding-bottom:0; }
+  .toc-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:0.25rem 1.6rem;
+    list-style:none; padding:0; margin:0; font-size:.9rem;
+  }
+  .toc-grid a { color:var(--brand); text-decoration:none; display:inline-block; padding:2px 0; }
+  .toc-grid a:hover { text-decoration:underline; }
+  @media (max-width:640px) { .toc-grid { grid-template-columns:1fr; } }
+
+  section.card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:24px 26px; margin-bottom:22px; scroll-margin-top:70px;
+  }
+  section.card > h2 {
+    margin:0 0 14px; font-size:1.35rem; color:var(--brand);
+    padding-bottom:8px; border-bottom:2px solid var(--brand-soft); scroll-margin-top:70px;
+  }
+  h3.topic { margin:20px 0 6px; font-size:1.1rem; color:var(--ink); }
+  h4.subtopic { margin:14px 0 4px; font-size:1rem; color:var(--muted); font-weight:600; }
+  p { margin:8px 0; }
+  ul, ol { margin:8px 0; padding-left:22px; }
+  li { margin-bottom:5px; }
+
+  .box {
+    border-left:5px solid var(--brand); background:var(--brand-soft); color:var(--ink);
+    padding:12px 16px; border-radius:6px; margin:14px 0;
+  }
+  .box.warn { border-color:var(--warn); background:var(--warn-soft); }
+  .box strong.t { display:block; margin-bottom:4px; font-weight:700; color:var(--brand); }
+  .box.warn strong.t { color:var(--warn); }
+
+  table { width:100%; border-collapse:collapse; margin:12px 0 16px; font-size:.92rem; border-radius:8px; overflow:hidden; }
+  th, td { border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top; }
+  th { background:var(--brand-soft); color:var(--brand); font-weight:700; }
+  tbody tr:nth-child(even) { background:rgba(0,0,0,0.02); }
+  [data-theme="dark"] tbody tr:nth-child(even) { background:rgba(255,255,255,0.02); }
+  .tablewrap { overflow-x:auto; }
+
+  pre, .arch, .diagram {
+    background:var(--code-bg); color:var(--code-ink); border:1px solid var(--line);
+    font-family:Consolas, "Courier New", monospace; font-size:.88rem; padding:14px;
+    border-radius:8px; overflow-x:auto; white-space:pre; line-height:1.45; margin:14px 0;
+  }
+
+  .qa { border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:10px 0; background:var(--card); }
+  .qa .q { font-weight:700; color:var(--brand); margin-bottom:5px; font-size:.95rem; }
+
+  .steps { counter-reset:stepnum; list-style:none; padding-left:0; margin:12px 0; }
+  .steps li {
+    counter-increment:stepnum; position:relative; padding:8px 12px 8px 38px;
+    margin-bottom:8px; border:1px solid var(--line); border-radius:8px; background:var(--card);
+  }
+  .steps li::before {
+    content:counter(stepnum); position:absolute; left:8px; top:8px; width:22px; height:22px;
+    border-radius:50%; background:var(--brand); color:#fff; font-size:.75rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .revitem { border:1px solid var(--line); border-radius:8px; padding:10px 16px; margin:8px 0; background:var(--card); }
+  .revitem .term { font-weight:700; color:var(--brand); display:block; margin-bottom:2px; }
+  .revitem p { margin:0; }
+
+  code {
+    font-family:Consolas, "Courier New", monospace; font-size:.88em;
+    background:var(--brand-soft); color:var(--brand); padding:2px 6px; border-radius:4px;
+  }
+
+  footer {
+    text-align:center; color:var(--muted); font-size:.9rem;
+    margin-top:36px; padding:22px; border-top:1px solid var(--line); font-weight:500;
+  }
+
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+  }
+
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+
+  @media print {
+    #sidebar, .topbar, #backtotop { display:none !important; }
+    body { display:block; }
+    .content { max-width:100%; padding:0; }
+    section.card { border:1px solid #999; page-break-inside:avoid; }
+    section.card > h2 { page-break-after:avoid; }
+    .arch, table, .qa, .box { page-break-inside:avoid; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">🧭</span><span class="name">Route 53 Notes</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Core Concepts</h2>
+  <ul>
+    <li><a href="#s1">1. What is Route 53?</a></li>
+    <li><a href="#s4">2. What is DNS?</a></li>
+    <li><a href="#s5">3. Why Route 53?</a></li>
+    <li><a href="#s6">4. Route 53 Capabilities</a></li>
+    <li><a href="#s7">5. Hosted Zone</a></li>
+    <li><a href="#s8">6. DNS Records</a></li>
+  </ul>
+  <h2>Traffic &amp; Routing</h2>
+  <ul>
+    <li><a href="#s9">7. Routing Policies</a></li>
+    <li><a href="#s10">8. Health Checks</a></li>
+    <li><a href="#s11">9. Domain Registration</a></li>
+  </ul>
+  <h2>Practical &amp; Integrations</h2>
+  <ul>
+    <li><a href="#s12">10. Create Hosted Zone</a></li>
+    <li><a href="#s13">11. Route 53 + EC2</a></li>
+    <li><a href="#s14">12. Route 53 + ALB</a></li>
+    <li><a href="#s15">13. Route 53 + ECS Fargate</a></li>
+    <li><a href="#s16">14. Real MERN App Example</a></li>
+    <li><a href="#s17">15. Subdomain Example</a></li>
+  </ul>
+  <h2>Architecture &amp; Review</h2>
+  <ul>
+    <li><a href="#s18">16. Important Differences</a></li>
+    <li><a href="#s19">17. Production Architecture</a></li>
+    <li><a href="#s20">18. Interview Questions</a></li>
+    <li><a href="#s21">19. Quick Revision</a></li>
+    <li><a href="#s22">20. Final Questions</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS Route 53 &mdash; Complete Guide</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <header class="hero">
+      <div class="kicker">AWS Networking &amp; DNS</div>
+      <h1>AWS Route 53 &mdash; Study Notes</h1>
+      <p>English Edition &mdash; Complete guide for learning, revision, and interview preparation</p>
+    </header>
+
+    <nav class="toc">
+      <h2>Table of Contents</h2>
+      <ol class="toc-grid">
+        <li><a href="#s1">1. What is Route 53? (name, meaning)</a></li>
+        <li><a href="#s4">2. What is DNS?</a></li>
+        <li><a href="#s5">3. Why do we need Route 53?</a></li>
+        <li><a href="#s6">4. What Route 53 handles</a></li>
+        <li><a href="#s7">5. Hosted Zone</a></li>
+        <li><a href="#s8">6. DNS Records</a></li>
+        <li><a href="#s9">7. Routing Policies</a></li>
+        <li><a href="#s10">8. Health Checks</a></li>
+        <li><a href="#s11">9. Domain Registration</a></li>
+        <li><a href="#s12">10. Practical: Create Hosted Zone</a></li>
+        <li><a href="#s13">11. Practical: Route 53 + EC2</a></li>
+        <li><a href="#s14">12. Practical: Route 53 + ALB</a></li>
+        <li><a href="#s15">13. Route 53 + ECS Fargate</a></li>
+        <li><a href="#s16">14. Real MERN Application Example</a></li>
+        <li><a href="#s17">15. Subdomain Example</a></li>
+        <li><a href="#s18">16. Important Differences</a></li>
+        <li><a href="#s19">17. Complete Production Architecture</a></li>
+        <li><a href="#s20">18. Interview Questions</a></li>
+        <li><a href="#s21">19. Quick Revision</a></li>
+        <li><a href="#s22">20. Final Questions</a></li>
+      </ol>
+    </nav>
+
+    <section class="card" id="s1">
+      <h2>1. AWS Route 53 &mdash; Name and Meaning</h2>
+      <h3 class="topic">Full Form / Name: Amazon Route 53</h3>
+      <p>Amazon Route 53 is the official name AWS gives to its DNS web service. "Amazon" shows it belongs to AWS, and "Route 53" is the product name.</p>
+
+      <h3 class="topic">What is AWS Route 53?</h3>
+      <h4 class="subtopic">What is it?</h4>
+      <p>Amazon Route 53 is an AWS DNS service that helps connect domain names with servers and AWS resources.</p>
+      <h4 class="subtopic">What problem does it solve?</h4>
+      <p>Computers talk to each other using numeric IP addresses, which are hard for humans to remember. Route 53 lets people use easy names (like example.com) instead.</p>
+      <h4 class="subtopic">Why do we use it?</h4>
+      <p>We use Route 53 to register domains, manage DNS records, route traffic reliably, and connect a domain to AWS services like EC2, ALB or S3.</p>
+      <h4 class="subtopic">How does it work? (basic idea)</h4>
+      <p>You type a domain name in the browser; Route 53 looks it up and replies with the IP address (or AWS resource) it should connect to.</p>
+      <h4 class="subtopic">Real-world example</h4>
+      <p>When you visit amazon.com, Route 53 (or a similar DNS service) translates that name into the server address that actually serves the Amazon website.</p>
+
+      <h3 class="topic">Why is it called "Route 53"?</h3>
+      <p>"Route" refers to routing traffic to the right destination. "53" refers to port 53, the standard network port used by DNS. Together the name hints at "routing DNS traffic."</p>
+      <div class="box">
+        <strong class="t">DNS port 53</strong>
+        DNS servers communicate over network port 53 (both TCP and UDP) &mdash; this is a globally standard convention, not something specific to AWS.
+      </div>
+    </section>
+
+    <section class="card" id="s4">
+      <h2>2. What is DNS?</h2>
+      <p>DNS stands for <strong>Domain Name System</strong>.</p>
+      <div class="arch">Without DNS:
+13.62.102.238   (hard to remember)
+
+With DNS:
+www.example.com
+        |
+        v
+13.62.102.238   (DNS looks this up for you)</div>
+      <p>DNS is like a phonebook for the internet. Instead of remembering a server's numeric IP address, you type a name, and DNS finds the matching IP address for you. This lookup happens automatically every time you open a website, without you noticing it.</p>
+    </section>
+
+    <section class="card" id="s5">
+      <h2>3. Why Do We Need Route 53?</h2>
+      <div class="arch">User
+ |
+ v
+www.example.com
+ |
+ v
+Route 53
+ |
+ v
+AWS Resource / Server
+ |
+ v
+Application</div>
+      <p>Step by step: the user types the domain in a browser. The browser asks Route 53 to resolve it. Route 53 replies with the correct AWS resource/server address. The browser connects there, and the application loads.</p>
+    </section>
+
+    <section class="card" id="s6">
+      <h2>4. What Does Route 53 Handle?</h2>
+      <h4 class="subtopic">DNS</h4>
+      <p>Route 53 answers DNS queries, translating domain names into IP addresses or other resource information.</p>
+      <h4 class="subtopic">Domain registration</h4>
+      <p>Route 53 also lets you buy/register a new domain name directly through AWS.</p>
+      <h4 class="subtopic">DNS records</h4>
+      <p>Route 53 stores DNS records that describe how a domain should be resolved (A, CNAME, MX, etc.). Covered in detail in section 6.</p>
+      <h4 class="subtopic">Traffic routing</h4>
+      <p>Route 53 can send traffic to different servers based on rules &mdash; called routing policies (weighted, latency-based, failover, etc.).</p>
+      <h4 class="subtopic">Health checks</h4>
+      <p>Route 53 can check whether a server is healthy, and route traffic away from unhealthy servers automatically.</p>
+      <h4 class="subtopic">Domain-to-resource mapping</h4>
+      <p>Route 53 links a domain to the actual AWS resource it should point to &mdash; an EC2 instance, a Load Balancer, an S3 website, etc.</p>
+    </section>
+
+    <section class="card" id="s7">
+      <h2>5. Hosted Zone</h2>
+      <h4 class="subtopic">What is a Hosted Zone?</h4>
+      <p>A Hosted Zone is a container in Route 53 that holds all the DNS records for one domain (like example.com).</p>
+      <h4 class="subtopic">Public Hosted Zone</h4>
+      <p>A Public Hosted Zone manages DNS records for a domain that is reachable from the public internet, e.g. a company website.</p>
+      <h4 class="subtopic">Private Hosted Zone</h4>
+      <p>A Private Hosted Zone manages DNS records only visible inside a specific VPC, used for internal-only names not exposed to the internet.</p>
+      <h4 class="subtopic">When to use each &amp; real examples</h4>
+      <p>Use Public for anything customers or the public need to reach (e.g. www.example.com). Use Private for internal service names used only by your own applications inside a VPC (e.g. internal-db.local).</p>
+      <h3 class="topic">Public vs Private Hosted Zone</h3>
+      <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>Public Hosted Zone</th><th>Private Hosted Zone</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reachability</td><td>Reachable from the public internet.</td><td>Only visible inside a specific VPC.</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section class="card" id="s8">
+      <h2>6. DNS Records</h2>
+      <h4 class="subtopic">A Record</h4>
+      <p>An A record maps a domain name directly to an IPv4 address.</p>
+      <div class="arch">example.com -> 13.62.102.238</div>
+      <h4 class="subtopic">AAAA Record</h4>
+      <p>An AAAA record is like an A record, but maps a domain name to an IPv6 address instead of IPv4.</p>
+      <h4 class="subtopic">CNAME Record</h4>
+      <p>A CNAME record points one domain name to another domain name (an alias in DNS terms), not directly to an IP.</p>
+      <h4 class="subtopic">Alias Record</h4>
+      <p>An Alias record is a Route 53-specific feature that works like a CNAME but can also be used at the root domain (example.com) and points directly to AWS resources like an ALB or CloudFront.</p>
+      <h4 class="subtopic">MX Record</h4>
+      <p>An MX record tells the internet which mail server handles email for a domain.</p>
+      <h4 class="subtopic">TXT Record</h4>
+      <p>A TXT record stores arbitrary text, often used to verify domain ownership or set up email security (e.g. SPF).</p>
+      <h4 class="subtopic">NS Record</h4>
+      <p>NS (Name Server) records list which name servers are responsible for answering DNS queries for the domain.</p>
+      <h4 class="subtopic">SOA Record</h4>
+      <p>The SOA (Start of Authority) record holds administrative information about the DNS zone, like the primary name server and refresh timing. It's created automatically with every hosted zone.</p>
+
+      <h3 class="topic">Comparison Table</h3>
+      <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Record</th><th>Points to</th><th>Common use</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A</td><td>IPv4 address</td><td>Direct IP mapping (e.g. domain &rarr; EC2 IP)</td></tr>
+          <tr><td>AAAA</td><td>IPv6 address</td><td>IPv6 direct mapping</td></tr>
+          <tr><td>CNAME</td><td>Another domain name</td><td>Subdomain pointing to a third-party or another domain</td></tr>
+          <tr><td>Alias</td><td>Another domain OR AWS resource</td><td>Root domain pointing to ALB/CloudFront/S3</td></tr>
+          <tr><td>MX</td><td>Mail server hostname</td><td>Email routing</td></tr>
+          <tr><td>TXT</td><td>Arbitrary text</td><td>Domain verification, SPF/DKIM</td></tr>
+          <tr><td>NS</td><td>Name server hostnames</td><td>Delegating the zone to its authoritative servers</td></tr>
+          <tr><td>SOA</td><td>Zone admin info</td><td>Zone metadata (auto-created)</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section class="card" id="s9">
+      <h2>7. Route 53 Routing Policies</h2>
+      <h3 class="topic">1. Simple Routing</h3>
+      <p>Simple routing sends all traffic to one resource, with no special rules.</p>
+      <div class="arch">Route 53
+   |
+   v
+ Server A (all traffic)</div>
+      <p><strong>Real-world example:</strong> a small personal website with a single server.</p>
+
+      <h3 class="topic">2. Weighted Routing</h3>
+      <p>Weighted routing splits traffic between multiple resources based on assigned weights (percentages).</p>
+      <div class="arch">       Route 53
+          |
+     +----+----+
+     v         v
+   90%        10%
+ Server A    Server B</div>
+      <p><strong>Real-world example:</strong> sending 10% of traffic to a new version of the app to test it (a canary release) before rolling it out fully.</p>
+
+      <h3 class="topic">3. Latency-Based Routing</h3>
+      <p>Latency-based routing sends each user to the AWS region that gives them the fastest (lowest-latency) response.</p>
+      <div class="arch">User (India) -> Route 53 -> Mumbai region server
+User (USA)   -> Route 53 -> N. Virginia region server</div>
+      <p><strong>Real-world example:</strong> a global app serving users faster by routing them to their nearest region.</p>
+
+      <h3 class="topic">4. Failover Routing</h3>
+      <p>Failover routing sends traffic to a primary resource, and automatically switches to a backup only if the primary becomes unhealthy.</p>
+      <div class="arch">Route 53
+   |
+   v
+Primary Server --(healthy)--> used
+   |
+   v
+Secondary Server --(used only if primary is unhealthy)</div>
+      <p><strong>Real-world example:</strong> a production website with a standby disaster-recovery server in another region.</p>
+
+      <h3 class="topic">5. Geolocation Routing</h3>
+      <p>Geolocation routing sends users to specific resources based on their geographic location (country/continent), e.g. for legal or content requirements.</p>
+      <div class="arch">User in EU -> Route 53 -> EU-compliant server
+User in India -> Route 53 -> India-specific content server</div>
+      <p><strong>Real-world example:</strong> showing region-specific pricing or language content.</p>
+
+      <h3 class="topic">6. Geoproximity Routing</h3>
+      <p>Geoproximity routing sends traffic based on the physical location of resources and users, and lets you shift more traffic toward one resource using a "bias" value (requires Route 53 Traffic Flow).</p>
+
+      <h3 class="topic">7. IP-Based Routing</h3>
+      <p>IP-based routing routes traffic depending on the client's IP address ranges, e.g. sending known ISP/network ranges to an optimized endpoint.</p>
+    </section>
+
+    <section class="card" id="s10">
+      <h2>8. Route 53 Health Checks</h2>
+      <div class="arch">Primary Server
+      |
+      v
+Health Check
+      |
+  Healthy   -> Primary used
+  Unhealthy -> Secondary used</div>
+      <h4 class="subtopic">What is a health check, and why do we need it?</h4>
+      <p>A health check is a regular test Route 53 runs against a server/endpoint to confirm it's working. Without it, Route 53 could keep sending users to a broken server.</p>
+      <h4 class="subtopic">HTTP / HTTPS health check</h4>
+      <p>Route 53 sends an HTTP or HTTPS request to a specific path and expects a successful response to consider the resource healthy.</p>
+      <h4 class="subtopic">TCP health check</h4>
+      <p>A TCP health check simply tries to open a TCP connection on a given port; if the connection succeeds, the resource is considered healthy.</p>
+      <h4 class="subtopic">How failover works</h4>
+      <p>Route 53 links a health check to the primary resource in a failover routing setup. If the check reports unhealthy, Route 53 automatically starts routing traffic to the secondary resource instead.</p>
+    </section>
+
+    <section class="card" id="s11">
+      <h2>9. Domain Registration</h2>
+      <h4 class="subtopic">What is a domain?</h4>
+      <p>A domain is a human-readable name for a website or service, like example.com.</p>
+      <h4 class="subtopic">What is domain registration?</h4>
+      <p>Domain registration is the process of officially reserving a domain name for yourself, usually for a yearly fee.</p>
+      <h4 class="subtopic">What is a registrar?</h4>
+      <p>A registrar is a company authorized to sell/register domain names (Route 53 can act as one).</p>
+      <h4 class="subtopic">What are nameservers?</h4>
+      <p>Nameservers are the specific DNS servers that hold the authoritative DNS records for your domain and answer DNS queries about it.</p>
+      <h4 class="subtopic">How Route 53 is used with domains / existing domain vs Route 53-registered domain</h4>
+      <p>You can either register a brand-new domain through Route 53, or keep a domain registered elsewhere and just point its nameservers to Route 53 to manage its DNS records there.</p>
+    </section>
+
+    <section class="card" id="s12">
+      <h2>10. Practical: Create a Route 53 Hosted Zone</h2>
+      <ol class="steps">
+        <li>Login to the AWS Console.</li>
+        <li>Search for Route 53.</li>
+        <li>Open Hosted Zones from the left menu.</li>
+        <li>Click "Create Hosted Zone".</li>
+        <li>Enter the domain name (e.g. example.com) and choose Public or Private Hosted Zone.</li>
+        <li>Click "Create hosted zone" to finish.</li>
+      </ol>
+      <h3 class="topic">After creation: NS and SOA records</h3>
+      <p>Route 53 automatically creates NS and SOA records. The NS record lists the 4 name servers assigned to this hosted zone &mdash; you'll copy these to your domain registrar if the domain was registered elsewhere. The SOA record holds administrative zone metadata and doesn't usually need editing.</p>
+    </section>
+
+    <section class="card" id="s13">
+      <h2>11. Practical: Connect Route 53 with EC2</h2>
+      <p>Example: EC2 Public IP = <code>13.62.102.238</code>, Domain = <code>example.com</code></p>
+      <div class="arch">User
+ |
+ v
+example.com
+ |
+ v
+Route 53
+ |
+ v
+A Record
+ |
+ v
+EC2 Public IP
+ |
+ v
+Apache/Nginx
+ |
+ v
+Website</div>
+      <ol class="steps">
+        <li>Open your Hosted Zone for example.com in Route 53.</li>
+        <li>Click "Create record".</li>
+        <li>Leave the record name blank (for the root domain) or enter a subdomain like "www". Choose record type <strong>A</strong>.</li>
+        <li>Enter the EC2 instance's public IP address (e.g. 13.62.102.238) as the value.</li>
+        <li>Click "Create records" and wait a few minutes for DNS to propagate.</li>
+        <li>Make sure the EC2 Security Group allows inbound traffic on port 80 (HTTP), then open the domain in a browser to test.</li>
+      </ol>
+    </section>
+
+    <section class="card" id="s14">
+      <h2>12. Practical: Route 53 + Application Load Balancer</h2>
+      <div class="arch">User
+ |
+ v
+Route 53
+ |
+ v
+ALB
+ |
+ v
+Target Group
+ |
+ v
+EC2
+ |
+ v
+Application</div>
+      <h3 class="topic">Why is Alias Record commonly used with an ALB?</h3>
+      <p>An ALB's address is a DNS name, not a fixed IP (it can change). A CNAME can't be used at the root domain, but an Alias record can &mdash; and it also updates automatically if the ALB's underlying address changes.</p>
+      <ol class="steps">
+        <li>In Route 53, open your Hosted Zone and click "Create record".</li>
+        <li>Turn on "Alias", and choose record type A.</li>
+        <li>Select "Alias to Application and Classic Load Balancer" and pick your ALB from the list.</li>
+        <li>Click "Create records" and verify by opening the domain in a browser.</li>
+      </ol>
+    </section>
+
+    <section class="card" id="s15">
+      <h2>13. Route 53 + ECS Fargate</h2>
+      <div class="arch">User
+ |
+ v
+
+
+
+
+
+
+
+
+
+
+ 
+Route 53
+ |
+ v
+ALB
+ |
+ v
+ECS
+ |
+ v
+Fargate
+ |
+ v
+Docker Container
+ |
+ v
+Node.js + Express
+ |
+ v
+Database</div>
+      <p>Route 53's role here is the same as always &mdash; it turns the domain name into the ALB's address using an Alias record. The ALB then forwards traffic to whichever ECS/Fargate container is currently running the app.</p>
+    </section>
+
+    <section class="card" id="s16">
+      <h2>14. Real MERN Application Example</h2>
+      <p>Frontend: React &bull; Backend: Node.js + Express.js &bull; Database: MongoDB &bull; Containerization: Docker &bull; Image storage: ECR &bull; Deployment: ECS Fargate &bull; Load balancing: ALB &bull; DNS/domain routing: Route 53</p>
+      <div class="arch">User
+ |
+ v
+Route 53
+ |
+ v
+ALB
+ |
+ v
+ECS Fargate
+ |
+ v
+Node.js + Express
+ |
+ v
+MongoDB</div>
+      <p>The React frontend is built and served separately (e.g. from S3/CloudFront or the Express server). Users reach the app by typing the domain; Route 53 resolves it to the ALB; the ALB sends requests to a running Fargate container; the Node.js/Express backend inside that container talks to MongoDB and returns data.</p>
+    </section>
+
+    <section class="card" id="s17">
+      <h2>15. Subdomain Example</h2>
+      <div class="arch">example.com        -> Frontend
+www.example.com    -> Frontend (same or redirect)
+api.example.com    -> Backend API
+admin.example.com  -> Admin Panel</div>
+      <p>A single domain can have multiple subdomains, each pointed at a different service through its own DNS record &mdash; letting you split frontend, API and admin panel onto separate servers or services while keeping one domain brand.</p>
+    </section>
+
+    <section class="card" id="s18">
+      <h2>16. Important Differences</h2>
+      <h3 class="topic">Route 53 vs DNS</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Route 53</th><th>DNS</th></tr></thead>
+        <tbody><tr><td>An AWS service that implements DNS (and more).</td><td>The general internet system/protocol for resolving names to addresses.</td></tr></tbody>
+      </table></div>
+
+      <h3 class="topic">Route 53 vs CloudFront</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Route 53</th><th>CloudFront</th></tr></thead>
+        <tbody><tr><td>Resolves domain names to resources (DNS).</td><td>A CDN that caches and speeds up content delivery closer to users.</td></tr></tbody>
+      </table></div>
+
+      <h3 class="topic">Route 53 vs ALB</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Route 53</th><th>ALB</th></tr></thead>
+        <tbody><tr><td>Directs the domain name to the right entry point (DNS level).</td><td>Distributes incoming traffic across multiple servers/containers (application level).</td></tr></tbody>
+      </table></div>
+
+      <h3 class="topic">Route 53 vs API Gateway</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Route 53</th><th>API Gateway</th></tr></thead>
+        <tbody><tr><td>Resolves a domain name to an endpoint.</td><td>Manages, routes and secures HTTP APIs (routes, auth, throttling).</td></tr></tbody>
+      </table></div>
+
+      <h3 class="topic">A Record vs CNAME</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>A Record</th><th>CNAME</th></tr></thead>
+        <tbody><tr><td>Points directly to an IPv4 address.</td><td>Points to another domain name, not an IP.</td></tr></tbody>
+      </table></div>
+
+      <h3 class="topic">CNAME vs Alias</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>CNAME</th><th>Alias</th></tr></thead>
+        <tbody><tr><td>Standard DNS record; cannot be used at the root domain.</td><td>Route 53-specific; can be used at the root domain and points directly to AWS resources, free of charge for queries.</td></tr></tbody>
+      </table></div>
+
+      <h3 class="topic">Public Hosted Zone vs Private Hosted Zone</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Public</th><th>Private</th></tr></thead>
+        <tbody><tr><td>Visible/reachable from the public internet.</td><td>Visible only inside a chosen VPC.</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <section class="card" id="s19">
+      <h2>17. Complete Production Architecture</h2>
+      <div class="arch">User
+ |
+ v
+Route 53
+ |
+ v
+CloudFront
+ |
+ v
+Application Load Balancer
+ |
+ v
+ECS Fargate
+ |
+ v
+Node.js / Express
+ |
+ v
+RDS / MongoDB</div>
+      <p>Route 53 resolves the domain first. CloudFront then caches and speeds up delivery of content (especially static assets) close to the user. The ALB spreads requests across running containers. ECS Fargate runs the Node.js/Express backend containers. The backend reads/writes data in RDS or MongoDB.</p>
+    </section>
+
+    <section class="card" id="s20">
+      <h2>18. Route 53 Interview Questions &amp; Answers</h2>
+      <div class="qa"><div class="q">Q1. What is Route 53?</div><div>An AWS DNS web service that connects domain names to servers and AWS resources.</div></div>
+      <div class="qa"><div class="q">Q2. Why do we use Route 53?</div><div>To register domains, manage DNS records, route traffic reliably, and connect domains to AWS resources.</div></div>
+      <div class="qa"><div class="q">Q3. What is DNS?</div><div>Domain Name System &mdash; the internet's phonebook, translating domain names into IP addresses.</div></div>
+      <div class="qa"><div class="q">Q4. Why is it called Route 53?</div><div>"Route" for routing traffic, "53" for DNS's standard port number.</div></div>
+      <div class="qa"><div class="q">Q5. What is a Hosted Zone?</div><div>A container in Route 53 holding all DNS records for one domain.</div></div>
+      <div class="qa"><div class="q">Q6. What is a Public Hosted Zone?</div><div>A hosted zone for domains reachable from the public internet.</div></div>
+      <div class="qa"><div class="q">Q7. What is a Private Hosted Zone?</div><div>A hosted zone visible only inside a specific VPC.</div></div>
+      <div class="qa"><div class="q">Q8. What is an A record?</div><div>A DNS record mapping a domain directly to an IPv4 address.</div></div>
+      <div class="qa"><div class="q">Q9. What is a CNAME?</div><div>A record that points one domain name to another domain name.</div></div>
+      <div class="qa"><div class="q">Q10. What is an Alias record?</div><div>A Route 53-specific record that works like CNAME but can be used at the root domain and points directly to AWS resources.</div></div>
+      <div class="qa"><div class="q">Q11. A Record vs CNAME?</div><div>A record points to an IP; CNAME points to another domain name.</div></div>
+      <div class="qa"><div class="q">Q12. CNAME vs Alias?</div><div>CNAME can't be used at the root domain; Alias can, and works directly with AWS resources.</div></div>
+      <div class="qa"><div class="q">Q13. What is an NS record?</div><div>A record listing the name servers responsible for a domain's DNS.</div></div>
+      <div class="qa"><div class="q">Q14. What is an SOA record?</div><div>A record holding administrative information about the DNS zone.</div></div>
+      <div class="qa"><div class="q">Q15. What are Route 53 routing policies?</div><div>Rules controlling how Route 53 sends traffic: Simple, Weighted, Latency-based, Failover, Geolocation, Geoproximity, and IP-based.</div></div>
+      <div class="qa"><div class="q">Q16. What is weighted routing?</div><div>Splitting traffic between resources by assigned percentage weights.</div></div>
+      <div class="qa"><div class="q">Q17. What is latency-based routing?</div><div>Sending each user to the region that gives them the fastest response.</div></div>
+      <div class="qa"><div class="q">Q18. What is failover routing?</div><div>Sending traffic to a primary resource and switching to a backup only if the primary fails a health check.</div></div>
+      <div class="qa"><div class="q">Q19. What is a health check?</div><div>A regular test Route 53 runs to confirm a resource is working.</div></div>
+      <div class="qa"><div class="q">Q20. How do you connect Route 53 with EC2?</div><div>Create an A record in the hosted zone pointing to the EC2 instance's public IP.</div></div>
+      <div class="qa"><div class="q">Q21. How do you connect Route 53 with ALB?</div><div>Create an Alias record pointing to the ALB, instead of a plain CNAME.</div></div>
+      <div class="qa"><div class="q">Q22. How does Route 53 work with ECS?</div><div>Route 53 still resolves the domain to the ALB via an Alias record; the ALB then routes to the running ECS/Fargate containers.</div></div>
+      <div class="qa"><div class="q">Q23. How would you use Route 53 in a MERN application?</div><div>Use Route 53 to point the domain (and subdomains like api.example.com) to the ALB in front of the containerized Node.js/Express backend, and possibly to CloudFront/S3 for the React frontend.</div></div>
+    </section>
+
+    <section class="card" id="s21">
+      <h2>19. Quick Revision</h2>
+      <div class="revitem"><span class="term">Route 53 definition</span><p>AWS DNS service connecting domains to resources.</p></div>
+      <div class="revitem"><span class="term">DNS</span><p>Translates domain names into IP addresses.</p></div>
+      <div class="revitem"><span class="term">Hosted Zone</span><p>Container of DNS records for a domain.</p></div>
+      <div class="revitem"><span class="term">Record types</span><p>A, AAAA, CNAME, Alias, MX, TXT, NS, SOA.</p></div>
+      <div class="revitem"><span class="term">Routing policies</span><p>Simple, Weighted, Latency-based, Failover, Geolocation, Geoproximity, IP-based.</p></div>
+      <div class="revitem"><span class="term">Health checks</span><p>Confirms a resource is working; enables failover.</p></div>
+      <div class="revitem"><span class="term">Domain registration</span><p>Reserving a domain name, via a registrar (Route 53 can be one).</p></div>
+      <div class="revitem"><span class="term">EC2 connection</span><p>A record &rarr; EC2 public IP.</p></div>
+      <div class="revitem"><span class="term">ALB connection</span><p>Alias record &rarr; ALB.</p></div>
+      <div class="revitem"><span class="term">ECS connection</span><p>Route 53 &rarr; ALB &rarr; ECS/Fargate containers.</p></div>
+      <div class="revitem"><span class="term">MERN architecture</span><p>Route 53 &rarr; ALB &rarr; ECS Fargate (Node/Express) &rarr; MongoDB.</p></div>
+    </section>
+
+    <section class="card" id="s22">
+      <h2>20. Final Questions</h2>
+      <div class="qa">
+        <div class="q">What is Route 53?</div>
+        <p>Amazon Route 53 is AWS's DNS web service. It connects domain names to servers and AWS resources, supports domain registration, DNS records, traffic routing policies, and health checks.</p>
+      </div>
+    </section>
+
+    <footer>AWS Route 53 Study Notes &mdash; English Edition &bull; Fast, responsive &amp; printer-friendly</footer>
+
+  </div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id], h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    var btt = document.getElementById('backtotop');
+    if (btt) btt.style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level 1: AWS IAM (Identity & Access Management) — Hinglish Guide</title>
+<style>
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-muted: #64748b;
+    --brand: #2563eb; --brand-soft: #eff6ff; --border: #e2e8f0;
+    --accent: #f59e0b; --accent-soft: #fffbeb; --ok: #10b981; --ok-soft: #ecfdf5;
+  }
+  [data-theme="dark"] {
+    --bg: #090d16; --card: #111827; --text: #f8fafc; --text-muted: #94a3b8;
+    --brand: #3b82f6; --brand-soft: #1e293b; --border: #1f293d;
+    --accent: #fbbf24; --accent-soft: #2b1f0c; --ok: #34d399; --ok-soft: #064e3b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header-nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 30; }
+  .btn-back { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 0.88rem; font-weight: 600; color: var(--brand); padding: 6px 12px; border-radius: 8px; background: var(--brand-soft); }
+  .btn-back:hover { background: var(--brand); color: #fff; }
+  .btn-theme { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; cursor: pointer; color: var(--text); }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .hero { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: #fff; padding: 2rem; border-radius: 16px; margin-bottom: 2rem; }
+  .hero h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .hero p { opacity: 0.9; font-size: 1rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .card h2 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--brand); }
+  .tag { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--brand-soft); color: var(--brand); margin-bottom: 0.5rem; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; margin: 1rem 0; }
+  ul { padding-left: 1.4rem; margin: 0.5rem 0; }
+  li { margin-bottom: 0.4rem; }
+</style>
+</head>
+<body data-theme="light">
+  <div class="header-nav">
+    <a href="../index.html" class="btn-back">⬅ Return to Dashboard</a>
+    <button class="btn-theme" onclick="toggleTheme()">🌙</button>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <span class="tag" style="background:rgba(255,255,255,0.2); color:#fff;">Level 01 • Hinglish Guide</span>
+      <h1>Level 1: AWS IAM (Identity & Access Management)</h1>
+      <p>AWS account ki security, users, groups, roles aur JSON policies ko aasan Hinglish mein samjhein.</p>
+    </div>
+    <div class="card">
+      <h2>1. IAM kya hai? (Simple Explanation)</h2>
+      <p>IAM (Identity and Access Management) AWS ki ek free service hai jisse aap yeh control karte hain ki kaun aapke AWS account mein login kar sakta hai aur unhe kin resources (EC2, S3, RDS) ka access milega.</p>
+      <ul>
+        <li><strong>Root User:</strong> Account banate waqt jo email use hota hai. Isko daily use nahi karna chahiye.</li>
+        <li><strong>IAM Users:</strong> Har team member ke liye alag user account banayein.</li>
+        <li><strong>IAM Groups:</strong> Ek jaise permissions wale users ko group mein rakhein (e.g. Developers, Admins).</li>
+        <li><strong>IAM Roles:</strong> Temporary permissions jo EC2 instances ya Lambda functions ko assign hoti hain.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>2. JSON Policies ka Basic Structure</h2>
+      <p>IAM permissions JSON format mein likhi jaati hain jisme 4 main elements hote hain: Effect, Action, Resource, aur Condition:</p>
+      <pre>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::my-bucket-name"
+    }
+  ]
+}</pre>
+    </div>
+  </div>
+  <script>
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme');
+      const target = current === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', target);
+    }
+  </script>
+</body>
+</html>

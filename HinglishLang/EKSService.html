@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS EKS (Elastic Kubernetes Service) — Complete Hinglish Guide (Beginner to Advanced)</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#146eb4; --table-head-text:#ffffff; --table-row-alt:#f4f8fc;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#12314d; --table-head-text:#d7ecff; --table-row-alt:#131a29;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #b34700 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#1a1300; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #1a1300; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #2a1b00; }
+
+  /* Section Cards */
+  .card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:24px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.03);
+  }
+  .card h2 { margin-top:0; margin-bottom:12px; font-size:1.45rem; color:var(--heading); display:flex; align-items:center; gap:10px; flex-wrap:wrap; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+  .card h3 { color:var(--blue); font-size:1.15rem; margin-top:20px; margin-bottom:8px; }
+  .card h4 { color:var(--purple); font-size:1rem; margin-top:16px; margin-bottom:6px; }
+
+  /* Badges */
+  .badge {
+    font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 8px; border-radius:4px; color:#fff; display:inline-block; vertical-align:middle;
+  }
+  .badge-theory { background:var(--badge-theory); }
+  .badge-practical { background:var(--badge-practical); }
+  .badge-interview { background:var(--badge-interview); }
+  .badge-important { background:var(--badge-important); }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); }
+
+  /* Callout Boxes */
+  .box { padding:14px 18px; border-radius:8px; margin:16px 0; font-size:.95rem; }
+  .box-tip { background:var(--tip-soft); border-left:4px solid var(--tip); color:var(--ink); }
+  .box-warn { background:var(--warn-soft); border-left:4px solid var(--warn); color:var(--ink); }
+  .box-bad { background:var(--bad-soft); border-left:4px solid var(--bad); color:var(--ink); }
+  .box-ok { background:var(--ok-soft); border-left:4px solid var(--ok); color:var(--ink); }
+  .box-important { background:var(--important-bg); border-left:4px solid var(--important-border); color:var(--ink); }
+
+  /* Code Block */
+  .code-container {
+    background:var(--code-bg); border-radius:8px; overflow:hidden; margin:16px 0; border:1px solid var(--line);
+  }
+  .code-header {
+    background:var(--code-head); padding:6px 14px; display:flex; justify-content:space-between; align-items:center;
+    font-size:.78rem; font-family:monospace; color:#8ea1c9; text-transform:uppercase;
+  }
+  .copy-btn {
+    background:#2b3a5c; color:#fff; border:none; border-radius:4px; padding:3px 8px;
+    font-size:.75rem; cursor:pointer; font-family:sans-serif; transition:all .2s;
+  }
+  .copy-btn:hover { background:var(--brand); }
+  pre { margin:0; padding:14px; overflow-x:auto; font-family:"Cascadia Code",Consolas,"Courier New",monospace; font-size:.88rem; color:var(--code-ink); line-height:1.5; }
+  code { font-family:"Cascadia Code",Consolas,"Courier New",monospace; }
+  p code, li code { background:var(--brand-soft); color:var(--brand); padding:2px 6px; border-radius:4px; font-size:.88rem; }
+
+  /* Diagrams & Visuals */
+  .diagram {
+    background:var(--code-bg); color:#9fe2bf; padding:16px; border-radius:8px;
+    font-family:monospace; font-size:.88rem; overflow-x:auto; line-height:1.45; border:1px solid var(--line); margin:16px 0;
+  }
+
+  /* Tables */
+  .table-wrapper { overflow-x:auto; margin:16px 0; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; }
+  th, td { padding:10px 14px; border:1px solid var(--line); text-align:left; }
+  th { background:var(--table-head-bg); color:var(--table-head-text); font-weight:600; }
+  tr:nth-child(even) { background:var(--table-row-alt); }
+
+  /* Steps List */
+  .steps-list { list-style:none; padding-left:0; counter-reset:step-counter; }
+  .steps-list li {
+    position:relative; padding-left:42px; margin-bottom:14px;
+  }
+  .steps-list li::before {
+    content:counter(step-counter); counter-increment:step-counter;
+    position:absolute; left:0; top:0; width:28px; height:28px; border-radius:50%;
+    background:var(--brand); color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Grid Layouts */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  @media(max-width:720px) { .grid-2 { grid-template-columns:1fr; } }
+
+  /* Back to top */
+  #backtotop {
+    position:fixed; bottom:25px; right:25px; background:var(--brand); color:#fff; border:none;
+    border-radius:50%; width:44px; height:44px; font-size:1.2rem; cursor:pointer; display:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:90;
+  }
+
+  /* Responsive */
+  @media(max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); }
+    #sidebar.open { transform:translateX(0); }
+    #menu-btn { display:inline-block; }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:45; }
+    #backdrop.show { display:block; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<nav id="sidebar">
+  <div id="brand">
+    <span class="logo">☸️</span>
+    <span class="name">AWS EKS Hinglish Guide</span>
+  </div>
+  <a href="../index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="🔍 Search topics..." aria-label="Search topics">
+
+  <h2>1. Fundamentals</h2>
+  <ul>
+    <li><a href="#sec-1">1. Introduction to Amazon EKS</a></li>
+    <li><a href="#sec-2">2. What is Kubernetes?</a></li>
+    <li><a href="#sec-3">3. Why Do We Need Kubernetes?</a></li>
+    <li><a href="#sec-4">4. EKS vs Kubernetes</a></li>
+    <li><a href="#sec-5">5. EKS Architecture</a></li>
+    <li><a href="#sec-6">6. EKS Control Plane</a></li>
+    <li><a href="#sec-7">7. EKS Data Plane / Worker Nodes</a></li>
+    <li><a href="#sec-8">8. 27 Important Kubernetes Terms</a></li>
+    <li><a href="#sec-9">9. Pod Deep-Dive</a></li>
+    <li><a href="#sec-10">10. Deployment & ReplicaSet</a></li>
+    <li><a href="#sec-11">11. Kubernetes Service Types</a></li>
+    <li><a href="#sec-12">12. Ingress Explained</a></li>
+    <li><a href="#sec-13">13. Namespaces</a></li>
+    <li><a href="#sec-14">14. ConfigMaps</a></li>
+    <li><a href="#sec-15">15. Secrets</a></li>
+  </ul>
+
+  <h2>2. Compute, Network & IAM</h2>
+  <ul>
+    <li><a href="#sec-16">16. EKS Compute Options</a></li>
+    <li><a href="#sec-17">17. Managed Node Groups</a></li>
+    <li><a href="#sec-18">18. EKS with AWS Fargate</a></li>
+    <li><a href="#sec-19">19. EKS Auto Mode</a></li>
+    <li><a href="#sec-20">20. EKS Networking & VPC CNI</a></li>
+    <li><a href="#sec-21">21. EKS + VPC Architecture</a></li>
+    <li><a href="#sec-22">22. EKS + IAM Roles</a></li>
+    <li><a href="#sec-23">23. IRSA & EKS Pod Identity</a></li>
+    <li><a href="#sec-24">24. EKS + Amazon ECR</a></li>
+  </ul>
+
+  <h2>3. Hands-on Docker & Setup</h2>
+  <ul>
+    <li><a href="#sec-25">25. Practical 1: Node.js Express App</a></li>
+    <li><a href="#sec-26">26. Practical 2: Create Dockerfile</a></li>
+    <li><a href="#sec-27">27. Practical 3: Build & Test Locally</a></li>
+    <li><a href="#sec-28">28. Practical 4: Create ECR Repo</a></li>
+    <li><a href="#sec-29">29. Practical 5: Push Image to ECR</a></li>
+    <li><a href="#sec-30">30. Practical 6: Install AWS CLI</a></li>
+    <li><a href="#sec-31">31. Practical 7: Install kubectl</a></li>
+    <li><a href="#sec-32">32. Practical 8: Install eksctl</a></li>
+    <li><a href="#sec-33">33. Practical 9: Create Cluster via eksctl</a></li>
+    <li><a href="#sec-34">34. Practical 10: Create Cluster via Console</a></li>
+    <li><a href="#sec-35">35. Practical 11: Verify Cluster & Nodes</a></li>
+    <li><a href="#sec-36">36. Kubeconfig Deep-Dive</a></li>
+  </ul>
+
+  <h2>4. Core Kubernetes Practicals</h2>
+  <ul>
+    <li><a href="#sec-37">37. Practical 12: Deployment YAML</a></li>
+    <li><a href="#sec-38">38. Practical 13: Apply Deployment</a></li>
+    <li><a href="#sec-39">39. Practical 14: Service YAML</a></li>
+    <li><a href="#sec-40">40. Practical 15: Expose Application</a></li>
+    <li><a href="#sec-41">41. Practical 16: Access Application</a></li>
+    <li><a href="#sec-42">42. Deployment Scaling</a></li>
+    <li><a href="#sec-43">43. Practical 17: Rolling Update</a></li>
+    <li><a href="#sec-44">44. Rollback Strategies</a></li>
+    <li><a href="#sec-45">45. Kubernetes Self-Healing</a></li>
+    <li><a href="#sec-46">46. Namespace Practical</a></li>
+    <li><a href="#sec-47">47. ConfigMap Practical</a></li>
+    <li><a href="#sec-48">48. Secret Practical</a></li>
+  </ul>
+
+  <h2>5. Integrations, Ingress & Scaling</h2>
+  <ul>
+    <li><a href="#sec-49">49. EKS with Amazon RDS</a></li>
+    <li><a href="#sec-50">50. EKS with Amazon S3</a></li>
+    <li><a href="#sec-51">51. EKS + ALB Controller</a></li>
+    <li><a href="#sec-52">52. Practical 18: ALB Controller Setup</a></li>
+    <li><a href="#sec-53">53. Ingress YAML Practical</a></li>
+    <li><a href="#sec-54">54. Probes (Health Checks)</a></li>
+    <li><a href="#sec-55">55. Practical 19: Add Probes</a></li>
+    <li><a href="#sec-56">56. Horizontal Pod Autoscaler (HPA)</a></li>
+    <li><a href="#sec-57">57. Practical 20: HPA Configuration</a></li>
+    <li><a href="#sec-58">58. Cluster Autoscaling</a></li>
+    <li><a href="#sec-59">59. Observability & Logging</a></li>
+    <li><a href="#sec-60">60. Practical 21: Debugging Pods</a></li>
+  </ul>
+
+  <h2>6. Troubleshooting, Security & Helm</h2>
+  <ul>
+    <li><a href="#sec-61">61. 20 Common EKS Errors</a></li>
+    <li><a href="#sec-62">62. Pod Statuses Explained</a></li>
+    <li><a href="#sec-63">63. EKS Troubleshooting Flow</a></li>
+    <li><a href="#sec-64">64. What is Helm?</a></li>
+    <li><a href="#sec-65">65. Helm Practical Workflow</a></li>
+    <li><a href="#sec-66">66. Deployment Strategies</a></li>
+    <li><a href="#sec-67">67. EKS Security Best Practices</a></li>
+    <li><a href="#sec-68">68. Kubernetes RBAC</a></li>
+    <li><a href="#sec-69">69. Network Policies</a></li>
+    <li><a href="#sec-70">70. EKS vs ECS</a></li>
+    <li><a href="#sec-71">71. EKS vs EC2</a></li>
+    <li><a href="#sec-72">72. EKS vs Fargate</a></li>
+    <li><a href="#sec-73">73. AWS CLI Command Reference</a></li>
+    <li><a href="#sec-74">74. kubectl Command Reference</a></li>
+  </ul>
+
+  <h2>7. End-to-End Lab & Revision</h2>
+  <ul>
+    <li><a href="#sec-75">75. Practical End-to-End EKS Lab</a></li>
+    <li><a href="#sec-76">76. 30-Step End-to-End Checklist</a></li>
+    <li><a href="#sec-77">77. EKS Cleanup Guide</a></li>
+    <li><a href="#sec-78">78. EKS Cost Basics</a></li>
+    <li><a href="#sec-79">79. EKS Production Best Practices</a></li>
+    <li><a href="#sec-80">80. Real-World MERN Architecture</a></li>
+    <li><a href="#sec-81">81. MERN Request Flow</a></li>
+    <li><a href="#sec-82">82. 50+ EKS Interview Q&As</a></li>
+    <li><a href="#sec-83">83. Quick Revision Flashcards</a></li>
+    <li><a href="#sec-84">84. Final EKS Architecture</a></li>
+    <li><a href="#sec-85">85. Final Learning Flow</a></li>
+    <li><a href="#sec-86">86. EKS vs ECS Final Concept</a></li>
+  </ul>
+</nav>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">☰ Menu</button>
+      <span style="font-weight:700; color:var(--brand);">AWS Container Services — EKS Hinglish Edition</span>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- Title Card -->
+    <div class="title-card">
+      <h1>AWS EKS</h1>
+      <p class="subtitle">Elastic Kubernetes Service</p>
+      <p class="desc">"Run, Deploy, Scale and Manage Kubernetes Applications on AWS"</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section class="card" id="sec-1">
+      <h2>1. Amazon EKS Kya Hai? (Introduction) <span class="badge badge-theory">Theory</span></h2>
+      <div class="box box-tip">
+        <strong>Simple Definition in Hinglish:</strong><br>
+        <em>"Amazon EKS (Elastic Kubernetes Service) AWS ki ek fully managed service hai jo humein AWS cloud par bina kisi manual server installation ke official Kubernetes clusters chalane aur scale karne ki suvidha deti hai."</em>
+      </div>
+
+      <h3>Core Terms in Simple Hinglish:</h3>
+      <ul>
+        <li><strong>AWS (Amazon Web Services):</strong> Duniya ka sabse bada cloud provider jahan servers aur storage on-demand milte hain.</li>
+        <li><strong>Docker / Container:</strong> Ek aisi packaging technique jisme code, libraries aur dependencies pack ho jati hain taaki software har computer par seamlessly chale.</li>
+        <li><strong>Container Orchestration:</strong> Jab 100+ containers chalte hain, to unhe automatically start karna, load balance karna, crash hone par restart karna <em>Orchestration</em> kehlata hai.</li>
+        <li><strong>Kubernetes (K8s):</strong> Google dwara banaya gaya duniya ka sabse popular open-source container orchestration software.</li>
+        <li><strong>Amazon EKS:</strong> AWS dwara manage kiya gaya certified Kubernetes service jo IAM, VPC, ALB aur CloudWatch ke sath natively integrated hai.</li>
+        <li><strong>Cluster:</strong> Control plane (master nodes) aur worker nodes (jahan actual app chalti hai) ka pura group.</li>
+      </ul>
+
+      <h3>Manual Container Management vs Kubernetes:</h3>
+      <div class="diagram">
+MANUAL DOCKER (Bina Kubernetes ke):
+Developer ──> Launch EC2 ──> SSH ──> docker run ──> Container
+[Problems: Container crash hua to raat ko 2 baje manual restart karna padega. No auto-scaling. Updates par downtime.]
+
+WITH KUBERNETES & EKS:
+Developer ──> kubectl apply ──> EKS Control Plane ──> Pods / Nodes ──> Highly Available App
+[Benefits: Self-healing auto-restart, Zero-downtime rolling updates, Horizontal Pod Auto-scaling, Native Load Balancing.]
+      </div>
+    </section>
+
+    <!-- SECTION 2 & 3 -->
+    <section class="card" id="sec-2">
+      <h2>2 & 3. Kubernetes Kya Hai & Iski Zaroorat Kyu Hai? <span class="badge badge-theory">Theory</span></h2>
+      <p><strong>Kubernetes</strong> (K8s) ek open-source system hai jo containerized applications ko automatically deploy, scale aur manage karta hai.</p>
+
+      <h3>Kubernetes Ke Main Fayde (Features):</h3>
+      <div class="grid-2">
+        <div class="box box-ok">
+          <strong>1. Automated Deployments:</strong> Application ke naye versions ko zero downtime ke sath release karna.
+        </div>
+        <div class="box box-ok">
+          <strong>2. Self-Healing:</strong> Agar koi container crash hota hai to K8s turant naya container spin up kar deta hai.
+        </div>
+        <div class="box box-ok">
+          <strong>3. Auto Scaling:</strong> Traffic badhne par Pods ki sankhya 2 se 10 automatically badha deta hai.
+        </div>
+        <div class="box box-ok">
+          <strong>4. Load Balancing:</strong> Dynamic Pod IP addresses ke beech incoming web traffic ko equally baant-na.
+        </div>
+        <div class="box box-ok">
+          <strong>5. Secrets & Config:</strong> Database passwords aur API keys ko code se alag securely manage karna.
+        </div>
+        <div class="box box-ok">
+          <strong>6. Storage Orchestration:</strong> AWS EBS volumes ya EFS file systems ko Pods ke sath auto-mount karna.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="card" id="sec-4">
+      <h2>4. EKS vs Vanilla Kubernetes <span class="badge badge-theory">Comparison</span></h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Vanilla Kubernetes (Self-Managed)</th>
+              <th>Amazon EKS (Managed)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Control Plane Management</strong></td><td>Aapko khud master nodes par etcd, API Server install aur backup karne padte hain.</td><td><strong>AWS 100% manage karta hai</strong> across 3 Availability Zones with 99.95% SLA.</td></tr>
+            <tr><td><strong>AWS IAM Integration</strong></td><td>Complex manual webhook setup.</td><td>Native IRSA (IAM Roles for Service Accounts) & Pod Identity.</td></tr>
+            <tr><td><strong>VPC Networking</strong></td><td>Third-party overlay network (Flannel/Calico).</td><td>Native <strong>Amazon VPC CNI</strong> jisse Pods ko direct VPC IP milta hai.</td></tr>
+            <tr><td><strong>Load Balancer Integration</strong></td><td>Manual controller setup.</td><td>Native AWS Load Balancer Controller (ALB / NLB).</td></tr>
+            <tr><td><strong>Cluster Upgrades</strong></td><td>High risk manual node patching.</td><td>1-click automated control plane & node group updates.</td></tr>
+            <tr><td><strong>Kubernetes Standard</strong></td><td>100% open-source.</td><td>100% upstream certified Kubernetes (standard <code>kubectl</code> works).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 5, 6, 7 -->
+    <section class="card" id="sec-5">
+      <h2>5, 6, 7. EKS Architecture: Control Plane & Data Plane <span class="badge badge-theory">Architecture</span></h2>
+      
+      <div class="diagram">
+================================== AMAZON EKS ARCHITECTURE ==================================
+
+   [ AWS MANAGED CONTROL PLANE ] (Highly Available across 3 AZs)
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │                                                                        │
+   │   [ kube-apiserver ] ◄──── kubectl / eksctl commands                   │
+   │         │                                                              │
+   │         ├────────► [ kube-scheduler ] (Decides which node runs Pods)   │
+   │         ├────────► [ kube-controller-manager ] (Reconciles state)      │
+   │         └────────► [ etcd ] (Encrypted key-value database of cluster)   │
+   │                                                                        │
+   └───────────────────────────────────┬────────────────────────────────────┘
+                                       │ Secure TLS Tunnel
+   [ CUSTOMER DATA PLANE / WORKER NODES ]
+   ┌───────────────────────────────────┴────────────────────────────────────┐
+   │                                                                        │
+   │  ┌──────────────────────────────┐     ┌──────────────────────────────┐ │
+   │  │   WORKER NODE 1 (EC2 / Spot) │     │   WORKER NODE 2 (EC2 / Spot) │ │
+   │  │  ┌────────────────────────┐  │     │  ┌────────────────────────┐  │ │
+   │  │  │ kubelet & kube-proxy   │  │     │  │ kubelet & kube-proxy   │  │ │
+   │  │  ├────────────────────────┤  │     │  ├────────────────────────┤  │ │
+   │  │  │ Container Runtime      │  │     │  │ Container Runtime      │  │ │
+   │  │  │ (containerd)           │  │     │  │ (containerd)           │  │ │
+   │  │  ├────────────────────────┤  │     │  ├────────────────────────┤  │ │
+   │  │  │ [ Pod A ]    [ Pod B ] │  │     │  │ [ Pod C ]    [ Pod D ] │  │ │
+   │  │  │ (Node.js)    (React)   │  │     │  │ (Express)    (Nginx)   │  │ │
+   │  │  └────────────────────────┘  │     │  └────────────────────────┘  │ │
+   │  └──────────────────────────────┘     └──────────────────────────────┘ │
+   │                                                                        │
+   └────────────────────────────────────────────────────────────────────────┘
+=============================================================================================
+      </div>
+
+      <h3>Control Plane Ke 4 Main Components:</h3>
+      <ul>
+        <li><strong>kube-apiserver:</strong> Kubernetes ka central gatekeeper jo saare <code>kubectl</code> requests ko authenticate aur process karta hai.</li>
+        <li><strong>etcd:</strong> Cluster ka database jisme saari configurations aur running state securely store hoti hai.</li>
+        <li><strong>kube-scheduler:</strong> Check karta hai ki naya Pod kaun se worker node par chalega jahan CPU/RAM available ho.</li>
+        <li><strong>kube-controller-manager:</strong> Cluster ke actual state ko desired state ke barabar maintain karta hai (e.g. agar 3 pods maange hain to 3 hi chalenge).</li>
+      </ul>
+
+      <h3>Worker Node Ke 3 Main Components:</h3>
+      <ul>
+        <li><strong>Kubelet:</strong> Har worker node par chalne wala agent jo API server se order lekar containers ko start/stop karta hai.</li>
+        <li><strong>Kube-proxy:</strong> Node par IP routing rules maintain karta hai taaki Services ke through traffic Pods tak pahuche.</li>
+        <li><strong>Container Runtime (containerd):</strong> Actual engine jo container images ko run karta hai.</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section class="card" id="sec-8">
+      <h2>8. 27 Important Kubernetes Terms <span class="badge badge-important">Important</span></h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Term</th>
+              <th>Definition & Meaning (Hinglish)</th>
+              <th>Real-World Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><strong>Cluster</strong></td><td>Nodes aur Control plane ka pura group jahan apps run hoti hain.</td><td><code>production-eks-cluster</code>.</td></tr>
+            <tr><td>2</td><td><strong>Control Plane</strong></td><td>Kubernetes ka brain jo cluster ko control karta hai.</td><td>AWS managed API Server & etcd.</td></tr>
+            <tr><td>3</td><td><strong>Node</strong></td><td>Worker virtual machine (EC2 instance) jahan containers chalte hain.</td><td>EC2 <code>t3.medium</code> instance.</td></tr>
+            <tr><td>4</td><td><strong>Pod</strong></td><td>Kubernetes ki sabse choti deployable unit (1 ya zyada containers).</td><td>Node.js API container chalane wala Pod.</td></tr>
+            <tr><td>5</td><td><strong>Container</strong></td><td>Isolated Linux environment jisme application execute hoti hai.</td><td>Express.js Docker container.</td></tr>
+            <tr><td>6</td><td><strong>Deployment</strong></td><td>Declarative controller jo Pods ke replicas aur rolling updates sambhalta hai.</td><td>3 Pods hamesha live rakhne wala Deployment.</td></tr>
+            <tr><td>7</td><td><strong>ReplicaSet</strong></td><td>Ensure karta hai ki exact specified count of Pods hamesha run ho.</td><td>ReplicaSet keeping exactly 3 pods.</td></tr>
+            <tr><td>8</td><td><strong>Service</strong></td><td>Dynamic Pods ko ek stable IP aur DNS name dene wala network abstraction.</td><td>Internal microservice DNS <code>api-service</code>.</td></tr>
+            <tr><td>9</td><td><strong>Ingress</strong></td><td>Outside world se HTTP/HTTPS traffic ko domain/path rules ke hisaab se route karna.</td><td><code>api.example.com</code> ko ALB ke through route karna.</td></tr>
+            <tr><td>10</td><td><strong>Namespace</strong></td><td>Ek hi cluster ke andar multiple environments ki logical boundary.</td><td><code>dev</code>, <code>staging</code>, <code>prod</code> namespaces.</td></tr>
+            <tr><td>11</td><td><strong>ConfigMap</strong></td><td>Non-sensitive configuration key-values store karna.</td><td><code>PORT=3000</code>, <code>NODE_ENV=production</code>.</td></tr>
+            <tr><td>12</td><td><strong>Secret</strong></td><td>Sensitive data (passwords, JWT keys) store karna.</td><td><code>DB_PASSWORD</code>, <code>JWT_SECRET</code>.</td></tr>
+            <tr><td>13</td><td><strong>Volume</strong></td><td>Pod ke andar data store karne ki temporary ya persistent directory.</td><td>Scratch space for temp files.</td></tr>
+            <tr><td>14</td><td><strong>Persistent Volume (PV)</strong></td><td>Cluster level persistent storage resource (e.g. AWS EBS).</td><td>AWS EBS GP3 50GB storage.</td></tr>
+            <tr><td>15</td><td><strong>Persistent Volume Claim (PVC)</strong></td><td>Pod dwara storage maangne ki request (claim).</td><td>Database Pod requesting 20GB disk.</td></tr>
+            <tr><td>16</td><td><strong>DaemonSet</strong></td><td>Ensure karta hai ki har worker node par ek specific Pod zaroor chale.</td><td>Log collector (Fluentd/CloudWatch agent).</td></tr>
+            <tr><td>17</td><td><strong>StatefulSet</strong></td><td>Stateful databases jinhe fixed hostname aur persistent disk chahiye.</td><td>MongoDB / PostgreSQL replica set.</td></tr>
+            <tr><td>18</td><td><strong>Job</strong></td><td>Ek short-lived task jo complete hone ke baad stop ho jata hai.</td><td>Database migration script.</td></tr>
+            <tr><td>19</td><td><strong>CronJob</strong></td><td>Scheduled time par run hone wala task.</td><td>Har raat 2:00 AM par backup lena.</td></tr>
+            <tr><td>20</td><td><strong>Label</strong></td><td>Objects ko identify karne ke liye key-value tags.</td><td><code>app: backend</code>, <code>env: prod</code>.</td></tr>
+            <tr><td>21</td><td><strong>Selector</strong></td><td>Labels ke basis par Pods ko search/target karna.</td><td>Service matching <code>app: backend</code>.</td></tr>
+            <tr><td>22</td><td><strong>Annotation</strong></td><td>Non-identifying metadata jo controllers (ALB) read karte hain.</td><td><code>alb.ingress.kubernetes.io/scheme: internet-facing</code>.</td></tr>
+            <tr><td>23</td><td><strong>Service Account</strong></td><td>Pod ke andar chalne wale code ko API / AWS call karne ki identity.</td><td>ServiceAccount linked to IAM role.</td></tr>
+            <tr><td>24</td><td><strong>Kubelet</strong></td><td>Worker node par chalne wala commander agent.</td><td>Kubelet checking health of local pods.</td></tr>
+            <tr><td>25</td><td><strong>kubectl</strong></td><td>Kubernetes cluster ko command dene ka CLI tool.</td><td><code>kubectl apply -f deployment.yaml</code>.</td></tr>
+            <tr><td>26</td><td><strong>Helm</strong></td><td>Kubernetes applications ka package manager.</td><td><code>helm install my-app ./chart</code>.</td></tr>
+            <tr><td>27</td><td><strong>HPA</strong></td><td>Horizontal Pod Autoscaler (CPU/RAM ke basis par pod scale karna).</td><td>Traffic badhne par 2 se 8 Pods scale karna.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 9 TO 15 -->
+    <section class="card" id="sec-9">
+      <h2>9 to 15. Pods, Deployments, Services, Ingress, ConfigMaps & Secrets <span class="badge badge-theory">Core Concepts</span></h2>
+
+      <h3>1. Pod: The Atomic Unit</h3>
+      <p>Kubernetes mein direct container nahi bante; containers hamesha ek <strong>Pod</strong> ke andar wrap hote hain. Har Pod ko apna dedicated IP address milta hai.</p>
+      <div class="box box-important">
+        <strong>Golden Rule:</strong> Production mein kabhi bhi direct <code>kind: Pod</code> create nahi karte! Hamesha <strong>Deployments</strong> banayein taaki self-healing aur auto-replication mile.
+      </div>
+
+      <h3>2. Kubernetes Service Types Explained:</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Service Type</th>
+              <th>Kaise Kaam Karta Hai?</th>
+              <th>Kahan Accessible Hai?</th>
+              <th>Kahan Use Karein?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>ClusterIP (Default)</strong></td><td>Cluster ke andar ek internal static IP banata hai.</td><td>Sirf cluster ke andar.</td><td>Backend APIs, internal microservices, databases.</td></tr>
+            <tr><td><strong>NodePort</strong></td><td>Har Worker Node ke static port (30000-32767) par app expose karta hai.</td><td>Node IP:NodePort par.</td><td>Direct debugging ya testing.</td></tr>
+            <tr><td><strong>LoadBalancer</strong></td><td>AWS par ek dedicated Cloud Load Balancer (NLB/CLB) create karta hai.</td><td>Public Internet par.</td><td>Direct internet facing services.</td></tr>
+            <tr><td><strong>ExternalName</strong></td><td>Service ko external DNS name (CNAME) se bind karta hai.</td><td>External DNS mapping.</td><td>Cluster ke bahar chal rahe RDS database ko call karna.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3. Ingress vs LoadBalancer Service</h3>
+      <p>Agar aapke paas 10 microservices hain, aur aap <code>type: LoadBalancer</code> use karenge to AWS 10 alag-alag Load Balancers banayega (Bahut mehenga bill aayega!). <strong>Ingress</strong> ke dwara sirf 1 Application Load Balancer (ALB) banta hai aur path/domain ke hisaab se 10 services par traffic route ho jata hai.</p>
+    </section>
+
+    <!-- SECTION 16 TO 24 -->
+    <section class="card" id="sec-16">
+      <h2>16 to 24. EKS Compute Options, Networking (VPC CNI) & IRSA <span class="badge badge-theory">EKS Infrastructure</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Compute Option</th>
+              <th>Server Management</th>
+              <th>Control & Features</th>
+              <th>Best Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Managed Node Groups</strong></td><td>AWS automates EC2 provisioning and AMI upgrades.</td><td>Full control, Spot instances, GPU support.</td><td>Standard enterprise applications, production APIs.</td></tr>
+            <tr><td><strong>AWS Fargate (Serverless)</strong></td><td>Zero EC2 management. Har Pod apni isolated microVM mein chalta hai.</td><td>No EC2 patching, per-pod billing.</td><td>Stateless APIs, bursty traffic, minimal DevOps maintenance.</td></tr>
+            <tr><td><strong>EKS Auto Mode</strong></td><td>AWS automatically sizes and scales compute according to Pod demand.</td><td>Zero manual node group configuration.</td><td>Simplified hands-off cluster infrastructure management.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>IRSA (IAM Roles for Service Accounts):</h3>
+      <div class="diagram">
+POD LEVEL IAM PERMISSIONS (NO HARDCODED AWS KEYS):
+[ Pod ] ──► [ K8s ServiceAccount ] ──► [ AWS IAM Role ] ──► [ S3 Bucket / DynamoDB ]
+(Temporary, automatically rotated AWS tokens are injected directly into the container filesystem)
+      </div>
+    </section>
+
+    <!-- PRACTICAL 1 TO 5 -->
+    <section class="card" id="sec-25">
+      <h2>25 to 29. Practical 1 to 5 – Docker App Build & ECR Push <span class="badge badge-practical">Practical</span></h2>
+      
+      <h3>1. <code>server.js</code> (Node.js Express App)</h3>
+      <div class="code-container">
+        <div class="code-header"><span>JavaScript (server.js)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Hello from Amazon EKS!");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "healthy", time: new Date().toISOString() });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});</code></pre>
+      </div>
+
+      <h3>2. <code>Dockerfile</code></h3>
+      <div class="code-container">
+        <div class="code-header"><span>Dockerfile</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --only=production
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]</code></pre>
+      </div>
+
+      <h3>3. Build, Tag & Push to Amazon ECR:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Bash / PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. Build and test locally
+docker build -t eks-demo .
+docker run -d -p 3000:3000 --name test-eks eks-demo
+curl http://localhost:3000
+docker stop test-eks && docker rm test-eks
+
+# 2. Authenticate Docker with Amazon ECR
+aws ecr get-login-password --region YOUR-REGION | docker login --username AWS --password-stdin YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com
+
+# 3. Create Private ECR Repository
+aws ecr create-repository --repository-name eks-demo --region YOUR-REGION
+
+# 4. Tag & Push Docker Image
+docker tag eks-demo:latest YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/eks-demo:latest
+docker push YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/eks-demo:latest</code></pre>
+      </div>
+    </section>
+
+    <!-- PRACTICAL 6 TO 11 -->
+    <section class="card" id="sec-30">
+      <h2>30 to 36. Practical 6 to 11 – EKS Cluster Setup via <code>eksctl</code> & Kubeconfig <span class="badge badge-practical">Setup</span></h2>
+      
+      <div class="box box-tip">
+        <strong>eksctl:</strong> AWS aur Weaveworks ka official CLI tool jo 1 single command se VPC, Subnets, IAM Roles, Security Groups, Control Plane aur EC2 Managed Node Group sab automatically bana deta hai!
+      </div>
+
+      <h3>1. Create EKS Cluster:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Bash / PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># Create 2-node managed cluster in your AWS region (Takes ~12-15 minutes)
+eksctl create cluster \
+  --name eks-demo-cluster \
+  --region YOUR-REGION \
+  --nodegroup-name standard-workers \
+  --node-type t3.medium \
+  --nodes 2 \
+  --nodes-min 1 \
+  --nodes-max 4 \
+  --managed</code></pre>
+      </div>
+
+      <h3>2. Update <code>kubeconfig</code> & Verify Nodes:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Bash / PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># Update local kubeconfig
+aws eks update-kubeconfig --region YOUR-REGION --name eks-demo-cluster
+
+# Verify nodes are active and Ready
+kubectl get nodes -o wide</code></pre>
+      </div>
+    </section>
+
+    <!-- PRACTICAL 12 TO 17 -->
+    <section class="card" id="sec-37">
+      <h2>37 to 48. Practical 12 to 17 – Deploy Application, Expose & Scale <span class="badge badge-practical">Kubernetes Manifests</span></h2>
+
+      <h3>1. Deployment Manifest (<code>deployment.yaml</code>)</h3>
+      <div class="code-container">
+        <div class="code-header"><span>YAML (deployment.yaml)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eks-demo-deployment
+  labels:
+    app: eks-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: eks-demo
+  template:
+    metadata:
+      labels:
+        app: eks-demo
+    spec:
+      containers:
+        - name: eks-demo-container
+          image: YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/eks-demo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"</code></pre>
+      </div>
+
+      <h3>2. Service Manifest (<code>service.yaml</code>)</h3>
+      <div class="code-container">
+        <div class="code-header"><span>YAML (service.yaml)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>apiVersion: v1
+kind: Service
+metadata:
+  name: eks-demo-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: eks-demo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000</code></pre>
+      </div>
+
+      <h3>3. Deploy & Expose on AWS:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. Apply Deployment and Service
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+
+# 2. Check running Pods
+kubectl get pods -o wide
+
+# 3. Get Load Balancer URL
+kubectl get service eks-demo-service
+
+# 4. Open EXTERNAL-IP in browser:
+# http://<a1b2c3d4...elb.amazonaws.com> -> "Hello from Amazon EKS!"</code></pre>
+      </div>
+
+      <h3>4. Scaling & Zero-Downtime Rolling Update:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># Scale replicas from 2 to 4
+kubectl scale deployment eks-demo-deployment --replicas=4
+kubectl get pods
+
+# Trigger zero-downtime rolling update with Version 2 image
+kubectl set image deployment/eks-demo-deployment eks-demo-container=YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/eks-demo:v2
+
+# Watch rollout status in real-time
+kubectl rollout status deployment/eks-demo-deployment
+
+# Instant Rollback if version 2 has bugs:
+kubectl rollout undo deployment/eks-demo-deployment</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 49 TO 60 -->
+    <section class="card" id="sec-49">
+      <h2>49 to 60. Probes, HPA, Ingress & Debugging <span class="badge badge-practical">Production</span></h2>
+      
+      <h3>1. Health Checks (Liveness & Readiness Probes)</h3>
+      <div class="code-container">
+        <div class="code-header"><span>YAML snippet (Probes in Deployment)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>livenessProbe:
+  httpGet:
+    path: /health
+    port: 3000
+  initialDelaySeconds: 15
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 5</code></pre>
+      </div>
+
+      <h3>2. Horizontal Pod Autoscaler (HPA):</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># Autoscale Pods between 2 and 8 when CPU > 60%
+kubectl autoscale deployment eks-demo-deployment --cpu-percent=60 --min=2 --max=8
+kubectl get hpa</code></pre>
+      </div>
+
+      <h3>3. Essential Pod Debugging Commands:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Debugging CLI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># Check pod events and failure details
+kubectl describe pod <POD-NAME>
+
+# Stream live container logs
+kubectl logs -f <POD-NAME>
+
+# View logs of crashed container
+kubectl logs <POD-NAME> --previous
+
+# Enter into container shell
+kubectl exec -it <POD-NAME> -- /bin/sh</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 61 TO 63 -->
+    <section class="card" id="sec-61">
+      <h2>61, 62, 63. Troubleshooting 20 Common EKS Errors <span class="badge badge-troubleshoot">Troubleshooting</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Error / Status</th>
+              <th>Possible Root Cause</th>
+              <th>Diagnostic Command</th>
+              <th>How to Fix (Solution)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CrashLoopBackOff</strong></td>
+              <td>App startup par crash ho rahi hai (missing env var, code syntax error, DB unreachable).</td>
+              <td><code>kubectl logs &lt;pod&gt;</code></td>
+              <td>Logs check karein aur application runtime error ya missing ConfigMap/Secret fix karein.</td>
+            </tr>
+            <tr>
+              <td><strong>ImagePullBackOff / ErrImagePull</strong></td>
+              <td>ECR Repository URI galat hai, tag typo hai, ya Node IAM role ke paas ECR read permission nahi hai.</td>
+              <td><code>kubectl describe pod &lt;pod&gt;</code></td>
+              <td>Image URI check karein aur Node IAM Role par <code>AmazonEC2ContainerRegistryReadOnly</code> policy verify karein.</td>
+            </tr>
+            <tr>
+              <td><strong>Pending Pods</strong></td>
+              <td>Worker nodes par CPU/RAM khatam ho gaya hai ya nodes ready nahi hain.</td>
+              <td><code>kubectl describe pod &lt;pod&gt;</code></td>
+              <td>Node group scale karein ya container ke CPU/RAM resource requests kam karein.</td>
+            </tr>
+            <tr>
+              <td><strong>CreateContainerConfigError</strong></td>
+              <td>Deployment mein mention kiya gaya ConfigMap ya Secret namespace mein exist nahi karta.</td>
+              <td><code>kubectl describe pod &lt;pod&gt;</code></td>
+              <td>Missing ConfigMap ya Secret create karein.</td>
+            </tr>
+            <tr>
+              <td><strong>ALB Target Unhealthy (502 / 504)</strong></td>
+              <td>Container <code>/health</code> path par 200 OK nahi de raha ya Security group traffic block kar raha hai.</td>
+              <td>Target Group Console / <code>kubectl logs</code></td>
+              <td>Health check path verify karein aur Node security group mein ALB SG se traffic allow karein.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 64 TO 74 -->
+    <section class="card" id="sec-64">
+      <h2>64 to 74. Helm, Deployment Strategies, Security & Comparisons <span class="badge badge-theory">Deep Dive</span></h2>
+      
+      <div class="grid-2">
+        <div class="box box-tip">
+          <strong>What is Helm?</strong><br>
+          Kubernetes applications ka package manager. Yeh complex manifests ko single reusable chart (e.g. <code>helm install</code>) mein bundle kar deta hai.
+        </div>
+        <div class="box box-tip">
+          <strong>Network Policies:</strong><br>
+          Kubernetes ka firewall jo restrict karta hai ki kaun sa Pod kis doosre Pod se baat kar sakta hai (e.g. Frontend direct Database Pod ko call nahi kar sakta).
+        </div>
+      </div>
+
+      <h3>EKS vs Amazon ECS Comparison:</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Comparison Factor</th>
+              <th>Amazon ECS</th>
+              <th>Amazon EKS (Kubernetes)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Complexity & Learning Curve</strong></td><td>Low / Bahut seedha aur simple.</td><td>High / Kubernetes concepts sikhne padte hain.</td></tr>
+            <tr><td><strong>Multi-Cloud Portability</strong></td><td>Sirf AWS par chalta hai.</td><td><strong>High:</strong> AWS, Azure, GCP aur On-Premises sab par same chalta hai.</td></tr>
+            <tr><td><strong>Control Plane Cost</strong></td><td>Free ($0.00/hour).</td><td>$0.10/hour per cluster (~$73/month).</td></tr>
+            <tr><td><strong>Open Source Ecosystem</strong></td><td>AWS proprietary.</td><td>Duniya ka sabse bada cloud-native ecosystem (Helm, ArgoCD, Prometheus, Istio).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 75 & 76 -->
+    <section class="card" id="sec-75">
+      <h2>75 & 76. 30-Step End-to-End Practical EKS Project <span class="badge badge-practical">Capstone Lab</span></h2>
+      <ol class="steps-list">
+        <li>Node.js application (<code>server.js</code> aur <code>package.json</code>) code likhein.</li>
+        <li>Production multi-stage <code>Dockerfile</code> create karein.</li>
+        <li><code>docker build -t eks-demo .</code> command se image build karein.</li>
+        <li><code>http://localhost:3000</code> par container test karein.</li>
+        <li>Amazon ECR Console mein private repository <code>eks-demo</code> create karein.</li>
+        <li><code>aws ecr get-login-password</code> se Docker ko ECR se login karein.</li>
+        <li>Local image ko ECR repository tag dein.</li>
+        <li>Image ko ECR mein push karein (<code>docker push ...</code>).</li>
+        <li><code>eksctl create cluster</code> se 2-node managed EKS cluster banayein.</li>
+        <li><code>aws eks update-kubeconfig</code> se local <code>kubeconfig</code> configure karein.</li>
+        <li><code>kubectl get nodes</code> chala kar check karein ki nodes <code>Ready</code> hain.</li>
+        <li><code>deployment.yaml</code> manifest create karein (Replicas = 2).</li>
+        <li><code>kubectl apply -f deployment.yaml</code> apply karein.</li>
+        <li>Check karein ki dono Pods <code>Running</code> state mein hain.</li>
+        <li><code>service.yaml</code> (LoadBalancer type) create karein.</li>
+        <li><code>kubectl apply -f service.yaml</code> apply karein.</li>
+        <li><code>kubectl get svc</code> se AWS Load Balancer ka external DNS URL copy karein.</li>
+        <li>Browser mein open karein aur <strong>"Hello from Amazon EKS!"</strong> verify karein.</li>
+        <li><code>kubectl logs -f &lt;pod-name&gt;</code> se container logs check karein.</li>
+        <li>Deployment mein Liveness aur Readiness probes add karein.</li>
+        <li>Pods ko 2 se 4 replicas par scale karein.</li>
+        <li>Application code modify karein: <strong>"Hello from Amazon EKS Version 2!"</strong>.</li>
+        <li>Version 2 Docker image build karein (<code>:v2</code>).</li>
+        <li>Version 2 image ko ECR mein push karein.</li>
+        <li><code>kubectl set image</code> se deployment update karein.</li>
+        <li>Zero-downtime rolling update monitor karein (<code>kubectl rollout status</code>).</li>
+        <li>Browser refresh karke Version 2 verify karein.</li>
+        <li>Rollback test karein: <code>kubectl rollout undo</code>.</li>
+        <li>Sare Kubernetes resources delete karein: <code>kubectl delete -f .</code>.</li>
+        <li>EKS cluster aur ECR repo delete karein taaki AWS charges na lagein!</li>
+      </ol>
+    </section>
+
+    <!-- SECTION 77 & 78 -->
+    <section class="card" id="sec-77">
+      <h2>77 & 78. EKS Cost Basics & Cleanup Guide <span class="badge badge-important">Cost & Cleanup</span></h2>
+      
+      <div class="box box-bad">
+        <strong>CRITICAL COST WARNING:</strong> EKS control plane ka charge $0.10/hour (~$73/month) hota hai plus EC2 worker nodes, NAT Gateways aur Load Balancers ka alag bill aata hai. Practical lab complete hote hi resources delete zaroor karein!
+      </div>
+
+      <h3>Cleanup Commands:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Cleanup CLI</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. Delete Kubernetes Services (Deletes AWS Load Balancers)
+kubectl delete -f service.yaml
+kubectl delete -f deployment.yaml
+
+# 2. Delete EKS Cluster and all CloudFormation stacks
+eksctl delete cluster --name eks-demo-cluster --region YOUR-REGION
+
+# 3. Delete ECR Repository
+aws ecr delete-repository --repository-name eks-demo --force --region YOUR-REGION</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 82 -->
+    <section class="card" id="sec-82">
+      <h2>82. 50+ EKS Interview Questions & Answers <span class="badge badge-interview">Interview Q&A</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Short, Simple & Technical Answer (Hinglish)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Amazon EKS kya hai?</td><td>AWS ki managed Kubernetes service jo Kubernetes clusters ko operate aur scale karti hai.</td></tr>
+            <tr><td>2</td><td>Kubernetes kya hai?</td><td>Open-source container orchestration platform jo containerized apps ko automate karta hai.</td></tr>
+            <tr><td>3</td><td>Pod kya hota hai?</td><td>Kubernetes ki sabse choti unit jisme 1 ya zyada containers network aur storage share karte hain.</td></tr>
+            <tr><td>4</td><td>Deployment kya karta hai?</td><td>Pods ke desired replicas maintain karta hai aur rolling updates/rollbacks manage karta hai.</td></tr>
+            <tr><td>5</td><td>ReplicaSet kya karta hai?</td><td>Ensure karta hai ki exact specified count of Pods hamesha live rahein.</td></tr>
+            <tr><td>6</td><td>Kubernetes Service kya hoti hai?</td><td>Dynamic Pods ko stable internal/external IP aur DNS provide karne wala abstraction.</td></tr>
+            <tr><td>7</td><td>ClusterIP vs LoadBalancer?</td><td>ClusterIP = internal only; LoadBalancer = public internet facing AWS load balancer banata hai.</td></tr>
+            <tr><td>8</td><td>Ingress kya hota hai?</td><td>Single ALB ke through multiple services ko domain aur path based routing provide karta hai.</td></tr>
+            <tr><td>9</td><td>ConfigMap vs Secret?</td><td>ConfigMap plain configuration store karta hai; Secret sensitive passwords/keys store karta hai.</td></tr>
+            <tr><td>10</td><td>Namespace kya hai?</td><td>Cluster ke andar virtual partition (e.g. <code>dev</code>, <code>prod</code>) resource isolation ke liye.</td></tr>
+            <tr><td>11</td><td>Kubelet ka kya role hai?</td><td>Node par chalne wala agent jo containers ko start aur healthy maintain karta hai.</td></tr>
+            <tr><td>12</td><td>kube-proxy kya karta hai?</td><td>Node par network rules maintain karta hai taaki Service traffic Pods tak pahuche.</td></tr>
+            <tr><td>13</td><td>etcd kya hai?</td><td>Distributed key-value store jo pure Kubernetes cluster ka state database store karta hai.</td></tr>
+            <tr><td>14</td><td>kube-scheduler kya karta hai?</td><td>Unassigned Pods ko suitable worker nodes par schedule karta hai resource availability ke basis par.</td></tr>
+            <tr><td>15</td><td>Amazon VPC CNI kya hai?</td><td>AWS networking plugin jo har Pod ko direct real VPC IP address assign karta hai.</td></tr>
+            <tr><td>16</td><td>IRSA (IAM Roles for Service Accounts) kya hai?</td><td>Pod ke ServiceAccount ko direct AWS IAM Role assign karne ka secure OIDC feature.</td></tr>
+            <tr><td>17</td><td>EKS Pod Identity kya hai?</td><td>Modern simplified feature jisse Pods ko bina OIDC setup ke direct AWS IAM permissions mil jati hain.</td></tr>
+            <tr><td>18</td><td>EKS Managed Node Group kya hai?</td><td>EC2 worker nodes jinka lifecycle, provisioning aur AMI updates AWS automatically sambhalta hai.</td></tr>
+            <tr><td>19</td><td>EKS on AWS Fargate kya hai?</td><td>Serverless Kubernetes compute jahan har Pod apni dedicated microVM par chalta hai bina EC2 nodes ke.</td></tr>
+            <tr><td>20</td><td>Horizontal Pod Autoscaler (HPA) kya hai?</td><td>CPU/RAM utilization ke basis par Pod replicas ko automatically scale-out ya scale-in karta hai.</td></tr>
+            <tr><td>21</td><td>CrashLoopBackOff ka kya matlab hai?</td><td>Container start hote hi crash ho raha hai aur Kubernetes baar-baar restart karne ki koshish kar raha hai.</td></tr>
+            <tr><td>22</td><td>ImagePullBackOff ka main reason kya hota hai?</td><td>Galat ECR image URI, invalid image tag, ya Node IAM role ke paas ECR permissions na hona.</td></tr>
+            <tr><td>23</td><td>Pending Pod ko kaise debug karein?</td><td><code>kubectl describe pod &lt;pod-name&gt;</code> chala kar Events section mein resource shortage check karein.</td></tr>
+            <tr><td>24</td><td>Previous crashed container ke logs kaise dekhein?</td><td><code>kubectl logs &lt;pod-name&gt; --previous</code> command se.</td></tr>
+            <tr><td>25</td><td>Liveness Probe kya karta hai?</td><td>Check karta hai container chal raha hai ya dead; fail hone par container restart karta hai.</td></tr>
+            <tr><td>26</td><td>Readiness Probe kya karta hai?</td><td>Check karta hai container traffic accept karne ke liye ready hai ya nahi; fail hone par traffic divert karta hai.</td></tr>
+            <tr><td>27</td><td>Rolling Update kya hota hai?</td><td>Purane pods ko ek-ek karke naye version ke pods se replace karna zero downtime ke sath.</td></tr>
+            <tr><td>28</td><td>Failed deployment rollback kaise karein?</td><td><code>kubectl rollout undo deployment/&lt;deployment-name&gt;</code> se.</td></tr>
+            <tr><td>29</td><td>Helm kya hai?</td><td>Kubernetes applications ka package manager jo manifests ko reusable charts mein package karta hai.</td></tr>
+            <tr><td>30</td><td>AWS Load Balancer Controller kya hai?</td><td>K8s controller jo Ingress aur Service objects ke liye AWS ALBs aur NLBs provision karta hai.</td></tr>
+            <tr><td>31</td><td>Kubernetes RBAC kya hai?</td><td>Role-Based Access Control jo decide karta hai kaun sa user/service account API resources access kar sakta hai.</td></tr>
+            <tr><td>32</td><td>NetworkPolicy kya karti hai?</td><td>Pods ke beech network traffic rules define karke Pod-to-Pod communication restrict karti hai.</td></tr>
+            <tr><td>33</td><td>DaemonSet kya hai?</td><td>Controller jo ensure karta hai ki har node par ek specific Pod (jaise logging agent) zaroor chale.</td></tr>
+            <tr><td>34</td><td>StatefulSet kya hai?</td><td>Controller jo databases ko stable network identities aur persistent disks ke sath run karta hai.</td></tr>
+            <tr><td>35</td><td>EKS RDS se kaise securely connect karta hai?</td><td>Private VPC subnets aur Security Groups ke through allowing port 5432/3306 from node SG.</td></tr>
+            <tr><td>36</td><td>EKS S3 mein file upload kaise karta hai?</td><td>IRSA / Pod Identity ke through bina container mein hardcoded access keys dale.</td></tr>
+            <tr><td>37</td><td>Static AWS keys container mein kyu nahi dalni chahiye?</td><td>Security risk aur credential leak hone ka khatra; IAM role assumption temporary aur auto-rotated hota hai.</td></tr>
+            <tr><td>38</td><td>EKS vs ECS: EKS kab choose karein?</td><td>Multi-cloud portability, massive CNCF ecosystem (Helm, Istio), aur advanced Kubernetes features ke liye.</td></tr>
+            <tr><td>39</td><td>EKS vs ECS: ECS kab choose karein?</td><td>Simple AWS native architecture, kam complexity, aur zero control plane cost ke liye.</td></tr>
+            <tr><td>40</td><td><code>kubeconfig</code> file kya hoti hai?</td><td>Configuration file jisme cluster API endpoint, certificates aur authentication context store hota hai.</td></tr>
+            <tr><td>41</td><td>Container resource request vs limit kya hai?</td><td>Request = guaranteed minimum CPU/RAM; Limit = maximum limit jisse zyada container use nahi kar sakta.</td></tr>
+            <tr><td>42</td><td>Container memory limit exceed kare to kya hota hai?</td><td>Linux OOM (Out Of Memory) killer container ko terminate kar deta hai with Exit Code 137.</td></tr>
+            <tr><td>43</td><td>Kubernetes self-healing kaise karta hai?</td><td>Controller manager continuously actual state ko desired state se match karta rehta hai.</td></tr>
+            <tr><td>44</td><td>EKS cluster upgrade kaise hota hai?</td><td>EKS Console/CLI se control plane version update karein, phir node group AMIs aur add-ons update karein.</td></tr>
+            <tr><td>45</td><td>Karpenter kya hai?</td><td>High-performance open-source node autoscaling engine for Kubernetes on AWS.</td></tr>
+            <tr><td>46</td><td>EKS control plane ka cost kitna hota hai?</td><td>$0.10 per hour per cluster (~$73/month).</td></tr>
+            <tr><td>47</td><td>EKS add-ons kya hote hain?</td><td>VPC CNI, CoreDNS, kube-proxy, aur EBS CSI driver jaise essential cluster plugins.</td></tr>
+            <tr><td>48</td><td>Pod eviction kya hoti hai?</td><td>Jab node par memory/disk space khatam ho jaye to K8s kam priority wale pods ko terminate kar deta hai.</td></tr>
+            <tr><td>49</td><td>Node Affinity kya hoti hai?</td><td>Rules jo specify karte hain ki kaun sa Pod kis specific type ke node par schedule hoga.</td></tr>
+            <tr><td>50</td><td>Taints aur Tolerations kya hain?</td><td>Nodes par Taints lagaye jaate hain taaki unauthorized Pods wahan schedule na ho sakein jab tak unke paas matching Toleration na ho.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 83 TO 86 -->
+    <section class="card" id="sec-83">
+      <h2>83 to 86. Quick Revision & Final Architecture <span class="badge badge-theory">Summary</span></h2>
+      
+      <div class="grid-2">
+        <div class="box box-tip"><strong>Kubernetes</strong> = Open-source container orchestration platform</div>
+        <div class="box box-tip"><strong>Amazon EKS</strong> = Managed Kubernetes on AWS</div>
+        <div class="box box-tip"><strong>Pod</strong> = Smallest deployable unit (1+ containers)</div>
+        <div class="box box-tip"><strong>Deployment</strong> = Manages Pod replicas, updates & self-healing</div>
+        <div class="box box-tip"><strong>Service</strong> = Stable network endpoint for Pods</div>
+        <div class="box box-tip"><strong>Ingress</strong> = HTTP/HTTPS routing via AWS ALB</div>
+        <div class="box box-tip"><strong>Amazon ECR</strong> = Private Docker container registry</div>
+        <div class="box box-tip"><strong>IRSA / Pod Identity</strong> = Direct IAM permissions for Pods</div>
+        <div class="box box-tip"><strong>kubectl</strong> = Command line tool for Kubernetes</div>
+        <div class="box box-tip"><strong>HPA</strong> = Horizontal Pod Autoscaling via CPU/RAM</div>
+      </div>
+
+      <h3>Final Complete Flow:</h3>
+      <p style="font-weight:600; font-size:1.05rem; color:var(--brand); text-align:center;">
+        Code ➔ Dockerfile ➔ docker build ➔ Amazon ECR ➔ EKS Cluster ➔ Deployment ➔ ReplicaSet ➔ Pods ➔ Service ➔ Ingress (ALB) ➔ Happy Users! 🚀
+      </p>
+
+      <div class="box box-ok" style="text-align:center; font-size:1.15rem; font-weight:700; margin-top:24px;">
+        End of AWS EKS Notes
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

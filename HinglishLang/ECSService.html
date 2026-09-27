@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS ECS (Elastic Container Service) — Complete Hinglish Guide (Beginner to Advanced)</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#146eb4; --table-head-text:#ffffff; --table-row-alt:#f4f8fc;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#12314d; --table-head-text:#d7ecff; --table-row-alt:#131a29;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #b34700 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#1a1300; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #1a1300; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #2a1b00; }
+
+  /* Section Cards */
+  .card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:24px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.03);
+  }
+  .card h2 { margin-top:0; margin-bottom:12px; font-size:1.45rem; color:var(--heading); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .card h3 { color:var(--heading); font-size:1.15rem; margin-top:20px; margin-bottom:8px; }
+  .card h4 { color:var(--heading); font-size:1rem; margin-top:16px; margin-bottom:6px; }
+
+  /* Badges */
+  .badge {
+    font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 8px; border-radius:4px; color:#fff; display:inline-block; vertical-align:middle;
+  }
+  .badge-theory { background:var(--badge-theory); }
+  .badge-practical { background:var(--badge-practical); }
+  .badge-interview { background:var(--badge-interview); }
+  .badge-important { background:var(--badge-important); }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); }
+
+  /* Callout Boxes */
+  .box { padding:14px 18px; border-radius:8px; margin:16px 0; font-size:.95rem; }
+  .box-tip { background:var(--tip-soft); border-left:4px solid var(--tip); color:var(--ink); }
+  .box-warn { background:var(--warn-soft); border-left:4px solid var(--warn); color:var(--ink); }
+  .box-bad { background:var(--bad-soft); border-left:4px solid var(--bad); color:var(--ink); }
+  .box-ok { background:var(--ok-soft); border-left:4px solid var(--ok); color:var(--ink); }
+  .box-important { background:var(--important-bg); border-left:4px solid var(--important-border); color:var(--ink); }
+
+  /* Code Block */
+  .code-container {
+    background:var(--code-bg); border-radius:8px; overflow:hidden; margin:16px 0; border:1px solid var(--line);
+  }
+  .code-header {
+    background:var(--code-head); padding:6px 14px; display:flex; justify-content:space-between; align-items:center;
+    font-size:.78rem; font-family:monospace; color:#8ea1c9; text-transform:uppercase;
+  }
+  .copy-btn {
+    background:#2b3a5c; color:#fff; border:none; border-radius:4px; padding:3px 8px;
+    font-size:.75rem; cursor:pointer; font-family:sans-serif;
+  }
+  .copy-btn:hover { background:var(--brand); }
+  pre { margin:0; padding:14px; overflow-x:auto; font-family:"Cascadia Code",Consolas,"Courier New",monospace; font-size:.88rem; color:var(--code-ink); line-height:1.5; }
+  code { font-family:"Cascadia Code",Consolas,"Courier New",monospace; }
+  p code, li code { background:var(--brand-soft); color:var(--brand); padding:2px 6px; border-radius:4px; font-size:.88rem; }
+
+  /* Diagrams & Visuals */
+  .diagram {
+    background:var(--code-bg); color:#a0e0a0; padding:16px; border-radius:8px;
+    font-family:monospace; font-size:.88rem; overflow-x:auto; line-height:1.45; border:1px solid var(--line); margin:16px 0;
+  }
+
+  /* Tables */
+  .table-wrapper { overflow-x:auto; margin:16px 0; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; }
+  th, td { padding:10px 14px; border:1px solid var(--line); text-align:left; }
+  th { background:var(--table-head-bg); color:var(--table-head-text); font-weight:600; }
+  tr:nth-child(even) { background:var(--table-row-alt); }
+
+  /* Steps List */
+  .steps-list { list-style:none; padding-left:0; counter-reset:step-counter; }
+  .steps-list li {
+    position:relative; padding-left:42px; margin-bottom:14px;
+  }
+  .steps-list li::before {
+    content:counter(step-counter); counter-increment:step-counter;
+    position:absolute; left:0; top:0; width:28px; height:28px; border-radius:50%;
+    background:var(--brand); color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Grid Layouts */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  @media(max-width:720px) { .grid-2 { grid-template-columns:1fr; } }
+
+  /* Back to top */
+  #backtotop {
+    position:fixed; bottom:25px; right:25px; background:var(--brand); color:#fff; border:none;
+    border-radius:50%; width:44px; height:44px; font-size:1.2rem; cursor:pointer; display:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:90;
+  }
+
+  /* Responsive */
+  @media(max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); }
+    #sidebar.open { transform:translateX(0); }
+    #menu-btn { display:inline-block; }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:45; }
+    #backdrop.show { display:block; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<nav id="sidebar">
+  <div id="brand">
+    <span class="logo">🐳</span>
+    <span class="name">AWS ECS Hinglish Guide</span>
+  </div>
+  <a href="../index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="🔍 Search topics..." aria-label="Search topics">
+
+  <h2>1. Fundamentals</h2>
+  <ul>
+    <li><a href="#sec-1">1. Introduction to Amazon ECS</a></li>
+    <li><a href="#sec-2">2. What is Container Orchestration?</a></li>
+    <li><a href="#sec-3">3. ECS Architecture Overview</a></li>
+    <li><a href="#sec-4">4. 24 Important ECS Terms</a></li>
+    <li><a href="#sec-5">5. ECS vs Docker</a></li>
+    <li><a href="#sec-6">6. ECS vs EC2</a></li>
+    <li><a href="#sec-7">7. ECS Launch Types (EC2 vs Fargate)</a></li>
+    <li><a href="#sec-8">8. What is AWS Fargate?</a></li>
+    <li><a href="#sec-9">9. ECS + Amazon ECR</a></li>
+    <li><a href="#sec-10">10. ECS Core End-to-End Flow</a></li>
+  </ul>
+
+  <h2>2. Docker & ECR Practicals</h2>
+  <ul>
+    <li><a href="#sec-11">11. Practical 1: Node.js Express App</a></li>
+    <li><a href="#sec-12">12. Practical 2: Build Docker Image</a></li>
+    <li><a href="#sec-13">13. Practical 3: Run Container Locally</a></li>
+    <li><a href="#sec-14">14. Practical 4: Create ECR Repository</a></li>
+    <li><a href="#sec-15">15. Practical 5: Authenticate/Login ECR</a></li>
+    <li><a href="#sec-16">16. Practical 6: Tag Docker Image</a></li>
+    <li><a href="#sec-17">17. Practical 7: Push Image to ECR</a></li>
+  </ul>
+
+  <h2>3. ECS Core Setup & Roles</h2>
+  <ul>
+    <li><a href="#sec-18">18. Practical 8: Create ECS Cluster</a></li>
+    <li><a href="#sec-19">19. Practical 9: Create Task Definition</a></li>
+    <li><a href="#sec-20">20. Task Definition JSON Explained</a></li>
+    <li><a href="#sec-21">21. Execution Role vs Task Role</a></li>
+    <li><a href="#sec-22">22. Practical 10: Create Execution Role</a></li>
+    <li><a href="#sec-23">23. Practical 11: Create ECS Service</a></li>
+    <li><a href="#sec-24">24. Create ECS Service using Fargate</a></li>
+    <li><a href="#sec-25">25. ECS Networking (awsvpc)</a></li>
+    <li><a href="#sec-26">26. ECS Security Groups</a></li>
+    <li><a href="#sec-27">27. Practical 12: Access ECS App</a></li>
+  </ul>
+
+  <h2>4. ALB, Scaling & Deployments</h2>
+  <ul>
+    <li><a href="#sec-28">28. ECS + Application Load Balancer</a></li>
+    <li><a href="#sec-29">29. Practical 13: ECS with ALB</a></li>
+    <li><a href="#sec-30">30. ECS Health Checks</a></li>
+    <li><a href="#sec-31">31. ECS Service Auto Scaling</a></li>
+    <li><a href="#sec-32">32. Practical 14: Enable Auto Scaling</a></li>
+    <li><a href="#sec-33">33. ECS Deployment & Revisions</a></li>
+    <li><a href="#sec-34">34. Practical 15: Update ECS Application</a></li>
+    <li><a href="#sec-35">35. Rolling vs Blue/Green Deployments</a></li>
+  </ul>
+
+  <h2>5. Logging, Secrets & Architecture</h2>
+  <ul>
+    <li><a href="#sec-36">36. ECS Logging (CloudWatch)</a></li>
+    <li><a href="#sec-37">37. Practical 16: CloudWatch Logs</a></li>
+    <li><a href="#sec-38">38. ECS Environment Variables</a></li>
+    <li><a href="#sec-39">39. ECS Secrets Manager & SSM</a></li>
+    <li><a href="#sec-40">40. ECS IAM Security</a></li>
+    <li><a href="#sec-41">41. ECS with Amazon S3</a></li>
+    <li><a href="#sec-42">42. ECS with Amazon RDS</a></li>
+    <li><a href="#sec-43">43. Complete MERN ECS Architecture</a></li>
+    <li><a href="#sec-44">44. ECS Service Discovery (Cloud Map)</a></li>
+    <li><a href="#sec-45">45. ECS Capacity Providers</a></li>
+    <li><a href="#sec-46">46. ECS Fargate Spot</a></li>
+    <li><a href="#sec-47">47. ECS EC2 Launch Type Deep-Dive</a></li>
+    <li><a href="#sec-48">48. Fargate vs EC2 Detailed Comparison</a></li>
+    <li><a href="#sec-49">49. ECS vs Amazon EKS</a></li>
+  </ul>
+
+  <h2>6. Hands-on Lab & Troubleshooting</h2>
+  <ul>
+    <li><a href="#sec-50">50. ECS AWS CLI Commands</a></li>
+    <li><a href="#sec-51">51. ECS + Docker CLI Workflow</a></li>
+    <li><a href="#sec-52">52. Practical End-to-End ECS Lab</a></li>
+    <li><a href="#sec-53">53. End-to-End 40-Step Practical Checklist</a></li>
+    <li><a href="#sec-54">54. ECS Troubleshooting (20 Scenarios)</a></li>
+    <li><a href="#sec-55">55. ECS Task Stopped Reasons</a></li>
+    <li><a href="#sec-56">56. ECS Cost Basics & Warnings</a></li>
+    <li><a href="#sec-57">57. ECS Resource Cleanup Guide</a></li>
+    <li><a href="#sec-58">58. ECS Production Best Practices</a></li>
+    <li><a href="#sec-59">59. ECS Security Architecture</a></li>
+    <li><a href="#sec-60">60. 40+ ECS Interview Questions</a></li>
+    <li><a href="#sec-61">61. Quick Revision Flashcards</a></li>
+    <li><a href="#sec-62">62. Final ECS Architecture Diagram</a></li>
+    <li><a href="#sec-63">63. Final Complete Learning Flow</a></li>
+  </ul>
+</nav>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">☰ Menu</button>
+      <span style="font-weight:700; color:var(--brand);">AWS Container Services — Hinglish Edition</span>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- Title Card -->
+    <div class="title-card">
+      <h1>AWS ECS</h1>
+      <p class="subtitle">Elastic Container Service</p>
+      <p class="desc">"Run, Deploy, Scale and Manage Docker Containers on AWS"</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section class="card" id="sec-1">
+      <h2>1. Amazon ECS Kya Hai? (Introduction) <span class="badge badge-theory">Theory</span></h2>
+      <p><strong>Amazon ECS (Elastic Container Service)</strong> ek highly scalable, fast, aur fully managed AWS container orchestration service hai jiska use Docker containers ko run, manage aur scale karne ke liye kiya jata hai.</p>
+      
+      <div class="box box-tip">
+        <strong>Simple Definition:</strong><br>
+        <em>"Amazon ECS ek aisi AWS service hai jo aapke Docker containers ko cloud mein automatically chalati hai, unki health monitor karti hai, fail hone par auto-restart karti hai, aur traffic badhne par scale karti hai bina kisi manual headache ke."</em>
+      </div>
+
+      <h3>Core Concepts in Simple Words:</h3>
+      <ul>
+        <li><strong>Docker Container:</strong> Ek lightweight, standalone executable package jisme aapka code, runtime, libraries aur dependencies bandhi hoti hain taaki application har environment mein same chale.</li>
+        <li><strong>Container Orchestration:</strong> Jab 1 container ki jagah 50 ya 100 containers chalane ho, to kaun sa container kab start hoga, kaun se server par chalega, crash hone par restart kaun karega — ye saara automated management <em>Container Orchestration</em> kehlata hai.</li>
+        <li><strong>Cluster:</strong> ECS resources ka logical grouping jahan Tasks aur Services run hote hain.</li>
+        <li><strong>Task Definition:</strong> Ek JSON blueprint (recipe) jo ECS ko batati hai ki kaun si Docker image use karni hai, kitna CPU/Memory dena hai, aur kaun sa port open karna hai.</li>
+        <li><strong>Task:</strong> Task Definition ka ek live running instance (actual running container).</li>
+        <li><strong>Service:</strong> ECS ka controller jo ensure karta hai ki aapke specified number of tasks (Desired Count) hamesha 24/7 chalte rahein aur ALB se connected rahein.</li>
+      </ul>
+
+      <h3>Manual Docker vs Amazon ECS Problem & Solution</h3>
+      <div class="diagram">
+WITHOUT ECS (Manual Management - Complex & Risky):
+Developer ──> Launch EC2 Instance ──> SSH Login ──> Install Docker ──> docker run ──> Container
+[Problems: If server crashes, container dies. No auto-restart, manual scaling, zero HA]
+
+WITH ECS (Automated Orchestration):
+Docker Image ──> Amazon ECR ──> Amazon ECS (Cluster + Service) ──> Task (Fargate/EC2) ──> Live Application
+[Benefits: Auto-restart on crash, Auto-scaling on load, Zero-downtime rolling updates, ALB integration]
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="card" id="sec-2">
+      <h2>2. Container Orchestration Kya Hota Hai? <span class="badge badge-theory">Theory</span></h2>
+      <p>Jab aap locally kaam karte hain, to <code>docker run</code> se 1 container chalana asan hota hai. Lekin real-world production systems mein:</p>
+      <ul>
+        <li><strong>1 Container:</strong> Manually manage ho sakta hai. Agar crash hua to aapko pata nahi chalega jab tak customer complaint na kare.</li>
+        <li><strong>10 Containers:</strong> Port conflicts hone lagenge, CPU/RAM monitoring mushkil ho jayegi, updates ke time downtime aayega.</li>
+        <li><strong>100+ Containers:</strong> Impossible to manage manually! Multi-server networking, auto-scaling, load balancing aur zero-downtime deployments automate karni hi padengi.</li>
+      </ul>
+
+      <h3>ECS In Sabhi Cheezon Ko Automate Karta Hai:</h3>
+      <div class="grid-2">
+        <div class="box box-ok">
+          <strong>1. Auto Starting & Stopping:</strong> Task definition ke hisaab se containers ko automated launch karna.
+        </div>
+        <div class="box box-ok">
+          <strong>2. Self-Healing (Auto-Restart):</strong> Agar container crash ho jaye, to ECS turant naya container spin up kar deta hai.
+        </div>
+        <div class="box box-ok">
+          <strong>3. Auto Scaling:</strong> CPU/RAM ya web request load badhne par tasks 2 se 10 automatically badha deta hai.
+        </div>
+        <div class="box box-ok">
+          <strong>4. Load Balancing:</strong> Application Load Balancer (ALB) ke sath automatically targets register aur deregister karta hai.
+        </div>
+        <div class="box box-ok">
+          <strong>5. Health Checks:</strong> Dead containers ko traffic bhejna band karke replace karta hai.
+        </div>
+        <div class="box box-ok">
+          <strong>6. Zero-Downtime Deployments:</strong> Naya version pehle launch karta hai, healthy hone ke baad purane ko kill karta hai (Rolling Update).
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section class="card" id="sec-3">
+      <h2>3. ECS Architecture Overview <span class="badge badge-theory">Architecture</span></h2>
+      <p>ECS ka basic fundamental building block hierarchy niche diye diagram se samjhein:</p>
+      
+      <div class="diagram">
++-------------------------------------------------------------------------+
+|                              ECS CLUSTER                                |
+|                                                                         |
+|   +-----------------------------------------------------------------+   |
+|   |                       ECS SERVICE                               |   |
+|   |   (Desired Count = 2, Auto-healing, Load Balancer Integration)  |   |
+|   |                                                                 |   |
+|   |   +------------------------+       +------------------------+   |   |
+|   |   |       ECS TASK 1       |       |       ECS TASK 2       |   |   |
+|   |   |  +------------------+  |       |  +------------------+  |   |   |
+|   |   |  | Docker Container |  |       |  | Docker Container |  |   |   |
+|   |   |  | (Node.js App)    |  |       |  | (Node.js App)    |  |   |   |
+|   |   |  +------------------+  |       |  +------------------+  |   |   |
+|   |   |   (ENI: 10.0.1.25)     |       |   (ENI: 10.0.2.88)     |   |   |
+|   |   +------------------------+       +------------------------+   |   |
+|   +-----------------------------------------------------------------+   |
++-------------------------------------------------------------------------+
+                                   ▲
+                                   │ Blueprint
+                    +-----------------------------+
+                    |     TASK DEFINITION         |
+                    | - Image: ECR URI            |
+                    | - CPU: 0.25 vCPU, RAM: 512MB|
+                    | - Port: 3000, Logs: CloudW. |
+                    +-----------------------------+
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="card" id="sec-4">
+      <h2>4. 24 Important ECS Terms (Shabdawali) <span class="badge badge-important">Important</span></h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Term</th>
+              <th>Definition & Purpose (Hinglish)</th>
+              <th>Real-World Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><strong>ECS</strong></td><td>Elastic Container Service — AWS managed container orchestrator.</td><td>Pure microservices ko cloud mein chalane ka engine.</td></tr>
+            <tr><td>2</td><td><strong>Cluster</strong></td><td>Tasks aur Services ko organize karne wali logical boundary.</td><td><code>production-cluster</code>, <code>staging-cluster</code>.</td></tr>
+            <tr><td>3</td><td><strong>Task Definition</strong></td><td>Container ka blueprint (JSON) jisme image, CPU, RAM, ports likhe hote hain.</td><td>Recipe jisse cake (container) banega.</td></tr>
+            <tr><td>4</td><td><strong>Task</strong></td><td>Task Definition ka ek single running instance (ek ya zyada containers).</td><td>Ek actual running container process.</td></tr>
+            <tr><td>5</td><td><strong>Container</strong></td><td>Isolated Linux environment jisme application code run hota hai.</td><td>Node.js Express API container.</td></tr>
+            <tr><td>6</td><td><strong>Container Image</strong></td><td>Read-only template jisme code, OS runtime aur packages pack hote hain.</td><td><code>node:20-alpine</code>, <code>my-api:v1.0</code>.</td></tr>
+            <tr><td>7</td><td><strong>Container Registry</strong></td><td>Docker images ko store aur share karne ka repository server.</td><td>Docker Hub, Amazon ECR.</td></tr>
+            <tr><td>8</td><td><strong>Amazon ECR</strong></td><td>AWS Managed Elastic Container Registry — Private, secure image storage.</td><td>AWS account ke andar private Docker image repo.</td></tr>
+            <tr><td>9</td><td><strong>ECS Service</strong></td><td>Desired count maintain karne aur ALB ke sath sync rakhne wala manager.</td><td>Hamesha 3 tasks chalte rehne chahiye.</td></tr>
+            <tr><td>10</td><td><strong>Desired Count</strong></td><td>Aap kitne container tasks hamesha live rakhna chahte hain.</td><td><code>desiredCount = 2</code> (High availability).</td></tr>
+            <tr><td>11</td><td><strong>Task Role</strong></td><td>Container ke andar chalne wale code ko AWS services (S3, DynamoDB) call karne ki IAM permission.</td><td>Node.js app ko S3 mein user image upload karni hai.</td></tr>
+            <tr><td>12</td><td><strong>Execution Role</strong></td><td>ECS / Fargate agent ko ECR se image pull karne aur CloudWatch mein logs push karne ki IAM permission.</td><td><code>AmazonECSTaskExecutionRolePolicy</code>.</td></tr>
+            <tr><td>13</td><td><strong>Launch Type</strong></td><td>Compute infrastructure model jahan task run hoga (Fargate ya EC2).</td><td>Serverless (Fargate) ya Self-managed (EC2).</td></tr>
+            <tr><td>14</td><td><strong>AWS Fargate</strong></td><td>Serverless compute engine for containers. EC2 manage nahi karna padta.</td><td>Direct CPU/RAM select karo aur container chalao.</td></tr>
+            <tr><td>15</td><td><strong>EC2 Launch Type</strong></td><td>Aapke apne EC2 instances par ECS agent ke through container chalana.</td><td>Full OS control aur GPU instances ke liye useful.</td></tr>
+            <tr><td>16</td><td><strong>Capacity Provider</strong></td><td>Compute infrastructure (Fargate / EC2 ASG) ko ECS cluster ke sath bind karna.</td><td>FARGATE aur FARGATE_SPOT ka ratio control karna.</td></tr>
+            <tr><td>17</td><td><strong>Container Port</strong></td><td>Container ke andar application jis port par listen kar rahi hai.</td><td>Node.js app listening on port <code>3000</code>.</td></tr>
+            <tr><td>18</td><td><strong>Host Port</strong></td><td>Host EC2 instance ka port jo container port se bind hota hai.</td><td>Port <code>80</code> on EC2 mapping to <code>3000</code> in container.</td></tr>
+            <tr><td>19</td><td><strong>Port Mapping</strong></td><td>Host port aur container port ke beech ka bridge (awsvpc mein containerPort = hostPort).</td><td><code>3000:3000</code> mapping.</td></tr>
+            <tr><td>20</td><td><strong>Health Check</strong></td><td>Check karna ki container live hai aur requests accept kar raha hai ya nahi.</td><td>ALB hitting <code>GET /health</code> returning HTTP 200.</td></tr>
+            <tr><td>21</td><td><strong>Load Balancer (ALB)</strong></td><td>Incoming internet traffic ko multiple ECS tasks mein distribute karna.</td><td>HTTPS 443 traffic coming to 3 backend tasks.</td></tr>
+            <tr><td>22</td><td><strong>Target Group</strong></td><td>ALB ke targets (ECS Task IP addresses) ki logical list.</td><td>ALB target group jisme tasks register hote hain.</td></tr>
+            <tr><td>23</td><td><strong>Service Discovery</strong></td><td>AWS Cloud Map ke through microservices ko internal DNS se discover karna.</td><td><code>auth.internal:4000</code> ko call karna frontend se.</td></tr>
+            <tr><td>24</td><td><strong>CloudWatch Logs</strong></td><td>Containers ke stdout/stderr console logs ko centralized store karna.</td><td><code>/ecs/ecs-demo</code> log group.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section class="card" id="sec-5">
+      <h2>5. ECS vs Docker <span class="badge badge-theory">Comparison</span></h2>
+      <p>Bahut se beginners confuse hote hain ki Docker aur ECS mein kya difference hai. Docker ek tool hai container build aur run karne ke liye, jabki ECS ek AWS service hai un hazaron Docker containers ko enterprise scale par orchestrate karne ke liye.</p>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Docker (Standalone)</th>
+              <th>Amazon ECS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Primary Role</strong></td><td>Container engine (Build & Run containers locally).</td><td>Container Orchestrator on AWS cloud.</td></tr>
+            <tr><td><strong>Scope</strong></td><td>Single machine / Laptop.</td><td>Fleet of servers / Cloud scale.</td></tr>
+            <tr><td><strong>High Availability</strong></td><td>No (Single host fail hua to container dead).</td><td>Yes (Multi-AZ tasks distribution).</td></tr>
+            <tr><td><strong>Auto-Scaling</strong></td><td>Manual.</td><td>Automated via CloudWatch & Target Tracking.</td></tr>
+            <tr><td><strong>Load Balancer</strong></td><td>Manual Nginx setup.</td><td>Native AWS Application Load Balancer integration.</td></tr>
+            <tr><td><strong>Deployment</strong></td><td>Manual <code>docker stop / run</code>.</td><td>Automated Zero-downtime rolling update.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section class="card" id="sec-6">
+      <h2>6. ECS vs EC2 <span class="badge badge-theory">Comparison</span></h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Comparison Point</th>
+              <th>Amazon EC2</th>
+              <th>Amazon ECS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Nature</strong></td><td>Virtual Machine (IaaS).</td><td>Container Management Service.</td></tr>
+            <tr><td><strong>Resource Isolation</strong></td><td>Hypervisor / Hardware level VM.</td><td>Process level container isolation (cgroups/namespaces).</td></tr>
+            <tr><td><strong>Startup Time</strong></td><td>Minutes (OS boot time).</td><td>Seconds (Container process startup).</td></tr>
+            <tr><td><strong>OS Patching</strong></td><td>Customer ki responsibility hoti hai.</td><td>Fargate mein AWS sambhalta hai, EC2 launch type mein customer.</td></tr>
+            <tr><td><strong>Density</strong></td><td>1 server = 1 OS overhead.</td><td>1 server par multiple lightweight containers pack ho sakte hain.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 7 & 8 -->
+    <section class="card" id="sec-7">
+      <h2>7 & 8. ECS Launch Types & AWS Fargate <span class="badge badge-theory">Compute</span></h2>
+      <p>Amazon ECS mein containers ko run karne ke do primary compute modes hote hain:</p>
+
+      <div class="diagram">
+TRADITIONAL EC2 LAUNCH TYPE:
+[ ECS Cluster ] ──> [ EC2 Instance (OS, Docker, ECS Agent) ] ──> [ Container ]
+(You manage OS updates, EC2 patching, capacity, and scaling)
+
+MODERN FARGATE LAUNCH TYPE (Serverless):
+[ ECS Cluster ] ──> [ AWS Fargate (Managed Compute) ] ──> [ Container ]
+(Zero EC2 management! Specify CPU/RAM, AWS manages everything underneath)
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>ECS on EC2</th>
+              <th>ECS on AWS Fargate (Serverless)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Server Management</strong></td><td>Manual (EC2 provisioning, OS updates, Docker daemon).</td><td>None (Serverless — AWS handles everything).</td></tr>
+            <tr><td><strong>Pricing Model</strong></td><td>Pay for EC2 instances 24/7 (regardless of container usage).</td><td>Pay only for exact vCPU & Memory per second used by task.</td></tr>
+            <tr><td><strong>Scaling Speed</strong></td><td>Slow (New EC2 instance boot takes 2-5 minutes).</td><td>Fast (Directly provisions ENI and spins up container).</td></tr>
+            <tr><td><strong>OS / Host Access</strong></td><td>Full SSH / root access to host VM.</td><td>No host access (Task level logging & ECS Exec).</td></tr>
+            <tr><td><strong>Beginner Friendly</strong></td><td>Moderate to Complex.</td><td><strong>Extremely Beginner Friendly (Recommended).</strong></td></tr>
+            <tr><td><strong>Best Use Case</strong></td><td>Consistent predictable 24/7 load, GPU instances, custom kernels.</td><td>Microservices, APIs, bursty traffic, web apps, rapid CI/CD.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 9 & 10 -->
+    <section class="card" id="sec-9">
+      <h2>9 & 10. ECS + Amazon ECR & Core Workflow <span class="badge badge-theory">Workflow</span></h2>
+      <p><strong>Amazon ECR (Elastic Container Registry)</strong> ek fully managed Docker container registry hai jahan hum apni Docker images ko securely upload (push) aur download (pull) karte hain.</p>
+
+      <div class="diagram">
+=========================== ECS COMPLETE LIFECYCLE WORKFLOW ===========================
+  1. Developer writes Code & Dockerfile
+          │
+  2. Local Build: docker build -t ecs-demo .
+          │
+  3. Authenticate: aws ecr get-login-password | docker login ...
+          │
+  4. Tag Image: docker tag ecs-demo:latest <account>.dkr.ecr.<region>.amazonaws.com/ecs-demo:latest
+          │
+  5. Push to ECR: docker push <account>.dkr.ecr.<region>.amazonaws.com/ecs-demo:latest
+          │
+  6. Define Blueprint: Create ECS Task Definition (Image URI, 0.25 vCPU, 512MB RAM, Port 3000)
+          │
+  7. Create Service: ECS Service (Desired Count = 2, Fargate, VPC Subnets, Security Group)
+          │
+  8. ECS pulls image from ECR using Execution Role ──> Launches Fargate Tasks
+          │
+  9. ALB routes incoming internet traffic to port 3000 of healthy tasks
+          │
+ 10. End Users access the application globally via ALB DNS Name!
+=======================================================================================
+      </div>
+    </section>
+
+    <!-- PRACTICALS 1 TO 3 -->
+    <section class="card" id="sec-11">
+      <h2>11, 12, 13. Practical 1, 2, 3 – Local Docker App <span class="badge badge-practical">Practical</span></h2>
+      <p>Sabse pehle hum ek clean Node.js Express application banayenge, Dockerfile likhenge, image build karenge aur locally test karenge.</p>
+
+      <h3>Step 1: <code>server.js</code></h3>
+      <div class="code-container">
+        <div class="code-header">
+          <span>JavaScript (server.js)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Hello from ECS!");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});</code></pre>
+      </div>
+
+      <h3>Step 2: <code>package.json</code></h3>
+      <div class="code-container">
+        <div class="code-header">
+          <span>JSON (package.json)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>{
+  "name": "ecs-demo-app",
+  "version": "1.0.0",
+  "description": "AWS ECS Beginner Demo App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}</code></pre>
+      </div>
+
+      <h3>Step 3: <code>Dockerfile</code></h3>
+      <div class="code-container">
+        <div class="code-header">
+          <span>Dockerfile</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># Base Image: Lightweight Node.js 20 on Alpine Linux
+FROM node:20-alpine
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy dependency files first (Leverage Docker layer caching)
+COPY package*.json ./
+
+# Install production dependencies
+RUN npm install --only=production
+
+# Copy application source code
+COPY . .
+
+# Document that container listens on port 3000
+EXPOSE 3000
+
+# Command to execute when container starts
+CMD ["node", "server.js"]</code></pre>
+      </div>
+
+      <h3>Step 4: Build & Test Locally</h3>
+      <div class="code-container">
+        <div class="code-header">
+          <span>Bash / PowerShell</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># 1. Build the Docker image
+docker build -t ecs-demo .
+
+# 2. Verify image was built
+docker images
+
+# 3. Run container locally mapping host port 3000 to container port 3000
+docker run -d -p 3000:3000 --name my-local-app ecs-demo
+
+# 4. Test in browser or curl
+curl http://localhost:3000
+# Output: Hello from ECS!
+
+# 5. Stop local container
+docker stop my-local-app</code></pre>
+      </div>
+    </section>
+
+    <!-- PRACTICALS 4 TO 7 -->
+    <section class="card" id="sec-14">
+      <h2>14, 15, 16, 17. Practical 4, 5, 6, 7 – Amazon ECR Setup <span class="badge badge-practical">Practical</span></h2>
+      <p>Local image ko AWS ECR mein push karne ke complete steps:</p>
+
+      <h3>AWS Console Steps (Create Repository):</h3>
+      <ol class="steps-list">
+        <li>AWS Management Console mein search bar mein type karein <strong>ECR</strong> aur open karein <strong>Amazon Elastic Container Registry</strong>.</li>
+        <li>Left menu mein <strong>Repositories</strong> par click karein aur <strong>Create repository</strong> button dabayein.</li>
+        <li>Visibility settings mein <strong>Private</strong> select karein.</li>
+        <li>Repository name mein likhein: <code>ecs-demo</code>.</li>
+        <li>Tag immutability aur scan on push default chhodkar <strong>Create repository</strong> par click karein.</li>
+      </ol>
+
+      <h3>AWS CLI & Docker Commands (Push Image to ECR):</h3>
+      <div class="box box-warn">
+        <strong>Note:</strong> Niche diye commands mein <code>YOUR-REGION</code> (jaise <code>ap-south-1</code> ya <code>us-east-1</code>) aur <code>YOUR-AWS-ACCOUNT-ID</code> (12 digit account ID) ko apne actual details se replace karein.
+      </div>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>Bash / Linux / macOS</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># Check AWS CLI identity
+aws sts get-caller-identity
+
+# 1. Login to Amazon ECR
+aws ecr get-login-password --region YOUR-REGION | docker login --username AWS --password-stdin YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com
+
+# 2. Tag your local image for ECR repository
+docker tag ecs-demo:latest YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/ecs-demo:latest
+
+# 3. Push Docker image to AWS ECR
+docker push YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/ecs-demo:latest</code></pre>
+      </div>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>Windows PowerShell</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># Check AWS CLI identity in PowerShell
+aws sts get-caller-identity
+
+# 1. Login to Amazon ECR (PowerShell compatible syntax)
+(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com
+
+# Or standard AWS CLI v2 in PowerShell:
+aws ecr get-login-password --region YOUR-REGION | docker login --username AWS --password-stdin YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com
+
+# 2. Tag Image
+docker tag ecs-demo:latest YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/ecs-demo:latest
+
+# 3. Push Image
+docker push YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/ecs-demo:latest</code></pre>
+      </div>
+    </section>
+
+    <!-- PRACTICALS 8 TO 10 -->
+    <section class="card" id="sec-18">
+      <h2>18, 19, 20, 21, 22. ECS Cluster, Task Definition & IAM Roles <span class="badge badge-practical">Setup</span></h2>
+
+      <h3>Step 1: Create ECS Cluster (AWS Console)</h3>
+      <ol class="steps-list">
+        <li>AWS Console mein search karein <strong>ECS</strong>.</li>
+        <li>Left sidebar mein <strong>Clusters</strong> par jayein aur <strong>Create cluster</strong> par click karein.</li>
+        <li>Cluster name dein: <code>ecs-demo-cluster</code>.</li>
+        <li>Infrastructure mein <strong>AWS Fargate (serverless)</strong> check rehne dein. (Fargate cluster banate time koi EC2 instance launch nahi hota).</li>
+        <li>Click <strong>Create</strong>.</li>
+      </ol>
+
+      <h3>Step 2: Execution Role vs Task Role (Critical Concept)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Task Execution Role (<code>executionRoleArn</code>)</th>
+              <th>Task Role (<code>taskRoleArn</code>)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Who uses it?</strong></td><td>AWS ECS Agent / Fargate Infrastructure.</td><td>Aapka application code (container ke andar).</td></tr>
+            <tr><td><strong>When is it used?</strong></td><td>Task start hone se pehle (Startup time).</td><td>Task chalte waqt runtime par (Application execution).</td></tr>
+            <tr><td><strong>Typical Permissions</strong></td><td><code>ecr:GetAuthorizationToken</code>, <code>ecr:BatchGetImage</code>, <code>logs:CreateLogStream</code>, <code>logs:PutLogEvents</code>.</td><td><code>s3:PutObject</code>, <code>dynamodb:Query</code>, <code>sqs:SendMessage</code>.</td></tr>
+            <tr><td><strong>AWS Managed Policy</strong></td><td><code>AmazonECSTaskExecutionRolePolicy</code></td><td>Custom least-privilege IAM policies.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Step 3: Task Definition Configuration (JSON)</h3>
+      <div class="code-container">
+        <div class="code-header">
+          <span>JSON (task-definition.json)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>{
+  "family": "ecs-demo-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::YOUR-AWS-ACCOUNT-ID:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "ecs-demo-container",
+      "image": "YOUR-AWS-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/ecs-demo:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/ecs-demo",
+          "awslogs-region": "YOUR-REGION",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}</code></pre>
+      </div>
+
+      <h3>Key JSON Fields Explained:</h3>
+      <ul>
+        <li><code>family</code>: Task definition ka unique name / family group.</li>
+        <li><code>networkMode: "awsvpc"</code>: Har Fargate task ko VPC ka apna dedicated Elastic Network Interface (ENI) aur Private IP milta hai.</li>
+        <li><code>requiresCompatibilities</code>: Specifying <code>FARGATE</code> serverless compute.</li>
+        <li><code>cpu: "256"</code>: 0.25 vCPU (256 CPU units).</li>
+        <li><code>memory: "512"</code>: 512 MB RAM.</li>
+        <li><code>essential: true</code>: Agar ye container fail hua to pura task terminate ho jayega aur restart hoga.</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 23 TO 27 -->
+    <section class="card" id="sec-23">
+      <h2>23 to 27. Create ECS Service & Access App <span class="badge badge-practical">Deployment</span></h2>
+      <p>Task Definition banne ke baad hum <strong>ECS Service</strong> banate hain jo continuously tasks ko maintain karegi.</p>
+
+      <div class="diagram">
+ECS SERVICE AUTO-HEALING WORKFLOW:
+Desired Count = 2
+Service monitors: [ Task 1 (Healthy) ]  and  [ Task 2 (Healthy) ]
+                     │ (Task 2 crashes due to memory error)
+                     ▼
+Service detects crash ──> Automatically terminates dead Task 2
+                     │
+                     ▼
+Service provisions [ Task 3 (Brand new Task) ] ──> Desired count restored to 2!
+      </div>
+
+      <h3>Create Service in AWS Console:</h3>
+      <ol class="steps-list">
+        <li>ECS Console mein apne cluster <code>ecs-demo-cluster</code> ko open karein.</li>
+        <li><strong>Services</strong> tab mein <strong>Create</strong> button click karein.</li>
+        <li>Compute options mein <strong>Launch type: FARGATE</strong> select karein.</li>
+        <li>Application type: <strong>Service</strong> select karein.</li>
+        <li>Task definition: <code>ecs-demo-task</code>, Revision: <code>1 (latest)</code> select karein.</li>
+        <li>Service name: <code>ecs-demo-service</code> dein.</li>
+        <li>Desired tasks: <code>1</code> (lab test ke liye) ya <code>2</code> (high availability ke liye).</li>
+        <li><strong>Networking:</strong> Default VPC ya custom VPC select karein, 2 public subnets select karein.</li>
+        <li><strong>Security Group:</strong> Naya create karein — Type <strong>Custom TCP</strong>, Port <code>3000</code>, Source <code>0.0.0.0/0</code> (Lab testing purpose).</li>
+        <li><strong>Public IP:</strong> <code>TURNED ON</code> (Taaki direct test kiya ja sake agar ALB nahi hai).</li>
+        <li>Click <strong>Create</strong>.</li>
+      </ol>
+
+      <h3>Accessing Direct Task IP (Practical 12):</h3>
+      <p>Jab task ka status <strong>RUNNING</strong> ho jaye:</p>
+      <ul>
+        <li>Service ke andar <strong>Tasks</strong> tab par click karein.</li>
+        <li>Running task par click karein aur <strong>Configuration / Networking</strong> tab dekhein.</li>
+        <li><strong>Public IP</strong> copy karein aur browser mein open karein: <code>http://&lt;TASK-PUBLIC-IP&gt;:3000</code></li>
+        <li>Screen par dikhai dega: <strong>Hello from ECS!</strong></li>
+      </ul>
+    </section>
+
+    <!-- SECTION 28 TO 32 -->
+    <section class="card" id="sec-28">
+      <h2>28 to 32. ECS + Application Load Balancer & Auto Scaling <span class="badge badge-practical">Production</span></h2>
+      <p>Direct Task Public IP se production apps nahi chalayi jaati kyunki task restart hone par IP badal jata hai. Production mein hum <strong>Application Load Balancer (ALB)</strong> use karte hain.</p>
+
+      <div class="diagram">
+=========================== ALB + ECS ARCHITECTURE ===========================
+Internet Traffic (Port 80/443)
+        │
+        ▼
+Application Load Balancer (ALB)
+        │
+        ▼ Listener (Port 80)
+Target Group (Target Type = IP, Port 3000, Health Check: GET /health)
+        │
+   ┌────┴────────────────────────┐
+   ▼                             ▼
+ECS Fargate Task 1            ECS Fargate Task 2
+(IP: 10.0.1.45:3000)          (IP: 10.0.2.78:3000)
+==============================================================================
+      </div>
+
+      <h3>Step-by-Step ALB Setup:</h3>
+      <ol class="steps-list">
+        <li><strong>Create Target Group:</strong> EC2 Console -> Target Groups -> Create Target Group. Target type <strong>IP addresses</strong> select karein. Protocol HTTP, Port <code>3000</code>. Health check path: <code>/health</code>.</li>
+        <li><strong>Create Application Load Balancer:</strong> Name <code>ecs-demo-alb</code>, Scheme <strong>Internet-facing</strong>, select VPC & minimum 2 public subnets in different AZs.</li>
+        <li><strong>Security Group for ALB:</strong> Inbound HTTP Port <code>80</code> from <code>0.0.0.0/0</code>.</li>
+        <li><strong>Security Group for ECS Tasks:</strong> Inbound Port <code>3000</code> ONLY from ALB Security Group (Security Group Chaining).</li>
+        <li><strong>Attach ALB to ECS Service:</strong> ECS Service Update -> Load balancing -> Select ALB, container name, container port 3000, Target Group.</li>
+      </ol>
+
+      <h3>ECS Auto Scaling Setup (Practical 14):</h3>
+      <div class="box box-ok">
+        <strong>Auto Scaling Policy:</strong> Target Tracking Scaling Policy<br>
+        <strong>Metric:</strong> <code>ECSServiceAverageCPUUtilization</code><br>
+        <strong>Target Value:</strong> <code>60%</code><br>
+        <strong>Min Capacity:</strong> <code>1 Task</code> | <strong>Max Capacity:</strong> <code>4 Tasks</code><br>
+        <em>Jaise hi continuous traffic ki wajah se average CPU 60% se upar jayega, ECS automatically naye Fargate tasks launch kar dega.</em>
+      </div>
+    </section>
+
+    <!-- SECTION 33 TO 35 -->
+    <section class="card" id="sec-33">
+      <h2>33, 34, 35. ECS Deployment & Version Updates <span class="badge badge-practical">CI/CD</span></h2>
+      
+      <div class="box box-important">
+        <strong>Golden Rule:</strong> ECR mein nayi image push kar dene se already running ECS tasks automatically update nahi hote. ECS ko batana padta hai ek <strong>New Task Definition Revision</strong> create karke ya <strong>Force New Deployment</strong> trigger karke.
+      </div>
+
+      <h3>Step-by-Step Application Update (Practical 15):</h3>
+      <ol class="steps-list">
+        <li><code>server.js</code> file edit karein: <code>res.send("Hello from ECS Version 2!");</code></li>
+        <li>Nayi image build karein: <code>docker build -t ecs-demo:v2 .</code></li>
+        <li>Image tag karein aur push karein:
+          <div class="code-container">
+            <div class="code-header"><span>Bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><code>docker tag ecs-demo:v2 YOUR-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/ecs-demo:v2
+docker push YOUR-ACCOUNT-ID.dkr.ecr.YOUR-REGION.amazonaws.com/ecs-demo:v2</code></pre>
+          </div>
+        </li>
+        <li>ECS Console mein Task Definition ka naya revision (Revision 2) create karein jisme image URI <code>:v2</code> ho.</li>
+        <li>ECS Service ko update karein Revision 2 par -> <strong>Update Service</strong>.</li>
+        <li>ECS automatically <strong>Rolling Deployment</strong> karega: Pehle naya V2 task launch karega, jab V2 ALB health check pass karega, tab purane V1 task ko terminate karega (Zero Downtime).</li>
+      </ol>
+
+      <h3>Rolling vs Blue/Green Deployments:</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Deployment Type</th>
+              <th>Kaise Kaam Karta Hai?</th>
+              <th>Rollback Speed</th>
+              <th>Cost During Deploy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Rolling Deployment (Default)</strong></td>
+              <td>Purane tasks ko step-by-step naye tasks se replace karta hai (minHealthyPercent & maxPercent ke mutabiq).</td>
+              <td>Moderate (Purane version par re-deploy karna padta hai).</td>
+              <td>Kam (Thode extra temporary tasks bante hain).</td>
+            </tr>
+            <tr>
+              <td><strong>Blue/Green (AWS CodeDeploy)</strong></td>
+              <td>Ek pura separate Green task set banata hai, validation test ke baad ALB listener traffic ek saath switch karta hai.</td>
+              <td>Instant (Traffic turant Blue environment par revert ho jata hai).</td>
+              <td>Zyada (Deploy ke waqt 2x tasks parallel chalte hain).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 36 TO 43 -->
+    <section class="card" id="sec-36">
+      <h2>36 to 43. Logging, Secrets & Full MERN Architecture <span class="badge badge-theory">Architecture</span></h2>
+      
+      <h3>1. Centralized CloudWatch Logging</h3>
+      <p>Fargate containers mein SSH access nahi hota, isliye container ka <code>stdout</code> aur <code>stderr</code> logs dekhne ke liye AWS <code>awslogs</code> log driver use karta hai:</p>
+      <div class="code-container">
+        <div class="code-header"><span>JSON (logConfiguration snippet)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>"logConfiguration": {
+  "logDriver": "awslogs",
+  "options": {
+    "awslogs-group": "/ecs/ecs-demo",
+    "awslogs-region": "YOUR-REGION",
+    "awslogs-stream-prefix": "ecs"
+  }
+}</code></pre>
+      </div>
+
+      <h3>2. Secure Secrets Management (No Hardcoded Passwords!)</h3>
+      <p>Kabhi bhi database passwords ya JWT secrets ko Dockerfile ya GitHub repo mein store na karein. AWS <strong>Secrets Manager</strong> ya <strong>SSM Parameter Store</strong> use karein:</p>
+      <div class="code-container">
+        <div class="code-header"><span>JSON (Secrets in Task Definition)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>"secrets": [
+  {
+    "name": "MONGO_URI",
+    "valueFrom": "arn:aws:secretsmanager:YOUR-REGION:YOUR-ACCOUNT-ID:secret:prod/mongo_uri"
+  },
+  {
+    "name": "JWT_SECRET",
+    "valueFrom": "arn:aws:ssm:YOUR-REGION:YOUR-ACCOUNT-ID:parameter/prod/jwt_secret"
+  }
+]</code></pre>
+      </div>
+
+      <h3>3. Complete Production MERN Architecture on ECS</h3>
+      <div class="diagram">
+                                  [ INTERNET ]
+                                       │
+                                       ▼ (HTTPS 443)
+                                 [ Route 53 DNS ]
+                                       │
+                                       ▼
+                       [ Application Load Balancer (Public Subnets) ]
+                                       │
+                    ┌──────────────────┴──────────────────┐
+                    │ (HTTP 3000 / 5000)                  │
+                    ▼                                     ▼
+        [ ECS Fargate Task (AZ-1) ]           [ ECS Fargate Task (AZ-2) ]
+        [ React Frontend / Express API ]      [ React Frontend / Express API ]
+                    │                                     │
+                    └──────────────────┬──────────────────┘
+                                       │
+                 ┌─────────────────────┼─────────────────────┐
+                 ▼                     ▼                     ▼
+      [ Amazon RDS / DocumentDB ]  [ Amazon S3 ]   [ Secrets Manager & CW ]
+      (Private Isolated Subnet)    (User Uploads)  (Pass & Container Logs)
+      </div>
+    </section>
+
+    <!-- SECTION 44 TO 49 -->
+    <section class="card" id="sec-44">
+      <h2>44 to 49. Advanced ECS Features & Comparisons <span class="badge badge-theory">Deep Dive</span></h2>
+      
+      <div class="grid-2">
+        <div class="box box-tip">
+          <strong>ECS Service Discovery (AWS Cloud Map):</strong><br>
+          Microservices communication ke liye useful. Agar Frontend container ko Backend container call karna ho, to load balancer ki zaroorat nahi hoti; direct internal DNS <code>http://backend.internal:5000</code> se call ho jata hai.
+        </div>
+        <div class="box box-tip">
+          <strong>ECS Fargate Spot:</strong><br>
+          AWS ki unused compute capacity par Fargate tasks chalana. Regular Fargate se upar tak discount milta hai. Lekin AWS 2-minute notice dekar task reclaim kar sakta hai, isliye ye batch jobs aur stateless fault-tolerant apps ke liye best hai.
+        </div>
+      </div>
+
+      <h3>ECS vs Amazon EKS (Kubernetes) Comparison</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Comparison Factor</th>
+              <th>Amazon ECS</th>
+              <th>Amazon EKS (Managed Kubernetes)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Complexity & Learning Curve</strong></td><td>Low / Very Simple (AWS native concepts).</td><td>High (Kubernetes manifests, Helm, CRDs, kubectl).</td></tr>
+            <tr><td><strong>AWS Integration</strong></td><td>Deep & Native (IAM, CloudWatch, ALB, Secrets Manager).</td><td>Requires AWS plugins & controllers (IRSA, ALB Ingress).</td></tr>
+            <tr><td><strong>Control Plane Cost</strong></td><td>Free ($0 control plane fee).</td><td>$0.10/hour per cluster (~$73/month control plane).</td></tr>
+            <tr><td><strong>Multi-Cloud Portability</strong></td><td>AWS specific.</td><td>High (Standard Kubernetes runs on Azure/GCP/On-Prem).</td></tr>
+            <tr><td><strong>When to Choose?</strong></td><td>Teams wanting fast, simple, serverless AWS container deployments.</td><td>Existing Kubernetes expertise, multi-cloud strategies, massive microservice clusters.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 50 & 51 -->
+    <section class="card" id="sec-50">
+      <h2>50 & 51. Essential ECS AWS CLI Commands <span class="badge badge-practical">CLI</span></h2>
+      
+      <div class="code-container">
+        <div class="code-header"><span>AWS CLI Reference</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. List all ECS clusters in region
+aws ecs list-clusters --region YOUR-REGION
+
+# 2. Describe specific cluster details
+aws ecs describe-clusters --clusters YOUR-CLUSTER --region YOUR-REGION
+
+# 3. List all services in a cluster
+aws ecs list-services --cluster YOUR-CLUSTER --region YOUR-REGION
+
+# 4. Describe service status and deployments
+aws ecs describe-services --cluster YOUR-CLUSTER --services YOUR-SERVICE --region YOUR-REGION
+
+# 5. List running tasks in a cluster
+aws ecs list-tasks --cluster YOUR-CLUSTER --service-name YOUR-SERVICE --region YOUR-REGION
+
+# 6. Describe running task details (ENI, IP, Status)
+aws ecs describe-tasks --cluster YOUR-CLUSTER --tasks TASK-ID --region YOUR-REGION
+
+# 7. Force a new deployment (re-pull image without task definition revision changes)
+aws ecs update-service --cluster YOUR-CLUSTER --service YOUR-SERVICE --force-new-deployment --region YOUR-REGION
+
+# 8. Scale desired tasks count up or down
+aws ecs update-service --cluster YOUR-CLUSTER --service YOUR-SERVICE --desired-count 3 --region YOUR-REGION</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 52 & 53 -->
+    <section class="card" id="sec-52">
+      <h2>52 & 53. End-to-End 40-Step Practical Lab Checklist <span class="badge badge-practical">Lab</span></h2>
+      <p>Ye checklist aapko complete zero se production-grade ECS deployment tak guide karti hai:</p>
+
+      <ol class="steps-list">
+        <li>Node.js application (<code>server.js</code> & <code>package.json</code>) code likhein.</li>
+        <li>Multi-stage lightweight <code>Dockerfile</code> create karein.</li>
+        <li><code>docker build -t ecs-demo .</code> command se image build karein.</li>
+        <li><code>docker run -p 3000:3000 ecs-demo</code> se localhost par test karein.</li>
+        <li>AWS ECR Console mein <code>ecs-demo</code> private repository create karein.</li>
+        <li><code>aws ecr get-login-password</code> se Docker ko ECR se authenticate karein.</li>
+        <li>Local image ko ECR format tag dein (<code>docker tag ...</code>).</li>
+        <li>Image ko ECR mein push karein (<code>docker push ...</code>).</li>
+        <li>AWS ECS Console mein Fargate cluster <code>ecs-demo-cluster</code> create karein.</li>
+        <li>IAM Console mein <code>ecsTaskExecutionRole</code> verify/create karein.</li>
+        <li>ECS Task Definition create karein: Family <code>ecs-demo-task</code>.</li>
+        <li>Compute CPU: <code>0.25 vCPU (256)</code> aur Memory: <code>0.5 GB (512 MB)</code> configure karein.</li>
+        <li>Container image mein ECR Repository URI paste karein.</li>
+        <li>Container port mapping: Port <code>3000 TCP</code> set karein.</li>
+        <li>CloudWatch Logs (<code>awslogs</code>) driver enable karein.</li>
+        <li>ECS Task ke liye Security Group create karein (Port 3000 allow).</li>
+        <li>ECS Service create karein: Name <code>ecs-demo-service</code>.</li>
+        <li>Default / Custom VPC select karein.</li>
+        <li>Minimum 2 Subnets select karein.</li>
+        <li>Security group attach karein.</li>
+        <li>Application Load Balancer (ALB) create karein: <code>ecs-demo-alb</code>.</li>
+        <li>Target Group banayein: Target Type = <code>IP</code>, Port = <code>3000</code>.</li>
+        <li>ALB Listener rule configure karein (HTTP Port 80 forward to Target Group).</li>
+        <li>ALB ko ECS Service ke sath link karein.</li>
+        <li>Service deploy karein (Desired count = 1 ya 2).</li>
+        <li>Task status <code>PROVISIONING</code> -> <code>PENDING</code> -> <code>RUNNING</code> hone ka wait karein.</li>
+        <li>Target Group mein task IP ka status <code>healthy</code> check karein.</li>
+        <li>ALB DNS name copy karke browser mein open karein.</li>
+        <li>Browser mein <strong>"Hello from ECS!"</strong> verify karein.</li>
+        <li>CloudWatch Log group <code>/ecs/ecs-demo</code> mein logs verify karein.</li>
+        <li>Code modify karein: <strong>"Hello from ECS Version 2!"</strong>.</li>
+        <li>Naya Docker image build karein (<code>:v2</code>).</li>
+        <li>Nayi image ECR mein push karein.</li>
+        <li>Task definition ka Revision 2 create karein.</li>
+        <li>ECS Service ko Revision 2 ke sath update karein.</li>
+        <li>Rolling deployment ka progress monitor karein.</li>
+        <li>ALB DNS refresh karke zero-downtime Version 2 verify karein.</li>
+        <li>Auto-scaling policy test karein (Desired count = 3 scale-out).</li>
+        <li>Service availability aur multi-AZ resilience verify karein.</li>
+        <li>Lab complete hone ke baad sare resources delete/cleanup karein (Avoid charges!).</li>
+      </ol>
+    </section>
+
+    <!-- SECTION 54 & 55 -->
+    <section class="card" id="sec-54">
+      <h2>54 & 55. ECS Troubleshooting & Common Errors <span class="badge badge-troubleshoot">Troubleshooting</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Problem / Error</th>
+              <th>Possible Cause</th>
+              <th>Kahan Check Karein?</th>
+              <th>Solution (How to Fix)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CannotPullContainerError</strong></td>
+              <td>ECR Repository URI galat hai ya Execution Role ke paas ECR permissions nahi hain.</td>
+              <td>Task <em>Stopped reason</em> & IAM Execution Role.</td>
+              <td>Check karein <code>ecsTaskExecutionRole</code> mein <code>AmazonECSTaskExecutionRolePolicy</code> attached hai ya nahi.</td>
+            </tr>
+            <tr>
+              <td><strong>Task stops immediately (Essential container exited)</strong></td>
+              <td>Application startup crash (e.g. missing environment variable, syntax error in JS).</td>
+              <td>CloudWatch Logs <code>/ecs/ecs-demo</code>.</td>
+              <td>Container logs check karein. Local machine par same env vars ke sath <code>docker run</code> karke debug karein.</td>
+            </tr>
+            <tr>
+              <td><strong>Task stuck in PENDING / PROVISIONING</strong></td>
+              <td>Subnet mein ENI IP capacity khatam ho gayi hai ya NAT Gateway / IGW route missing hai.</td>
+              <td>VPC Route tables & Subnet available IPs.</td>
+              <td>Public subnet mein <em>Auto-assign public IP</em> ON karein ya private subnet mein NAT Gateway route verify karein.</td>
+            </tr>
+            <tr>
+              <td><strong>ALB Target Group status: Unhealthy (502 / 504)</strong></td>
+              <td>Container port 3000 par respond nahi kar raha ya Security group ALB traffic block kar raha hai.</td>
+              <td>Target Group health check tab & Task Security Group.</td>
+              <td>Task Security Group mein Inbound Port 3000 allow karein from ALB SG. Health check path <code>/health</code> ensure karein.</td>
+            </tr>
+            <tr>
+              <td><strong>AccessDeniedException on AWS Services</strong></td>
+              <td>Task Role missing hai ya S3/DynamoDB permissions attach nahi hain.</td>
+              <td>Task Definition <code>taskRoleArn</code>.</td>
+              <td>IAM Task Role banakar Task Definition mein attach karein. (Execution role aur Task role ko mix na karein).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>How to Check Stopped Reason in AWS Console:</h3>
+      <ol class="steps-list">
+        <li>ECS Console -> Clusters -> <code>ecs-demo-cluster</code> -> <strong>Tasks</strong> tab.</li>
+        <li>Filter mein <strong>Desired status: Stopped</strong> select karein.</li>
+        <li>Stopped task par click karein.</li>
+        <li><strong>Stopped reason</strong> field padhein (e.g., <code>OutOfMemoryError</code>, <code>CannotPullContainerError</code>, <code>Essential container in task exited</code>).</li>
+        <li>Niche <strong>Containers</strong> section expand karke <strong>Exit Code</strong> dekhein (Exit code <code>1</code> = App crash, <code>137</code> = Out of Memory kill).</li>
+      </ol>
+    </section>
+
+    <!-- SECTION 56 & 57 -->
+    <section class="card" id="sec-56">
+      <h2>56 & 57. ECS Cost Basics & Resource Cleanup <span class="badge badge-important">Cost & Cleanup</span></h2>
+      
+      <div class="box box-bad">
+        <strong>CRITICAL COST WARNING:</strong> Practical lab finish hone ke baad sabhi AWS resources ko step-by-step delete karein, nahi to running ALB, NAT Gateway aur Fargate tasks ka unnecessary bill aayega!
+      </div>
+
+      <h3>Resource Pricing Components:</h3>
+      <ul>
+        <li><strong>ECS Fargate:</strong> Per-second billing based on allocated vCPU and Memory.</li>
+        <li><strong>Application Load Balancer (ALB):</strong> Hourly base charge + LCU (Load Balancer Capacity Units).</li>
+        <li><strong>Amazon ECR:</strong> Standard S3 storage cost per GB of stored Docker images.</li>
+        <li><strong>CloudWatch Logs:</strong> Ingestion & Storage per GB.</li>
+      </ul>
+
+      <h3>Clean Up Order (Deletion Steps):</h3>
+      <ol class="steps-list">
+        <li><strong>Delete ECS Service:</strong> ECS Service par click karke <strong>Delete</strong> karein (Force delete check karein).</li>
+        <li><strong>Delete ECS Cluster:</strong> Jab sabhi services aur tasks terminate ho jayein, cluster delete karein.</li>
+        <li><strong>Delete ALB & Target Group:</strong> EC2 Console -> Load Balancers -> Delete ALB -> Delete Target Group.</li>
+        <li><strong>Delete ECR Repository:</strong> ECR Console -> Repositories -> Select <code>ecs-demo</code> -> Delete.</li>
+        <li><strong>Delete CloudWatch Log Group:</strong> CloudWatch -> Log Groups -> <code>/ecs/ecs-demo</code> -> Delete.</li>
+        <li><strong>Delete Security Groups:</strong> EC2 Console -> Security Groups -> Delete lab specific security groups.</li>
+      </ol>
+    </section>
+
+    <!-- SECTION 58 & 59 -->
+    <section class="card" id="sec-58">
+      <h2>58 & 59. ECS Best Practices & Security Guidelines <span class="badge badge-theory">Best Practices</span></h2>
+      <div class="grid-2">
+        <div class="box box-ok">
+          <strong>1. Use Versioned Image Tags:</strong> Production mein kabhi bhi sirf <code>:latest</code> tag par depend na karein. Hamesha Git commit SHA ya semantic version (<code>v1.2.4</code>) use karein.
+        </div>
+        <div class="box box-ok">
+          <strong>2. Multi-Stage Docker Builds:</strong> Docker images ko lightweight banayein (Alpine base images) taaki image size 100MB se kam ho aur container jaldi launch ho.
+        </div>
+        <div class="box box-ok">
+          <strong>3. Principle of Least Privilege:</strong> Task Role aur Execution Role mein strictly necessary permissions hi dein.
+        </div>
+        <div class="box box-ok">
+          <strong>4. Keep Databases in Private Subnets:</strong> RDS / MongoDB instances ko kabhi public subnets mein na rakhein. Security Group chaining use karein.
+        </div>
+        <div class="box box-ok">
+          <strong>5. Enable ECR Image Scanning:</strong> ECR mein <em>Scan on push</em> enable karein taaki container images ki vulnerabilities detect ho sakein.
+        </div>
+        <div class="box box-ok">
+          <strong>6. Multi-AZ Deployment:</strong> High availability ke liye minimum 2 Availability Zones mein tasks distribute karein.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 60 -->
+    <section class="card" id="sec-60">
+      <h2>60. 40+ ECS Interview Questions & Answers <span class="badge badge-interview">Interview Q&A</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Answer (Short, Simple & Interview-Ready)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Amazon ECS kya hai?</td><td>AWS ki fully managed container orchestration service jo Docker containers ko cloud par run, manage aur scale karti hai.</td></tr>
+            <tr><td>2</td><td>AWS Fargate kya hai?</td><td>Serverless compute engine for ECS jisme EC2 servers manage kiye bina direct container chalaye ja sakte hain.</td></tr>
+            <tr><td>3</td><td>ECS Cluster kya hota hai?</td><td>ECS Tasks aur Services ka ek logical boundary grouping.</td></tr>
+            <tr><td>4</td><td>ECS Task kya hai?</td><td>Task Definition ka ek single live running instance (actual container execution).</td></tr>
+            <tr><td>5</td><td>Task Definition kya hoti hai?</td><td>JSON blueprint jo container image, CPU, RAM, ports aur environment variables define karti hai.</td></tr>
+            <tr><td>6</td><td>ECS Service kya karti hai?</td><td>Specified Desired Count tasks ko 24/7 maintain karti hai, crash hone par restart karti hai aur ALB se connect karti hai.</td></tr>
+            <tr><td>7</td><td>Task aur Service mein kya antar hai?</td><td>Task ek temporary running container hai; Service ek continuous controller hai jo tasks ko maintain aur scale karta hai.</td></tr>
+            <tr><td>8</td><td>Amazon ECR kya hai?</td><td>AWS ki private Docker container image registry.</td></tr>
+            <tr><td>9</td><td>ECS aur ECR mein kya relation hai?</td><td>ECR mein image store hoti hai; ECS us image ko pull karke container run karta hai.</td></tr>
+            <tr><td>10</td><td>ECS on EC2 vs Fargate mein kya difference hai?</td><td>EC2 mein underlying servers aap manage karte hain; Fargate mein AWS underlying infrastructure sambhalta hai (Serverless).</td></tr>
+            <tr><td>11</td><td>Desired Count kya hota hai?</td><td>Vo number jo batata hai ki kitne tasks hamesha live aur running rehne chahiye.</td></tr>
+            <tr><td>12</td><td>Task Execution Role kya hota hai?</td><td>Role jo ECS agent ko ECR se image pull karne aur CloudWatch mein logs bhejne ki permission deta hai.</td></tr>
+            <tr><td>13</td><td>Task Role kya hota hai?</td><td>Role jo container ke andar chalne wale code ko AWS services (S3, DynamoDB) access karne ki permission deta hai.</td></tr>
+            <tr><td>14</td><td>Execution Role vs Task Role ka main difference?</td><td>Execution Role = ECS agent ke liye (Startup time); Task Role = Application code ke liye (Runtime).</td></tr>
+            <tr><td>15</td><td><code>awsvpc</code> network mode kya hai?</td><td>Network mode jisme har ECS task ko VPC ka apna dedicated ENI aur Private IP milta hai.</td></tr>
+            <tr><td>16</td><td>Port Mapping kya hoti hai?</td><td>Host port aur container port ke beech connection banana taaki bahar se traffic container tak pahuche.</td></tr>
+            <tr><td>17</td><td>ECS mein health check kaise kaam karta hai?</td><td>ALB target group regular HTTP requests (e.g. <code>GET /health</code>) bhejkar check karta hai ki container 200 OK de raha hai ya nahi.</td></tr>
+            <tr><td>18</td><td>Agar ECS task crash ho jaye to kya hoga?</td><td>ECS Service crash ko detect karegi aur turant desired count maintain karne ke liye naya task launch kar degi.</td></tr>
+            <tr><td>19</td><td>Application Load Balancer (ALB) ECS ke sath kyu use karte hain?</td><td>Dynamic task IPs par traffic distribute karne, HTTPS terminate karne aur zero-downtime rolling updates ke liye.</td></tr>
+            <tr><td>20</td><td>Target Group kya hota hai?</td><td>ALB ke targets (ECS Task IPs) ki logical grouping jahan requests forward hoti hain.</td></tr>
+            <tr><td>21</td><td>ECS Service Auto Scaling kaise kaam karti hai?</td><td>CloudWatch metrics (CPU/RAM utilization) ke basis par desired task count automatically badhati ya ghatati hai.</td></tr>
+            <tr><td>22</td><td>Stopped task ka reason kaise check karte hain?</td><td>ECS Console -> Tasks -> Stopped Tasks -> <em>Stopped reason</em> aur container <em>Exit code</em> dekhkar.</td></tr>
+            <tr><td>23</td><td>Task Exit Code 137 ka kya matlab hai?</td><td>Container ne allocated memory limit cross kar di aur Linux OOM (Out of Memory) killer ne usko kill kar diya.</td></tr>
+            <tr><td>24</td><td>CannotPullContainerError ka main reason kya hota hai?</td><td>Galat ECR image URI, missing internet route/NAT Gateway ya Execution Role permissions missing.</td></tr>
+            <tr><td>25</td><td>Fargate Spot kya hai?</td><td>AWS ki spare compute capacity par tasks chalana deep discounts ke sath (stateless/fault-tolerant apps ke liye).</td></tr>
+            <tr><td>26</td><td>Capacity Provider kya hota hai?</td><td>ECS cluster ke liye compute infrastructure (Fargate, Spot, EC2 ASG) management provider.</td></tr>
+            <tr><td>27</td><td>ECS Service Discovery kya hai?</td><td>AWS Cloud Map ke through microservices ko internal DNS names (e.g. <code>api.local</code>) se communicate karwana.</td></tr>
+            <tr><td>28</td><td>ECS vs EKS kab choose karein?</td><td>Agar simple AWS native serverless container chahiye to ECS; agar multi-cloud standard Kubernetes chahiye to EKS.</td></tr>
+            <tr><td>29</td><td>ECS container logs kahan jate hain?</td><td>Task definition mein configure kiye gaye Amazon CloudWatch Log Group (<code>awslogs</code>) mein.</td></tr>
+            <tr><td>30</td><td>Secrets ko ECS mein securely kaise inject karein?</td><td>AWS Secrets Manager ya SSM Parameter Store ke through Task Definition ke <code>secrets</code> block mein define karke.</td></tr>
+            <tr><td>31</td><td>Rolling Deployment kya hota hai?</td><td>Naye container version ko step-by-step launch karna aur purane ko terminate karna bina application downtime ke.</td></tr>
+            <tr><td>32</td><td>Blue/Green deployment ECS mein kaise hoti hai?</td><td>AWS CodeDeploy ke through Green environment launch karke validation ke baad ALB listener traffic shift kiya jata hai.</td></tr>
+            <tr><td>33</td><td>Kya ECR mein image push karne se task auto-update hota hai?</td><td>Nahi, ECS Service mein new task definition revision deploy karna ya <code>--force-new-deployment</code> run karna padta hai.</td></tr>
+            <tr><td>34</td><td>Essential Container ka kya matlab hai?</td><td>Agar essential container fail hota hai, to ECS pura task stop kar deta hai.</td></tr>
+            <tr><td>35</td><td>ECS Task Definitions versioned hoti hain?</td><td>Haan, har edit par naya Revision number (e.g. <code>:1</code>, <code>:2</code>, <code>:3</code>) create hota hai.</td></tr>
+            <tr><td>36</td><td>ECS Task S3 ko access kaise karta hai?</td><td>Task Role mein S3 policy attach karke, bina kisi hardcoded AWS access key ke.</td></tr>
+            <tr><td>37</td><td>ECS task RDS database se kaise connect karta hai?</td><td>Task Security group ko RDS Security group ke inbound rules mein allow karke via private subnets.</td></tr>
+            <tr><td>38</td><td>Fargate task ko private subnet mein internet kaise milta hai?</td><td>VPC ke public subnet mein lage <strong>NAT Gateway</strong> ke through.</td></tr>
+            <tr><td>39</td><td>ECS Exec kya hota hai?</td><td>Running Fargate/EC2 container ke andar bina SSH ke direct interactive shell access (debugging) lene ka feature.</td></tr>
+            <tr><td>40</td><td>ECS deployment rollback kaise karte hain?</td><td>ECS Service update karke previous working Task Definition revision (e.g. Revision 1) select kar lete hain.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 61 -->
+    <section class="card" id="sec-61">
+      <h2>61. Quick Revision Flashcards <span class="badge badge-theory">Revision</span></h2>
+      <div class="grid-2">
+        <div class="box box-tip"><strong>ECS</strong> = Managed Docker Container Orchestrator on AWS</div>
+        <div class="box box-tip"><strong>ECR</strong> = Private Docker Image Registry</div>
+        <div class="box box-tip"><strong>Cluster</strong> = Logical grouping of container resources</div>
+        <div class="box box-tip"><strong>Task Definition</strong> = JSON blueprint of container settings</div>
+        <div class="box box-tip"><strong>Task</strong> = Running instance of Task Definition</div>
+        <div class="box box-tip"><strong>Service</strong> = 24/7 desired count manager + ALB connector</div>
+        <div class="box box-tip"><strong>Fargate</strong> = Serverless compute (No EC2 management)</div>
+        <div class="box box-tip"><strong>Execution Role</strong> = ECR pull + CloudWatch log permissions</div>
+        <div class="box box-tip"><strong>Task Role</strong> = Application code permissions for S3/DynamoDB</div>
+        <div class="box box-tip"><strong>ALB</strong> = Distributes HTTP traffic to dynamic task IPs</div>
+        <div class="box box-tip"><strong>Desired Count</strong> = Exact number of live tasks to maintain</div>
+        <div class="box box-tip"><strong>CloudWatch Logs</strong> = Centralized stdout/stderr container logs</div>
+      </div>
+    </section>
+
+    <!-- SECTION 62 & 63 -->
+    <section class="card" id="sec-62">
+      <h2>62 & 63. Final ECS Architecture & Learning Flow <span class="badge badge-theory">Summary</span></h2>
+      
+      <div class="diagram">
+======================== FINAL PRODUCTION ECS ECOSYSTEM ========================
+
+                              [ END USER BROWSER ]
+                                       │
+                                       ▼ (HTTPS: 443)
+                             [ Route 53 Public DNS ]
+                                       │
+                                       ▼
+                       [ Application Load Balancer (ALB) ]
+                         (Inbound: 80/443 from 0.0.0.0/0)
+                                       │
+                   ┌───────────────────┴───────────────────┐
+                   │ (HTTP 3000 Target Group)              │
+                   ▼                                       ▼
+        [ ECS Fargate Task 1 ]                  [ ECS Fargate Task 2 ]
+        (Public/Private Subnet)                 (Public/Private Subnet)
+        - Security Group: Allow 3000 from ALB   - Security Group: Allow 3000 from ALB
+        - Task Role: S3 Access                  - Task Role: S3 Access
+        - Exec Role: ECR & Logs                 - Exec Role: ECR & Logs
+                   │                                       │
+                   └───────────────────┬───────────────────┘
+                                       │
+                 ┌─────────────────────┼─────────────────────┐
+                 ▼                     ▼                     ▼
+        [ Amazon RDS Database ]   [ Amazon S3 Bucket ]  [ CloudWatch Logs ]
+        (Private Isolated Subnet) (Static Assets/Media) (Monitoring & Debugging)
+
+================================================================================
+      </div>
+
+      <h3>Final Learning Journey Flow:</h3>
+      <p style="font-weight:600; font-size:1.05rem; color:var(--brand);">
+        Dockerfile ➔ docker build ➔ Docker Image ➔ Amazon ECR ➔ ECS Task Definition ➔ ECS Service ➔ AWS Fargate ➔ Running Container ➔ ALB ➔ Happy Users! 🚀
+      </p>
+
+      <div class="box box-ok" style="text-align:center; font-size:1.1rem; font-weight:700; margin-top:24px;">
+        End of AWS ECS Notes
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS AMI — Complete Guide</title>
+<style>
+  :root {
+    --bg: #f7f9fc; --sidebar-bg: #151c2c; --card-bg: #ffffff; --text: #1e2430; --text-soft: #4b5567;
+    --heading: #0f172a; --accent: #ff9900; --accent-dark: #cc7a00; --accent-soft: #fff4e0;
+    --blue: #146eb4; --blue-dark: #0d4f82; --blue-soft: #e8f2fb;
+    --green: #1a7f5a; --green-soft: #e7f7f0; --purple: #6b46c1; --purple-soft: #f1ebfb;
+    --red: #c0392b; --red-soft: #fdecea; --border: #e3e8ef;
+    --code-bg: #0f172a; --code-text: #e2e8f0;
+    --important-bg: #fff8e6; --important-border: #e6a700;
+    --note-bg: #fff1f0; --note-border: #e64545;
+    --table-head-bg: #146eb4; --table-head-text: #ffffff; --table-row-alt: #f4f8fc;
+    --toc-bg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1420; --sidebar-bg: #151c2c; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+      --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+      --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+      --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+      --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+      --code-bg: #05070d; --code-text: #d7ecff;
+      --important-bg: #2a2210; --important-border: #ffcc4d;
+      --note-bg: #2a1414; --note-border: #ff6b6b;
+      --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+      --toc-bg: #161d2b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420; --sidebar-bg: #151c2c; --card-bg: #161d2b; --text: #e6e9f0; --text-soft: #a8b1c2;
+    --heading: #ffffff; --accent: #ffb238; --accent-dark: #ffc766; --accent-soft: #2a2110;
+    --blue: #5fb0ec; --blue-dark: #8ecdf7; --blue-soft: #12233a;
+    --green: #4fd8a2; --green-soft: #10281f; --purple: #b79cf0; --purple-soft: #241c38;
+    --red: #ff8177; --red-soft: #2a1414; --border: #2a3346;
+    --code-bg: #05070d; --code-text: #d7ecff;
+    --important-bg: #2a2210; --important-border: #ffcc4d;
+    --note-bg: #2a1414; --note-border: #ff6b6b;
+    --table-head-bg: #12314d; --table-head-text: #d7ecff; --table-row-alt: #131a29;
+    --toc-bg: #161d2b;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65; display: flex; min-height: 100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--sidebar-bg); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 40px;
+    transition: transform .25s ease; z-index: 50;
+  }
+  #sidebar h2 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea1c9; margin: 18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; text-decoration: none; font-size: .88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; border-bottom: 1px solid #263252; margin-bottom: 6px; }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; background: #101a2c; color: #e6ecf5;
+    font-size: .85rem; margin-bottom: 6px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex: 1; min-width: 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; background: var(--card-bg); border-bottom: 1px solid var(--border);
+    padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn {
+    display: none; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;
+    cursor: pointer; color: var(--text); font-size: 1rem;
+  }
+  #theme-btn {
+    background: var(--purple-soft); border: 1px solid var(--border); color: var(--purple); border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  .content { max-width: 1280px; margin: 0 auto; padding: 28px 22px 70px; }
+  .title-card {
+    background: linear-gradient(135deg, var(--purple) 0%, #4a2e8f 100%);
+    color: #ffffff; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(107,70,193,0.3);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.1rem; letter-spacing: -0.02em; }
+  .title-card p { margin: 0; font-size: 1.05rem; opacity: 0.9; }
+  h2 {
+    color: var(--heading); font-size: 1.4rem; margin-top: 2.6rem; margin-bottom: 0.9rem;
+    padding-bottom: 0.4rem; border-bottom: 3px solid var(--purple);
+    display: flex; align-items: center; gap: 0.55rem; scroll-margin-top: 70px;
+  }
+  h3 { color: var(--blue); font-size: 1.12rem; margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  h4 { color: var(--accent-dark); font-size: 1rem; margin-top: 1.1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text-soft); }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.1rem; }
+  .keypoints { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  .concept-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .concept-list li { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .concept-list li strong { color: var(--blue-dark); }
+  .purple-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .purple-list li { background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .purple-list li strong { color: var(--purple); }
+  .steps-block { background: var(--accent-soft); border-radius: 10px; padding: 1.1rem 1.3rem 1.1rem 1.6rem; margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border); }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.4rem; }
+  ol.steps li { padding: 0.32rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--accent-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--accent-dark); }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.9rem; margin: 0.6rem 0 1rem; white-space: pre; text-align: left; }
+  code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88em; }
+  p code, li code, td code { background: var(--code-bg); color: var(--code-text); padding: 0.1rem 0.35rem; border-radius: 4px; }
+  .diagram { background: var(--code-bg); color: var(--code-text); padding: 1rem 1.3rem; border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.92rem; text-align: center; line-height: 1.9; margin: 1rem 0; white-space: pre; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.7rem 1rem; font-size: 0.9rem; }
+  tbody td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.9rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+  .important { background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px; padding: 1rem 1.3rem; margin: 1.2rem 0; color: var(--text); }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.45rem; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .tip { background: var(--purple-soft); border-left: 5px solid var(--purple); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .tip strong { color: var(--purple); }
+  .qa { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1.2rem; margin-bottom: 0.8rem; }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.35rem; }
+  .qa .a { color: var(--text-soft); margin: 0; }
+  hr.divider { border: none; border-top: 2px dashed var(--border); margin: 2.6rem 0; }
+  .section-icon { font-size: 1.2rem; }
+
+  #backtotop {
+    position: fixed; bottom: 22px; right: 22px; background: var(--purple); color: #fff; border: none; border-radius: 50%;
+    width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60;
+  }
+  #backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; }
+
+  @media (max-width: 900px) {
+    #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+    #menu-btn { display: inline-block; }
+    .content { padding: 20px 14px 60px;  width: 100%; }
+    .title-card { padding: 26px 18px; }
+    .title-card h1 { font-size: 1.5rem; }
+  }
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.5rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before { content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.2rem; font-size: 0.75rem; text-transform: uppercase; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">📦</span><span class="name">AMI Guide</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Fundamentals</h2>
+  <ul id="toc-fundamentals">
+    <li><a href="#s1">1. What is AMI?</a></li>
+    <li><a href="#s2">2. Why Use AMI?</a></li>
+    <li><a href="#s3">3. Types of AMIs</a></li>
+    <li><a href="#s4">4. AMI Contents</a></li>
+    <li><a href="#s8">8. AMI & EBS Snapshots</a></li>
+    <li><a href="#s9">9. AMI Region Concept</a></li>
+  </ul>
+  <h2>Practical Tasks</h2>
+  <ul id="toc-practical">
+    <li><a href="#s5">5. Create AMI from EC2</a></li>
+    <li><a href="#s6">6. Launch EC2 from AMI</a></li>
+    <li><a href="#s7">7. Apache Web Server</a></li>
+    <li><a href="#s10">10. Copy AMI to Region</a></li>
+    <li><a href="#s11">11. Share Private AMI</a></li>
+    <li><a href="#s12">12. Deregister/Delete AMI</a></li>
+  </ul>
+  <h2>Advanced</h2>
+  <ul id="toc-advanced">
+    <li><a href="#s13">13. Image vs Launch Template</a></li>
+    <li><a href="#s14">14. Practical Example</a></li>
+    <li><a href="#s15">15. AMI + Auto Scaling</a></li>
+    <li><a href="#s16">16. AMI + Load Balancer</a></li>
+    <li><a href="#s17">17. Marketplace AMI</a></li>
+  </ul>
+  <h2>Reference</h2>
+  <ul id="toc-reference">
+    <li><a href="#s18">18. Terminology</a></li>
+    <li><a href="#s19">19. AMI Lifecycle</a></li>
+    <li><a href="#s20">20. Best Practices</a></li>
+    <li><a href="#s21">21. Interview Questions</a></li>
+    <li><a href="#s22">22. Quick Revision</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS AMI — Complete Guide</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+  <div class="content">
+
+  <div class="title-card">
+    <h1>📦 AWS AMI — Complete Guide</h1>
+    <p>Amazon Machine Image explained from basics to advanced — beginner-friendly and interview-ready</p>
+  </div>
+
+  <!-- 1 -->
+  <h2 id="s1"><span class="section-icon">1️⃣</span> What is AWS AMI?</h2>
+  <div class="card">
+    <p>An <strong>Amazon Machine Image (AMI)</strong> is a pre-configured template that contains the necessary information required to launch an EC2 instance in AWS.</p>
+    <p style="margin-bottom:0;">In simple terms — an AMI is a <strong>ready-made blueprint</strong> that lets you create a new server (EC2) without installing everything from scratch.</p>
+  </div>
+  <p>An AMI can contain:</p>
+  <ul class="concept-list">
+    <li><strong>Operating System</strong> — Amazon Linux, Ubuntu, Windows Server</li>
+    <li><strong>Application server</strong> — Apache, Nginx</li>
+    <li><strong>Pre-installed software</strong> — anything already placed on the server</li>
+    <li><strong>Application configuration</strong> — the app's settings</li>
+    <li><strong>Required libraries and dependencies</strong> — what the software needs to run</li>
+    <li><strong>Security and system configurations</strong> — firewall rules, permissions, etc.</li>
+  </ul>
+  <div class="example">
+    <strong>Real-world example</strong>
+    <p style="margin-bottom:0;">Imagine you have an EC2 server with Amazon Linux, Apache, and a website already configured. If you want another server with the exact same setup, you don't need to reinstall everything — you create an AMI from that server, then launch a new EC2 instance straight from the AMI. The new server will be configured exactly like the original.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2 -->
+  <h2 id="s2"><span class="section-icon">💡</span> Why Do We Use AMI?</h2>
+  <ul class="keypoints">
+    <li><strong>Faster EC2 instance creation</strong> — the setup is already ready, so a new server comes up quickly.</li>
+    <li><strong>Reusable server configuration</strong> — configure once, reuse it many times.</li>
+    <li><strong>Easy server replication</strong> — makes it simple to create multiple copies of the same server.</li>
+    <li><strong>Backup/reference for server configuration</strong> — if something goes wrong, the AMI acts as a backup/reference.</li>
+    <li><strong>Scaling applications</strong> — when traffic increases, launch new servers from the same AMI.</li>
+    <li><strong>Creating identical environments</strong> — keep dev, test, and production identical.</li>
+    <li><strong>Disaster recovery</strong> — if a server crashes, spin up a new one from the AMI immediately.</li>
+    <li><strong>Creating multiple EC2 instances with the same setup</strong> — many identical servers in one action.</li>
+  </ul>
+  <div class="example">
+    <strong>Simple example</strong>
+    <p style="margin-bottom:0;">If one EC2 server already has Apache installed, a website configured, Node.js installed, an application deployed, and all required configurations completed — you can create an AMI from that instance and use it to launch another EC2 instance with the same configuration.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 3 -->
+  <h2 id="s3"><span class="section-icon">🏷️</span> Types of AMIs</h2>
+
+  <h3>Public AMIs</h3>
+  <div class="card">
+    <p>Available to all AWS users, and are commonly provided by AWS itself or trusted publishers.</p>
+    <p><strong>Useful for:</strong> common operating systems and software.</p>
+    <p style="margin-bottom:0;"><strong>Examples:</strong> Ubuntu, Amazon Linux, Windows Server.</p>
+  </div>
+
+  <h3>Private AMIs</h3>
+  <div class="card">
+    <p>Created by an AWS user, and normally available only to the owner's account.</p>
+    <p style="margin-bottom:0;">They can also be shared with specific AWS accounts. Useful for internal applications and company-specific environments.</p>
+  </div>
+
+  <h3>AWS Marketplace AMIs / Paid AMIs</h3>
+  <div class="card">
+    <p>Provided by third-party vendors, and made available through the AWS Marketplace.</p>
+    <p><strong>May include:</strong> additional software, licenses, or support.</p>
+    <p style="margin-bottom:0;"><strong>Examples:</strong> pre-configured web servers, databases, security software, application environments, LAMP stack.</p>
+  </div>
+
+  <div class="tip">
+    <strong>Free vs Paid:</strong> Standard public AMIs (like Amazon Linux or Ubuntu) are generally free — you only pay the normal AWS infrastructure charge. Marketplace AMIs may add extra software/license charges, but not every Marketplace AMI is paid — some are free too.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 4 -->
+  <h2 id="s4"><span class="section-icon">🧩</span> What Does an AMI Contain?</h2>
+  <ul class="concept-list">
+    <li><strong>Root volume/template information</strong> — the instance's main disk template.</li>
+    <li><strong>Operating system</strong> — which OS the instance will have.</li>
+    <li><strong>Software</strong> — whatever was already installed.</li>
+    <li><strong>Application configuration</strong> — the app's settings and files.</li>
+    <li><strong>Block device mapping</strong> — which disk attaches to which device name.</li>
+    <li><strong>Architecture</strong> — 32-bit or 64-bit, x86 or ARM.</li>
+    <li><strong>Virtualization information</strong> — HVM or paravirtual type.</li>
+    <li><strong>Permissions</strong> — who is allowed to use this AMI.</li>
+    <li><strong>Region information</strong> — which AWS Region it's available in.</li>
+  </ul>
+  <div class="note">
+    <strong>Important:</strong> An AMI does not capture the live state of external resources — such as an Elastic IP or a Load Balancer. Those are managed separately and need to be re-attached to the new instance.
+  </div>
+
+  <hr class="divider">
+
+  <!-- 5 -->
+  <h2 id="s5"><span class="section-icon">🛠️</span> How to Create an AMI from an Existing EC2 Instance</h2>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Open the AWS Management Console.</li>
+      <li>Go to <b>EC2</b>.</li>
+      <li>Select the correct <b>AWS Region</b>.</li>
+      <li>Go to <b>Instances</b>.</li>
+      <li>Select the EC2 instance.</li>
+      <li>Click <b>Actions</b>.</li>
+      <li>Select <b>Image and templates</b>.</li>
+      <li>Click <b>Create image</b>.</li>
+      <li>Enter an <b>Image name</b>.</li>
+      <li>Add a description if required.</li>
+      <li>Review the root volume and additional EBS volumes.</li>
+      <li>Configure <b>Delete on termination</b> where required.</li>
+      <li>Click <b>Create image</b>.</li>
+      <li>AWS creates the AMI.</li>
+      <li>Go to <b>AMIs</b> under the Images section.</li>
+      <li>Wait until the AMI status becomes <b>Available</b>.</li>
+    </ol>
+  </div>
+  <p style="margin-bottom:0;">Creating an AMI generally involves creating <strong>snapshots</strong> of the instance's EBS-backed volumes — this is how the AMI gets its underlying data.</p>
+
+  <hr class="divider">
+
+  <!-- 6 -->
+  <h2 id="s6"><span class="section-icon">🚀</span> How to Launch an EC2 Instance Using an AMI</h2>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Open the <b>EC2 Console</b>.</li>
+      <li>Go to <b>AMIs</b>.</li>
+      <li>Select the required AMI.</li>
+      <li>Click <b>Launch instance from AMI</b>.</li>
+      <li>Enter an instance name.</li>
+      <li>Select an instance type.</li>
+      <li>Select or create a key pair.</li>
+      <li>Configure network/VPC/subnet.</li>
+      <li>Configure the security group.</li>
+      <li>Configure storage.</li>
+      <li>Review the settings.</li>
+      <li>Click <b>Launch instance</b>.</li>
+      <li>Wait for the instance to become <b>running</b>.</li>
+      <li>Connect using SSH (Linux) or RDP (Windows).</li>
+      <li>Verify that the software/configuration from the original server is available.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 7 -->
+  <h2 id="s7"><span class="section-icon">🌐</span> Example: Create an AMI from an Apache Web Server</h2>
+  <div class="card">
+    <p><strong>EC2 Instance A</strong> has:</p>
+    <ul style="margin: 0.4rem 0 0;">
+      <li>Amazon Linux</li>
+      <li>Apache installed</li>
+      <li>Website configured</li>
+      <li>HTML file created</li>
+      <li>Apache running</li>
+    </ul>
+  </div>
+  <div class="diagram">EC2 Instance A
+     ↓
+ Create AMI
+     ↓
+    AMI
+     ↓
+Launch EC2 Instance B</div>
+  <p>Instance B can be launched from this AMI and will come up with the same base server configuration.</p>
+  <p>Verify with these commands:</p>
+  <pre><code>sudo systemctl status httpd</code></pre>
+  <p>Checks whether the Apache service (<code>httpd</code>) is running.</p>
+  <pre><code>httpd -v</code></pre>
+  <p style="margin-bottom:0;">Shows the installed Apache version — confirms Apache is properly installed on Instance B too, matching Instance A.</p>
+
+  <hr class="divider">
+
+  <!-- 8 -->
+  <h2 id="s8"><span class="section-icon">🔗</span> AMI and EBS Snapshots Relationship</h2>
+  <div class="diagram">EC2 Instance
+     ↓
+EBS Root Volume
+     ↓
+ Create AMI
+     ↓
+EBS Snapshot(s) + AMI metadata
+     ↓
+Launch new EC2
+     ↓
+New EBS Volume(s)</div>
+  <ul class="concept-list">
+    <li><strong>An AMI is not simply an EBS snapshot</strong> — they are two different concepts.</li>
+    <li>A <strong>snapshot</strong> stores block-level data of a single EBS volume — just a disk backup.</li>
+    <li>An <strong>AMI</strong> contains all the information needed to launch an EC2 instance, and it references the required snapshots.</li>
+    <li>When an AMI is created from an EBS-backed EC2 instance, AWS creates snapshots as part of that process.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 9 -->
+  <h2 id="s9"><span class="section-icon">🌍</span> AMI Region Concept</h2>
+  <ul class="concept-list">
+    <li>AMIs are <strong>Region-specific</strong>.</li>
+    <li>An AMI created in one AWS Region is not automatically available in another Region.</li>
+    <li>AMIs can be <strong>copied</strong> to another Region.</li>
+    <li>After copying, the copied AMI can be used in the destination Region.</li>
+  </ul>
+  <div class="example">
+    <strong>Example</strong>
+    <p style="margin-bottom:0;">An AMI created in <code>eu-north-1</code> must first be copied to <code>eu-west-1</code> before it can be used there.</p>
+  </div>
+  <p style="margin-bottom:0;">Copying AMIs is useful for <strong>disaster recovery</strong>, <strong>multi-region deployment</strong>, and <strong>business continuity</strong> — if one Region goes down, you can spin up servers in another Region immediately.</p>
+
+  <hr class="divider">
+
+  <!-- 10 -->
+  <h2 id="s10"><span class="section-icon">📋</span> How to Copy an AMI to Another Region</h2>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Go to <b>EC2</b>.</li>
+      <li>Open <b>AMIs</b>.</li>
+      <li>Select the AMI.</li>
+      <li>Click <b>Actions</b>.</li>
+      <li>Select <b>Copy AMI</b>.</li>
+      <li>Select the destination Region.</li>
+      <li>Enter the new AMI name.</li>
+      <li>Start the copy.</li>
+      <li>Switch to the destination Region.</li>
+      <li>Check the AMI status.</li>
+      <li>Once available, use it to launch an EC2 instance.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 11 -->
+  <h2 id="s11"><span class="section-icon">🤝</span> How to Share a Private AMI</h2>
+  <ul class="concept-list">
+    <li>Private AMIs can be shared with specific AWS accounts.</li>
+    <li>The <strong>owner</strong> controls the sharing permission.</li>
+    <li>The receiving account can use the shared AMI according to the permissions granted.</li>
+  </ul>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Open the <b>EC2 Console</b>.</li>
+      <li>Go to <b>AMIs</b>.</li>
+      <li>Select the AMI.</li>
+      <li>Click <b>Actions</b>.</li>
+      <li>Select <b>Edit AMI permissions</b>.</li>
+      <li>Add the AWS account ID.</li>
+      <li><b>Save</b> the permissions.</li>
+    </ol>
+  </div>
+  <table>
+    <thead><tr><th>Type</th><th>Who Can Use It</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Type"><strong>Public AMI</strong></td><td data-label="Who Can Use It">Any AWS user</td></tr>
+      <tr><td data-label="Type"><strong>Private AMI</strong></td><td data-label="Who Can Use It">Only the owner's account</td></tr>
+      <tr><td data-label="Type"><strong>Shared AMI</strong></td><td data-label="Who Can Use It">Owner + specific accounts explicitly granted permission</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 12 -->
+  <h2 id="s12"><span class="section-icon">🗑️</span> How to Deregister/Delete an AMI</h2>
+  <p>Deregistering an AMI and deleting its related snapshots are <strong>separate concepts</strong>.</p>
+  <div class="steps-block">
+    <ol class="steps">
+      <li>Open <b>EC2</b>.</li>
+      <li>Go to <b>AMIs</b>.</li>
+      <li>Select the AMI.</li>
+      <li>Click <b>Actions</b>.</li>
+      <li>Select <b>Deregister AMI</b>.</li>
+      <li>Confirm.</li>
+    </ol>
+  </div>
+  <ul class="concept-list">
+    <li>Deregistering only removes the AMI's <strong>registration</strong>.</li>
+    <li>It does not necessarily remove associated EBS snapshots.</li>
+    <li>Unused snapshots may need to be deleted <strong>separately</strong>.</li>
+    <li>A snapshot may fail to delete if it's still referenced by another AMI.</li>
+  </ul>
+  <div class="note">
+    <strong>Common error:</strong> <em>"The snapshot is currently in use by an AMI."</em>
+    <p style="margin: 0.5rem 0 0;">This means the snapshot is still linked to an active AMI. Before deleting it, check whether it's referenced by another AMI (or another copy of the same AMI) — deregister that AMI first, then the snapshot can be deleted safely.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 13 -->
+  <h2 id="s13"><span class="section-icon">⚖️</span> Create Image vs Create Launch Template</h2>
+  <table>
+    <thead><tr><th>Feature</th><th>Create Image</th><th>Create Launch Template</th></tr></thead>
+    <tbody>
+      <tr><td data-label="Feature">Main purpose</td><td data-label="Create Image">Capture an EC2 server as an AMI</td><td data-label="Create Launch Template">Store configuration for launching EC2</td></tr>
+      <tr><td data-label="Feature">Creates AMI</td><td data-label="Create Image">Yes</td><td data-label="Create Launch Template">Not necessarily</td></tr>
+      <tr><td data-label="Feature">Captures OS/software</td><td data-label="Create Image">Yes</td><td data-label="Create Launch Template">Uses selected AMI</td></tr>
+      <tr><td data-label="Feature">Stores instance configuration</td><td data-label="Create Image">Partially</td><td data-label="Create Launch Template">Yes</td></tr>
+      <tr><td data-label="Feature">Useful for identical server setup</td><td data-label="Create Image">Yes</td><td data-label="Create Launch Template">Yes</td></tr>
+      <tr><td data-label="Feature">Useful for Auto Scaling</td><td data-label="Create Image">Indirectly</td><td data-label="Create Launch Template">Yes</td></tr>
+      <tr><td data-label="Feature">Versioning</td><td data-label="Create Image">AMI versions/copies</td><td data-label="Create Launch Template">Launch Template versions</td></tr>
+      <tr><td data-label="Feature">Main use</td><td data-label="Create Image">Server image</td><td data-label="Create Launch Template">EC2 launch configuration</td></tr>
+    </tbody>
+  </table>
+  <div class="tip">
+    <strong>Create Image</strong> = "Take my existing server and turn it into a ready-made image/template."<br>
+    <strong>Launch Template</strong> = "Save the exact configuration to use whenever I launch an EC2 instance."
+  </div>
+  <p style="margin-bottom:0;">They work together as: <strong>AMI + Launch Template + Auto Scaling Group</strong> — first the AMI is created (the server image), then the Launch Template references it along with launch settings, and the Auto Scaling Group uses that template to manage multiple instances.</p>
+
+  <hr class="divider">
+
+  <!-- 14 -->
+  <h2 id="s14"><span class="section-icon">🏗️</span> Create Image vs Create Launch Template — Practical Example</h2>
+  <div class="card">
+    <p><strong>EC2 Server A</strong> has:</p>
+    <ul style="margin: 0.4rem 0 0;">
+      <li>Amazon Linux</li>
+      <li>Apache</li>
+      <li>Node.js</li>
+      <li>Application</li>
+      <li>Configuration</li>
+    </ul>
+  </div>
+  <p><strong>Step 1 — Create Image:</strong> This creates an AMI containing Server A's base configuration.</p>
+  <p><strong>Step 2 — Create Launch Template:</strong> The Launch Template can specify:</p>
+  <ul class="concept-list">
+    <li>AMI</li>
+    <li>Instance type</li>
+    <li>Key pair</li>
+    <li>Security group</li>
+    <li>Network settings</li>
+    <li>IAM role</li>
+    <li>User data</li>
+    <li>Storage configuration</li>
+  </ul>
+  <p><strong>Step 3 — Auto Scaling Group:</strong> Uses the Launch Template to launch multiple EC2 instances.</p>
+  <div class="diagram">Existing EC2
+     ↓
+ Create Image
+     ↓
+    AMI
+     ↓
+Launch Template
+     ↓
+Auto Scaling Group
+     ↓
+Multiple EC2 Instances</div>
+
+  <hr class="divider">
+
+  <!-- 15 -->
+  <h2 id="s15"><span class="section-icon">📈</span> AMI + Auto Scaling</h2>
+  <p>When traffic increases, an AMI is extremely useful for scalability because new servers can be launched instantly with the same configuration.</p>
+  <div class="diagram">Load Balancer
+      ↓
+Auto Scaling Group
+      ↓
+EC2 ← AMI
+EC2 ← AMI
+EC2 ← AMI</div>
+  <p style="margin-bottom:0;">Each new EC2 instance is launched using the <strong>same AMI</strong> through the launch configuration — so every server ends up with the exact same setup.</p>
+
+  <hr class="divider">
+
+  <!-- 16 -->
+  <h2 id="s16"><span class="section-icon">⚖️</span> AMI + Load Balancer</h2>
+  <p>An important point: <strong>an AMI does not distribute traffic itself.</strong></p>
+  <ul class="concept-list">
+    <li><strong>AMI</strong> → provides the server image</li>
+    <li><strong>Launch Template</strong> → provides the EC2 launch configuration</li>
+    <li><strong>Auto Scaling Group</strong> → manages the EC2 instances</li>
+    <li><strong>Application Load Balancer</strong> → distributes incoming requests</li>
+  </ul>
+  <div class="diagram">Users
+  ↓
+Application Load Balancer
+  ↓
+Auto Scaling Group
+  ↓
+EC2 Instance 1
+EC2 Instance 2
+EC2 Instance 3
+  ↑
+ Created using AMI</div>
+
+  <hr class="divider">
+
+  <!-- 17 -->
+  <h2 id="s17"><span class="section-icon">🛒</span> AWS Marketplace / Paid AMI Use Case</h2>
+  <div class="example">
+    <strong>Example: Pre-configured LAMP Stack</strong>
+    <p style="margin-bottom:0;">A Marketplace AMI may already come with Linux, Apache, MySQL/MariaDB, and PHP — all set up and ready to use.</p>
+  </div>
+
+  <h3>Rapid Deployment</h3>
+  <p>The required software is already configured, reducing manual installation work.</p>
+
+  <h3>Scalability</h3>
+  <p>The AMI can be used as a base image for launching additional EC2 instances, while Auto Scaling and load balancing provide the scaling and traffic-distribution mechanisms.</p>
+
+  <h3>Cost Considerations</h3>
+  <p style="margin-bottom:0;">AWS infrastructure charges and third-party software/license charges can both apply, depending on the specific Marketplace offering.</p>
+  <div class="note">
+    <strong>Keep in mind:</strong> not every Marketplace AMI is paid — pricing models vary (some free, some paid with support/licensing).
+  </div>
+
+  <hr class="divider">
+
+  <!-- 18 -->
+  <h2 id="s18"><span class="section-icon">📚</span> Important AMI Terminology</h2>
+  <ul class="purple-list">
+    <li><strong>AMI ID</strong> — the unique identifier for each AMI (e.g., <code>ami-0abcd1234</code>).</li>
+    <li><strong>Root Device</strong> — the main storage device the OS boots from.</li>
+    <li><strong>Block Device Mapping</strong> — shows which volumes attach to which device names.</li>
+    <li><strong>EBS Snapshot</strong> — a backup/copy of an EBS volume.</li>
+    <li><strong>Architecture</strong> — whether the instance is x86, x86_64, or ARM64.</li>
+    <li><strong>Virtualization Type</strong> — HVM (common) or Paravirtual.</li>
+    <li><strong>Kernel</strong> — the OS's core software (generally auto-managed on modern AMIs).</li>
+    <li><strong>Image Owner</strong> — who created/registered the AMI.</li>
+    <li><strong>Public AMI</strong> — available to everyone.</li>
+    <li><strong>Private AMI</strong> — available only to the owner.</li>
+    <li><strong>Shared AMI</strong> — an AMI shared with specific accounts.</li>
+    <li><strong>Marketplace AMI</strong> — an AMI from a third-party vendor.</li>
+    <li><strong>AMI Copy</strong> — copying an AMI from one Region to another.</li>
+    <li><strong>AMI Deregistration</strong> — removing an AMI's registration.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- 19 -->
+  <h2 id="s19"><span class="section-icon">🔄</span> AMI Lifecycle</h2>
+  <div class="diagram">Create EC2
+    ↓
+Install Software
+    ↓
+Configure Server
+    ↓
+Test Application
+    ↓
+Create AMI
+    ↓
+AMI Available
+    ↓
+Launch New EC2
+    ↓
+Test New EC2
+    ↓
+Use with Launch Template
+    ↓
+Use with Auto Scaling
+    ↓
+Deregister when no longer required</div>
+
+  <hr class="divider">
+
+  <!-- 20 -->
+  <h2 id="s20"><span class="section-icon">✅</span> Important AMI Best Practices</h2>
+  <div class="important">
+    <div class="important-title">⚠️ IMPORTANT</div>
+    <ul>
+      <li>Keep AMIs updated.</li>
+      <li>Remove unnecessary files and credentials before creating an AMI.</li>
+      <li>Never store secrets/API keys inside an AMI.</li>
+      <li>Use descriptive AMI names.</li>
+      <li>Add useful descriptions.</li>
+      <li>Maintain a naming/versioning strategy.</li>
+      <li>Delete unused AMIs and snapshots carefully.</li>
+      <li>Test an AMI by launching a new EC2 instance.</li>
+      <li>Use encrypted EBS volumes where appropriate.</li>
+      <li>Manage IAM permissions carefully.</li>
+      <li>Consider cross-region AMI copies for disaster recovery.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 21 -->
+  <h2 id="s21"><span class="section-icon">🎯</span> AMI Important Interview Questions</h2>
+
+  <div class="qa"><p class="q">Q1: What is an AMI?</p><p class="a">A: A pre-configured template containing the information needed to launch an EC2 instance (OS, software, configuration).</p></div>
+  <div class="qa"><p class="q">Q2: Why do we use AMI?</p><p class="a">A: For faster server creation, reusable configuration, easy replication, and disaster recovery.</p></div>
+  <div class="qa"><p class="q">Q3: What does an AMI contain?</p><p class="a">A: OS, software, configuration, block device mapping, architecture, virtualization info, permissions, and region info.</p></div>
+  <div class="qa"><p class="q">Q4: What is the difference between AMI and EBS Snapshot?</p><p class="a">A: A snapshot is just a block-level backup of one volume; an AMI is a full instance template that references snapshots.</p></div>
+  <div class="qa"><p class="q">Q5: What is the difference between AMI and EC2?</p><p class="a">A: An AMI is a template/blueprint; an EC2 instance is an actual running virtual server created from that blueprint.</p></div>
+  <div class="qa"><p class="q">Q6: What are public and private AMIs?</p><p class="a">A: A public AMI is available to everyone; a private AMI is available only to its owner (or specifically shared accounts).</p></div>
+  <div class="qa"><p class="q">Q7: What is an AWS Marketplace AMI?</p><p class="a">A: An AMI provided by third-party vendors, which may include extra software, licensing, or support.</p></div>
+  <div class="qa"><p class="q">Q8: How do you create an AMI?</p><p class="a">A: EC2 → Instances → Actions → Image and templates → Create image.</p></div>
+  <div class="qa"><p class="q">Q9: How do you launch EC2 using an AMI?</p><p class="a">A: EC2 → AMIs → select the AMI → Launch instance from AMI → fill in settings → Launch.</p></div>
+  <div class="qa"><p class="q">Q10: Can an AMI be used in another Region?</p><p class="a">A: Not directly — AMIs are Region-specific; it must first be copied to the destination Region.</p></div>
+  <div class="qa"><p class="q">Q11: How do you copy an AMI to another Region?</p><p class="a">A: Select the AMI → Actions → Copy AMI → choose the destination Region → start the copy.</p></div>
+  <div class="qa"><p class="q">Q12: Can a private AMI be shared?</p><p class="a">A: Yes — via Edit AMI permissions, it can be shared with specific AWS account IDs.</p></div>
+  <div class="qa"><p class="q">Q13: What happens when an AMI is deregistered?</p><p class="a">A: The AMI's registration is removed, and it can no longer be used to launch new instances.</p></div>
+  <div class="qa"><p class="q">Q14: Does deregistering an AMI automatically delete its snapshots?</p><p class="a">A: No — snapshots must be deleted separately.</p></div>
+  <div class="qa"><p class="q">Q15: What is the difference between Create Image and Create Launch Template?</p><p class="a">A: Create Image produces an AMI (a server snapshot); a Launch Template stores the configuration used to launch EC2 instances.</p></div>
+  <div class="qa"><p class="q">Q16: How does AMI work with Auto Scaling?</p><p class="a">A: An Auto Scaling Group uses a Launch Template referencing the same AMI to create multiple identical EC2 instances.</p></div>
+  <div class="qa"><p class="q">Q17: How does AMI work with a Load Balancer?</p><p class="a">A: The AMI itself doesn't distribute traffic — the Load Balancer distributes traffic across the multiple EC2 instances created from the AMI.</p></div>
+  <div class="qa"><p class="q">Q18: What is an AMI ID?</p><p class="a">A: A unique identifier assigned to each AMI, used to select it when launching an instance.</p></div>
+  <div class="qa"><p class="q">Q19: Why should secrets not be stored in an AMI?</p><p class="a">A: Because an AMI can be shared or copied, and any stored secrets/API keys could leak, creating a security risk.</p></div>
+  <div class="qa"><p class="q">Q20: What is the difference between Marketplace AMI and standard public AMI?</p><p class="a">A: A standard public AMI is generally a free OS image; a Marketplace AMI may include extra software/licensing/support, which can carry an additional charge.</p></div>
+
+  <hr class="divider">
+
+  <!-- 22 -->
+  <h2 id="s22"><span class="section-icon">🗺️</span> Quick Revision</h2>
+  <div class="diagram">AMI = Template/Image used to launch EC2
+
+EC2 = Virtual Server
+
+EBS = Storage
+
+Snapshot = Backup/copy of EBS volume data
+
+Launch Template = EC2 launch configuration
+
+Auto Scaling Group = Automatically manages EC2 instances
+
+Load Balancer = Distributes traffic
+
+AMI + Launch Template + ASG = Common pattern for scalable EC2 deployment</div>
+  </div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

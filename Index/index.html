@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud, AWS & DevOps Learning Hub — Study Dashboard</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --sidebar-bg: #0f172a;
+    --sidebar-hover: #1e293b;
+    --sidebar-active: #2563eb;
+    --card: #ffffff;
+    --card-hover: #f1f5f9;
+    --card-border: #e2e8f0;
+    --card-border-hover: #cbd5e1;
+    --ink: #0f172a;
+    --ink-muted: #64748b;
+    --brand: #2563eb;
+    --brand-soft: #eff6ff;
+    --brand-border: #bfdbfe;
+    --brand-hover: #1d4ed8;
+    --accent: #f59e0b;
+    --accent-soft: #fffbeb;
+    --ok: #10b981;
+    --ok-soft: #ecfdf5;
+    --pill-bg: #f1f5f9;
+    --header-bg: rgba(255, 255, 255, 0.9);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  }
+
+  [data-theme="dark"] {
+    --bg: #090d16;
+    --sidebar-bg: #0c1220;
+    --sidebar-hover: #172033;
+    --sidebar-active: #3b82f6;
+    --card: #111827;
+    --card-hover: #172033;
+    --card-border: #1f293d;
+    --card-border-hover: #334155;
+    --ink: #f8fafc;
+    --ink-muted: #94a3b8;
+    --brand: #3b82f6;
+    --brand-soft: #1e293b;
+    --brand-border: #2563eb;
+    --brand-hover: #60a5fa;
+    --accent: #fbbf24;
+    --accent-soft: #2b1f0c;
+    --ok: #34d399;
+    --ok-soft: #064e3b;
+    --pill-bg: #1e293b;
+    --header-bg: rgba(17, 24, 39, 0.9);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
+    font-size: 14.5px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    transition: background-color .2s ease, color .2s ease;
+  }
+
+  /* ================= SIDEBAR ================= */
+  #sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    color: #e2e8f0;
+    flex-shrink: 0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 50;
+    transition: transform .25s ease;
+  }
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #1e293b;
+    text-decoration: none;
+    color: #fff;
+  }
+  .brand-logo .icon {
+    font-size: 1.4rem;
+    background: #1e293b;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+  }
+  .brand-logo .title { font-weight: 700; font-size: 1.05rem; line-height: 1.2; }
+  .brand-logo .sub { font-size: 0.72rem; color: #94a3b8; }
+
+  .sidebar-nav {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+
+  .nav-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    margin: 12px 8px 4px;
+    font-weight: 700;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.86rem;
+    font-weight: 500;
+    transition: all .15s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+  }
+  .nav-item:hover {
+    background: var(--sidebar-hover);
+    color: #ffffff;
+  }
+  .nav-item.active {
+    background: var(--sidebar-active);
+    color: #ffffff;
+    font-weight: 600;
+  }
+  .nav-item.special-note {
+    background: rgba(37, 99, 235, 0.15);
+    color: #93c5fd;
+    border: 1px dashed rgba(59, 130, 246, 0.4);
+    margin: 3px 0;
+  }
+  .nav-item.special-note:hover {
+    background: var(--brand);
+    color: #fff;
+  }
+  .nav-item .badge {
+    margin-left: auto;
+    background: #1e293b;
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    color: #94a3b8;
+  }
+  .nav-item.active .badge {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  .sidebar-progress-card {
+    background: #172033;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .sidebar-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+  }
+  .sidebar-bar-wrap {
+    height: 6px;
+    background: #334155;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .sidebar-bar-fill {
+    height: 100%;
+    background: var(--ok);
+    width: 0%;
+    transition: width .3s ease;
+  }
+
+  /* ================= MAIN CONTENT ================= */
+  #main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Topbar */
+  header.minimal-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--header-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  #menu-btn {
+    display: none;
+    background: none;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 5px 9px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+
+  /* Search Input */
+  .search-box {
+    position: relative;
+    width: 320px;
+    transition: width .2s ease;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 7px 30px 7px 34px;
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    background: var(--pill-bg);
+    color: var(--ink);
+    font-size: 0.88rem;
+    outline: none;
+    transition: all .2s;
+  }
+  .search-box input:focus {
+    border-color: var(--brand);
+    background: var(--card);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+  }
+  .search-box .icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    pointer-events: none;
+  }
+  .search-box .clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: none;
+  }
+  .search-box .clear-btn.visible { display: block; }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-notes-top {
+    background: var(--brand-soft);
+    color: var(--brand);
+    border: 1px solid var(--brand-border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all .15s;
+  }
+  .btn-notes-top:hover {
+    background: var(--brand);
+    color: #fff;
+  }
+
+  .pill-select {
+    display: flex;
+    background: var(--pill-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2px;
+  }
+  .pill-select button {
+    background: transparent;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .pill-select button.active {
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+
+  .icon-btn {
+    background: var(--pill-bg);
+    border: 1px solid var(--card-border);
+    color: var(--ink);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all .15s;
+  }
+  .icon-btn:hover { background: var(--card-hover); }
+
+  /* ================= SUB-HEADER & CONTROLS ================= */
+  .content-wrap {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 18px 24px 60px;
+    flex: 1;
+  }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .summary-text {
+    font-size: 0.86rem;
+    color: var(--ink-muted);
+  }
+  .active-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.76rem;
+    margin-left: 6px;
+    cursor: pointer;
+    border: 1px solid var(--brand-border);
+    transition: all .15s ease;
+  }
+  .active-tag:hover {
+    background: var(--brand);
+    color: #ffffff;
+    border-color: var(--brand);
+  }
+  .sort-select {
+    background: var(--pill-bg);
+    border: 1px solid var(--card-border);
+    color: var(--ink);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  #backtotop {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25);
+    display: none;
+    z-index: 60;
+    transition: all .2s ease;
+  }
+  #backtotop:hover {
+    background: var(--brand-hover);
+    transform: translateY(-2px);
+  }
+
+  /* ================= CARDS GRID ================= */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--card-border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .card.completed { border-left: 3px solid var(--ok); }
+  .card.bookmarked { border-top: 3px solid var(--accent); }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .card-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+  .card-icon {
+    font-size: 1.35rem;
+    width: 34px;
+    height: 34px;
+    background: var(--brand-soft);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .card-title {
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-fav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    padding: 2px 4px;
+    transition: transform .15s, color .15s;
+    line-height: 1;
+  }
+  .card-fav-btn:hover { transform: scale(1.2); color: var(--accent); }
+  .card-fav-btn.active { color: var(--accent); }
+
+  .card-desc {
+    font-size: 0.83rem;
+    color: var(--ink-muted);
+    line-height: 1.45;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-meta-tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .meta-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: var(--pill-bg);
+    color: var(--ink-muted);
+    border: 1px solid var(--card-border);
+  }
+  .meta-tag.lvl-badge {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+    font-weight: 700;
+  }
+  .meta-tag.diff-easy { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .meta-tag.diff-med { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .meta-tag.diff-hard { background: #fef2f2; color: #ef4444; border-color: transparent; }
+  .meta-tag.lang-hi { background: #f5f3ff; color: #8b5cf6; border-color: transparent; }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--card-border);
+  }
+  .check-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .check-label input {
+    accent-color: var(--ok);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+
+  .btn-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--brand);
+    color: #ffffff !important;
+    padding: 5px 12px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all .15s ease;
+  }
+  .btn-open:hover {
+    background: var(--brand-hover);
+    transform: translateX(2px);
+  }
+
+  /* Empty state */
+  .empty-box {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px 20px;
+    background: var(--card);
+    border: 1px dashed var(--card-border);
+    border-radius: 12px;
+    color: var(--ink-muted);
+  }
+
+  /* Backdrop */
+  #backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 45;
+  }
+  #backdrop.show { display: block; }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 900px) {
+    #sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translateX(-100%);
+    }
+    #sidebar.open { transform: translateX(0); }
+    #menu-btn { display: inline-block; }
+    .search-box { width: 100%; order: 3; margin-top: 4px; }
+    .content-wrap { padding: 16px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body data-theme="light" class="flex flex-col md:flex-row min-h-screen bg-slate-50 text-slate-900 dark:bg-[#090d16] dark:text-slate-100 overflow-x-hidden font-sans">
+
+<div id="backdrop" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity duration-200" onclick="toggleSidebar()"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0f172a] text-slate-200 flex flex-col justify-between p-4 -translate-x-full transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen md:shrink-0 overflow-y-auto">
+  <div>
+    <a href="./index.html" class="brand-logo flex items-center gap-2.5 pb-4 border-b border-slate-800 text-white no-underline">
+      <div class="icon text-xl bg-slate-800 w-9 h-9 flex items-center justify-center rounded-lg">☁️</div>
+      <div>
+        <div class="title font-bold text-base leading-tight">Cloud Hub</div>
+        <div class="sub text-xs text-slate-400">AWS & DevOps 21-Level Portal</div>
+      </div>
+    </a>
+
+    <div class="sidebar-nav mt-3 flex flex-col gap-1">
+      <div class="nav-label text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-2">Roadmap & Notes</div>
+      
+      <!-- 21-Level Roadmap -->
+      <a href="../NotesAndDefinitions.html" class="nav-item special-note">
+        <span>🗺️ 21-Level Master Roadmap</span>
+        <span class="badge" style="background:#2563eb; color:#fff;">21 LVL</span>
+      </a>
+
+      <!-- Core Definitions -->
+      <a href="../NotesAndDefinitions.html" class="nav-item">
+        <span>📖 Core Definitions (Easy)</span>
+      </a>
+
+      <!-- Notes & Dictionary -->
+      <a href="../NotesAndDefinitions.html" class="nav-item">
+        <span>📝 Custom Notes & Dictionary</span>
+      </a>
+
+      <div class="nav-label text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-2">Study Guides</div>
+      <button class="nav-item active" id="nav-all" onclick="filterByNav('all')">
+        <span>📚 All 21 Level Guides</span>
+        <span class="badge" id="nav-badge-all">33</span>
+      </button>
+
+      <div class="nav-label text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-2">Categories</div>
+      <button class="nav-item cat-item" data-cat="Security" onclick="filterByCat('Security', this)">
+        <span>🔐 Security & IAM</span>
+        <span class="badge" id="cat-badge-Security">0</span>
+      </button>
+      <button class="nav-item cat-item" data-cat="Compute" onclick="filterByCat('Compute', this)">
+        <span>🖥️ Compute & EC2</span>
+        <span class="badge" id="cat-badge-Compute">0</span>
+      </button>
+      <button class="nav-item cat-item" data-cat="Networking" onclick="filterByCat('Networking', this)">
+        <span>🌐 Networking & VPC</span>
+        <span class="badge" id="cat-badge-Networking">0</span>
+      </button>
+      <button class="nav-item cat-item" data-cat="Storage" onclick="filterByCat('Storage', this)">
+        <span>💾 Storage & S3</span>
+        <span class="badge" id="cat-badge-Storage">0</span>
+      </button>
+      <button class="nav-item cat-item" data-cat="Databases" onclick="filterByCat('Databases', this)">
+        <span>🗄️ Databases & RDS</span>
+        <span class="badge" id="cat-badge-Databases">0</span>
+      </button>
+      <button class="nav-item cat-item" data-cat="Containers" onclick="filterByCat('Containers', this)">
+        <span>🐳 Containers & K8s</span>
+        <span class="badge" id="cat-badge-Containers">0</span>
+      </button>
+      <button class="nav-item cat-item" data-cat="DevOps" onclick="filterByCat('DevOps', this)">
+        <span>🛠️ DevOps & IaC</span>
+        <span class="badge" id="cat-badge-DevOps">0</span>
+      </button>
+      <button class="nav-item cat-item" data-cat="AWS" onclick="filterByCat('AWS', this)">
+        <span>💳 Billing & Org</span>
+        <span class="badge" id="cat-badge-AWS">0</span>
+      </button>
+      <div class="nav-label text-[11px] uppercase tracking-wider text-slate-400 font-bold px-2 pt-2">External Resources</div>
+      <a href="https://eu-north-1.signin.aws.amazon.com/oauth?response_type=code&client_id=arn%3Aaws%3Asignin%3A%3A%3Aconsole%2Fcanvas&redirect_uri=https%3A%2F%2Feu-north-1.console.aws.amazon.com%2Fconsole%2Fhome%3Fca-oauth-flow-id%3Def75%26hashArgs%3D%2523%26isauthcode%3Dtrue%26region%3Deu-north-1%26state%3DhashArgsFromTB_eu-north-1_f46bb704b8a8968d&forceMobileLayout=0&forceMobileApp=0&code_challenge=ia3836otX7c43NDhJmZb5b3FoLG7nLZ58AflK-8q5M0&code_challenge_method=SHA-256" target="_blank" rel="noopener noreferrer" class="nav-item" style="color:#fdba74;">
+        <span>🔑 AWS Console (eu-north-1) ↗</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="pt-4">
+    <!-- Sidebar Progress Bar -->
+    <div class="sidebar-progress-card bg-slate-800/80 border border-slate-700/60 rounded-xl p-3">
+      <div class="sidebar-progress-header flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
+        <span>21-Level Progress</span>
+        <span id="sidebar-progress-pct">0%</span>
+      </div>
+      <div class="sidebar-bar-wrap h-1.5 bg-slate-700 rounded-full overflow-hidden">
+        <div class="sidebar-bar-fill h-full bg-emerald-500 w-0 transition-all duration-300" id="sidebar-progress-bar"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ================= MAIN CONTAINER ================= -->
+<div id="main" class="flex-1 min-w-0 flex flex-col min-h-screen w-full">
+  <!-- Minimal Topbar -->
+  <header class="minimal-topbar sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="topbar-left flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+      <button id="menu-btn" class="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+      <div class="search-box relative flex-1 sm:w-72 md:w-80">
+        <span class="icon absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">🔍</span>
+        <input type="text" id="search-input" class="w-full pl-9 pr-8 py-1.5 text-sm rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand" placeholder="Search 21 levels (IAM, EC2, VPC, EKS... /)" aria-label="Search">
+        <button class="clear-btn absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-base hidden cursor-pointer" id="search-clear" onclick="clearSearch()">&times;</button>
+      </div>
+    </div>
+
+    <div class="topbar-right flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto">
+      <!-- Quick link to 21-Level Roadmap -->
+      <a href="../NotesAndDefinitions.html" class="btn-notes-top text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg bg-blue-50 text-brand dark:bg-blue-950/50 dark:text-blue-400 border border-blue-200 dark:border-blue-900 hover:bg-brand hover:text-white transition-all duration-150">
+        <span>🗺️ Roadmap & Notes</span>
+      </a>
+
+      <!-- Language Switcher -->
+      <div class="pill-select flex bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full p-0.5" id="lang-select">
+        <button class="active px-2.5 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 transition-all" onclick="setLanguage('all', this)">All</button>
+        <button class="px-2.5 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 transition-all" onclick="setLanguage('English', this)">🇺🇸 EN</button>
+        <button class="px-2.5 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 transition-all" onclick="setLanguage('Hinglish', this)">🇮🇳 HI</button>
+      </div>
+
+      <!-- Theme Switcher -->
+      <button class="icon-btn w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all" id="theme-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+    </div>
+  </header>
+
+  <!-- Content Wrap -->
+  <div class="content-wrap w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 flex-1">
+    <!-- Controls Sub-Header -->
+    <div class="controls-row flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-5">
+      <div class="summary-text text-sm text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-1.5">
+        <span id="showing-count">Showing 33 guides</span>
+        <span id="active-tag-holder" class="flex flex-wrap items-center gap-1.5"></span>
+      </div>
+
+      <select class="sort-select w-full sm:w-auto text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 outline-none cursor-pointer" id="sort-select" onchange="setSort(this.value)">
+        <option value="roadmap-asc">Roadmap Order (Level 1 → 21)</option>
+        <option value="title-asc">Title (A → Z)</option>
+        <option value="diff-asc">Difficulty (Easy → Hard)</option>
+      </select>
+    </div>
+
+    <!-- Learning Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" id="cards-grid">
+      <!-- Dynamically rendered -->
+    </div>
+  </div>
+</div>
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+  // ==========================================
+  // 1. DATA: 21-LEVEL STRUCTURED GUIDES
+  // ==========================================
+  const LEARNING_FILES = [
+    // Level 1: IAM
+    {
+      id: "lvl-1-iam",
+      level: 1,
+      title: "Level 1: AWS IAM (Identity & Access Management)",
+      filename: "../IAMService.html",
+      category: "Security",
+      difficulty: "Beginner",
+      language: "English",
+      time: "20m",
+      icon: "🔐",
+      tags: ["IAM", "Users", "Groups", "Roles", "Policies", "MFA"],
+      description: "Level 1 starting foundation: Users, Groups, Roles, JSON Policies, Least Privilege, MFA, and secure permissions."
+    },
+    // Level 2: CLI Configuration
+    {
+      id: "lvl-2-cli",
+      level: 2,
+      title: "Level 2: AWS CLI Configuration & Lab Setup",
+      filename: "../IAMService.html",
+      category: "DevOps",
+      difficulty: "Beginner",
+      language: "English",
+      time: "15m",
+      icon: "⚡",
+      tags: ["CLI", "Credentials", "Access Keys", "aws configure", "STS"],
+      description: "Install AWS CLI, configure Access Keys & Secret Keys via `aws configure`, setup named profiles, and test sts caller identity."
+    },
+    // Level 3: EC2
+    {
+      id: "lvl-3-ec2",
+      level: 3,
+      title: "Level 3: Amazon EC2 (Elastic Compute Cloud)",
+      filename: "../Ec2Service.html",
+      category: "Compute",
+      difficulty: "Beginner",
+      language: "English",
+      time: "35m",
+      icon: "🖥️",
+      tags: ["EC2", "Virtual Machines", "Key Pairs", "User Data", "Instance Types"],
+      description: "Virtual servers in the cloud, instance types, key pairs, bootstrap user data scripts, and security groups."
+    },
+    // Level 4: EBS
+    {
+      id: "lvl-4-ebs",
+      level: 4,
+      title: "Level 4: Amazon EBS (Elastic Block Store)",
+      filename: "../EBSSerivce.html",
+      category: "Storage",
+      difficulty: "Beginner",
+      language: "English",
+      time: "20m",
+      icon: "💾",
+      tags: ["EBS", "Block Storage", "GP3", "IO2", "Snapshots", "Volumes"],
+      description: "High-performance block storage volumes for EC2, volume types (GP3, IO2), snapshot backups, and dynamic expansion."
+    },
+    // Level 5: AMI
+    {
+      id: "lvl-5-ami",
+      level: 5,
+      title: "Level 5: Amazon Machine Images (AMI)",
+      filename: "../AMIService.html",
+      category: "Compute",
+      difficulty: "Beginner",
+      language: "English",
+      time: "20m",
+      icon: "📦",
+      tags: ["AMI", "Snapshots", "Custom Images", "Cross-Region Copy"],
+      description: "Pre-configured OS templates, creating custom AMIs, snapshot management, and sharing golden AMIs across accounts."
+    },
+    // Level 6: ELB & ASG
+    {
+      id: "lvl-6-elb-asg",
+      level: 6,
+      title: "Level 6: AWS ELB & Auto Scaling Groups (ASG)",
+      filename: "../AwsElbAndAsg.html",
+      category: "Compute",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "35m",
+      icon: "⚖️",
+      tags: ["ALB", "NLB", "Auto Scaling", "Target Groups", "Health Checks"],
+      description: "Application Load Balancer (ALB), Target Groups, Health Checks, and dynamic Auto Scaling for high availability."
+    },
+    {
+      id: "lvl-6-elb-asg-hi",
+      level: 6,
+      title: "Level 6: AWS ELB & ASG (Hinglish)",
+      filename: "../HinglishLang/AwsElbAndAsg.html",
+      category: "Compute",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "35m",
+      icon: "⚖️",
+      tags: ["ALB", "Load Balancer", "ASG", "Auto Scaling", "Hinglish"],
+      description: "Load Balancers, Target Groups aur dynamic Auto Scaling ki step-by-step Hinglish documentation."
+    },
+    // Level 7: S3
+    {
+      id: "lvl-7-s3",
+      level: 7,
+      title: "Level 7: Amazon S3 (Simple Storage Service)",
+      filename: "../S3Bucket.html",
+      category: "Storage",
+      difficulty: "Beginner",
+      language: "English",
+      time: "30m",
+      icon: "🪣",
+      tags: ["S3", "Object Storage", "Static Hosting", "Lifecycle", "Versioning", "CORS"],
+      description: "Object storage in the cloud, bucket policies, static website hosting, versioning, replication, and storage tiers."
+    },
+    {
+      id: "lvl-7-s3-hi",
+      level: 7,
+      title: "Level 7: Amazon S3 Bucket (Hinglish)",
+      filename: "../HinglishLang/S3Bucket.html",
+      category: "Storage",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "30m",
+      icon: "🪣",
+      tags: ["S3", "Bucket", "Storage", "Static Website", "Hinglish"],
+      description: "Object storage, static website hosting, lifecycle rules aur bucket security ki practical guide."
+    },
+    // Level 8: RDS
+    {
+      id: "lvl-8-rds",
+      level: 8,
+      title: "Level 8: Amazon RDS (Relational Database)",
+      filename: "../RDSService.html",
+      category: "Databases",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "30m",
+      icon: "🗄️",
+      tags: ["RDS", "PostgreSQL", "MySQL", "Multi-AZ", "Read Replicas"],
+      description: "Managed relational databases: PostgreSQL, MySQL, Multi-AZ high availability failover, and Read Replicas."
+    },
+    {
+      id: "lvl-8-rds-hi",
+      level: 8,
+      title: "Level 8: Amazon RDS Database (Hinglish)",
+      filename: "../HinglishLang/RDSService.html",
+      category: "Databases",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "30m",
+      icon: "🗄️",
+      tags: ["RDS", "Database", "MySQL", "PostgreSQL", "Hinglish"],
+      description: "Managed databases, Multi-AZ deployments, aur Read Replicas ki complete guide."
+    },
+    // Level 9: DynamoDB
+    {
+      id: "lvl-9-dynamodb",
+      level: 9,
+      title: "Level 9: Amazon DynamoDB (NoSQL Database)",
+      filename: "../DynamoDB.html",
+      category: "Databases",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "30m",
+      icon: "⚡",
+      tags: ["DynamoDB", "NoSQL", "Partition Key", "GSI", "LSI", "DAX"],
+      description: "Fully managed serverless NoSQL database, Partition Keys, Sort Keys, Global Secondary Indexes, and low latency."
+    },
+    {
+      id: "lvl-9-dynamodb-hi",
+      level: 9,
+      title: "Level 9: Amazon DynamoDB (Hinglish)",
+      filename: "../HinglishLang/DynamoDB.html",
+      category: "Databases",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "30m",
+      icon: "⚡",
+      tags: ["DynamoDB", "NoSQL", "Database", "Hinglish"],
+      description: "Serverless NoSQL database architecture, Partition keys aur Global Secondary Indexes ki guide."
+    },
+    // Level 10: Lambda
+    {
+      id: "lvl-10-lambda",
+      level: 10,
+      title: "Level 10: AWS Lambda (Serverless Compute)",
+      filename: "../LambdaService.html",
+      category: "Compute",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "25m",
+      icon: "λ",
+      tags: ["Lambda", "Serverless", "Event-Driven", "API Gateway", "Triggers"],
+      description: "Run code without provisioning servers, event-driven architectures with S3/API Gateway triggers, and execution roles."
+    },
+    {
+      id: "lvl-10-lambda-hi",
+      level: 10,
+      title: "Level 10: AWS Lambda Serverless (Hinglish)",
+      filename: "../HinglishLang/lambdaService.html",
+      category: "Compute",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "25m",
+      icon: "λ",
+      tags: ["Lambda", "Serverless", "Python", "NodeJS", "Hinglish"],
+      description: "Bina server manage kiye code run karna, event triggers aur API Gateway integration."
+    },
+    // Level 11: CloudFormation
+    {
+      id: "lvl-11-cloudformation",
+      level: 11,
+      title: "Level 11: AWS CloudFormation (IaC)",
+      filename: "../InfrastructureAsCode(IaC).html",
+      category: "DevOps",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "35m",
+      icon: "📜",
+      tags: ["CloudFormation", "IaC", "Templates", "Stacks", "YAML"],
+      description: "Declarative AWS Infrastructure as Code using JSON/YAML templates, Stacks, Change Sets, and automated rollback."
+    },
+    // Level 12: Route 53
+    {
+      id: "lvl-12-route53",
+      level: 12,
+      title: "Level 12: Amazon Route 53 (DNS Service)",
+      filename: "../Route53.html",
+      category: "Networking",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "25m",
+      icon: "🌐",
+      tags: ["Route53", "DNS", "Hosted Zones", "Routing Policies", "Failover"],
+      description: "Managed DNS service, Public & Private Hosted Zones, Alias records, latency routing, and health checks."
+    },
+    // Level 13: CloudFront
+    {
+      id: "lvl-13-cloudfront",
+      level: 13,
+      title: "Level 13: Amazon CloudFront (CDN)",
+      filename: "../AWSCloudFront(CDN).html",
+      category: "Networking",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "30m",
+      icon: "⚡",
+      tags: ["CloudFront", "CDN", "Edge Locations", "Caching", "OAC", "S3"],
+      description: "Global Content Delivery Network (CDN), Edge Locations, Origin Access Control (OAC), and asset caching."
+    },
+    {
+      id: "lvl-13-cloudfront-hi",
+      level: 13,
+      title: "Level 13: Amazon CloudFront CDN (Hinglish)",
+      filename: "../HinglishLang/AWSCloudFront.html",
+      category: "Networking",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "30m",
+      icon: "⚡",
+      tags: ["CloudFront", "CDN", "Edge", "Caching", "Hinglish"],
+      description: "Global content delivery network, edge caching aur S3 security ki step-by-step guide."
+    },
+    // Level 14: VPC
+    {
+      id: "lvl-14-vpc",
+      level: 14,
+      title: "Level 14: AWS VPC (Virtual Private Cloud)",
+      filename: "../VPCService.html",
+      category: "Networking",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "45m",
+      icon: "🌐",
+      tags: ["VPC", "Subnets", "Route Tables", "IGW", "NAT Gateway", "NACL", "Security Groups"],
+      description: "Complete networking: Public/Private subnets, CIDR blocks, NAT Gateways, Route Tables, and Security Groups."
+    },
+    {
+      id: "lvl-14-vpc-hi",
+      level: 14,
+      title: "Level 14: AWS VPC Networking (Hinglish)",
+      filename: "../HinglishLang/VPCService.html",
+      category: "Networking",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "45m",
+      icon: "🌐",
+      tags: ["VPC", "Subnets", "NAT Gateway", "Networking", "Hinglish"],
+      description: "Virtual Private Cloud, Subnets, Routing aur Security Groups ki complete Hinglish practical guide."
+    },
+    // Level 15: Billing & Organization
+    {
+      id: "lvl-15-billing",
+      level: 15,
+      title: "Level 15: AWS Billing & Organizations",
+      filename: "../AccountAndBilling.html",
+      category: "AWS",
+      difficulty: "Beginner",
+      language: "English",
+      time: "25m",
+      icon: "💳",
+      tags: ["Billing", "Budgets", "Cost Explorer", "Organizations", "Free Tier"],
+      description: "AWS Organizations, Cost Explorer, billing alarms, AWS Budgets, consolidated billing, and account security."
+    },
+    {
+      id: "lvl-15-billing-hi",
+      level: 15,
+      title: "Level 15: AWS Billing & Org (Hinglish)",
+      filename: "../HinglishLang/AccountAndBilling.html",
+      category: "AWS",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "25m",
+      icon: "💳",
+      tags: ["Billing", "Budgets", "Cost", "Hinglish"],
+      description: "Account setup, billing alarms, free tier limits aur cost management ki aasan Hinglish guide."
+    },
+    // Level 16: Amplify
+    {
+      id: "lvl-16-amplify",
+      level: 16,
+      title: "Level 16: AWS Amplify (Fullstack Hosting)",
+      filename: "../AWSAmplify.html",
+      category: "DevOps",
+      difficulty: "Beginner",
+      language: "English",
+      time: "25m",
+      icon: "🚀",
+      tags: ["Amplify", "React", "CI/CD", "Fullstack", "Custom Domains"],
+      description: "Build, host, and deploy modern React/Next.js web apps with automated Git CI/CD pipelines and custom domains."
+    },
+    {
+      id: "lvl-16-amplify-hi",
+      level: 16,
+      title: "Level 16: AWS Amplify Fullstack (Hinglish)",
+      filename: "../HinglishLang/AWSAmplify.html",
+      category: "DevOps",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "25m",
+      icon: "🚀",
+      tags: ["Amplify", "React", "Hosting", "CI/CD", "Hinglish"],
+      description: "Frontend aur Fullstack web apps ko GitHub se auto-deploy aur host karne ki guide."
+    },
+    // Level 17: ECS
+    {
+      id: "lvl-17-ecs",
+      level: 17,
+      title: "Level 17: Amazon ECS (Container Service)",
+      filename: "../ECSService.html",
+      category: "Containers",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "40m",
+      icon: "🐳",
+      tags: ["ECS", "Docker", "Fargate", "ECR", "Task Definitions", "ALB"],
+      description: "Container orchestration on AWS, Docker images, Amazon ECR, AWS Fargate serverless containers, and Task Definitions."
+    },
+    {
+      id: "lvl-17-ecs-hi",
+      level: 17,
+      title: "Level 17: Amazon ECS & Fargate (Hinglish)",
+      filename: "../HinglishLang/ECSService.html",
+      category: "Containers",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "40m",
+      icon: "🐳",
+      tags: ["ECS", "Docker", "Fargate", "ECR", "Containers", "Hinglish"],
+      description: "Docker containers ko AWS Fargate aur ECS par deploy, scale aur manage karne ki comprehensive Hinglish guide."
+    },
+    // Level 18: EKS
+    {
+      id: "lvl-18-eks",
+      level: 18,
+      title: "Level 18: Amazon EKS (Kubernetes)",
+      filename: "../EKSService.html",
+      category: "Containers",
+      difficulty: "Advanced",
+      language: "English",
+      time: "50m",
+      icon: "☸️",
+      tags: ["EKS", "Kubernetes", "Pods", "Deployments", "Services", "kubectl", "Helm"],
+      description: "Managed Kubernetes on AWS: Control plane, Node Groups, Pods, Deployments, Ingress, and kubectl workflows."
+    },
+    {
+      id: "lvl-18-eks-hi",
+      level: 18,
+      title: "Level 18: Amazon EKS Kubernetes (Hinglish)",
+      filename: "../HinglishLang/EKSService.html",
+      category: "Containers",
+      difficulty: "Advanced",
+      language: "Hinglish",
+      time: "50m",
+      icon: "☸️",
+      tags: ["EKS", "Kubernetes", "Pods", "kubectl", "Hinglish"],
+      description: "Kubernetes architecture, Pods, Deployments, Services aur Amazon EKS par application chalane ki guide."
+    },
+    // Level 19: Terraform
+    {
+      id: "lvl-19-terraform",
+      level: 19,
+      title: "Level 19: HashiCorp Terraform (IaC)",
+      filename: "../TerraformIaC.html",
+      category: "DevOps",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "40m",
+      icon: "🛠️",
+      tags: ["Terraform", "IaC", "HCL", "State", "Modules", "Providers"],
+      description: "Multi-cloud Infrastructure as Code: HCL syntax, terraform plan/apply, remote state with S3/DynamoDB, and modules."
+    },
+    {
+      id: "lvl-19-terraform-hi",
+      level: 19,
+      title: "Level 19: Terraform IaC (Hinglish)",
+      filename: "../HinglishLang/TerraformIaC.html",
+      category: "DevOps",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "40m",
+      icon: "🛠️",
+      tags: ["Terraform", "IaC", "HCL", "Automation", "Hinglish"],
+      description: "Code se AWS resources create karna, State management, Modules aur Terraform commands ki practical guide."
+    },
+    // Level 20: Understand DNS
+    {
+      id: "lvl-20-dns",
+      level: 20,
+      title: "Level 20: Understand DNS Fundamentals",
+      filename: "../DNSAndRoute53.html",
+      category: "Networking",
+      difficulty: "Beginner",
+      language: "English",
+      time: "25m",
+      icon: "🌐",
+      tags: ["DNS", "Route 53", "A Record", "CNAME", "Alias", "Routing Policies"],
+      description: "Domain Name System fundamentals, record types (A, CNAME, Alias), Hosted Zones, and 8 Routing Policies."
+    },
+    {
+      id: "lvl-20-dns-hi",
+      level: 20,
+      title: "Level 20: DNS Fundamentals (Hinglish)",
+      filename: "../HinglishLang/DNSAndRoute53.html",
+      category: "Networking",
+      difficulty: "Beginner",
+      language: "Hinglish",
+      time: "25m",
+      icon: "🌐",
+      tags: ["DNS", "Route 53", "A Record", "CNAME", "Routing", "Hinglish"],
+      description: "DNS resolution flow, Hosted Zones, Alias records aur Route 53 routing policies ki Hinglish guide."
+    },
+    // Level 21: Understand SSL/TLS
+    {
+      id: "lvl-21-ssl-tls",
+      level: 21,
+      title: "Level 21: Understand SSL/TLS & Certificates",
+      filename: "../SSLTLSAndCertificate.html",
+      category: "Security",
+      difficulty: "Intermediate",
+      language: "English",
+      time: "25m",
+      icon: "🔒",
+      tags: ["SSL", "TLS", "HTTPS", "ACM", "Certificates", "ALB"],
+      description: "Encryption, TLS 1.3 handshake, digital certificates, free ACM cert provisioning, and ALB HTTPS listeners."
+    },
+    {
+      id: "lvl-21-ssl-tls-hi",
+      level: 21,
+      title: "Level 21: SSL/TLS & ACM (Hinglish)",
+      filename: "../HinglishLang/SSLTLSAndCertificate.html",
+      category: "Security",
+      difficulty: "Intermediate",
+      language: "Hinglish",
+      time: "25m",
+      icon: "🔒",
+      tags: ["SSL", "TLS", "HTTPS", "ACM", "Certificates", "Hinglish"],
+      description: "Encryption basics, TLS Handshake, free ACM certificates aur ALB par HTTPS setup karne ki guide."
+    }
+  ];
+
+  // ==========================================
+  // 2. STATE MANAGEMENT & STORAGE
+  // ==========================================
+  const STORAGE_KEY_PROGRESS = "cloud_learning_completed_modules";
+  const STORAGE_KEY_BOOKMARKS = "cloud_learning_bookmarked_modules";
+  const STORAGE_KEY_THEME = "cloud_learning_theme";
+
+  let completedModules = JSON.parse(localStorage.getItem(STORAGE_KEY_PROGRESS)) || [];
+  let bookmarkedModules = JSON.parse(localStorage.getItem(STORAGE_KEY_BOOKMARKS)) || [];
+
+  let currentCategory = "all";
+  let currentLanguage = "all";
+  let currentStatus = "all";
+  let currentSort = "roadmap-asc";
+  let searchQuery = "";
+
+  // ==========================================
+  // 3. INITIALIZATION
+  // ==========================================
+  document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
+    renderCards();
+    setupEvents();
+  });
+
+  function setupEvents() {
+    const searchInput = document.getElementById("search-input");
+    const searchClear = document.getElementById("search-clear");
+
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      searchClear.classList.toggle("visible", searchQuery.length > 0);
+      renderCards();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") {
+        if (e.key === "Escape") {
+          e.target.blur();
+          clearSearch();
+        }
+        return;
+      }
+      if (e.key === "/" || (e.ctrlKey && e.key === "k")) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+    });
+  }
+
+  function clearSearch() {
+    searchQuery = "";
+    const searchInput = document.getElementById("search-input");
+    searchInput.value = "";
+    document.getElementById("search-clear").classList.remove("visible");
+    renderCards();
+  }
+
+  // ==========================================
+  // 4. RENDERING CARDS & SUMMARY
+  // ==========================================
+  function renderCards() {
+    const container = document.getElementById("cards-grid");
+    const showingText = document.getElementById("showing-count");
+    const activeHolder = document.getElementById("active-tag-holder");
+    container.innerHTML = "";
+
+    // Filter
+    let filtered = LEARNING_FILES.filter(file => {
+      const matchCat = currentCategory === "all" || file.category === currentCategory;
+      const matchLang = currentLanguage === "all" || file.language === currentLanguage;
+      
+      const isDone = completedModules.includes(file.id);
+      const isFav = bookmarkedModules.includes(file.id);
+
+      const matchStatus = currentStatus === "all" || 
+        (currentStatus === "completed" && isDone) ||
+        (currentStatus === "bookmarked" && isFav);
+
+      const matchQuery = searchQuery === "" || 
+        file.title.toLowerCase().includes(searchQuery) ||
+        file.description.toLowerCase().includes(searchQuery) ||
+        file.category.toLowerCase().includes(searchQuery) ||
+        file.tags.some(t => t.toLowerCase().includes(searchQuery)) ||
+        `level ${file.level}`.includes(searchQuery);
+
+      return matchCat && matchLang && matchStatus && matchQuery;
+    });
+
+    // Sort
+    if (currentSort === "roadmap-asc") {
+      filtered.sort((a, b) => (a.level || 99) - (b.level || 99));
+    } else if (currentSort === "title-asc") {
+      filtered.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (currentSort === "diff-asc") {
+      const order = { "Beginner": 1, "Intermediate": 2, "Advanced": 3 };
+      filtered.sort((a, b) => (order[a.difficulty] || 2) - (order[b.difficulty] || 2));
+    }
+
+    // Summary text
+    showingText.textContent = `Showing ${filtered.length} of ${LEARNING_FILES.length} guides`;
+    let tagHtml = "";
+    if (currentCategory !== "all") {
+      tagHtml += `<span class="active-tag" onclick="filterByNav('all')" title="Click to clear filter">${currentCategory} &times;</span>`;
+    }
+    if (currentLanguage !== "all") {
+      tagHtml += `<span class="active-tag" onclick="resetLanguage()" title="Click to clear language filter">${currentLanguage} &times;</span>`;
+    }
+    if (currentStatus !== "all") {
+      tagHtml += `<span class="active-tag" onclick="filterByNav('all')" title="Click to clear status filter">${currentStatus === 'completed' ? 'Done' : 'Bookmarked'} &times;</span>`;
+    }
+    if (searchQuery) {
+      tagHtml += `<span class="active-tag" onclick="clearSearch()" title="Click to clear search query">"${searchQuery}" &times;</span>`;
+    }
+    activeHolder.innerHTML = tagHtml;
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-box">
+          <div style="font-size:2rem; margin-bottom:8px;">🔍</div>
+          <h4 style="font-size:1.05rem; margin-bottom:4px;">No guides match your filter</h4>
+          <p style="font-size:0.85rem; margin-bottom:12px;">Try searching for a different keyword or clear filters.</p>
+          <button class="btn-open" onclick="resetAllFilters()">Reset Filters</button>
+        </div>
+      `;
+      updateSidebarCounters();
+      return;
+    }
+
+    filtered.forEach(file => {
+      const isDone = completedModules.includes(file.id);
+      const isFav = bookmarkedModules.includes(file.id);
+
+      let diffClass = "diff-easy";
+      if (file.difficulty === "Intermediate") diffClass = "diff-med";
+      if (file.difficulty === "Advanced") diffClass = "diff-hard";
+
+      const card = document.createElement("div");
+      card.className = `card ${isDone ? 'completed' : ''} ${isFav ? 'bookmarked' : ''}`;
+
+      card.innerHTML = `
+        <div>
+          <div class="card-header">
+            <div class="card-brand">
+              <div class="card-icon">${file.icon || '📄'}</div>
+              <h3 class="card-title" title="${file.title}">${file.title}</h3>
+            </div>
+            <button class="card-fav-btn ${isFav ? 'active' : ''}" title="${isFav ? 'Remove Bookmark' : 'Bookmark'}" onclick="toggleBookmark('${file.id}')">
+              ${isFav ? '★' : '☆'}
+            </button>
+          </div>
+
+          <p class="card-desc">${file.description}</p>
+
+          <div class="card-meta-tags">
+            <span class="meta-tag lvl-badge">LVL ${file.level}</span>
+            <span class="meta-tag ${diffClass}">${file.difficulty}</span>
+            <span class="meta-tag ${file.language === 'Hinglish' ? 'lang-hi' : ''}">${file.language === 'English' ? '🇺🇸 EN' : '🇮🇳 HI'}</span>
+            <span class="meta-tag">⏱️ ${file.time}</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <label class="check-label">
+            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDone('${file.id}')">
+            <span>${isDone ? 'Completed' : 'Mark Done'}</span>
+          </label>
+          <a href="${file.filename}" class="btn-open">
+            <span>Open Level ${file.level}</span> ➔
+          </a>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+    updateSidebarCounters();
+  }
+
+  function updateSidebarCounters() {
+    const total = LEARNING_FILES.length;
+    const done = completedModules.length;
+    const fav = bookmarkedModules.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const navAll = document.getElementById("nav-badge-all");
+    if (navAll) navAll.textContent = total;
+    const navDone = document.getElementById("nav-badge-done");
+    if (navDone) navDone.textContent = done;
+    const navFav = document.getElementById("nav-badge-fav");
+    if (navFav) navFav.textContent = fav;
+
+    const progPct = document.getElementById("sidebar-progress-pct");
+    if (progPct) progPct.textContent = `${pct}%`;
+    const progBar = document.getElementById("sidebar-progress-bar");
+    if (progBar) progBar.style.width = `${pct}%`;
+
+    // Dynamic category counts
+    const catCounts = {};
+    LEARNING_FILES.forEach(file => {
+      catCounts[file.category] = (catCounts[file.category] || 0) + 1;
+    });
+    ["Security", "Compute", "Networking", "Storage", "Databases", "Containers", "DevOps", "AWS"].forEach(cat => {
+      const badge = document.getElementById(`cat-badge-${cat}`);
+      if (badge) badge.textContent = catCounts[cat] || 0;
+    });
+  }
+
+  // ==========================================
+  // 5. FILTER HANDLERS
+  // ==========================================
+  function filterByNav(status) {
+    currentStatus = status;
+    currentCategory = "all";
+    document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => btn.classList.remove("active"));
+    if (status === "all") {
+      const navAll = document.getElementById("nav-all");
+      if (navAll) navAll.classList.add("active");
+    }
+    if (status === "completed") {
+      const navDone = document.getElementById("nav-completed");
+      if (navDone) navDone.classList.add("active");
+    }
+    if (status === "bookmarked") {
+      const navFav = document.getElementById("nav-bookmarks");
+      if (navFav) navFav.classList.add("active");
+    }
+    renderCards();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.innerWidth <= 900) toggleSidebar();
+  }
+
+  function filterByCat(cat, btn) {
+    if (currentCategory === cat && currentStatus === "all") {
+      filterByNav('all');
+      return;
+    }
+    currentCategory = cat;
+    currentStatus = "all";
+    document.querySelectorAll(".sidebar-nav .nav-item").forEach(b => b.classList.remove("active"));
+    if (btn) {
+      btn.classList.add("active");
+    } else {
+      const matchBtn = Array.from(document.querySelectorAll(".sidebar-nav .cat-item")).find(b => b.getAttribute("data-cat") === cat);
+      if (matchBtn) matchBtn.classList.add("active");
+    }
+    renderCards();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.innerWidth <= 900) toggleSidebar();
+  }
+
+  function setLanguage(lang, btn) {
+    currentLanguage = lang;
+    if (btn) {
+      btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+    renderCards();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetLanguage() {
+    currentLanguage = "all";
+    document.querySelectorAll("#lang-select button").forEach((b, i) => b.classList.toggle("active", i === 0));
+    renderCards();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function setSort(val) {
+    currentSort = val;
+    renderCards();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetAllFilters() {
+    currentCategory = "all";
+    currentLanguage = "all";
+    currentStatus = "all";
+    currentSort = "roadmap-asc";
+    searchQuery = "";
+    document.getElementById("search-input").value = "";
+    document.getElementById("search-clear").classList.remove("visible");
+    document.getElementById("sort-select").value = "roadmap-asc";
+    document.querySelectorAll("#lang-select button").forEach((b, i) => b.classList.toggle("active", i === 0));
+    filterByNav("all");
+  }
+
+  // ==========================================
+  // 6. TOGGLES & STORAGE
+  // ==========================================
+  function toggleDone(id) {
+    if (completedModules.includes(id)) {
+      completedModules = completedModules.filter(i => i !== id);
+    } else {
+      completedModules.push(id);
+    }
+    localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(completedModules));
+    renderCards();
+  }
+
+  function toggleBookmark(id) {
+    if (bookmarkedModules.includes(id)) {
+      bookmarkedModules = bookmarkedModules.filter(i => i !== id);
+    } else {
+      bookmarkedModules.push(id);
+    }
+    localStorage.setItem(STORAGE_KEY_BOOKMARKS, JSON.stringify(bookmarkedModules));
+    renderCards();
+  }
+
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("backdrop").classList.toggle("show");
+  }
+
+  // ==========================================
+  // 7. THEME TOGGLE & SCROLL
+  // ==========================================
+  function initTheme() {
+    const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || "light";
+    document.body.setAttribute("data-theme", savedTheme);
+    document.getElementById("theme-btn").textContent = savedTheme === "dark" ? "☀️" : "🌙";
+  }
+
+  function toggleTheme() {
+    const current = document.body.getAttribute("data-theme");
+    const target = current === "dark" ? "light" : "dark";
+    document.body.setAttribute("data-theme", target);
+    localStorage.setItem(STORAGE_KEY_THEME, target);
+    document.getElementById("theme-btn").textContent = target === "dark" ? "☀️" : "🌙";
+  }
+
+  // Back to Top button listener
+  window.addEventListener("scroll", function(){
+    const btt = document.getElementById("backtotop");
+    if (btt) btt.style.display = window.scrollY > 300 ? "flex" : "none";
+  });
+</script>
+
+<button id="backtotop" aria-label="Back to top" onclick="window.scrollTo({top:0, behavior:'smooth'})">&#8679;</button>
+
+</body>
+</html>

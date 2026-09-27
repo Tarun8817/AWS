@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS IAM — Comprehensive Guide</title>
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --card-bg: #ffffff;
+    --text: #1e2430;
+    --text-soft: #4b5567;
+    --heading: #0f172a;
+    --accent: #ff9900;
+    --accent-dark: #cc7a00;
+    --accent-soft: #fff4e0;
+    --blue: #146eb4;
+    --blue-dark: #0d4f82;
+    --blue-soft: #e8f2fb;
+    --green: #1a7f5a;
+    --green-soft: #e7f7f0;
+    --purple: #6b46c1;
+    --purple-soft: #f1ebfb;
+    --border: #e3e8ef;
+    --code-bg: #0f172a;
+    --code-text: #e2e8f0;
+    --important-bg: #fff8e6;
+    --important-border: #e6a700;
+    --img-placeholder-bg: #eef1f6;
+    --img-placeholder-border: #c7d0dd;
+    --table-head-bg: #146eb4;
+    --table-head-text: #ffffff;
+    --table-row-alt: #f4f8fc;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1420;
+      --card-bg: #161d2b;
+      --text: #e6e9f0;
+      --text-soft: #a8b1c2;
+      --heading: #ffffff;
+      --accent: #ffb238;
+      --accent-dark: #ffc766;
+      --accent-soft: #2a2110;
+      --blue: #5fb0ec;
+      --blue-dark: #8ecdf7;
+      --blue-soft: #12233a;
+      --green: #4fd8a2;
+      --green-soft: #10281f;
+      --purple: #b79cf0;
+      --purple-soft: #241c38;
+      --border: #2a3346;
+      --code-bg: #05070d;
+      --code-text: #d7ecff;
+      --important-bg: #2a2210;
+      --important-border: #ffcc4d;
+      --img-placeholder-bg: #1c2333;
+      --img-placeholder-border: #37415a;
+      --table-head-bg: #12314d;
+      --table-head-text: #d7ecff;
+      --table-row-alt: #131a29;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0f1420;
+    --card-bg: #161d2b;
+    --text: #e6e9f0;
+    --text-soft: #a8b1c2;
+    --heading: #ffffff;
+    --accent: #ffb238;
+    --accent-dark: #ffc766;
+    --accent-soft: #2a2110;
+    --blue: #5fb0ec;
+    --blue-dark: #8ecdf7;
+    --blue-soft: #12233a;
+    --green: #4fd8a2;
+    --green-soft: #10281f;
+    --purple: #b79cf0;
+    --purple-soft: #241c38;
+    --border: #2a3346;
+    --code-bg: #05070d;
+    --code-text: #d7ecff;
+    --important-bg: #2a2210;
+    --important-border: #ffcc4d;
+    --img-placeholder-bg: #1c2333;
+    --img-placeholder-border: #37415a;
+    --table-head-bg: #12314d;
+    --table-head-text: #d7ecff;
+    --table-row-alt: #131a29;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65;
+    padding: 0;
+  }
+
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+   padding: 2rem 2rem 5rem; }
+
+  .title-card {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 24px rgba(20,110,180,0.25);
+  }
+  .title-card h1 {
+    margin: 0 0 0.4rem 0;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+  }
+  .title-card p {
+    margin: 0;
+    font-size: 1.05rem;
+    opacity: 0.9;
+  }
+
+  h2 {
+    color: var(--heading);
+    font-size: 1.4rem;
+    margin-top: 2.4rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 3px solid var(--blue);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  h3 {
+    color: var(--accent-dark);
+    font-size: 1.12rem;
+    margin-top: 1.7rem;
+    margin-bottom: 0.6rem;
+  }
+
+  h4 {
+    color: var(--purple);
+    font-size: 1rem;
+    margin-top: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  p { color: var(--text-soft); }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.3rem 1.6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .concept-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.8rem 0;
+  }
+  .concept-list li {
+    background: var(--blue-soft);
+    border-left: 4px solid var(--blue);
+    border-radius: 6px;
+    padding: 0.6rem 0.95rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+  .concept-list li strong { color: var(--blue-dark); }
+
+  .dashboard-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.8rem 0;
+  }
+  .dashboard-list li {
+    background: var(--purple-soft);
+    border-left: 4px solid var(--purple);
+    border-radius: 6px;
+    padding: 0.6rem 0.95rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+  .dashboard-list li strong { color: var(--purple); }
+
+  .steps-block {
+    background: var(--accent-soft);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem 1.1rem 1.6rem;
+    margin: 0.8rem 0 1.3rem 0;
+    border: 1px solid var(--border);
+  }
+  .steps-block h3, .steps-block h4 {
+    margin-top: 0;
+  }
+
+  ol.steps {
+    margin: 0;
+    padding-left: 1.4rem;
+  }
+  ol.steps li {
+    padding: 0.35rem 0;
+    color: var(--text);
+  }
+  ol.steps li::marker {
+    color: var(--accent-dark);
+    font-weight: 700;
+  }
+  ol.steps b, ol.steps strong { color: var(--accent-dark); }
+
+  .figure {
+    margin: 1rem 0 1.6rem 0;
+  }
+  .img-placeholder {
+    background: var(--img-placeholder-bg);
+    border: 2px dashed var(--img-placeholder-border);
+    border-radius: 10px;
+    padding: 2.2rem 1rem;
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+  }
+  .img-placeholder .icon {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .figure img {
+    max-width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    display: block;
+  }
+  .figure-caption {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin-top: 0.4rem;
+    font-style: italic;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0 1.5rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  thead th {
+    background: var(--table-head-bg);
+    color: var(--table-head-text);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.92rem;
+  }
+  tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.92rem;
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) {
+    background: var(--table-row-alt);
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+  td strong { color: var(--blue-dark); }
+
+  .important {
+    background: var(--important-bg);
+    border-left: 5px solid var(--important-border);
+    border-radius: 8px;
+    padding: 1rem 1.3rem;
+    margin: 1.2rem 0;
+    color: var(--text);
+  }
+  .important .important-title {
+    color: var(--important-border);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+  .important ul {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+  .important li {
+    margin-bottom: 0.5rem;
+  }
+  .important strong { color: var(--important-border); }
+
+  code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 2px dashed var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .section-icon { font-size: 1.2rem; }
+
+  /* Sidebar styles */
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--code-bg); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 40px;
+    transition: transform .25s ease; z-index: 50;
+  }
+  #sidebar h2 { 
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; 
+    color: #8ea1c9; margin: 18px 0 8px; 
+  }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; 
+    text-decoration: none; font-size: .88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { 
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; 
+    border-bottom: 1px solid #263252; margin-bottom: 6px; 
+  }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; 
+    background: #101a2c; color: #e6ecf5; font-size: .85rem; margin-bottom: 6px;
+  }
+
+  /* Main content wrapper */
+  body { display: flex; min-height: 100vh; }
+  #main { flex: 1; min-width: 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; background: var(--card-bg); 
+    border-bottom: 1px solid var(--border); padding: 10px 20px; 
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn {
+    display: none; background: none; border: 1px solid var(--border); 
+    border-radius: 6px; padding: 6px 10px; cursor: pointer; 
+    color: var(--text); font-size: 1rem;
+  }
+  #theme-btn {
+    background: var(--blue-soft); border: 1px solid var(--border); 
+    color: var(--blue); border-radius: 20px; padding: 6px 14px; 
+    cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto;  padding: 2rem 2rem 5rem; }
+  #backdrop { 
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; 
+  }
+  #backtotop {
+    position: fixed; bottom: 22px; right: 22px; background: var(--blue); 
+    color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; 
+    font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); 
+    display: none; z-index: 60;
+  }
+
+  @media (max-width: 900px) {
+    #sidebar { 
+      position: fixed; left: 0; top: 0; transform: translateX(-100%); 
+      box-shadow: 0 0 30px rgba(0,0,0,.4); 
+    }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+    #menu-btn { display: inline-block; }
+  }
+
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.5rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr {
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    tbody td {
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td::before {
+      content: attr(data-label);
+      display: block;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 0.2rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body>
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">🔐</span><span class="name">IAM Guide</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Contents</h2>
+  <ul>
+    <li><a href="#s1">What is AWS IAM?</a></li>
+    <li><a href="#s2">IAM Dashboard</a></li>
+    <li><a href="#s3">Creating IAM Users</a></li>
+    <li><a href="#s4">User Groups</a></li>
+    <li><a href="#s5">Custom Policies</a></li>
+    <li><a href="#s6">Best Practices</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS IAM Guide</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+<div class="wrap">
+
+  <div class="title-card">
+    <h1>🔐 AWS Identity and Access Management (IAM)</h1>
+    <p>Comprehensive guide: core concepts, dashboard, user creation, groups, policies &amp; best practices</p>
+  </div>
+
+  <h2 id="s1"><span class="section-icon">1️⃣</span> What is AWS IAM?</h2>
+  <div class="card">
+    <p>
+      <strong>AWS Identity and Access Management (IAM)</strong> is a web service that helps you
+      securely control access to AWS resources. IAM enables you to centrally manage permissions
+      that control which AWS resources users can access, who can be authenticated (signed in),
+      and who is authorized (has permissions) to use resources.
+    </p>
+  </div>
+
+  <h3>Core Concepts of IAM</h3>
+  <ul class="concept-list">
+    <li><strong>Users</strong> — An IAM User is an entity created within AWS to represent a person or application interacting with AWS resources.</li>
+    <li><strong>User Groups</strong> — A collection of IAM Users. Groups allow you to specify permissions for multiple users at once, making permissions management easier.</li>
+    <li><strong>Roles</strong> — An IAM identity that you can create in your account that has specific permissions, intended to be assumed by anyone who needs it (users, applications, or AWS services like EC2).</li>
+    <li><strong>Policies</strong> — JSON documents that explicitly define permissions (Allow or Deny) for actions, resources, and conditions.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2 id="s2"><span class="section-icon">🧭</span> Navigating the IAM Dashboard</h2>
+  <div class="card">
+    <p>
+      To access IAM, log into the <strong>AWS Management Console</strong>, search for
+      <strong>IAM</strong> in the search bar, and open the IAM Dashboard.
+    </p>
+  </div>
+
+  <div class="figure">
+    <img src="Images/IamImages/Image1.png" alt="IAM Dashboard screenshot">
+    <div class="figure-caption">Fig 1 — IAM Dashboard</div>
+  </div>
+
+  <h3>Key Dashboard Components</h3>
+  <ul class="dashboard-list">
+    <li><strong>Security Recommendations</strong> — Displays real-time security alerts (e.g., verifying Root User MFA and Access Keys).</li>
+    <li><strong>IAM Resources Summary</strong> — Quick counter for total User Groups, Users, Roles, Policies, and Identity Providers in your account.</li>
+    <li><strong>AWS Account Details</strong> — Displays your AWS Account ID, Account Alias, and custom IAM User Sign-in URL.</li>
+    <li><strong>Quick Links</strong> — Access security credentials and policy simulators easily.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2 id="s3"><span class="section-icon">👤</span> Step-by-Step: Creating an IAM User</h2>
+
+  <div class="steps-block">
+    <h3>Step 3.1: Navigate to IAM Users</h3>
+    <ol class="steps">
+      <li>From the left-hand navigation sidebar under <b>Access Management</b>, click on <b>IAM users</b>.</li>
+      <li>Click the yellow <b>Create user</b> button located on the top-right corner.</li>
+    </ol>
+  </div>
+
+  <div class="figure">
+    <img src="Images/IamImages/image2.png" alt="IAM Users List screenshot">
+    <div class="figure-caption">Fig 2 — IAM Users List</div>
+  </div>
+
+  <div class="steps-block">
+    <h3>Step 3.2: Specify User Details</h3>
+    <ol class="steps">
+      <li><b>User name</b>: Enter a unique name for the user (up to 64 characters; valid characters include <code>A-Z</code>, <code>a-z</code>, <code>0-9</code>, and <code>+=,.@-</code>).</li>
+      <li><b>Console Access</b> <em>(Optional)</em>: Check <b>Provide user access to the AWS Management Console</b> if the user requires web login credentials.</li>
+      <li>Choose whether to assign an autogenerated password or set a custom password, and decide if the user must reset their password on next sign-in.</li>
+      <li>Click <b>Next</b> to proceed.</li>
+    </ol>
+  </div>
+
+  <div class="figure">
+    <img src="Images/IamImages/image3.png" alt="Specify User Details screenshot">
+    <div class="figure-caption">Fig 3 — Specify User Details</div>
+  </div>
+
+  <div class="steps-block">
+    <h3>Step 3.3: Set Permissions</h3>
+    <p style="margin-top:0;">AWS provides three primary methods for assigning permissions to a new user:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Permission Option</th>
+          <th>Description</th>
+          <th>Recommended Usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="Permission Option"><strong>Add user to group</strong></td>
+          <td data-label="Description">Assigns the user to existing or newly created IAM Groups.</td>
+          <td data-label="Recommended Usage"><strong>Best Practice</strong>: Simplifies access governance.</td>
+        </tr>
+        <tr>
+          <td data-label="Permission Option"><strong>Copy permissions</strong></td>
+          <td data-label="Description">Copies all permissions and group memberships from an existing user.</td>
+          <td data-label="Recommended Usage">Useful when onboarding team members with identical roles.</td>
+        </tr>
+        <tr>
+          <td data-label="Permission Option"><strong>Attach policies directly</strong></td>
+          <td data-label="Description">Directly attaches AWS Managed or Custom Policies to the user.</td>
+          <td data-label="Recommended Usage">Use sparingly for one-off permission requirements.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="figure">
+    <img src="Images/IamImages/image4.png" alt="Set Permissions screenshot">
+    <div class="figure-caption">Fig 4 — Set Permissions</div>
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="s4"><span class="section-icon">👥</span> Creating &amp; Managing User Groups</h2>
+  <div class="card">
+    <p>
+      Using IAM User Groups is the recommended best practice for organizing users by job function
+      (e.g., <code>Admin</code>, <code>Developers</code>, <code>Auditors</code>).
+    </p>
+  </div>
+
+  <div class="steps-block">
+    <h3>Steps to Create a User Group</h3>
+    <ol class="steps">
+      <li>On the <b>Set permissions</b> page (or via <b>IAM User Groups</b> menu), click <b>Create group</b>.</li>
+      <li>Enter a descriptive <b>User group name</b> (e.g., <code>Admin</code>).</li>
+      <li>Search and select the permissions policies to attach (e.g., <code>AdministratorAccess</code> for full administrative rights).</li>
+      <li>Click <b>Create user group</b>.</li>
+    </ol>
+  </div>
+
+  <div class="figure">
+    <img src="Images/IamImages/image5.png" alt="Create User Group Modal screenshot">
+    <div class="figure-caption">Fig 5 — Create User Group Modal</div>
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="s5"><span class="section-icon">📄</span> Creating Custom IAM Policies</h2>
+  <div class="card">
+    <p>
+      If AWS Managed Policies do not meet your exact requirements, you can create custom policies
+      following the <strong>Principle of Least Privilege</strong>.
+    </p>
+  </div>
+
+  <div class="steps-block">
+    <h3>Steps to Create a Custom Policy</h3>
+    <ol class="steps">
+      <li>In the left sidebar, navigate to <b>Policies</b> and click <b>Create policy</b>.</li>
+      <li>Select the <b>Policy Editor</b> mode:
+        <ul style="margin-top:0.4rem;">
+          <li><strong>Visual Editor</strong>: Select services, actions (Read, Write, List), resources (ARNs), and request conditions using a graphical user interface.</li>
+          <li><strong>JSON Editor</strong>: Write or paste a custom JSON policy document directly.</li>
+        </ul>
+      </li>
+      <li>Review, name your policy, and click <b>Create policy</b>.</li>
+    </ol>
+  </div>
+
+  <div class="figure">
+    <img src="Images/IamImages/image6.png" alt="Create Policy Editor screenshot">
+    <div class="figure-caption">Fig 6 — Create Policy Editor</div>
+  </div>
+
+  <hr class="divider">
+
+  <h2 id="s6"><span class="section-icon">⭐</span> AWS IAM Best Practices</h2>
+  <div class="important">
+    <div class="important-title">⚠️ IMPORTANT</div>
+    <ul>
+      <li><strong>Lock Down the Root User</strong> — Enable Multi-Factor Authentication (MFA) and do not use the root account for daily operational tasks.</li>
+      <li><strong>Follow Principle of Least Privilege</strong> — Grant users only the minimum permissions necessary to perform their job duties.</li>
+      <li><strong>Manage Access via Groups</strong> — Attach policies to User Groups rather than individual users.</li>
+      <li><strong>Use Roles for Applications &amp; EC2</strong> — Avoid hardcoding access keys; assign IAM Roles to AWS services.</li>
+      <li><strong>Rotate Credentials Regularly</strong> — Periodically review and rotate password policies and IAM access keys.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme toggle
+  var themeBtn = document.getElementById('theme-btn');
+  var root = document.documentElement;
+  themeBtn.addEventListener('click', function(){
+    var isDark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  // Sidebar toggle (mobile)
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar search/filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // Active link highlighting on scroll
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

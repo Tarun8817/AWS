@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS CloudFront (CDN) &mdash; Study Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1F3F0;
+  --ink:#171B1A;
+  --ink-soft:#4B5450;
+  --card:#FFFFFF;
+  --line:#DCE2DD;
+  --en:#0E7C6E;
+  --en-bg:#EAF5F2;
+  --hi:#B5451C;
+  --hi-bg:#FBEEE7;
+  --diagram-bg:#161E29;
+  --diagram-fg:#8FE3C7;
+  --diagram-fg2:#E3B873;
+  --accent2:#2B5F8A;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.6;
+  font-size:16px;
+}
+::selection{background:#CFE9E1;}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px 80px;}
+
+/* ---- top banner ---- */
+header.hero{
+  background:var(--ink);
+  color:#F1F3F0;
+  padding:52px 20px 40px;
+  position:relative;
+  overflow:hidden;
+}
+header.hero .wrap{max-width:1280px; padding: 2rem 2rem 5rem; }
+.eyebrow-line{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--diagram-fg);
+  letter-spacing:.02em;
+  margin-bottom:14px;
+}
+header.hero h1{
+  font-size:clamp(30px,5vw,46px);
+  margin:0 0 10px;
+  line-height:1.1;
+  font-weight:650;
+}
+header.hero p.sub{
+  max-width:560px;
+  color:#C9D2CC;
+  font-size:16px;
+  margin:0 0 26px;
+}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  border:1px solid #3A433F;
+  color:#C9D2CC;
+  padding:4px 10px;
+  border-radius:3px;
+}
+
+/* ---- TOC ---- */
+nav.toc{
+  background:var(--card);
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+nav.toc .wrap{padding:0 20px; width: 100%; }
+nav.toc summary{
+  cursor:pointer;
+  list-style:none;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  padding:12px 0;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+nav.toc summary::-webkit-details-marker{display:none;}
+nav.toc summary:before{content:"\2261";font-size:16px;color:var(--en);}
+nav.toc[open] summary:before{content:"\00d7";}
+.toc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:4px 18px;
+  padding:4px 0 18px;
+  border-top:1px dashed var(--line);
+}
+.toc-grid a{
+  color:var(--ink-soft);
+  text-decoration:none;
+  font-size:14px;
+  padding:5px 0;
+  display:block;
+  border-bottom:1px solid transparent;
+}
+.toc-grid a:hover{color:var(--en);border-bottom-color:var(--en);}
+.toc-grid span{
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--hi);
+  font-size:12px;
+  margin-right:6px;
+}
+
+/* ---- sections ---- */
+main{padding-top:30px;}
+section.sec{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:26px 28px 30px;
+  margin:0 0 22px;
+  scroll-margin-top:64px;
+}
+.sec-head{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:10px;
+  margin-bottom:18px;
+}
+.sec-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:14px;
+  color:#fff;
+  background:var(--ink);
+  padding:2px 8px;
+  border-radius:3px;
+}
+.sec-head h2{
+  margin:0;
+  font-size:22px;
+  font-weight:650;
+}
+h3{font-size:17px;margin:22px 0 10px;color:var(--accent2);}
+h4{font-size:15.5px;margin:0 0 8px;}
+p{margin:0 0 10px;}
+.note{
+  font-size:14px;
+  color:var(--ink-soft);
+  border-left:3px solid var(--accent2);
+  padding:6px 12px;
+  background:#EEF3F6;
+  border-radius:0 4px 4px 0;
+}
+
+/* ---- language pair blocks ---- */
+.lang-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 16px;}
+@media(max-width:640px){.lang-pair{grid-template-columns:1fr;}}
+.lang-block{border-radius:5px;padding:12px 14px;font-size:14.5px;}
+.lang-block p{margin:0;}
+.lang-block.en{background:var(--en-bg);border-left:3px solid var(--en);}
+.lang-block.hi{background:var(--hi-bg);border-left:3px solid var(--hi);}
+.lang-tag{
+  display:block;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin-bottom:4px;
+}
+.lang-block.en .lang-tag{color:var(--en);}
+.lang-block.hi .lang-tag{color:var(--hi);}
+
+/* ---- diagrams ---- */
+pre.diagram{
+  background:var(--diagram-bg);
+  color:var(--diagram-fg);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13.5px;
+  padding:16px 18px;
+  border-radius:5px;
+  overflow-x:auto;
+  line-height:1.5;
+  margin:12px 0 16px;
+}
+
+/* ---- terms ---- */
+.term{
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:16px 18px 4px;
+  margin-bottom:14px;
+  background:#FCFCFB;
+}
+.example{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  background:#F3F1EB;
+  border:1px dashed var(--line);
+  padding:8px 12px;
+  border-radius:4px;
+  margin:0 0 14px;
+  color:var(--ink-soft);
+}
+
+/* ---- steps ---- */
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:stepnum;}
+ol.steps li{
+  counter-increment:stepnum;
+  border-top:1px solid var(--line);
+  padding:16px 0;
+  position:relative;
+  padding-left:38px;
+}
+ol.steps li:first-child{border-top:none;}
+ol.steps li:before{
+  content:counter(stepnum);
+  position:absolute;left:0;top:16px;
+  width:24px;height:24px;
+  background:var(--ink);
+  color:#fff;
+  border-radius:50%;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-title{font-weight:600;margin-bottom:6px;}
+
+/* ---- tables ---- */
+table.compare{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14.5px;}
+table.compare th{
+  background:var(--ink);color:#fff;text-align:left;
+  padding:9px 12px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+}
+table.compare td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+table.compare tr:nth-child(even) td{background:#F7F8F6;}
+
+/* ---- interview Q&A ---- */
+.qa{border:1px solid var(--line);border-radius:5px;padding:14px 18px;margin-bottom:12px;background:#FCFCFB;}
+.q{font-weight:650;margin-bottom:10px;}
+.q-num{font-family:'IBM Plex Mono',monospace;color:var(--hi);margin-right:4px;}
+.a-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:640px){.a-pair{grid-template-columns:1fr;}}
+.a{font-size:14px;border-radius:4px;padding:8px 12px;}
+.a p{margin:0;}
+.a.en{background:var(--en-bg);}
+.a.hi{background:var(--hi-bg);}
+.a-tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;margin-right:6px;}
+.a.en .a-tag{color:var(--en);}
+.a.hi .a-tag{color:var(--hi);}
+
+/* ---- cheat sheet ---- */
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.cheat-item{border:1px solid var(--line);border-radius:5px;padding:12px 14px;background:#FCFCFB;}
+.cheat-name{font-weight:700;color:var(--ink);margin-bottom:6px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;}
+.cheat-en,.cheat-hi{font-size:13.5px;margin-bottom:3px;}
+.cheat-en b{color:var(--en);}
+.cheat-hi b{color:var(--hi);}
+
+footer{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:13px;
+  padding:30px 20px 0;
+}
+code.inline{
+  font-family:'IBM Plex Mono',monospace;
+  background:#EDEBE3;
+  padding:1px 6px;
+  border-radius:3px;
+  font-size:13px;
+}
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body>
+
+<header class="hero">
+<div class="wrap">
+    <div class="eyebrow-line">notes/aws/cloudfront &mdash; beginner to interview-ready</div>
+<h1>AWS CloudFront (CDN)</h1>
+<p class="sub">Complete bilingual study notes &mdash; every concept explained in Simple English and Hinglish, side by side, with diagrams, practicals, and interview Q&amp;A.</p>
+<div class="chip-row">
+<span class="chip">Theory</span><span class="chip">Architecture</span><span class="chip">Console Practicals</span>
+<span class="chip">CloudFront + S3 / ALB / MERN</span><span class="chip">Interview Prep</span><span class="chip">Cheat Sheet</span>
+</div>
+</div>
+</header>
+<nav class="toc"><div class="wrap"><details><summary>Contents (28 sections)</summary><div class="toc-grid"><a href="#s1"><span>01</span>What is Amazon CloudFront?</a><a href="#s2"><span>02</span>What is CDN?</a><a href="#s3"><span>03</span>Why use CloudFront?</a><a href="#s4"><span>04</span>How CloudFront Works</a><a href="#s5"><span>05</span>Important CloudFront Terms</a><a href="#s6"><span>06</span>What is an Origin?</a><a href="#s7"><span>07</span>CloudFront Distribution</a><a href="#s8"><span>08</span>Edge Location</a><a href="#s9"><span>09</span>CloudFront Cache</a><a href="#s10"><span>10</span>TTL</a><a href="#s11"><span>11</span>Cache Behavior</a><a href="#s12"><span>12</span>CloudFront + S3</a><a href="#s13"><span>13</span>Practical: Create Distribution</a><a href="#s14"><span>14</span>Practical: CloudFront + S3</a><a href="#s15"><span>15</span>CloudFront + ALB</a><a href="#s16"><span>16</span>CloudFront + MERN App</a><a href="#s17"><span>17</span>HTTPS and SSL/TLS</a><a href="#s18"><span>18</span>CloudFront Security</a><a href="#s19"><span>19</span>Signed URL vs Signed Cookie</a><a href="#s20"><span>20</span>CloudFront Invalidation</a><a href="#s21"><span>21</span>CloudFront + React Practical</a><a href="#s22"><span>22</span>CloudFront vs S3</a><a href="#s23"><span>23</span>CloudFront vs Route 53</a><a href="#s24"><span>24</span>CloudFront vs ALB</a><a href="#s25"><span>25</span>CloudFront vs API Gateway</a><a href="#s26"><span>26</span>Production Architecture</a><a href="#s27"><span>27</span>Interview Questions</a><a href="#s28"><span>28</span>Quick Revision / Cheat Sheet</a></div></details></div></nav><main class="wrap"><section class="sec" id="s1"><div class="sec-head"><span class="sec-num">01</span><h2>What is Amazon CloudFront?</h2>
+  <div style="margin-bottom:10px;"><a href="./index.html" style="display:inline-flex; align-items:center; gap:6px; font-size:0.88rem; font-weight:600; color:var(--brand, #2451c4); text-decoration:none;">🏠 &larr; Return to Learning Dashboard</a></div></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Amazon CloudFront is a Content Delivery Network (CDN) service from AWS. It stores copies of your website or app content in many locations around the world, so users get that content from a place near them instead of from your main server, which is often far away.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Amazon CloudFront AWS ka ek CDN (Content Delivery Network) service hai. Ye aapke website ya app ke content ki copies duniya bhar ki alag-alag jagah par store kar deta hai, taaki user ko content unke paas wali jagah se mile, na ki aapke main server se jo kaafi door ho sakta hai.</p></div></div><h3>What problem does it solve?</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Without a CDN, every user request travels all the way to your original server, no matter how far the user is. This makes websites slow for users who are far from the server, and it also increases load on the server. CloudFront solves this by caching (storing) content closer to users.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CDN ke bina, har user ka request seedha aapke original server tak jaata hai, chahe user kitna bhi door ho. Isse door wale users ke liye website slow ho jaati hai, aur server par load bhi zyada padta hai. CloudFront is problem ko solve karta hai kyunki wo content ko user ke paas cache (store) kar deta hai.</p></div></div><h3>Real-world example</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Suppose your server is in the US, but a user is browsing your website from India. Without CloudFront, every image, video, or file has to travel from the US to India, which takes time. With CloudFront, a copy of that content is already stored at an Edge Location in India, so the user gets it almost instantly.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Maan lo aapka server US mein hai, lekin ek user India se aapki website browse kar raha hai. CloudFront ke bina, har image, video, ya file US se India tak travel karegi, jisme time lagega. CloudFront ke saath, us content ki copy pehle se India ke Edge Location par store hoti hai, toh user ko wo turant mil jaata hai.</p></div></div></section><section class="sec" id="s2"><div class="sec-head"><span class="sec-num">02</span><h2>What is CDN?</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CDN stands for Content Delivery Network. It is a group of servers spread across many locations in the world. Instead of every user hitting one central server, users are served by the server closest to them, which makes content delivery much faster.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CDN ka full form hai Content Delivery Network. Ye duniya bhar mein failay hue servers ka ek group hai. Har user ek hi central server par jaane ke bajaye, apne sabse paas wale server se serve hota hai, jisse content delivery kaafi fast ho jaati hai.</p></div></div><h3>Without CDN vs With CDN</h3><pre class="diagram">Without CDN:
+
+   User
+    |
+    v
+ Main Server  (far away, e.g. in the US)
+    |
+    v
+ Website Content
+
+
+With CDN:
+
+   User
+    |
+    v
+ Nearest Edge Location
+    |
+    v
+ Cached Content
+    |
+    v
+  Website</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Without a CDN, the request always goes to one main server, so distant users face delay. With a CDN like CloudFront, the request first goes to the nearest edge location, and if the content is already cached there, it is returned immediately without contacting the main server at all.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CDN ke bina, request hamesha ek hi main server tak jaata hai, isliye door wale users ko delay hota hai. CloudFront jaise CDN ke saath, request pehle sabse paas wale edge location par jaata hai, aur agar content wahan pehle se cached hai, toh wo turant mil jaata hai, main server tak jaane ki zaroorat hi nahi padti.</p></div></div></section><section class="sec" id="s3"><div class="sec-head"><span class="sec-num">03</span><h2>Why do we use CloudFront?</h2></div><h3>Faster content delivery</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Content is served from a location near the user, so pages, images, and videos load much faster.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Content user ke paas wali jagah se serve hota hai, isliye pages, images, aur videos bahut fast load hote hain.</p></div></div><h3>Lower latency</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Latency is the delay before data starts transferring. Since CloudFront serves from nearby edge locations, this delay becomes very small.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Latency matlab data transfer shuru hone se pehle ka delay. CloudFront paas wale edge locations se serve karta hai, isliye ye delay bahut kam ho jaata hai.</p></div></div><h3>Caching</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront stores (caches) copies of your content at edge locations, so repeated requests do not need to go back to the origin server every time.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront aapke content ki copies edge locations par store (cache) kar deta hai, isliye baar baar request origin server tak jaane ki zaroorat nahi padti.</p></div></div><h3>Global content delivery</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront has edge locations across the world, so your app can serve users in different countries with good speed, without deploying servers everywhere yourself.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront ke edge locations duniya bhar mein hain, isliye aapka app alag alag countries ke users ko achhi speed se serve kar sakta hai, bina khud har jagah server deploy kiye.</p></div></div><h3>Reduced load on origin server</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Because most requests are served from the cache at edge locations, the origin server receives fewer requests, so it stays healthier under heavy traffic.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Kyunki zyada tar requests cache se edge locations par hi serve ho jaate hain, origin server ko kam requests milte hain, isliye heavy traffic mein bhi wo healthy rehta hai.</p></div></div><h3>HTTPS / SSL</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront makes it easy to serve your content securely over HTTPS, including free certificates through AWS Certificate Manager.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront aapke content ko HTTPS ke through securely serve karna aasan bana deta hai, aur AWS Certificate Manager se free certificates bhi mil jaate hain.</p></div></div><h3>Security</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront integrates with AWS security features like WAF (Web Application Firewall) and Origin Access Control to protect your content and your origin server.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront AWS ke security features jaise WAF (Web Application Firewall) aur Origin Access Control ke saath integrate hota hai, jisse aapka content aur origin server protect rehta hai.</p></div></div><h3>DDoS protection</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront works with AWS Shield to absorb and mitigate large-scale traffic attacks, so your origin server is shielded from many kinds of DDoS attacks.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront AWS Shield ke saath milkar bade traffic attacks ko absorb aur mitigate karta hai, isliye aapka origin server kai tarah ke DDoS attacks se bacha rehta hai.</p></div></div><h3>Better application performance</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Because of caching, lower latency, and fewer origin hits, the overall application feels faster and more reliable for end users.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Caching, kam latency, aur origin par kam hits ki wajah se, poora application end users ko zyada fast aur reliable feel hota hai.</p></div></div></section><section class="sec" id="s4"><div class="sec-head"><span class="sec-num">04</span><h2>How CloudFront Works</h2></div><pre class="diagram">   User
+    |
+    v
+ CloudFront
+    |
+    v
+ Edge Location
+    |
+    v
+   Cache
+    |
+    v
+ Origin Server  (only when needed)</pre><h3>1. User sends a request</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>The user's browser or app sends a request, for example to load an image or a webpage.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>User ka browser ya app ek request bhejta hai, jaise kisi image ya webpage ko load karne ke liye.</p></div></div><h3>2. Request reaches CloudFront</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>This request is routed to CloudFront instead of going directly to your origin server.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Ye request seedha origin server ke bajaye CloudFront tak route hota hai.</p></div></div><h3>3. CloudFront checks its cache</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront looks at the nearest edge location to see if it already has a valid copy of the requested content.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront sabse paas wale edge location par check karta hai ki requested content ki koi valid copy pehle se maujood hai ya nahi.</p></div></div><h3>4. Cache Hit</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>If the content is found and still valid (within TTL), it is called a Cache Hit, and CloudFront returns it immediately.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Agar content mil jaata hai aur abhi valid hai (TTL ke andar), toh ise Cache Hit kehte hain, aur CloudFront turant wo content return kar deta hai.</p></div></div><h3>5. Cache Miss</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>If the content is not found or has expired, it is called a Cache Miss.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Agar content nahi milta ya expire ho chuka hai, toh ise Cache Miss kehte hain.</p></div></div><h3>6. CloudFront gets content from Origin</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>On a cache miss, CloudFront sends a request to the Origin Server (like S3, EC2, or ALB) to fetch the latest content.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Cache miss hone par, CloudFront Origin Server (jaise S3, EC2, ya ALB) se latest content fetch karta hai.</p></div></div><h3>7. CloudFront caches the content</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>After getting the content from the origin, CloudFront stores a copy at the edge location so future requests can be served faster.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Origin se content lene ke baad, CloudFront uski ek copy edge location par store kar leta hai, taaki future requests aur fast serve ho sakein.</p></div></div><h3>8. Content is returned to the user</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Finally, whether it was a cache hit or a cache miss, the content is delivered back to the user.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Aakhir mein, chahe cache hit ho ya cache miss, content user tak deliver kar diya jaata hai.</p></div></div></section><section class="sec" id="s5"><div class="sec-head"><span class="sec-num">05</span><h2>Important CloudFront Terms</h2></div><div class="term"><h4>Distribution</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Distribution is the CloudFront configuration you create. It tells CloudFront which origin to use, how to cache content, and which domain to serve it on.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Distribution wo CloudFront configuration hai jo aap banate hain. Ye CloudFront ko batata hai ki kaunsa origin use karna hai, content kaise cache karna hai, aur kis domain par serve karna hai.</p></div></div><div class="example">Example: <code class='inline'>d123abcxyz.cloudfront.net</code> is a CloudFront distribution domain name.</div></div><div class="term"><h4>Origin</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>The Origin is the original source of your content, such as an S3 bucket, an EC2 server, or a Load Balancer. CloudFront fetches content from here when it is not already cached.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Origin aapke content ka original source hota hai, jaise S3 bucket, EC2 server, ya Load Balancer. CloudFront yahan se content fetch karta hai jab wo pehle se cached nahi hota.</p></div></div></div><div class="term"><h4>Edge Location</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>An Edge Location is a data center, part of AWS's global network, that stores cached copies of your content close to end users.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Edge Location ek data center hota hai, jo AWS ke global network ka hissa hai, aur end users ke paas aapke content ki cached copies store karta hai.</p></div></div></div><div class="term"><h4>Regional Edge Cache</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Regional Edge Cache sits between edge locations and the origin. It holds content longer than a normal edge location, so if an edge location does not have the content, the Regional Edge Cache can often provide it without going all the way to the origin.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Regional Edge Cache edge locations aur origin ke beech mein hota hai. Ye content ko normal edge location se zyada der tak hold karta hai, isliye agar edge location ke paas content nahi hai, toh Regional Edge Cache aksar origin tak jaaye bina hi wo de sakta hai.</p></div></div></div><div class="term"><h4>Cache</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Cache means a temporary storage of content closer to the user, so it can be served quickly without repeatedly fetching it from the origin.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Cache ka matlab hai content ko user ke paas temporary store karna, taaki use baar baar origin se laaye bina jaldi serve kiya ja sake.</p></div></div></div><div class="term"><h4>Cache Hit</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Cache Hit happens when CloudFront finds the requested content already in its cache and can return it directly.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Cache Hit tab hota hai jab CloudFront ko requested content pehle se cache mein mil jaata hai aur wo use seedha return kar deta hai.</p></div></div></div><div class="term"><h4>Cache Miss</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Cache Miss happens when the content is not in the cache, so CloudFront has to fetch it from the origin first.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Cache Miss tab hota hai jab content cache mein nahi milta, isliye CloudFront ko pehle origin se wo content laana padta hai.</p></div></div></div><div class="term"><h4>TTL (Time To Live)</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>TTL is the amount of time content is allowed to stay in the cache before CloudFront checks the origin again for a fresh copy.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>TTL wo time hota hai jab tak content cache mein rehne diya jaata hai, uske baad CloudFront origin se dobara fresh copy check karta hai.</p></div></div></div><div class="term"><h4>Cache Behavior</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Cache Behavior is a rule that tells CloudFront how to handle requests for a specific path pattern, like which origin to use and how long to cache it.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Cache Behavior ek rule hota hai jo CloudFront ko batata hai ki ek specific path pattern ke requests kaise handle karne hain, jaise kaunsa origin use karna hai aur kitni der cache karna hai.</p></div></div><div class="example">Example: <code class='inline'>/images/*</code> can have different caching rules than <code class='inline'>/api/*</code>.</div></div><div class="term"><h4>Viewer</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>The Viewer is the end user or client (browser, mobile app) that sends the request to CloudFront and receives the response.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Viewer wo end user ya client (browser, mobile app) hota hai jo CloudFront ko request bhejta hai aur response receive karta hai.</p></div></div></div><div class="term"><h4>Origin Request</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>An Origin Request is the request CloudFront sends to the origin server when it needs fresh content, usually after a cache miss.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Origin Request wo request hai jo CloudFront origin server ko bhejta hai jab use fresh content chahiye hota hai, aam taur par cache miss ke baad.</p></div></div></div></section><section class="sec" id="s6"><div class="sec-head"><span class="sec-num">06</span><h2>What is an Origin?</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>An Origin is the actual place where your content lives permanently. CloudFront does not create content itself; it just caches and delivers content that comes from an origin, such as an S3 bucket, an EC2 instance, an Application Load Balancer, an API Gateway, or any custom HTTP server.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Origin wo jagah hai jahan aapka content permanently rehta hai. CloudFront khud content nahi banata; wo sirf origin se aane wale content ko cache aur deliver karta hai, jaise S3 bucket, EC2 instance, Application Load Balancer, API Gateway, ya koi custom HTTP server.</p></div></div><pre class="diagram">CloudFront
+   |
+   +-- S3                 (static files, website build)
+   |
+   +-- ALB                (load balanced app servers)
+   |
+   +-- EC2                (single server)
+   |
+   +-- API Gateway         (serverless APIs)</pre><h3>Common origin types</h3><table class="compare"><thead><tr><th>Origin Type</th><th>Typically used for</th></tr></thead><tbody><tr><td>S3</td><td>Static websites, images, videos, React/Vue build files</td></tr><tr><td>EC2</td><td>A single backend or app server</td></tr><tr><td>Application Load Balancer (ALB)</td><td>Multiple backend servers or containers (ECS/EC2) behind a load balancer</td></tr><tr><td>API Gateway</td><td>Serverless APIs built with Lambda</td></tr><tr><td>Custom HTTP server</td><td>Any server outside AWS that CloudFront can reach over HTTP/HTTPS</td></tr></tbody></table></section><section class="sec" id="s7"><div class="sec-head"><span class="sec-num">07</span><h2>CloudFront Distribution</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Distribution is the main configuration unit in CloudFront. When you create one, AWS gives you a unique CloudFront domain name that acts as the entry point between your users and your origin.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Distribution CloudFront ka main configuration unit hota hai. Jab aap ek distribution banate ho, AWS aapko ek unique CloudFront domain name deta hai jo users aur origin ke beech entry point ka kaam karta hai.</p></div></div><h3>Why do we create it?</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>We create a distribution to tell CloudFront exactly which origin to pull content from, how to cache it, which domain names to accept, and what security settings to apply.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Hum distribution isliye banate hain taaki CloudFront ko exactly bataya ja sake ki kaunse origin se content lena hai, use kaise cache karna hai, kaunse domain names accept karne hain, aur kaunsi security settings lagani hain.</p></div></div><pre class="diagram">   User
+    |
+    v
+CloudFront Distribution   (e.g. d123abcxyz.cloudfront.net)
+    |
+    v
+  Origin</pre><p class="note">You can later point your own domain (like www.example.com) to this CloudFront distribution using Route 53 or any DNS provider.</p></section><section class="sec" id="s8"><div class="sec-head"><span class="sec-num">08</span><h2>Edge Location</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>An Edge Location is a small AWS data center placed in many cities around the world, much closer to end users than AWS Regions. CloudFront uses these locations to cache and serve your content quickly.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Edge Location ek chhota AWS data center hota hai jo duniya ki kai cities mein hota hai, aur AWS Regions se kaafi zyada users ke paas hota hai. CloudFront in locations ka use content cache aur fast serve karne ke liye karta hai.</p></div></div><h3>Region vs Edge Location</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>An AWS Region is a large geographic area where your main resources (like EC2 or S3) are hosted. There are far fewer Regions than Edge Locations. Edge Locations exist purely to cache and deliver content closer to users, not to run your main application.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>AWS Region ek bada geographic area hota hai jahan aapke main resources (jaise EC2 ya S3) host hote hain. Regions, Edge Locations se kaafi kam hote hain. Edge Locations sirf content cache aur users ke paas deliver karne ke liye hote hain, aapki main application chalane ke liye nahi.</p></div></div><pre class="diagram">User in India
+     |
+     v
+Nearest Edge Location (e.g. Mumbai)
+     |
+     v
+Cached Content -&gt; returned quickly</pre></section><section class="sec" id="s9"><div class="sec-head"><span class="sec-num">09</span><h2>CloudFront Cache</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Caching means temporarily storing a copy of your content at the edge location. This is useful because it lets CloudFront answer repeated requests instantly, without contacting the origin server every single time.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Caching ka matlab hai content ki ek copy ko temporarily edge location par store karna. Ye isliye useful hai kyunki isse CloudFront baar baar aane wali requests ka jawab turant de sakta hai, har baar origin server se contact kiye bina.</p></div></div><h3>Cache Hit flow</h3><pre class="diagram">   User
+    |
+    v
+CloudFront
+    |
+    v
+  Cache   (content found)
+    |
+    v
+ Response</pre><h3>Cache Miss flow</h3><pre class="diagram">   User
+    |
+    v
+CloudFront
+    |
+    v
+  Origin   (content not in cache)
+    |
+    v
+CloudFront Cache  (content is stored now)
+    |
+    v
+   User</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>On a cache hit, the response is very fast because it never leaves the edge location. On a cache miss, CloudFront has to make an extra trip to the origin, which is slower, but it stores that content so the next request becomes a cache hit.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Cache hit mein response bahut fast hota hai kyunki wo edge location se bahar hi nahi jaata. Cache miss mein CloudFront ko ek extra trip origin tak karni padti hai, jo thodi slow hoti hai, lekin wo content store kar leta hai taaki agli request cache hit ban jaaye.</p></div></div></section><section class="sec" id="s10"><div class="sec-head"><span class="sec-num">10</span><h2>TTL</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>TTL stands for Time To Live. It defines how long CloudFront keeps a piece of content in its cache before it is considered old and needs to be refreshed from the origin.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>TTL ka full form hai Time To Live. Ye batata hai ki CloudFront kisi content ko kitni der tak cache mein rakhega, uske baad wo purana maan liya jaata hai aur origin se refresh karna padta hai.</p></div></div><table class="compare"><thead><tr><th>TTL Type</th><th>Meaning</th></tr></thead><tbody><tr><td>Minimum TTL</td><td>The smallest amount of time content will stay cached, even if the origin says otherwise.</td></tr><tr><td>Maximum TTL</td><td>The largest amount of time content is allowed to stay cached.</td></tr><tr><td>Default TTL</td><td>The TTL CloudFront uses when the origin does not specify any caching headers.</td></tr></tbody></table><h3>Example: TTL = 3600 seconds</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>If TTL is set to 3600 seconds (1 hour), CloudFront will keep serving the cached copy for 1 hour after it was first stored. During this hour, even if the file changes on the origin, users will still see the old cached version, until the TTL expires or an invalidation is done.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Agar TTL 3600 seconds (1 ghanta) set hai, toh CloudFront cached copy ko store hone ke 1 ghante tak serve karta rahega. Is 1 ghante mein, agar origin par file change bhi ho jaaye, users ko phir bhi purani cached version dikhegi, jab tak TTL expire na ho ya invalidation na ki jaaye.</p></div></div></section><section class="sec" id="s11"><div class="sec-head"><span class="sec-num">11</span><h2>Cache Behavior</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Cache Behavior is a set of rules for a specific path pattern that tells CloudFront exactly how to treat requests matching that pattern, including which origin to use, which HTTP methods to allow, and what to include when deciding if two requests are 'the same' (headers, query strings, cookies).</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Cache Behavior ek specific path pattern ke liye rules ka set hota hai jo CloudFront ko batata hai ki us pattern se match karne wali requests ko kaise treat karna hai, jaise kaunsa origin use karna hai, kaunse HTTP methods allow karne hain, aur do requests ko 'same' maanne ke liye kya include karna hai (headers, query strings, cookies).</p></div></div><pre class="diagram">/images/*   -&gt; cache aggressively, long TTL, from S3
+/api/*      -&gt; do not cache (or cache very briefly), from ALB
+/static/*   -&gt; cache aggressively, long TTL, from S3</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Different paths often need different caching rules. Static files like images rarely change, so they can be cached for a long time. API responses often change per-user or per-request, so they usually need little or no caching.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Alag alag paths ko aksar alag caching rules chahiye hote hain. Images jaisi static files kam badalti hain, isliye unhe lambe samay tak cache kiya ja sakta hai. API responses aksar har user ya har request ke saath badalte hain, isliye unhe kam ya bilkul cache nahi karna padta.</p></div></div></section><section class="sec" id="s12"><div class="sec-head"><span class="sec-num">12</span><h2>CloudFront + S3</h2></div><pre class="diagram">   User
+    |
+    v
+CloudFront
+    |
+    v
+    S3
+    |
+    v
+Website Files  (HTML, CSS, JS, images)</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A very common pattern is to store static website files (like a React build) in an S3 bucket, and put CloudFront in front of it. CloudFront caches these files at edge locations, so the site loads fast for users everywhere, and S3 itself receives far less direct traffic.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Ek bahut common pattern ye hai ki static website files (jaise React ka build) S3 bucket mein store ki jaaye, aur CloudFront ko uske aage laga diya jaaye. CloudFront in files ko edge locations par cache karta hai, isliye site har jagah ke users ke liye fast load hoti hai, aur S3 ko khud kaafi kam direct traffic milta hai.</p></div></div><h3>Origin Access Control (OAC)</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>OAC (Origin Access Control) is used so that your S3 bucket can only be accessed through CloudFront, not directly from the public internet. This keeps your S3 bucket private and secure, while CloudFront still handles delivering the content.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>OAC (Origin Access Control) is liye use hota hai taaki aapka S3 bucket sirf CloudFront ke through access ho sake, seedha public internet se nahi. Isse aapka S3 bucket private aur secure rehta hai, aur content deliver karne ka kaam CloudFront hi karta hai.</p></div></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Without OAC, someone could bypass CloudFront and hit the S3 bucket URL directly, skipping all your caching and security rules. With OAC set up along with a proper bucket policy, only CloudFront's requests are allowed, so S3 stays protected.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>OAC ke bina, koi bhi CloudFront ko bypass karke seedha S3 bucket URL par ja sakta hai, jisse aapke caching aur security rules skip ho jaate hain. OAC aur ek sahi bucket policy set karne se, sirf CloudFront ki requests allow hoti hain, isliye S3 protected rehta hai.</p></div></div></section><section class="sec" id="s13"><div class="sec-head"><span class="sec-num">13</span><h2>Practical: Create CloudFront Distribution</h2></div><p class="note">These are AWS Console steps. Follow them in order the first time you create a distribution.</p><ol class="steps"><li><div class="step-title">1. Login to AWS Console</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Go to the AWS Management Console and sign in with your AWS account.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>AWS Management Console par jaake apne AWS account se login karo.</p></div></div></li><li><div class="step-title">2. Search CloudFront</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>In the top search bar of the console, type 'CloudFront' to find the service.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Console ke upar wale search bar mein 'CloudFront' type karo taaki service mil jaaye.</p></div></div></li><li><div class="step-title">3. Open CloudFront</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Click on the CloudFront service from the search results to open its dashboard.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Search results mein se CloudFront service par click karo, iska dashboard khul jaayega.</p></div></div></li><li><div class="step-title">4. Click Create Distribution</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>On the CloudFront dashboard, click the 'Create Distribution' button to start setting up a new distribution.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront dashboard par 'Create Distribution' button par click karo, naya distribution set up karna shuru hoga.</p></div></div></li><li><div class="step-title">5. Select the Origin</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Choose where your content is coming from, such as an S3 bucket, an ALB, or a custom origin, and enter its domain.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Choose karo ki aapka content kahan se aa raha hai, jaise S3 bucket, ALB, ya koi custom origin, aur uska domain enter karo.</p></div></div></li><li><div class="step-title">6. Configure Viewer settings</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Set how end users connect to CloudFront, for example redirecting HTTP requests to HTTPS for secure access.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Set karo ki end users CloudFront se kaise connect karte hain, jaise HTTP requests ko HTTPS par redirect karna secure access ke liye.</p></div></div></li><li><div class="step-title">7. Configure Cache settings</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Choose a cache policy that decides TTL and what to include (headers, cookies, query strings) when caching content.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Ek cache policy choose karo jo decide kare ki TTL kya hoga aur content cache karte waqt kya include karna hai (headers, cookies, query strings).</p></div></div></li><li><div class="step-title">8. Configure security settings</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Optionally attach AWS WAF for extra protection, and set up Origin Access Control if your origin is S3.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Chaho toh extra protection ke liye AWS WAF attach karo, aur agar origin S3 hai toh Origin Access Control set up karo.</p></div></div></li><li><div class="step-title">9. Create Distribution</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Review all the settings and click 'Create Distribution' to finish creating it.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Saari settings review karo aur 'Create Distribution' par click karke ise create kar do.</p></div></div></li><li><div class="step-title">10. Wait for deployment</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront takes a few minutes to deploy your distribution to all edge locations worldwide.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront ko aapke distribution ko duniya bhar ke saare edge locations tak deploy karne mein kuch minute lagte hain.</p></div></div></li><li><div class="step-title">11. Test CloudFront URL</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Once deployed, open the CloudFront domain name (like d123abcxyz.cloudfront.net) in your browser to confirm it is working.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Deploy hone ke baad, CloudFront domain name (jaise d123abcxyz.cloudfront.net) ko browser mein khol kar confirm karo ki wo sahi se kaam kar raha hai.</p></div></div></li></ol></section><section class="sec" id="s14"><div class="sec-head"><span class="sec-num">14</span><h2>Practical: CloudFront + S3</h2></div><pre class="diagram">React Build
+     |
+     v
+     S3
+     |
+     v
+ CloudFront
+     |
+     v
+   Users</pre><ol class="steps"><li><div class="step-title">1. Create S3 bucket</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Create a new S3 bucket that will hold your website's build files (for example, your React app's build folder).</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Ek naya S3 bucket banao jisme aapki website ki build files rahengi (jaise aapke React app ka build folder).</p></div></div></li><li><div class="step-title">2. Upload website files</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Upload your static website files (HTML, CSS, JS, images) into this S3 bucket.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Apni static website files (HTML, CSS, JS, images) is S3 bucket mein upload karo.</p></div></div></li><li><div class="step-title">3. Create CloudFront distribution</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Go to CloudFront and create a new distribution that will sit in front of this S3 bucket.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront par jaake ek naya distribution banao jo is S3 bucket ke aage rahega.</p></div></div></li><li><div class="step-title">4. Select S3 as Origin</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>While creating the distribution, choose your S3 bucket as the origin.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Distribution banate waqt, apne S3 bucket ko origin ke taur par choose karo.</p></div></div></li><li><div class="step-title">5. Configure OAC</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Set up Origin Access Control so that only CloudFront can access this S3 bucket, keeping it private from the public internet.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Origin Access Control set up karo taaki sirf CloudFront hi is S3 bucket ko access kar sake, aur ye public internet se private rahe.</p></div></div></li><li><div class="step-title">6. Configure S3 bucket policy</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Update the S3 bucket policy to allow requests only from your CloudFront distribution (using the OAC).</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>S3 bucket policy ko update karo taaki sirf aapke CloudFront distribution (OAC ke through) se requests allow ho.</p></div></div></li><li><div class="step-title">7. Create distribution</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Finish creating the distribution and wait for it to deploy across edge locations.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Distribution create karna finish karo aur uske edge locations par deploy hone ka wait karo.</p></div></div></li><li><div class="step-title">8. Test CloudFront URL</div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Open the CloudFront domain name in the browser to confirm your website loads correctly from S3 through CloudFront.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront domain name ko browser mein kholo aur confirm karo ki website S3 se CloudFront ke through sahi se load ho rahi hai.</p></div></div></li></ol></section><section class="sec" id="s15"><div class="sec-head"><span class="sec-num">15</span><h2>CloudFront + ALB</h2></div><pre class="diagram">   User
+    |
+    v
+CloudFront
+    |
+    v
+    ALB
+    |
+    v
+ EC2 / ECS
+    |
+    v
+ Application</pre><h3>Why place CloudFront before ALB?</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Even for dynamic applications behind a Load Balancer, putting CloudFront in front adds benefits: it can cache anything that is cacheable, terminate HTTPS closer to the user, and add a layer of protection before traffic even reaches your ALB.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Load Balancer ke peeche chalne wali dynamic applications ke liye bhi, CloudFront ko aage lagana faayde deta hai: jo bhi cacheable hai use cache kar sakta hai, HTTPS ko user ke paas hi terminate kar sakta hai, aur traffic ke ALB tak pahunchne se pehle hi ek protection layer add kar deta hai.</p></div></div><table class="compare"><thead><tr><th>Benefit</th><th>What it means</th></tr></thead><tbody><tr><td>Caching</td><td>Static or semi-static responses can be cached at the edge, reducing load on ALB and backend servers.</td></tr><tr><td>HTTPS</td><td>CloudFront can handle SSL/TLS termination and use ACM certificates easily.</td></tr><tr><td>Security</td><td>AWS WAF and Shield can be attached to CloudFront to filter malicious traffic before it reaches ALB.</td></tr><tr><td>Performance</td><td>Users connect to the nearest edge location first, which can reduce overall connection time.</td></tr></tbody></table></section><section class="sec" id="s16"><div class="sec-head"><span class="sec-num">16</span><h2>CloudFront + MERN Application</h2></div><p class="note">Frontend: React &nbsp;|&nbsp; Backend: Node.js + Express &nbsp;|&nbsp; Database: MongoDB &nbsp;|&nbsp; Deployment: Docker + ECR + ECS Fargate + ALB</p><pre class="diagram">   User
+    |
+    v
+ Route 53
+    |
+    v
+CloudFront
+    |
+    v
+    ALB
+    |
+    v
+ECS Fargate
+    |
+    v
+Node.js + Express
+    |
+    v
+  MongoDB</pre><h3>What exactly does CloudFront do here?</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront sits at the very front of the whole application. It serves the React frontend files quickly from edge locations, and it can also sit in front of API traffic to add HTTPS, caching where appropriate, and security, before requests reach the ALB and backend.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront poori application ke sabse aage baitha hota hai. Ye React frontend files ko edge locations se fast serve karta hai, aur API traffic ke aage bhi reh sakta hai taaki HTTPS, jahan zaroori ho wahan caching, aur security add ho sake, ALB aur backend tak pahunchne se pehle.</p></div></div><pre class="diagram">Frontend Request
+       |
+       v
+   CloudFront
+       |
+       v
+ Frontend Content  (React build served fast)
+
+
+API Request
+       |
+       v
+     ALB
+       |
+       v
+     ECS
+       |
+       v
+  Node.js API</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>In this architecture, the React frontend files are usually stored in S3 and served through CloudFront for speed. API requests (like /api/*) typically go to the ALB, which routes them to the Node.js + Express app running in ECS Fargate, which then talks to MongoDB.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Is architecture mein, React frontend files aam taur par S3 mein store hoti hain aur speed ke liye CloudFront ke through serve hoti hain. API requests (jaise /api/*) generally ALB tak jaati hain, jo unhe ECS Fargate mein chal rahe Node.js + Express app tak route karta hai, jo phir MongoDB se baat karta hai.</p></div></div></section><section class="sec" id="s17"><div class="sec-head"><span class="sec-num">17</span><h2>HTTPS and SSL/TLS</h2></div><div class="term"><h4>HTTPS</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>HTTPS is the secure version of HTTP. It encrypts the data traveling between the user's browser and CloudFront, protecting it from being read or modified by attackers.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>HTTPS, HTTP ka secure version hai. Ye user ke browser aur CloudFront ke beech travel karne wale data ko encrypt karta hai, taaki attackers use padh ya change na kar sakein.</p></div></div></div><div class="term"><h4>SSL/TLS certificate</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>An SSL/TLS certificate proves that a website is who it claims to be, and enables encrypted (HTTPS) connections.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>SSL/TLS certificate ye prove karta hai ki website wahi hai jo wo claim karti hai, aur encrypted (HTTPS) connections enable karta hai.</p></div></div></div><div class="term"><h4>AWS Certificate Manager (ACM)</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>ACM is an AWS service that lets you create and manage free SSL/TLS certificates, which you can directly attach to CloudFront.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>ACM ek AWS service hai jisse aap free SSL/TLS certificates bana aur manage kar sakte ho, jinhe seedha CloudFront ke saath attach kiya ja sakta hai.</p></div></div></div><div class="term"><h4>CloudFront HTTPS</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront can be configured to accept only HTTPS requests, or to automatically redirect HTTP requests to HTTPS, keeping all traffic to your users encrypted.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront ko sirf HTTPS requests accept karne ke liye, ya HTTP requests ko automatically HTTPS par redirect karne ke liye configure kiya ja sakta hai, taaki users tak jaane wala saara traffic encrypted rahe.</p></div></div></div><div class="term"><h4>Custom domain</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Instead of using the default CloudFront domain, you can attach your own domain (like www.example.com) along with an ACM certificate for that domain.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Default CloudFront domain use karne ke bajaye, aap apna khud ka domain (jaise www.example.com) us domain ke ACM certificate ke saath attach kar sakte ho.</p></div></div></div><pre class="diagram">https://www.example.com
+        |
+        v
+    CloudFront
+        |
+        v
+      HTTPS</pre></section><section class="sec" id="s18"><div class="sec-head"><span class="sec-num">18</span><h2>CloudFront Security</h2></div><div class="term"><h4>HTTPS</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Encrypts traffic between users and CloudFront so it cannot be easily intercepted or tampered with.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Users aur CloudFront ke beech traffic ko encrypt karta hai taaki use aasani se intercept ya tamper na kiya ja sake.</p></div></div></div><div class="term"><h4>AWS WAF</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>AWS WAF (Web Application Firewall) can be attached to CloudFront to block common web attacks like SQL injection and cross-site scripting before they reach your app.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>AWS WAF (Web Application Firewall) ko CloudFront ke saath attach kiya ja sakta hai taaki SQL injection aur cross-site scripting jaise common web attacks aapke app tak pahunchne se pehle hi block ho jaayein.</p></div></div></div><div class="term"><h4>DDoS protection</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront is integrated with AWS Shield, which helps absorb and reduce the impact of large-scale Distributed Denial of Service (DDoS) attacks.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront AWS Shield ke saath integrated hota hai, jo bade Distributed Denial of Service (DDoS) attacks ke impact ko absorb aur kam karne mein help karta hai.</p></div></div></div><div class="term"><h4>Origin protection</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>By allowing traffic only from CloudFront (using OAC or security groups), your actual origin server stays hidden and protected from direct public access.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Sirf CloudFront se traffic allow karke (OAC ya security groups use karke), aapka asli origin server chhupa aur direct public access se protected rehta hai.</p></div></div></div><div class="term"><h4>OAC (Origin Access Control)</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>OAC ensures that requests to your S3 origin can only come from CloudFront, not directly from the internet.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>OAC ensure karta hai ki aapke S3 origin par requests sirf CloudFront se hi aayein, seedha internet se nahi.</p></div></div></div><div class="term"><h4>Signed URLs</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Signed URLs let you give temporary, controlled access to specific private content, useful when you want to restrict who can view or download a file.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Signed URLs aapko specific private content ka temporary aur controlled access dene dete hain, useful jab aap restrict karna chahte ho ki koi file kaun dekh ya download kar sakta hai.</p></div></div></div><div class="term"><h4>Signed Cookies</h4><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Signed Cookies allow access to multiple restricted files (like all files in a video streaming app) without changing every URL, using a browser cookie instead.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Signed Cookies multiple restricted files (jaise video streaming app ki saari files) ka access dete hain bina har URL ko change kiye, uske bajaye browser cookie use hoti hai.</p></div></div></div></section><section class="sec" id="s19"><div class="sec-head"><span class="sec-num">19</span><h2>Signed URL vs Signed Cookie</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>A Signed URL is a special link with an embedded signature that grants temporary access to one specific file. A Signed Cookie is a browser cookie that grants access to multiple files matching a pattern, without changing each file's URL.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Signed URL ek special link hota hai jisme ek signature embedded hota hai jo ek specific file ka temporary access deta hai. Signed Cookie ek browser cookie hoti hai jo ek pattern se match hone wali multiple files ka access deti hai, bina har file ka URL change kiye.</p></div></div><table class="compare"><thead><tr><th>Aspect</th><th>Signed URL</th><th>Signed Cookie</th></tr></thead><tbody><tr><td>Access scope</td><td>One single file/object</td><td>Multiple files matching a path pattern</td></tr><tr><td>Where used</td><td>Direct links, downloads, single video files</td><td>Streaming sites, apps needing access to many files</td></tr><tr><td>URL changes needed</td><td>Yes, URL itself carries the signature</td><td>No, original URLs stay the same</td></tr><tr><td>Best for</td><td>Sharing one restricted file temporarily</td><td>Giving a logged-in user access to a whole section of content</td></tr></tbody></table></section><section class="sec" id="s20"><div class="sec-head"><span class="sec-num">20</span><h2>CloudFront Invalidation</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Invalidation means telling CloudFront to remove a cached file from its edge locations before its TTL naturally expires, so the next request fetches a fresh copy from the origin.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Invalidation ka matlab hai CloudFront ko batana ki wo kisi cached file ko edge locations se hata de, uske TTL naturally expire hone se pehle hi, taaki agli request origin se ek fresh copy laaye.</p></div></div><h3>Why and when do we need it?</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>We need invalidation when we update content (like deploying a new version of a website) but the old version is still cached and TTL has not expired yet. Without invalidation, users would keep seeing the old cached version until TTL runs out.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Invalidation ki zaroorat tab padti hai jab hum content update karte hain (jaise website ka naya version deploy karna) lekin purana version abhi bhi cached hai aur TTL abhi expire nahi hua. Invalidation ke bina, users tab tak purani cached version dekhte rahenge jab tak TTL khatam na ho jaaye.</p></div></div><pre class="diagram">Old React Build
+     |
+     v
+CloudFront Cache
+
+
+New React Build
+     |
+     v
+      S3
+
+
+Create Invalidation
+     |
+     v
+CloudFront gets new files</pre><p class="note">Tip: In practice, after deploying a new build to S3, teams often run a CloudFront invalidation for the changed paths (or /*) so users immediately see the latest version.</p></section><section class="sec" id="s21"><div class="sec-head"><span class="sec-num">21</span><h2>CloudFront + React Practical Example</h2></div><pre class="diagram">React Application
+      |
+      v
+  npm run build
+      |
+      v
+  Build Files
+      |
+      v
+      S3
+      |
+      v
+  CloudFront
+      |
+      v
+    Users</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>To deploy a React app with CloudFront, you first build the React project, which creates a folder of static files (HTML, CSS, JS). You then upload this folder to an S3 bucket, and finally point a CloudFront distribution at that bucket so users worldwide can access it quickly.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>React app ko CloudFront ke saath deploy karne ke liye, sabse pehle React project ko build karte hain, jisse static files (HTML, CSS, JS) ka ek folder banta hai. Fir is folder ko ek S3 bucket mein upload karte hain, aur aakhir mein ek CloudFront distribution us bucket ki taraf point karte hain taaki duniya bhar ke users ise fast access kar sakein.</p></div></div><h3>Basic commands</h3><pre class="diagram">npm install
+npm run build</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>'npm install' downloads all the packages your React project needs. 'npm run build' creates an optimized production-ready build folder, usually named 'build' or 'dist', which contains the static files to upload to S3.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>'npm install' aapke React project ke saare needed packages download karta hai. 'npm run build' ek optimized production-ready build folder banata hai, jo aam taur par 'build' ya 'dist' naam ka hota hai, jisme S3 par upload karne wali static files hoti hain.</p></div></div><h3>Uploading and serving</h3><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>After the build is ready, upload the contents of the build folder into your S3 bucket, either through the AWS Console or the AWS CLI. Once CloudFront is pointed at that bucket, users can access your React app through the CloudFront domain (or your custom domain).</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Build ready hone ke baad, build folder ka content apne S3 bucket mein upload karo, AWS Console ya AWS CLI ke through. Jab CloudFront us bucket ki taraf point ho jaata hai, users aapke React app ko CloudFront domain (ya aapke custom domain) ke through access kar sakte hain.</p></div></div></section><section class="sec" id="s22"><div class="sec-head"><span class="sec-num">22</span><h2>CloudFront vs S3</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>S3 (Simple Storage Service) is where your files actually live; it is a storage service. CloudFront is a CDN that caches and delivers those files quickly to users around the world. They are complementary, not competing, services.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>S3 (Simple Storage Service) wo jagah hai jahan aapki files actually rehti hain; ye ek storage service hai. CloudFront ek CDN hai jo un files ko cache karke duniya bhar ke users ko fast deliver karta hai. Ye dono ek dusre ko complement karte hain, compete nahi karte.</p></div></div><table class="compare"><thead><tr><th>Aspect</th><th>S3</th><th>CloudFront</th></tr></thead><tbody><tr><td>Role</td><td>Storage</td><td>Content Delivery Network (CDN)</td></tr><tr><td>Purpose</td><td>Store files durably and reliably</td><td>Cache and deliver files quickly, closer to users</td></tr><tr><td>Speed for distant users</td><td>Can be slow if accessed directly from far away</td><td>Fast, because content is cached at nearby edge locations</td></tr><tr><td>Direct public access</td><td>Can be public or private</td><td>Sits in front of an origin like S3; adds a caching + security layer</td></tr></tbody></table></section><section class="sec" id="s23"><div class="sec-head"><span class="sec-num">23</span><h2>CloudFront vs Route 53</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>Route 53 is AWS's DNS (Domain Name System) service; it translates a domain name (like www.example.com) into an IP address or points it to another AWS resource. CloudFront is a CDN that actually delivers the content once the request arrives.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Route 53 AWS ka DNS (Domain Name System) service hai; ye ek domain name (jaise www.example.com) ko ek IP address mein translate karta hai ya kisi aur AWS resource ki taraf point karta hai. CloudFront ek CDN hai jo request pahunchne ke baad actually content deliver karta hai.</p></div></div><pre class="diagram">   User
+    |
+    v
+ Route 53   (finds where to send the request)
+    |
+    v
+ CloudFront (delivers the content)
+    |
+    v
+   Origin</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>In short, Route 53 answers 'where should this request go?' while CloudFront answers 'how do we deliver the content fast once it gets there?'. They are commonly used together.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Short mein, Route 53 ye batata hai ki 'ye request kahan jaani chahiye?' jabki CloudFront ye batata hai ki 'wahan pahunchne ke baad content ko fast kaise deliver karein?'. Ye dono aksar saath mein use hote hain.</p></div></div></section><section class="sec" id="s24"><div class="sec-head"><span class="sec-num">24</span><h2>CloudFront vs ALB</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront is a CDN focused on caching and delivering content close to users globally. An Application Load Balancer (ALB) is focused on distributing incoming traffic across multiple backend servers within a region, so no single server gets overloaded.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront ek CDN hai jo content ko globally users ke paas cache aur deliver karne par focus karta hai. Application Load Balancer (ALB) incoming traffic ko ek region ke andar multiple backend servers mein distribute karne par focus karta hai, taaki koi ek server overload na ho.</p></div></div><pre class="diagram">   User
+    |
+    v
+CloudFront
+    |
+    v
+    ALB
+    |
+    v
+  Servers</pre><table class="compare"><thead><tr><th>Aspect</th><th>CloudFront</th><th>ALB</th></tr></thead><tbody><tr><td>Scope</td><td>Global (edge locations worldwide)</td><td>Regional (within one AWS region)</td></tr><tr><td>Main job</td><td>Cache and deliver content fast</td><td>Distribute traffic across backend servers</td></tr><tr><td>Works well together</td><td>Sits in front of ALB for caching + security</td><td>Sits behind CloudFront to balance backend load</td></tr></tbody></table></section><section class="sec" id="s25"><div class="sec-head"><span class="sec-num">25</span><h2>CloudFront vs API Gateway</h2></div><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>CloudFront and API Gateway solve different problems. CloudFront focuses on caching and fast content delivery, while API Gateway focuses on managing, securing, and exposing your APIs.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>CloudFront aur API Gateway alag alag problems solve karte hain. CloudFront caching aur fast content delivery par focus karta hai, jabki API Gateway aapke APIs ko manage, secure, aur expose karne par focus karta hai.</p></div></div><table class="compare"><thead><tr><th>CloudFront</th><th>API Gateway</th></tr></thead><tbody><tr><td>CDN</td><td>API management</td></tr><tr><td>Caching of content</td><td>API endpoints and routing</td></tr><tr><td>Content delivery</td><td>Authentication and authorization</td></tr><tr><td>Global edge network</td><td>Throttling and rate limiting</td></tr><tr><td>Works with any origin</td><td>Backend integration, often with Lambda</td></tr></tbody></table></section><section class="sec" id="s26"><div class="sec-head"><span class="sec-num">26</span><h2>Complete Production Architecture</h2></div><h3>Backend flow</h3><pre class="diagram">   User
+    |
+    v
+ Route 53
+    |
+    v
+CloudFront
+    |
+    v
+ AWS WAF
+    |
+    v
+    ALB
+    |
+    v
+ECS Fargate
+    |
+    v
+Node.js / Express
+    |
+    v
+  Database</pre><h3>Frontend flow</h3><pre class="diagram">   User
+    |
+    v
+ Route 53
+    |
+    v
+CloudFront
+    |
+    v
+    S3
+    |
+    v
+React Files</pre><div class="lang-pair"><div class="lang-block en"><span class="lang-tag">Simple English</span><p>In a real production setup, Route 53 resolves your domain and directs traffic to CloudFront. CloudFront serves the React frontend from S3 quickly through caching, while API requests pass through AWS WAF for filtering, then the ALB, which spreads traffic across ECS Fargate tasks running your Node.js/Express backend, which finally talks to the database.</p></div><div class="lang-block hi"><span class="lang-tag">Hinglish</span><p>Ek real production setup mein, Route 53 aapke domain ko resolve karke traffic ko CloudFront tak bhejta hai. CloudFront caching ke through React frontend ko S3 se fast serve karta hai, jabki API requests filtering ke liye AWS WAF se guzarti hain, fir ALB tak jaati hain, jo traffic ko ECS Fargate tasks (jisme aapka Node.js/Express backend chal raha hai) mein spread karta hai, jo aakhir mein database se baat karta hai.</p></div></div><p class="note">This combination gives you: fast global delivery (CloudFront), DNS routing (Route 53), attack filtering (WAF), load distribution (ALB), scalable containers (ECS Fargate), and a clean separation between frontend and backend traffic.</p></section><section class="sec" id="s27"><div class="sec-head"><span class="sec-num">27</span><h2>Interview Questions</h2></div><p class="note">Short, natural answers you can speak out loud in an interview.</p><div class="qa"><div class="q"><span class="q-num">Q1.</span> What is CloudFront?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>CloudFront is AWS's CDN service. It caches content at edge locations worldwide so users get content quickly from a nearby location instead of a distant origin server.</p></div><div class="a hi"><span class="a-tag">HI</span><p>CloudFront AWS ka CDN service hai. Ye content ko duniya bhar ke edge locations par cache karta hai taaki users ko content paas wali jagah se jaldi mile, door wale origin server se nahi.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q2.</span> What is CDN?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>CDN stands for Content Delivery Network, a group of geographically distributed servers that deliver content to users from the location nearest to them.</p></div><div class="a hi"><span class="a-tag">HI</span><p>CDN ka matlab hai Content Delivery Network, geographically alag alag jagah par phaile servers ka group jo users ko unke sabse paas wali location se content deliver karte hain.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q3.</span> Why do we use CloudFront?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>We use it for faster content delivery, lower latency, caching, global reach, reduced load on the origin, easy HTTPS, and built-in security like WAF and DDoS protection.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Hum ise faster content delivery, kam latency, caching, global reach, origin par kam load, aasan HTTPS, aur WAF jaisi built-in security ke liye use karte hain.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q4.</span> What is an Edge Location?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>An Edge Location is a data center in AWS's global network that caches and delivers content close to end users.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Edge Location AWS ke global network mein ek data center hota hai jo end users ke paas content cache aur deliver karta hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q5.</span> What is an Origin?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>An Origin is the original source of content, like an S3 bucket, EC2 instance, or ALB, from which CloudFront fetches content when it is not cached.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Origin content ka original source hota hai, jaise S3 bucket, EC2 instance, ya ALB, jahan se CloudFront content fetch karta hai jab wo cached nahi hota.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q6.</span> What is a CloudFront Distribution?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>It's the configuration you create in CloudFront that defines the origin, caching rules, and domain used to serve your content.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Ye wo configuration hai jo aap CloudFront mein banate ho, jo origin, caching rules, aur content serve karne wala domain define karta hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q7.</span> What is Cache Hit?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>A Cache Hit is when CloudFront finds the requested content already in its edge cache and returns it directly, without contacting the origin.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Cache Hit tab hota hai jab CloudFront ko requested content pehle se edge cache mein mil jaata hai aur wo use seedha return kar deta hai, origin se contact kiye bina.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q8.</span> What is Cache Miss?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>A Cache Miss is when the content is not in the cache, so CloudFront has to fetch it from the origin first before returning it.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Cache Miss tab hota hai jab content cache mein nahi hota, isliye CloudFront ko use return karne se pehle origin se fetch karna padta hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q9.</span> What is TTL?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>TTL, or Time To Live, is how long content stays valid in the cache before CloudFront checks the origin again.</p></div><div class="a hi"><span class="a-tag">HI</span><p>TTL, yaani Time To Live, batata hai content cache mein kitni der tak valid rahega, uske baad CloudFront origin se dobara check karta hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q10.</span> What is Cache Behavior?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>A Cache Behavior is a rule for a specific path pattern that decides which origin to use and how to cache requests matching that path.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Cache Behavior ek specific path pattern ke liye rule hota hai jo decide karta hai ki kaunsa origin use karna hai aur us path se match hone wali requests ko kaise cache karna hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q11.</span> What is OAC?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>Origin Access Control lets only CloudFront access a private S3 origin, so the bucket cannot be reached directly from the public internet.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Origin Access Control sirf CloudFront ko ek private S3 origin access karne deta hai, isliye bucket seedha public internet se access nahi ho sakta.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q12.</span> CloudFront vs S3?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>S3 is a storage service where files live; CloudFront is a CDN that caches and delivers those files quickly to users worldwide.</p></div><div class="a hi"><span class="a-tag">HI</span><p>S3 ek storage service hai jahan files rehti hain; CloudFront ek CDN hai jo un files ko fast cache aur deliver karta hai duniya bhar ke users ko.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q13.</span> CloudFront vs Route 53?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>Route 53 is DNS, it decides where a request should go; CloudFront is the CDN that delivers content once the request arrives.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Route 53 DNS hai, ye decide karta hai request kahan jaani chahiye; CloudFront wo CDN hai jo request pahunchne ke baad content deliver karta hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q14.</span> CloudFront vs ALB?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>CloudFront is a global CDN for caching and delivery; ALB is a regional load balancer that distributes traffic across backend servers.</p></div><div class="a hi"><span class="a-tag">HI</span><p>CloudFront caching aur delivery ke liye ek global CDN hai; ALB ek regional load balancer hai jo traffic ko backend servers mein distribute karta hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q15.</span> What is CloudFront Invalidation?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>Invalidation removes cached content from edge locations before its TTL expires, forcing CloudFront to fetch a fresh copy on the next request.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Invalidation cached content ko edge locations se TTL expire hone se pehle hata deta hai, jisse CloudFront agli request par fresh copy fetch karta hai.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q16.</span> How does CloudFront improve performance?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>By caching content near users, reducing latency, offloading traffic from the origin, and handling HTTPS efficiently at the edge.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Content ko users ke paas cache karke, latency kam karke, origin se traffic offload karke, aur HTTPS ko edge par efficiently handle karke.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q17.</span> How do you use CloudFront with S3?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>You create an S3 bucket for your files, set it as the CloudFront origin, secure it with OAC and a bucket policy, then serve content through the CloudFront domain.</p></div><div class="a hi"><span class="a-tag">HI</span><p>Apni files ke liye ek S3 bucket banate ho, use CloudFront ka origin set karte ho, OAC aur bucket policy se secure karte ho, fir content CloudFront domain ke through serve karte ho.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q18.</span> How do you use CloudFront with ALB?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>You set the ALB as the CloudFront origin, so CloudFront caches what it can and adds HTTPS and security in front of your load-balanced backend.</p></div><div class="a hi"><span class="a-tag">HI</span><p>ALB ko CloudFront ka origin set karte ho, taaki CloudFront jo cache kar sake wo kare, aur load-balanced backend ke aage HTTPS aur security add kare.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q19.</span> How would you use CloudFront in a MERN application?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>CloudFront serves the React frontend fast from S3, and can also sit in front of API traffic that goes through ALB to ECS Fargate running Node.js/Express, before it reaches MongoDB.</p></div><div class="a hi"><span class="a-tag">HI</span><p>CloudFront React frontend ko S3 se fast serve karta hai, aur API traffic ke aage bhi reh sakta hai jo ALB se hote hue ECS Fargate mein chal rahe Node.js/Express tak jaata hai, MongoDB tak pahunchne se pehle.</p></div></div></div><div class="qa"><div class="q"><span class="q-num">Q20.</span> How do you configure HTTPS with CloudFront?</div><div class="a-pair"><div class="a en"><span class="a-tag">EN</span><p>You request or import a certificate in AWS Certificate Manager, attach it to your CloudFront distribution, and set the viewer protocol policy to require or redirect to HTTPS.</p></div><div class="a hi"><span class="a-tag">HI</span><p>AWS Certificate Manager mein ek certificate request ya import karte ho, use apne CloudFront distribution se attach karte ho, aur viewer protocol policy ko HTTPS require ya redirect karne ke liye set karte ho.</p></div></div></div></section><section class="sec" id="s28"><div class="sec-head"><span class="sec-num">28</span><h2>Quick Revision / Cheat Sheet</h2></div><div class="cheat-grid"><div class="cheat-item"><div class="cheat-name">CloudFront</div><div class="cheat-en"><b>EN:</b> AWS's CDN service; caches & delivers content globally.</div><div class="cheat-hi"><b>HI:</b> AWS ka CDN service; content ko globally cache & deliver karta hai.</div></div><div class="cheat-item"><div class="cheat-name">CDN</div><div class="cheat-en"><b>EN:</b> Content Delivery Network; distributed servers serving users from nearby locations.</div><div class="cheat-hi"><b>HI:</b> Content Delivery Network; distributed servers jo users ko paas se serve karte hain.</div></div><div class="cheat-item"><div class="cheat-name">Distribution</div><div class="cheat-en"><b>EN:</b> The CloudFront config unit linking origin, cache rules, and a domain.</div><div class="cheat-hi"><b>HI:</b> CloudFront ka config unit jo origin, cache rules, aur domain ko link karta hai.</div></div><div class="cheat-item"><div class="cheat-name">Origin</div><div class="cheat-en"><b>EN:</b> Original content source: S3, EC2, ALB, API Gateway, custom server.</div><div class="cheat-hi"><b>HI:</b> Content ka original source: S3, EC2, ALB, API Gateway, custom server.</div></div><div class="cheat-item"><div class="cheat-name">Edge Location</div><div class="cheat-en"><b>EN:</b> AWS data center near users that caches content.</div><div class="cheat-hi"><b>HI:</b> AWS data center jo users ke paas content cache karta hai.</div></div><div class="cheat-item"><div class="cheat-name">Cache</div><div class="cheat-en"><b>EN:</b> Temporary storage of content close to the user.</div><div class="cheat-hi"><b>HI:</b> User ke paas content ka temporary storage.</div></div><div class="cheat-item"><div class="cheat-name">Cache Hit</div><div class="cheat-en"><b>EN:</b> Content found in cache; served instantly.</div><div class="cheat-hi"><b>HI:</b> Content cache mein mil gaya; turant serve hota hai.</div></div><div class="cheat-item"><div class="cheat-name">Cache Miss</div><div class="cheat-en"><b>EN:</b> Content not in cache; fetched from origin first.</div><div class="cheat-hi"><b>HI:</b> Content cache mein nahi; pehle origin se fetch hota hai.</div></div><div class="cheat-item"><div class="cheat-name">TTL</div><div class="cheat-en"><b>EN:</b> Time content stays valid in cache before refresh.</div><div class="cheat-hi"><b>HI:</b> Content cache mein kitni der valid rehta hai, refresh se pehle.</div></div><div class="cheat-item"><div class="cheat-name">Cache Behavior</div><div class="cheat-en"><b>EN:</b> Per-path-pattern rule for caching and origin selection.</div><div class="cheat-hi"><b>HI:</b> Har path-pattern ke liye caching aur origin selection ka rule.</div></div><div class="cheat-item"><div class="cheat-name">OAC</div><div class="cheat-en"><b>EN:</b> Restricts S3 access to only CloudFront requests.</div><div class="cheat-hi"><b>HI:</b> S3 access ko sirf CloudFront requests tak restrict karta hai.</div></div><div class="cheat-item"><div class="cheat-name">HTTPS</div><div class="cheat-en"><b>EN:</b> Encrypted delivery, set up via ACM certificates on CloudFront.</div><div class="cheat-hi"><b>HI:</b> Encrypted delivery, ACM certificates ke through CloudFront par set hoti hai.</div></div><div class="cheat-item"><div class="cheat-name">Invalidation</div><div class="cheat-en"><b>EN:</b> Force-remove cached content before TTL expires.</div><div class="cheat-hi"><b>HI:</b> TTL expire hone se pehle cached content ko force-remove karna.</div></div><div class="cheat-item"><div class="cheat-name">S3 integration</div><div class="cheat-en"><b>EN:</b> Store static/build files in S3; CloudFront caches & delivers them.</div><div class="cheat-hi"><b>HI:</b> Static/build files S3 mein store; CloudFront unhe cache & deliver karta hai.</div></div><div class="cheat-item"><div class="cheat-name">ALB integration</div><div class="cheat-en"><b>EN:</b> CloudFront in front of ALB adds caching, HTTPS, and security.</div><div class="cheat-hi"><b>HI:</b> CloudFront ALB ke aage caching, HTTPS, aur security add karta hai.</div></div><div class="cheat-item"><div class="cheat-name">MERN architecture</div><div class="cheat-en"><b>EN:</b> CloudFront serves React (via S3) & fronts API traffic to ALB -> ECS -> Node/Express -> MongoDB.</div><div class="cheat-hi"><b>HI:</b> CloudFront React (S3 se) serve karta hai & API traffic ko ALB -> ECS -> Node/Express -> MongoDB tak leke jaata hai.</div></div></div></section></main>
+<footer>
+  AWS CloudFront (CDN) &mdash; Study Notes &middot; Simple English + Hinglish &middot; Built for revision before interviews.
+</footer>
+</body>
+</html>

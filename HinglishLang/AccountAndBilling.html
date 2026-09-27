@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS Account & Billing Management — Hinglish Complete Guide</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#146eb4; --table-head-text:#ffffff; --table-row-alt:#f4f8fc;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#12314d; --table-head-text:#d7ecff; --table-row-alt:#131a29;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #b34700 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#1a1300; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #1a1300; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #2a1b00; }
+
+  /* Badges */
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-right:8px; vertical-align:middle; }
+  .badge-theory { background:var(--badge-theory); color:#fff; }
+  .badge-practical { background:var(--badge-practical); color:#fff; }
+  .badge-important { background:var(--badge-important); color:#fff; }
+  .badge-interview { background:var(--badge-interview); color:#fff; }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); color:#fff; }
+
+  /* TOC */
+  .toc { background: var(--toc-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
+  .toc h2 { margin-top: 0; border: none; padding: 0; font-size: 1.2rem; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem 1.5rem; list-style: none; padding: 0; margin: 0; font-size: 0.88rem; }
+  .toc-grid a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .toc-grid a:hover { text-decoration: underline; color: var(--brand); }
+  @media (max-width: 680px) { .toc-grid { grid-template-columns: 1fr; } }
+
+  /* Headings & Text */
+  h2 {
+    color: var(--heading); font-size: 1.35rem; margin-top: 2.6rem; margin-bottom: 0.85rem;
+    padding-bottom: 0.45rem; border-bottom: 3px solid var(--accent);
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; scroll-margin-top: 4.5rem;
+  }
+  h3 { color: var(--blue); font-size: 1.1rem; margin-top: 1.6rem; margin-bottom: 0.55rem; }
+  h4 { color: var(--purple); font-size: 1rem; margin-top: 1.1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text); margin: 0.65rem 0; }
+
+  /* Cards & Callouts */
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; }
+  .definition {
+    background: var(--accent-soft); border-left: 5px solid var(--accent); border-radius: 8px;
+    padding: 0.95rem 1.2rem; margin: 0.8rem 0 1.1rem; font-weight: 500; color: var(--text);
+  }
+  .keypoints { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  .concept-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .concept-list li { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .concept-list li strong { color: var(--blue-dark); }
+  .purple-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .purple-list li { background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .purple-list li strong { color: var(--purple); }
+  .green-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .green-list li { background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .green-list li strong { color: var(--green); }
+
+  .steps-block { background: var(--blue-soft); border-radius: 10px; padding: 1.1rem 1.4rem 1.1rem 1.6rem; margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border); }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.3rem; }
+  ol.steps li { padding: 0.35rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--blue-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--blue-dark); }
+
+  .important { background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1.1rem 0; color: var(--text); }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.55rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.4rem; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .tip-line { background: var(--tip-soft); border-left: 5px solid var(--tip); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .tip-line strong { color: var(--tip); }
+  .troubleshoot { background: var(--red-soft); border-left: 5px solid var(--red); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .troubleshoot strong { color: var(--red); }
+
+  /* Code Block with Copy */
+  .code-container { position: relative; margin: 0.8rem 0 1.2rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .code-header { background: var(--code-head); color: #8ea1c9; padding: 5px 12px; font-size: 0.78rem; font-family: monospace; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; }
+  .copy-btn { background: #263859; color: #dce6f2; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer; transition: all .2s; }
+  .copy-btn:hover { background: var(--brand); color: #fff; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem; margin: 0; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; line-height: 1.55; white-space: pre; }
+  code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88em; }
+  p code, li code, td code { background: var(--brand-soft); color: var(--brand); padding: 0.15rem 0.4rem; border-radius: 4px; }
+
+  /* Architecture Diagrams */
+  .diagram { background: var(--code-bg); color: #9fe2bf; border: 1px solid var(--border); padding: 1.1rem 1.3rem; border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; text-align: left; line-height: 1.55; margin: 1rem 0; white-space: pre; overflow-x: auto; }
+  .diagram strong { color: #f9ca24; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.75rem 0.95rem; font-size: 0.88rem; }
+  tbody td { padding: 0.7rem 0.95rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.88rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+
+  /* Interview Q&A Cards & Unboxed List */
+  .qa { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.85rem; }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.94rem; display: flex; align-items: baseline; gap: 0.4rem; }
+  .qa .a { color: var(--text); margin: 0; font-size: 0.9rem; line-height: 1.6; }
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  @media (max-width: 768px) { .qa-grid { grid-template-columns: 1fr; } }
+
+  /* Simple Unboxed Interview List */
+  .interview-list { margin: 1.2rem 0 2.2rem; }
+  .interview-item {
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .interview-item:first-child { padding-top: 0.2rem; }
+  .interview-item:last-child { border-bottom: none; }
+  .interview-q {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 0.45rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    line-height: 1.4;
+  }
+  .interview-q .q-num {
+    color: var(--accent-dark);
+    font-weight: 800;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .interview-a {
+    font-size: 0.96rem;
+    line-height: 1.68;
+    color: var(--text);
+    margin: 0 0 0.35rem;
+  }
+  .interview-key {
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    background: var(--brand-soft);
+    border-left: 3px solid var(--brand);
+    padding: 0.4rem 0.8rem;
+    border-radius: 0 6px 6px 0;
+    margin-top: 0.5rem;
+  }
+  .interview-key strong { color: var(--brand); }
+
+  /* Checklists */
+  .checklist { list-style: none; padding: 0; margin: 0.8rem 0; }
+  .checklist li { padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] { transform: scale(1.15); accent-color: var(--ok); cursor: pointer; }
+
+  /* Footer */
+  .footer-end { text-align: center; padding: 3rem 1rem 2rem; font-size: 1.1rem; font-weight: 700; color: var(--muted); border-top: 2px dashed var(--line); margin-top: 3rem; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.6rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before { content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.2rem; font-size: 0.72rem; text-transform: uppercase; }
+  }
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+  }
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="brand"><span class="logo">💳</span><span class="name">AWS Billing Hinglish</span></div>
+  <a href="../index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Search topics...">
+
+  <h2>1. Account & Hierarchy</h2>
+  <ul>
+    <li><a href="#s1">1. AWS Account Kya Hai?</a></li>
+    <li><a href="#s2">2. AWS Account Structure</a></li>
+    <li><a href="#s3">3. Root User & MFA</a></li>
+    <li><a href="#s4">4. IAM User & Least Privilege</a></li>
+    <li><a href="#s5">5. Account ID & Alias</a></li>
+    <li><a href="#s6">6. Regions & AZs ka Asar</a></li>
+  </ul>
+
+  <h2>2. Billing & Pricing Models</h2>
+  <ul>
+    <li><a href="#s7">7. AWS Billing Basics</a></li>
+    <li><a href="#s8">8. Billing Dashboard</a></li>
+    <li><a href="#s9">9. Free Tier Limits & Types</a></li>
+    <li><a href="#s10">10. AWS Pricing Models</a></li>
+    <li><a href="#s11">11. Cost Explorer Analytics</a></li>
+    <li><a href="#s12">12. AWS Budgets</a></li>
+  </ul>
+
+  <h2>3. Practical Labs & Alerts</h2>
+  <ul>
+    <li><a href="#s13">13. Practical: Budget Banayein</a></li>
+    <li><a href="#s14">14. Billing Alerts & CloudWatch</a></li>
+    <li><a href="#s15">15. Payment Methods & Failure</a></li>
+    <li><a href="#s16">16. Bills & Invoices Download</a></li>
+    <li><a href="#s17">17. Cost Allocation Tags</a></li>
+    <li><a href="#s18">18. Cost Optimization Tips</a></li>
+  </ul>
+
+  <h2>4. Architecture & Security</h2>
+  <ul>
+    <li><a href="#s19">19. Kharcha Badhane Wale Resources</a></li>
+    <li><a href="#s20">20. MERN Stack Billing Flow</a></li>
+    <li><a href="#s21">21. Account & Billing Security</a></li>
+    <li><a href="#s22">22. Practical: Current Costs Check</a></li>
+    <li><a href="#s23">23. Practical: Chalti Resources Pakdein</a></li>
+    <li><a href="#s24">24. Best Practices Checklist</a></li>
+  </ul>
+
+  <h2>5. Comparisons & Interviews</h2>
+  <ul>
+    <li><a href="#s25">25. Important Comparisons</a></li>
+    <li><a href="#s26">26. 20+ Interview Questions</a></li>
+    <li><a href="#s27">27. Real-World Architecture Flow</a></li>
+    <li><a href="#s28">28. Quick Revision Cheat Sheet</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle Menu">☰ Menu</button>
+      <strong>AWS Account & Billing Hinglish Guide</strong>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- TITLE CARD -->
+    <div class="title-card">
+      <h1>AWS Account & Billing Management</h1>
+      <p class="subtitle">Complete Hinglish Study & Practical Notes</p>
+      <p class="desc">"Cloud Financial Management, Account Security, Free Tier Governance, Budgets aur Cost Optimization ko aasan bhasha mein seekhein."</p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+      <h2>📑 Quick Navigation Overview</h2>
+      <ul class="toc-grid">
+        <li><a href="#s1">1. AWS Account Kya Hai?</a></li>
+        <li><a href="#s2">2. AWS Account Structure</a></li>
+        <li><a href="#s3">3. Root User & Security</a></li>
+        <li><a href="#s4">4. IAM User & Least Privilege</a></li>
+        <li><a href="#s5">5. AWS Account ID & Alias</a></li>
+        <li><a href="#s6">6. Regions & Availability Zones</a></li>
+        <li><a href="#s7">7. AWS Billing Fundamentals</a></li>
+        <li><a href="#s8">8. Billing Dashboard</a></li>
+        <li><a href="#s9">9. AWS Free Tier Limits</a></li>
+        <li><a href="#s10">10. AWS Pricing Models</a></li>
+        <li><a href="#s11">11. Cost Explorer Analytics</a></li>
+        <li><a href="#s12">12. AWS Budgets</a></li>
+        <li><a href="#s13">13. Practical: Budget Banayein</a></li>
+        <li><a href="#s14">14. Billing Alerts</a></li>
+        <li><a href="#s15">15. Payment Methods & Status</a></li>
+        <li><a href="#s16">16. Bills & Invoices</a></li>
+        <li><a href="#s17">17. Cost Allocation Tags</a></li>
+        <li><a href="#s18">18. Cost Optimization Strategies</a></li>
+        <li><a href="#s19">19. Kharcha Badhane Wale Resources</a></li>
+        <li><a href="#s20">20. MERN Stack Billing Flow</a></li>
+        <li><a href="#s21">21. Account & Financial Security</a></li>
+        <li><a href="#s22">22. Practical: Current Costs Check</a></li>
+        <li><a href="#s23">23. Practical: Chalti Resources Pakdein</a></li>
+        <li><a href="#s24">24. Best Practices Checklist</a></li>
+        <li><a href="#s25">25. Important Comparisons</a></li>
+        <li><a href="#s26">26. 20+ Interview Questions</a></li>
+        <li><a href="#s27">27. Real-World Example Flow</a></li>
+        <li><a href="#s28">28. Quick Revision Cheat Sheet</a></li>
+      </ul>
+    </div>
+
+    <div class="important">
+      <div class="important-title">⚠️ Real-World Pricing & Free Tier Note</div>
+      <p>AWS pricing aur Free Tier limits time ke sath update hoti rehti hain aur different regions mein thoda farak ho sakta hai. Production decisions lene se pehle hamesha official AWS Pricing page check karein. Ye notes aapko <strong>core concepts, governance aur practical operations</strong> sikhane ke liye hain.</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <h2 id="s1"><span class="badge badge-theory">THEORY</span> 1. AWS Account Kya Hai?</h2>
+    <div class="card">
+      <div class="definition">
+        "<strong>AWS Account</strong> ek secure aur logically isolated container hai jiske andar aapke saare AWS resources (servers, databases, storage), logins (users) aur billing ka sara hisaab rehta hai."
+      </div>
+      <p>Aasan shabdon mein: Maan lijiye AWS ek bohot bada corporate complex hai. <strong>AWS Account</strong> us complex ke andar aapka apna private safe locker hai. Jo kuch bhi aap banate hain — EC2 server, S3 bucket, database — wo isi locker ke andar safe rehta hai aur sara bill isi account se link hota hai.</p>
+
+      <h3>AWS Account ke Main Elements:</h3>
+      <ul class="concept-list">
+        <li><strong>AWS Account ID:</strong> Ek unique 12-digit number (jaise <code>123456789012</code>) jo aapke account ki official identity hai.</li>
+        <li><strong>Root User:</strong> Signup ke time banne wala master owner login jiske paas unlimited powers hoti hain.</li>
+        <li><strong>IAM Users & Roles:</strong> Team members aur services ke liye banaye gaye limited-access accounts.</li>
+        <li><strong>AWS Services:</strong> Wo actual tools jo aap run karte hain (EC2, S3, RDS, Lambda).</li>
+        <li><strong>Billing:</strong> Wo system jo usage track karke monthly invoice generate karta hai.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 2 -->
+    <h2 id="s2"><span class="badge badge-theory">THEORY</span> 2. AWS Account Structure</h2>
+    <div class="card">
+      <div class="diagram">
+                           ┌──────────────────────────────┐
+                           │         AWS ACCOUNT          │
+                           │   (12-Digit ID: Container)   │
+                           └──────────────┬───────────────┘
+                                          │
+        ┌───────────────────┬─────────────┴───────┬────────────────────┐
+        ▼                   ▼                     ▼                    ▼
+ ┌──────────────┐    ┌──────────────┐      ┌──────────────┐     ┌──────────────┐
+ │  Root User   │    │  IAM Users   │      │ AWS Services │     │   Billing    │
+ │ (Master Pwd  │    │ (Scoped Team │      │ (EC2, S3,    │     │ (Dashboard,  │
+ │  + MFA Key)  │    │  Logins)     │      │  RDS, VPC)   │     │  Invoices)   │
+ └──────────────┘    └──────────────┘      └──────────────┘     └──────────────┘</div>
+
+      <p>AWS mein har ek cheez isi hierarchy ke through judi hoti hai. Bina AWS account container ke aap koi bhi cloud resource nahi chala sakte.</p>
+    </div>
+
+    <!-- SECTION 3 -->
+    <h2 id="s3"><span class="badge badge-theory">THEORY</span> 3. Root User & MFA Security</h2>
+    <div class="card">
+      <div class="definition">
+        <strong>Root User</strong> account ka super-owner login hota hai jo initial signup ke time banta hai. Iske paas account ki har service, billing aur resources par <strong>100% full, unrestricted control</strong> hota hai.
+      </div>
+
+      <h3>Root User ko Daily Use Kyun Nahi Karna Chahiye?</h3>
+      <ul class="keypoints">
+        <li><strong>Unlimited Power:</strong> Root access ko IAM policies se roka nahi ja sakta. Ek galat click se poora production database ya account delete ho sakta hai.</li>
+        <li><strong>Hacking Danger:</strong> Agar Root User ka password leak ho gaya, toh hacker hazaron expensive mining servers chala kar aapka lakhon ka bill bana sakta hai.</li>
+      </ul>
+
+      <div class="important">
+        <div class="important-title">🔒 Root User Security Best Practices:</div>
+        <ul>
+          <li><strong>MFA Enable Karein:</strong> Google Authenticator ya physical hardware key (YubiKey) se login par extra OTP lagayein.</li>
+          <li><strong>Strong Password:</strong> 20+ characters ka strong unique password use karein.</li>
+          <li><strong>Root Access Keys KABHI na banayein:</strong> CLI ke liye Root User ki access keys mat banayein.</li>
+          <li><strong>Daily Work ke liye IAM:</strong> Daily coding aur management ke liye IAM Users ya IAM Roles use karein.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <h2 id="s4"><span class="badge badge-theory">THEORY</span> 4. IAM User & Least Privilege</h2>
+    <div class="card">
+      <div class="definition">
+        <strong>IAM (Identity and Access Management) User</strong> ek alag login identity hai jo aap apne team members ya apps ke liye banate hain jisme sirf utni hi permissions hoti hain jitni kaam ke liye zaroori hon.
+      </div>
+
+      <h3>Root User vs IAM User (Difference Table):</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Root User</th>
+            <th>IAM User</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Kab banta hai?</strong></td>
+            <td>Account signup ke time automatically</td>
+            <td>Admin dwara manually IAM console mein</td>
+          </tr>
+          <tr>
+            <td><strong>Access Level</strong></td>
+            <td>Full, unrestricted access to everything</td>
+            <td>Policies ke dwara limited & controlled</td>
+          </tr>
+          <tr>
+            <td><strong>Login Identity</strong></td>
+            <td>Email address + Master Password</td>
+            <td>Username + Password / Access Keys</td>
+          </tr>
+          <tr>
+            <td><strong>Kab use karein?</strong></td>
+            <td>Account close ya billing settings change karne ke liye</td>
+            <td>Daily software development aur DevOps ke liye</td>
+          </tr>
+          <tr>
+            <td><strong>Security Risk</strong></td>
+            <td>Extreme High (Poora account khatre mein)</td>
+            <td>Low (Sirf allowed cheezon tak seemit)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 5 & 6 -->
+    <h2 id="s5"><span class="badge badge-theory">THEORY</span> 5 & 6. Account ID, Alias, Regions & AZs</h2>
+    <div class="card">
+      <h3>5. Account ID vs Account Alias</h3>
+      <p><strong>Account ID</strong> ek 12-digit number hota hai (jaise <code>123456789012</code>). <strong>Account Alias</strong> ek friendly naam hota hai (jaise <code>mycompany-prod</code>) jo console login link ko yaad rakhna aasan banata hai:</p>
+      <div class="example">
+        <strong>Normal Login URL:</strong> <code>https://123456789012.signin.aws.amazon.com/console</code><br>
+        <strong>Alias Login URL:</strong> <code>https://mycompany-prod.signin.aws.amazon.com/console</code>
+      </div>
+
+      <h3>6. Regions aur Availability Zones ka Billing par Asar</h3>
+      <p>AWS ki pricing har Region mein thodi alag hoti hai (kyunki har country mein data center, bijli aur tax costs alag hote hain). Stockholm (<code>eu-north-1</code>) ya Mumbai (<code>ap-south-1</code>) ka hourly rate dusre regions se thoda alag ho sakta hai.</p>
+    </div>
+
+    <!-- SECTION 7 & 8 -->
+    <h2 id="s7"><span class="badge badge-theory">THEORY</span> 7 & 8. AWS Billing Basics & Billing Dashboard</h2>
+    <div class="card">
+      <div class="definition">
+        <strong>AWS Billing</strong> ek <strong>Pay-as-you-go</strong> model par chalta hai — yani aap sirf utna hi pay karte hain jitna aapne actually use kiya hai (per-second compute, per-GB storage).
+      </div>
+
+      <h3>8. Billing Dashboard Console Guide:</h3>
+      <ul class="concept-list">
+        <li><strong>Current Month-to-Date:</strong> Ab tak is mahine kitna kharcha ho chuka hai.</li>
+        <li><strong>Forecast:</strong> Month ke end tak machine learning estimate ki kitna bill ban sakta hai.</li>
+        <li><strong>Spend by Service:</strong> Kaunsi service sabse zyada paise le rahi hai (EC2, RDS, S3).</li>
+      </ul>
+
+      <div class="steps-block">
+        <h3>Billing Dashboard Kholne ke Steps:</h3>
+        <ol class="steps">
+          <li>AWS Console mein login karein.</li>
+          <li>Top-right corner mein apne account name par click karein.</li>
+          <li><strong>Billing and Cost Management</strong> select karein.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 9 & 10 -->
+    <h2 id="s9"><span class="badge badge-theory">THEORY</span> 9 & 10. AWS Free Tier Limits & Pricing Models</h2>
+    <div class="card">
+      <h3>9. Free Tier ke 3 Types:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Free Tier Model</th>
+            <th>Yeh Kaise Kaam Karta Hai?</th>
+            <th>Popular Examples</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>12-Months Free</strong></td>
+            <td>Account signup ke pehle 12 mahine tak free milta hai.</td>
+            <td>750 hrs/month <code>t2.micro</code> / <code>t3.micro</code> EC2, 5 GB S3 Storage, 750 hrs RDS.</td>
+          </tr>
+          <tr>
+            <td><strong>Always Free</strong></td>
+            <td>Kahi expire nahi hota; sabhi accounts ke liye hamesha free rehta hai.</td>
+            <td>1,000,000 Lambda requests/month, 25 GB DynamoDB storage, 10 CloudWatch metrics.</td>
+          </tr>
+          <tr>
+            <td><strong>Short-Term Trials</strong></td>
+            <td>Service activate karne ke din se fixed dino ka trial (e.g. 15 to 60 days).</td>
+            <td>Amazon Redshift 2-month trial, Amazon Inspector 15-day trial.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>10. AWS Pricing ke 5 Main Pillars:</h3>
+      <ul class="keypoints">
+        <li><strong>1. Compute:</strong> Server jitne ghante/seconds chalega (EC2, Lambda).</li>
+        <li><strong>2. Storage:</strong> Jitna GB data disk par save rahega (EBS, S3).</li>
+        <li><strong>3. Data Transfer OUT:</strong> AWS se bahar internet par data bhejne ka per-GB charge.</li>
+        <li><strong>4. API Requests:</strong> S3 PUT/GET ya database read/write requests.</li>
+        <li><strong>5. Gateways & Static IPs:</strong> NAT Gateway ka hourly fee ya khali padi Elastic IP ka charge.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 11 TO 14 -->
+    <h2 id="s11"><span class="badge badge-practical">PRACTICAL</span> 11 TO 14. COST EXPLORER, BUDGETS & ALERTS</h2>
+    <div class="card">
+      <h3>11. Cost Explorer</h3>
+      <p>Cost Explorer ek visualization tool hai jisme aap graphs aur tables ke zariye check kar sakte hain ki daily/monthly kitna kharcha badh ya ghat raha hai.</p>
+
+      <div class="steps-block">
+        <h3>13. Hands-on Lab: Monthly Cost Budget Banayein</h3>
+        <ol class="steps">
+          <li>Billing Dashboard ke left menu mein <strong>Budgets</strong> par click karein.</li>
+          <li>Orange button <strong>Create budget</strong> par click karein.</li>
+          <li><strong>Cost budget</strong> choose karein aur <em>Next</em> karein.</li>
+          <li>Budget details dalein:
+            <ul>
+              <li><strong>Budget name:</strong> <code>My-Monthly-Budget</code></li>
+              <li><strong>Period:</strong> <em>Monthly</em> &bull; <strong>Budgeting method:</strong> <em>Fixed</em></li>
+              <li><strong>Amount:</strong> <code>$10.00</code></li>
+            </ul>
+          </li>
+          <li>Threshold Alert set karein:
+            <ul>
+              <li><strong>Alert 1:</strong> <code>80%</code> ($8.00) Actual Spend cross hone par.</li>
+              <li><strong>Alert 2:</strong> <code>100%</code> ($10.00) Forecasted spend aane par.</li>
+              <li><strong>Email:</strong> Apna personal email ID dalein.</li>
+            </ul>
+          </li>
+          <li>Click <strong>Create budget</strong>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 15 TO 18 -->
+    <h2 id="s15"><span class="badge badge-theory">THEORY</span> 15 TO 18. INVOICES, TAGS & COST OPTIMIZATION</h2>
+    <div class="card">
+      <h3>17. Cost Allocation Tags</h3>
+      <p>Resources par labels lagana (jaise <code>Project = MERN-App</code>, <code>Environment = Production</code>) taaki Cost Explorer mein alag-alag projects ka bill filter ho sake.</p>
+
+      <h3>18. 10 Golden Rules: AWS Ka Bill Kaise Bachayein:</h3>
+      <ul class="green-list">
+        <li><strong>1. Faltu EC2 Stop/Terminate Karein:</strong> Idle server bhi chalne ka paisa leta hai.</li>
+        <li><strong>2. Unattached EBS Disks Delete Karein:</strong> EC2 delete hone ke baad unke piche bache EBS volumes bill badhate hain.</li>
+        <li><strong>3. Unused Elastic IPs Release Karein:</strong> Khali padi Elastic IP par hourly charge lagta hai.</li>
+        <li><strong>4. NAT Gateways Delete Karein:</strong> NAT Gateway ~$32/month ka base charge leta hai; lab ke baad turant delete karein.</li>
+        <li><strong>5. Load Balancer Clean Karein:</strong> Empty test ALBs ko delete karein.</li>
+        <li><strong>6. S3 Data Clean Karein:</strong> Purane test files aur snapshots ko delete karein.</li>
+        <li><strong>7. Sahi Size Choose Karein (Right-Sizing):</strong> Chhote task ke liye bada instance na chalayein.</li>
+        <li><strong>8. S3 Lifecycle Rules:</strong> Purana data automatically Glacier archive mein bhejein.</li>
+        <li><strong>9. Reserved / Savings Plans:</strong> 1 ya 3 saal ke steady production servers par 72% tak discount paayein.</li>
+        <li><strong>10. Night/Weekend Shutdown:</strong> Dev servers ko raat mein automatically stop karein.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 19 & 20 -->
+    <h2 id="s19"><span class="badge badge-theory">THEORY</span> 19 & 20. KHARCHA BADHANE WALE RESOURCES & MERN STACK FLOW</h2>
+    <div class="card">
+      <h3>20. MERN Stack App ka Billing Flow:</h3>
+      <div class="diagram">
+Internet Users (Browsing App)
+         │
+         ▼
+[ Route 53 ] ──────────────► Hosted Zone ($0.50/mo) + DNS Queries
+         │
+         ▼
+[ CloudFront CDN ] ────────► Data Transfer Out to users + HTTPS requests
+         │
+         ▼
+[ Application Load Balancer] ─► Base hourly fee + LCU data processed
+         │
+         ▼
+[ EC2 / ECS Containers ] ──► Compute hours (Node.js API execution)
+         │
+         ▼
+[ RDS PostgreSQL / Atlas ] ─► Database instance compute + Multi-AZ storage
+         │
+         ▼
+[ Amazon S3 ] ─────────────► File uploads (GB storage + PUT/GET requests)</div>
+    </div>
+
+    <!-- SECTION 21 TO 23 -->
+    <h2 id="s21"><span class="badge badge-practical">PRACTICAL</span> 21 TO 23. CHALTI HUI RESOURCES PAKADNE KA LAB</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>23. Chalti Hui Hidden Resources Ko Dhoond Kar Band Karein:</h3>
+        <ol class="steps">
+          <li><strong>EC2 Console:</strong> <em>Instances</em> &rarr; filter karein <code>Instance state = running</code>. Unused servers stop karein.</li>
+          <li><strong>EBS Volumes:</strong> EC2 Console &rarr; <em>Volumes</em> &rarr; filter karein <code>State = available</code> (unattached disks). Select &rarr; Delete.</li>
+          <li><strong>Elastic IPs:</strong> EC2 Console &rarr; <em>Elastic IPs</em> &rarr; check karein jinka koi associated instance nahi hai. Select &rarr; Release Elastic IP.</li>
+          <li><strong>NAT Gateways:</strong> VPC Console &rarr; <em>NAT Gateways</em> &rarr; select karein aur Delete karein.</li>
+          <li><strong>Load Balancers:</strong> EC2 Console &rarr; <em>Load Balancers</em> &rarr; test ALB delete karein.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 24 -->
+    <h2 id="s24"><span class="badge badge-important">REVISION</span> 24. AWS ACCOUNT & BILLING BEST PRACTICES CHECKLIST</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li><label><input type="checkbox"> Root User par Multi-Factor Authentication (MFA) enabled hai.</label></li>
+        <li><label><input type="checkbox"> Root User access keys delete kar di gayi hain.</label></li>
+        <li><label><input type="checkbox"> Daily work ke liye dedicated IAM Users least-privilege ke sath bane hain.</label></li>
+        <li><label><input type="checkbox"> Monthly Cost Budget banakar 80% aur 100% par email alert lagaya gaya hai.</label></li>
+        <li><label><input type="checkbox"> Free Tier dashboard regular monitor kiya ja raha hai.</label></li>
+        <li><label><input type="checkbox"> Unattached EBS volumes aur unassociated Elastic IPs delete/release ho chuke hain.</label></li>
+        <li><label><input type="checkbox"> Practical labs ke baad test NAT Gateways aur ALBs delete kar diye gaye hain.</label></li>
+        <li><label><input type="checkbox"> Cost Explorer mein har mahine spending trends review kiye ja rahe hain.</label></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 25 -->
+    <h2 id="s25"><span class="badge badge-theory">THEORY</span> 25. IMPORTANT COMPARISONS</h2>
+    <div class="card">
+      <h3>1. Root User vs IAM User</h3>
+      <table>
+        <thead><tr><th>Root User</th><th>IAM User</th></tr></thead>
+        <tbody>
+          <tr><td>Account ka master owner, unlimited power.</td><td>Limited access, policies se controlled.</td></tr>
+          <tr><td>Account level task ke liye use hota hai.</td><td>Daily coding aur DevOps ke liye use hota hai.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2. IAM User vs IAM Role</h3>
+      <table>
+        <thead><tr><th>IAM User</th><th>IAM Role</th></tr></thead>
+        <tbody>
+          <tr><td>Permanent login with fixed password/access key.</td><td>Temporary identity assumed by users ya EC2 services.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3. Billing Dashboard vs Cost Explorer</h3>
+      <table>
+        <thead><tr><th>Billing Dashboard</th><th>Cost Explorer</th></tr></thead>
+        <tbody>
+          <tr><td>Current bills aur charges ka quick summary.</td><td>Graphs aur filters ke sath deep analysis tool.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 26 -->
+    <h2 id="s26"><span class="badge badge-interview">INTERVIEW</span> 26. TOP 25+ AWS BILLING & ACCOUNT INTERVIEW QUESTIONS & ANSWERS</h2>
+    
+    <div class="interview-list">
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q1.</span> AWS Account kya hai aur ye isolation boundary ki tarah kaise kaam karta hai?</div>
+        <p class="interview-a">AWS Account cloud ke andar aapka ek dedicated, secure container hai jisme aapke saare virtual servers, databases, security configurations aur billing details store hoti hain. Default roop se ek account ke resources kisi doosre account ke resources se baat ya connect nahi kar sakte jab tak cross-account IAM roles ya VPC Peering configure na kiya jaye.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> AWS Account boundary security aur billing ka 100% blast-radius protection provide karti hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q2.</span> AWS Root User kya hai aur isko daily engineering tasks ke liye kyun avoid karna chahiye?</div>
+        <p class="interview-a">Jab aap pehli baar email aur password se AWS account banate hain, toh Root User banta hai. Iske paas poore account aur billing ka unrestricted master access hota hai. Agar iska password leak ho jaye ya galti se galat command chal jaye, toh poora infrastructure delete ho sakta hai jiska koi backup ya audit trail nahi bachta.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Root User par MFA enable karke lock kar dein aur daily kaam ke liye scoped IAM Users/Roles banayein.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q3.</span> IAM mein Principle of Least Privilege kya hai aur ye billing protection mein kaise madad karta hai?</div>
+        <p class="interview-a">Principle of Least Privilege ka matlab hai kisi user, developer ya application ko sirf utni hi limited permissions dena jitni uske kaam ke liye strictly zaroori ho. Cost perspective se ye kisi intern ya script ko galti se mehnge GPU instances, enterprise databases ya heavy NAT Gateways launch karne se rokta hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Zero permissions se start karein aur specific ARNs par hi actions allow karein.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q4.</span> Pay-As-You-Go pricing model kya hai aur AWS billing calculate kaise karta hai?</div>
+        <p class="interview-a">Pay-as-you-go ka matlab hai aap jitna cloud capacity (compute seconds, storage GB, ya network egress) actually consume karte hain, sirf usi ka payment karte hain bina kisi advance security deposit ya upfront investment ke. Jab aap instance stop ya terminate kar dete hain, uska hourly compute bill turant band ho jata hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Ye heavy capital expense (CapEx) ko flexible operational expense (OpEx) mein badalta hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q5.</span> AWS Budgets aur AWS Cost Explorer mein kya exact difference hai?</div>
+        <p class="interview-a"><strong>Cost Explorer</strong> ek reactive reporting tool hai jo purane kharche ka graph, breakdown aur future prediction dikhata hai. <strong>AWS Budgets</strong> ek proactive tool hai jisme aap spending limit set karte hain (e.g. $50/month) aur limit reach hote hi automatic email/SNS alert ya corrective action trigger hota hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Cost Explorer batata hai <em>paise kahan kharch hue</em>; AWS Budgets <em>alert karta hai overspend hone se pehle</em>.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q6.</span> AWS Free Tier ke 3 alag-alag types kaunse hain?</div>
+        <p class="interview-a">1) <strong>12-Months Free:</strong> Account signup ke baad 1 saal tak valid (e.g. 750 hrs/month <code>t2.micro</code>/<code>t3.micro</code> EC2, 5 GB S3 Standard storage).<br>2) <strong>Always Free:</strong> Jo hamesha free rehte hain sabhi accounts ke liye (e.g. 1 Million Lambda requests/month, 25 GB DynamoDB NoSQL storage).<br>3) <strong>Short-Term Trials:</strong> Kisi service ko pehli baar activate karne par limited time trial (e.g. GuardDuty 30-day trial).</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Free Tier monthly limits par chalta hai; limit cross hote hi standard On-Demand rate lagta hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q7.</span> AWS Data Transfer (Inbound vs Outbound vs Inter-Region) par paise kaise leta hai?</div>
+        <p class="interview-a"><strong>Inbound Data:</strong> Internet se AWS ke andar data upload karna <strong>100% FREE</strong> hota hai. <strong>Outbound Data:</strong> AWS se bahar internet par data bhejna per-GB charge hota hai (pehle 100 GB/month globally free, phir ~$0.09/GB). Do alag AWS Regions ke beech data transfer ~$0.02/GB hota hai, aur same region ke do alag AZs ke beech data transfer ~$0.01/GB charge hota hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Heavy downloads ke liye EC2 ke aage Amazon CloudFront CDN lagane se bandwidth kharcha kaafi kam ho jata hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q8.</span> Unattached ya unused Elastic IP (EIP) par paise kyun lagte hain?</div>
+        <p class="interview-a">Public IPv4 addresses internet par limited aur scarce resources hain. Developers inko allocate karke bina use kiye block na karein (hoarding na karein), isliye AWS unallocated ya stopped instance se judhi Elastic IP par hourly charge (~$0.005/hour) lagata hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Jo Elastic IP use mein na ho, use turant VPC Console se <strong>Release</strong> kar dena chahiye.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q9.</span> Cost Allocation Tags kya hote hain aur unhe reports mein dekhne ke liye kya karna padta hai?</div>
+        <p class="interview-a">Cost Allocation Tags resources par lagaye gaye key-value labels hote hain (jaise <code>Project: MERN-App</code>, <code>Env: Production</code>). Ye automatically Cost Explorer mein nahi aate; administrator ko <strong>Billing Console → Cost Allocation Tags</strong> mein jaakar unhe <strong>Activate</strong> karna padta hai, jiske 24 ghante baad tagging data reports mein show hota hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Company ke alag-alag projects aur teams ka kharcha separate track karne ke liye tags zaroori hain.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q10.</span> Agar monthly AWS invoice ka payment fail ho jaye toh kya hota hai?</div>
+        <p class="interview-a">Payment fail hote hi AWS account owner ko alert emails bhejta hai aur agle kuch dino mein transaction retry karta hai. Agar 30 se 60 din tak bill pay na ho, toh AWS account par naye resources banana block kar deta hai, running servers stop kar deta hai aur aakhirkar account suspend kar deta hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Billing settings mein Alternate Contacts add karein aur backup card zaroor attach rakhein.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q11.</span> IAM User aur IAM Role mein kya basic difference hai?</div>
+        <p class="interview-a"><strong>IAM User</strong> ek permanent login identity hai jisme long-term credentials (password ya access keys) hote hain jo insaan ya external system use karta hai. <strong>IAM Role</strong> ke paas koi permanent password ya key nahi hoti; ise EC2 server, Lambda function ya authorized users temporarily assume karke short-term STS credentials lete hain.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Application code ke andar permanent keys na daalein; compute resources par IAM Role attach karein.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q12.</span> AWS par surprise/unexpected billing se bachne ke top best practices kya hain?</div>
+        <p class="interview-a">1) $10, $50 ke multi-tier AWS Budgets alerts set karein.<br>2) Global <code>us-east-1</code> region mein CloudWatch Billing Alarms on karein.<br>3) Root aur IAM par mandatory MFA enable karein.<br>4) Khali pade EBS volumes, unattached Elastic IPs aur idle NAT Gateways ko delete karein.<br>5) AWS Cost Anomaly Detection activate karein.<br>6) Practical labs ke turant baad test resources terminate karein.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Automated budget alerts aur clean-up habits se 99% billing shocks se bacha ja sakta hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q13.</span> Cost Explorer mein kaise pata karein ki sabse zyada kharcha kis service ya operation par ho raha hai?</div>
+        <p class="interview-a"><strong>AWS Cost Explorer</strong> kholein, time filter ko "Daily" par set karein, aur <strong>Group By</strong> option use karein: Service wise dekhne ke liye <strong>Service</strong> select karein, location ke liye <strong>Region</strong> select karein, aur exact line-item (jaise <code>NatGateway-Hours</code> ya <code>t3.xlarge</code>) dekhne ke liye <strong>Usage Type</strong> select karein.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> "Usage Type" filter lagate hi bill ka sabse micro component saaf dikh jata hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q14.</span> Agar NAT Gateway par koi traffic na aa raha ho, fir bhi uska kharcha kyun lagta hai?</div>
+        <p class="interview-a">NAT Gateway ek fully managed, high-availability dedicated networking component hai. AWS ise zone ke andar 24/7 run karne ke liye fixed hourly provisioning charge (~$0.045/hour = lagbhag $32.40/month per NAT Gateway) leta hai, chahe data transfer zero ho.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Multi-AZ VPC mein 3 NAT Gateways ka idle kharcha ~$100/month hota hai; practical ke baad NAT Gateway delete karein.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q15.</span> Kisi IAM User ko Billing & Cost Management Console ka access kaise diya jata hai?</div>
+        <p class="interview-a">Iske liye 2 mandatory steps hote hain:<br>1) <strong>Root User</strong> login karke <strong>Account Settings</strong> mein jayega aur <strong>IAM User and Role Access to Billing Information</strong> ko Activate karega.<br>2) Uske baad administrator IAM User/Group par billing policy (jaise <code>BillingReadOnlyAccess</code>) attach karega.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Bina Root User ke step 1 activate kiye, IAM user ko billing policy dene par bhi Access Denied error aayega.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q16.</span> AWS Account Alias kya hota hai aur iska kya fayda hai?</div>
+        <p class="interview-a">Account Alias ek custom, aasan naam hota hai jo aapke login URL mein 12-digit ke random Account ID ko replace kar deta hai (jaise <code>https://my-company-dev.signin.aws.amazon.com/console</code>). Isse engineers ko login URL yaad rehta hai aur Dev/Prod accounts mein confusion nahi hota.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Account Alias poore AWS globe mein unique hona chahiye.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q17.</span> On-Demand Instances, Reserved Instances (RI), aur Savings Plans mein kya farak hai?</div>
+        <p class="interview-a"><strong>On-Demand:</strong> Full flexibility, per-second payment, zero commitment, sabse costly rate.<br><strong>Reserved Instances (RI):</strong> Specific instance family aur region ke liye 1 ya 3 saal ka commitment, jisme up to 72% discount milta hai.<br><strong>Compute Savings Plans:</strong> Hourly spend (e.g. $10/hour) ka 1 ya 3 saal ka commitment; ye automatic EC2, Fargate aur Lambda par up to 66% discount apply kar deta hai chahe region ya OS change ho.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Modern workloads aur containers ke liye Compute Savings Plans sabse best aur flexible hote hain.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q18.</span> AWS Pricing Calculator kya hai aur ise kab use karte hain?</div>
+        <p class="interview-a">AWS Pricing Calculator (<code>calculator.aws</code>) ek free online tool hai jisse production architecture build karne se pehle har service (EC2, S3, RDS, Bandwidth) ka monthly aur annual cost estimate calculate kiya ja sakta hai aur management approval ke liye export kiya ja sakta hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Infrastructure live karne se pehle Pricing Calculator se budget planning karna zaroori standard hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q19.</span> AWS Organizations mein Consolidated Billing kya hota hai aur iske kya fayde hain?</div>
+        <p class="interview-a">Consolidated Billing ek master management account ke zariye company ke multiple sub-accounts ke bills ko combine kar deta hai. Iske fayde: 1) Single unified invoice aur payment method. 2) Volume Tier Discounts: saare accounts ka S3 storage combine hoke saste tier mein jaldi enter hota hai. 3) Shared Reserved/Savings discounts.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Organization level par company ke overall cloud expenses ko drastically reduce karta hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q20.</span> AWS Cost Anomaly Detection kya hai aur ye achanak badhe kharche ko kaise pakadta hai?</div>
+        <p class="interview-a">Ye ek free Machine Learning service hai jo aapke account ke daily spending patterns ko monitor karti hai. Agar koi script galti se loop mein 50 instances launch kar de ya koi key hack ho jaye, toh ye turant anomaly detect karke root cause batata hai aur email/Slack par alert trigger karta hai.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Runaway billing accidents ko early stage par hi rok deta hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q21.</span> AWS Compute Optimizer kya hai aur ye over-provisioning kaise rokta hai?</div>
+        <p class="interview-a">Compute Optimizer CloudWatch metrics (CPU, RAM, Disk I/O) ko pichhle 14 dino tak analyze karke AI recommendations deta hai ki kaunsa EC2 instance over-provisioned (bada size) hai aur use chhota karke kitna paisa bachaya ja sakta hai bina application slow hue.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Right-sizing suggestions se server bill 20% se 50% tak kam ho jata hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q22.</span> Amazon S3 Lifecycle Rules storage cost ko kaise optimize karte hain?</div>
+        <p class="interview-a">S3 Lifecycle Rules files ki age ke hisab se unhe saste storage tiers mein auto-move karte hain: <strong>S3 Standard</strong> ($0.023/GB) → 30 din baad <strong>Standard-IA</strong> ($0.0125/GB) → 90 din baad <strong>Glacier Flexible</strong> ($0.0036/GB) → 180 din baad <strong>Glacier Deep Archive</strong> ($0.00099/GB).</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Purane compliance logs ko Deep Archive mein rakhne se storage bill mein 95% tak ki bachat hoti hai.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q23.</span> Service Control Policies (SCPs) kya hote hain aur cost guardrails kaise lagate hain?</div>
+        <p class="interview-a">SCPs AWS Organizations level par lagne wali central guardrails hain jo poore account ki maximum allowed permissions tay karti hain. Admin SCP laga sakta hai jisse sub-accounts mein koi bhi developer mehnge instance families launch na kar sake ya unauthorized expensive regions use na kar sake.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Member account ka Root User bhi SCP guardrail ko bypass nahi kar sakta.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q24.</span> Service Quotas (Hard Limits) aur Billing Alarms mein kya antar hai?</div>
+        <p class="interview-a"><strong>Billing Alarms:</strong> Sirf notification bhejte hain jab spending limit cross hoti hai; ye servers ko chalne se nahi rokte.<br><strong>Service Quotas:</strong> AWS dwara set kiye gaye physical resource limits hote hain (jaise max 32 vCPUs). Limit reach hone par AWS naye instances ka creation actively reject kar deta hai jab tak quota increase approve na ho.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Quotas runaway automated scripts ke damage ko physical level par cap karte hain.</div>
+      </div>
+
+      <div class="interview-item">
+        <div class="interview-q"><span class="q-num">Q25.</span> Unused AWS Account ko securely close kaise karein taaki aage koi charge na lage?</div>
+        <p class="interview-a">1) <strong>Root User</strong> login karein.<br>2) Saare regions se running EC2, EBS volumes, Elastic IPs, NAT Gateways, S3 buckets aur RDS databases manually delete karein.<br>3) <strong>Account Settings</strong> mein scroll down karke <strong>Close Account</strong> par click karein aur acknowledgments confirm karein.<br>Account 90 dino ke post-closure period mein chala jata hai jisme koi naya charge nahi banta.</p>
+        <div class="interview-key"><strong>Key takeaway:</strong> Account band karne se pehle resources clean karna mandatory hai taaki final invoice zero aaye.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 27 & 28 -->
+    <h2 id="s27"><span class="badge badge-theory">THEORY</span> 27 & 28. REAL-WORLD FLOW & QUICK REVISION CHEATSHEET</h2>
+    <div class="card">
+      <ul class="concept-list">
+        <li><strong>AWS Account =</strong> Aapke saare resources aur billing ka isolated locker.</li>
+        <li><strong>Root User =</strong> Master owner login — MFA se protect karein.</li>
+        <li><strong>IAM User =</strong> Daily work ke liye limited permission wala login.</li>
+        <li><strong>Pay-as-you-go =</strong> Sirf actual usage ka payment.</li>
+        <li><strong>Billing Dashboard =</strong> Current charges aur invoice summary.</li>
+        <li><strong>AWS Budgets =</strong> Kharcha limit par alert bhejne wala automated tool.</li>
+        <li><strong>Cost Explorer =</strong> Spending trends ko graphs mein analyze karne ka tool.</li>
+        <li><strong>Free Tier =</strong> Beginners ke liye limited free resources.</li>
+      </ul>
+    </div>
+
+    <div class="footer-end">
+      End of AWS Account & Billing Notes
+    </div>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS EC2 Image Builder — Complete Guide</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --ink:#1c2431; --muted:#5c6779; --line:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --card:#161e2d; --ink:#e6ecf5; --muted:#9aa7bb; --line:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:280px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:7px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:6px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:6px;
+  }
+  #sidebar-toggle { display:none; }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  header.hero {
+    background:linear-gradient(135deg,#177a4a,#0d5c40); color:#fff; padding:38px 30px; border-radius:14px; margin-bottom:24px;
+  }
+  header.hero .kicker { text-transform:uppercase; letter-spacing:.12em; font-size:.78rem; opacity:.85; margin-bottom:6px; }
+  header.hero h1 { margin:0 0 8px; font-size:2rem; line-height:1.25; }
+  header.hero p { margin:0; opacity:.95; font-size:1.05rem; }
+
+  section.card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px 26px; margin-bottom:22px;
+    scroll-margin-top:70px;
+  }
+  section.card > h2 {
+    margin:0 0 6px; font-size:1.4rem; color:var(--ink); display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  section.card > .badges { margin:0 0 14px; display:flex; gap:6px; flex-wrap:wrap; }
+  h3 { margin:20px 0 8px; font-size:1.08rem; }
+  p { margin:8px 0; }
+  ul, ol { margin:8px 0; padding-left:24px; }
+  li { margin-bottom:5px; }
+
+  .badge {
+    display:inline-block; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 9px; border-radius:20px; color:#fff;
+  }
+  .badge.theory { background:var(--badge-theory); }
+  .badge.practical { background:var(--badge-practical); }
+  .badge.interview { background:var(--badge-interview); }
+  .badge.important { background:var(--badge-important); }
+
+  .box { border-left:5px solid var(--brand); background:var(--brand-soft); padding:12px 16px; border-radius:8px; margin:14px 0; }
+  .box.good { border-color:var(--ok); background:var(--ok-soft); }
+  .box.warn { border-color:var(--warn); background:var(--warn-soft); }
+  .box.bad { border-color:var(--bad); background:var(--bad-soft); }
+  .box.tip { border-color:var(--tip); background:var(--tip-soft); }
+  .box strong.t { display:block; margin-bottom:3px; }
+
+  .codewrap { margin:14px 0; border-radius:10px; overflow:hidden; border:1px solid var(--line); }
+  .codehead {
+    background:var(--code-head); color:#a9b8d6; display:flex; align-items:center; justify-content:space-between;
+    padding:6px 12px; font-size:.75rem; font-family:Consolas,monospace; letter-spacing:.03em; text-transform:uppercase;
+  }
+  .copy-btn {
+    background:#2c3a5c; color:#dce6f2; border:none; border-radius:5px; padding:3px 10px; font-size:.72rem;
+    cursor:pointer; letter-spacing:0; text-transform:none;
+  }
+  .copy-btn:hover { background:#3a4a70; }
+  .copy-btn.copied { background:var(--ok); color:#fff; }
+  pre {
+    background:var(--code-bg); color:var(--code-ink); margin:0; padding:14px 16px; overflow-x:auto;
+    font-family:Consolas,"Courier New",monospace; font-size:.85rem; line-height:1.55; white-space:pre;
+  }
+  code { font-family:Consolas,"Courier New",monospace; background:var(--brand-soft); padding:1px 6px; border-radius:4px; font-size:.9em; }
+  pre code { background:none; padding:0; font-size:inherit; }
+
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:.92rem; }
+  th, td { border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--brand-soft); }
+  .tablewrap { overflow-x:auto; }
+
+  .arch {
+    background:var(--brand-soft); border:1px dashed #9db4dd; font-family:Consolas,monospace; font-size:.88rem;
+    padding:14px; border-radius:8px; overflow-x:auto; white-space:pre; line-height:1.45; margin:14px 0;
+  }
+  [data-theme="dark"] .arch { border-color:#3a4a70; }
+
+  .steps { counter-reset:stepnum; list-style:none; padding-left:0; margin:14px 0; }
+  .steps li {
+    counter-increment:stepnum; position:relative; padding:8px 8px 8px 42px; margin-bottom:6px;
+    border:1px solid var(--line); border-radius:8px; background:var(--card);
+  }
+  .steps li::before {
+    content:counter(stepnum); position:absolute; left:8px; top:8px; width:24px; height:24px; border-radius:50%;
+    background:var(--brand); color:#fff; font-size:.78rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+
+  .qa { border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin:10px 0; background:var(--card); }
+  .qa .q { font-weight:700; color:var(--brand); }
+  .qa .a { margin-top:4px; }
+
+  footer.end { text-align:center; color:var(--muted); font-size:1rem; margin-top:36px; padding:22px; border-top:1px solid var(--line); font-weight:600; }
+
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+
+  #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+    header.hero { padding:26px 18px; }
+    header.hero h1 { font-size:1.5rem; }
+  }
+
+  @media print {
+    #sidebar, .topbar, #backtotop, .copy-btn { display:none !important; }
+    body { display:block; }
+    .content { max-width:100%; padding:0; }
+    section.card { border:1px solid #999; page-break-inside:auto; }
+    pre { background:#f2f2f2 !important; color:#000 !important; border:1px solid #999; white-space:pre-wrap; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">🏭</span><span class="name">Image Builder Notes</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Theory</h2>
+  <ul id="toc-theory">
+    <li><a href="#s1">1. What is Image Builder?</a></li>
+    <li><a href="#s2">2. Why Use It?</a></li>
+    <li><a href="#s3">3. Manual AMI vs Image Builder</a></li>
+    <li><a href="#s4">4. Core Components</a></li>
+    <li><a href="#s5">5. Image Builder Workflow</a></li>
+    <li><a href="#s10">10. Testing in Image Builder</a></li>
+    <li><a href="#s12">12. Scheduling & Automation</a></li>
+    <li><a href="#s13">13. Multi-Region Distribution</a></li>
+    <li><a href="#s14">14. Auto Scaling + ASG</a></li>
+    <li><a href="#s15">15. Costs</a></li>
+    <li><a href="#s16">16. Best Practices</a></li>
+    <li><a href="#s17">17. Terminology</a></li>
+  </ul>
+  <h2>Practical</h2>
+  <ul id="toc-practical">
+    <li><a href="#s6">6. Create Image Recipe</a></li>
+    <li><a href="#s7">7. Infrastructure Config</a></li>
+    <li><a href="#s8">8. Distribution Config</a></li>
+    <li><a href="#s9">9. Create Pipeline</a></li>
+    <li><a href="#s11">11. Example: Apache Server</a></li>
+  </ul>
+  <h2>Reference</h2>
+  <ul id="toc-reference">
+    <li><a href="#s18">18. Interview Questions</a></li>
+    <li><a href="#s19">19. Quick Revision</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS EC2 Image Builder Guide</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <header class="hero">
+      <div class="kicker">AWS EC2 IMAGE BUILDER</div>
+      <h1>Automate AMI Creation & Distribution</h1>
+      <p>Build, test, and distribute custom AMIs automatically with repeatable pipelines</p>
+    </header>
+
+    <!-- 1 -->
+    <section class="card" id="s1">
+      <h2>1. What is EC2 Image Builder?</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="box">
+        <strong class="t">Definition</strong>
+        EC2 Image Builder is an AWS service that automates the process of creating, maintaining, testing, and distributing custom AMIs (and container images).
+      </div>
+      <p>Instead of manually launching an EC2 instance, installing software by hand, and clicking "Create image," Image Builder lets you define the whole process as a repeatable, automated <strong>pipeline</strong> — so every AMI is built the same consistent way, every time.</p>
+      <div class="box good">
+        <strong class="t">Real-world example</strong>
+        Suppose your company needs a "hardened" Amazon Linux AMI with Apache, security patches, and internal monitoring agents pre-installed. Instead of one engineer manually building this AMI every month, Image Builder can automatically rebuild it on a schedule, test it, and publish it to every AWS Region your company uses — with no manual steps.
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="card" id="s2">
+      <h2>2. Why Do We Use EC2 Image Builder?</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <ul>
+        <li><strong>Automation</strong> — removes manual, error-prone AMI-building steps.</li>
+        <li><strong>Consistency</strong> — every AMI is built from the same defined recipe, so environments stay identical.</li>
+        <li><strong>Built-in testing</strong> — automatically validates an AMI before it's marked usable.</li>
+        <li><strong>Automatic patching</strong> — can rebuild AMIs on a schedule to pick up the latest OS/security updates.</li>
+        <li><strong>Multi-Region distribution</strong> — automatically copies the finished AMI to multiple Regions and accounts.</li>
+        <li><strong>Audit trail</strong> — keeps a version history of every image build, so you know exactly what changed and when.</li>
+        <li><strong>Reduces human effort</strong> — no need to SSH into a server and manually install/update software before creating an image.</li>
+      </ul>
+    </section>
+
+    <!-- 3 -->
+    <section class="card" id="s3">
+      <h2>3. Manual AMI Creation vs Image Builder</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="tablewrap">
+      <table>
+        <tr><th>Aspect</th><th>Manual AMI Creation</th><th>EC2 Image Builder</th></tr>
+        <tr><td>Process</td><td>Launch instance → configure by hand → Create image</td><td>Define a recipe once → pipeline builds it automatically</td></tr>
+        <tr><td>Repeatability</td><td>Depends on the engineer doing it the same way each time</td><td>Fully consistent — same recipe every run</td></tr>
+        <tr><td>Testing</td><td>Manual, if done at all</td><td>Built-in automated test component</td></tr>
+        <tr><td>Patching</td><td>Someone must remember to rebuild</td><td>Can run on a schedule automatically</td></tr>
+        <tr><td>Multi-Region</td><td>Manual "Copy AMI" for each Region</td><td>Distribution configuration handles it automatically</td></tr>
+        <tr><td>Best for</td><td>One-off, quick, simple use cases</td><td>Production pipelines, compliance, frequent rebuilds</td></tr>
+      </table>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="card" id="s4">
+      <h2>4. Core Components</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+
+      <h3>Image Recipe</h3>
+      <p><strong>Definition:</strong> Defines the base image (a source AMI) plus a list of <strong>components</strong> — build and test steps — that should be applied to it (e.g., install Apache, apply security patches, add a monitoring agent).</p>
+      <p>Think of it as the actual "recipe card": what base to start from, and what to do to it.</p>
+
+      <h3>Components</h3>
+      <p><strong>Definition:</strong> Reusable building blocks (build or test steps) written in YAML, which can install software, run scripts, or validate the final image.</p>
+      <p>AWS provides many managed components out of the box (e.g., "Install Amazon CloudWatch Agent"), and you can also write your own custom components.</p>
+
+      <h3>Infrastructure Configuration</h3>
+      <p><strong>Definition:</strong> Defines the temporary EC2 environment Image Builder uses to actually build and test the image — instance type, subnet, security group, IAM instance profile, and whether to keep the build instance running for troubleshooting.</p>
+
+      <h3>Distribution Configuration</h3>
+      <p><strong>Definition:</strong> Defines where the finished AMI should be sent — which AWS Regions, which AWS accounts, and optional settings like AMI tags or launch permissions.</p>
+
+      <h3>Image Pipeline</h3>
+      <p><strong>Definition:</strong> Ties everything together — the recipe, the infrastructure configuration, the distribution configuration, and an optional build schedule — into one automated, repeatable workflow.</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="card" id="s5">
+      <h2>5. Image Builder Workflow</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="arch">Image Recipe (base AMI + components)
+        ↓
+Infrastructure Configuration
+        ↓
+   Build Instance Launched
+        ↓
+ Components Installed & Configured
+        ↓
+     Test Components Run
+        ↓
+     New AMI Created
+        ↓
+Distribution Configuration
+        ↓
+AMI Copied to Region(s) / Account(s)</div>
+      <p>Image Builder automatically launches a temporary build instance, applies your components, runs any tests, captures the result as a new AMI, distributes it wherever you've configured, and then cleans up the temporary instance — all without manual intervention.</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="card" id="s6">
+      <h2>6. How to Create an Image Recipe</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <ol class="steps">
+        <li>Open the <strong>EC2 Image Builder</strong> console.</li>
+        <li>Go to <strong>Image recipes</strong> and click <strong>Create image recipe</strong>.</li>
+        <li>Enter a <strong>Name</strong> and <strong>Version</strong> for the recipe.</li>
+        <li>Choose the <strong>Base image</strong> — select a source AMI (e.g., latest Amazon Linux 2023) or a custom AMI.</li>
+        <li>Under <strong>Build components</strong>, add components such as "Update OS" or "Install Apache" (from AWS-managed components, or your own custom ones).</li>
+        <li>Under <strong>Test components</strong>, optionally add validation steps (e.g., "Verify Apache is running").</li>
+        <li>Configure storage (volume size, type) if needed.</li>
+        <li>Click <strong>Create recipe</strong>.</li>
+      </ol>
+    </section>
+
+    <!-- 7 -->
+    <section class="card" id="s7">
+      <h2>7. How to Create an Infrastructure Configuration</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <ol class="steps">
+        <li>Go to <strong>Infrastructure configurations</strong> and click <strong>Create infrastructure configuration</strong>.</li>
+        <li>Enter a name.</li>
+        <li>Choose an <strong>instance type</strong> for the temporary build instance.</li>
+        <li>Select or create an <strong>IAM instance profile</strong> (Image Builder needs specific permissions to run).</li>
+        <li>Choose a <strong>VPC, subnet,</strong> and <strong>security group</strong> for the build instance.</li>
+        <li>Optionally enable logging to Amazon S3 for build logs.</li>
+        <li>Click <strong>Create infrastructure configuration</strong>.</li>
+      </ol>
+    </section>
+
+    <!-- 8 -->
+    <section class="card" id="s8">
+      <h2>8. How to Create a Distribution Configuration</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <ol class="steps">
+        <li>Go to <strong>Distribution settings</strong> and click <strong>Create distribution settings</strong>.</li>
+        <li>Enter a name.</li>
+        <li>Add one or more <strong>target Regions</strong> for the finished AMI.</li>
+        <li>Optionally set an <strong>AMI name pattern</strong> (e.g., <code>my-app-{{ imagebuilder:buildDate }}</code>).</li>
+        <li>Optionally specify <strong>launch permissions</strong> (which AWS accounts can use the AMI).</li>
+        <li>Optionally add <strong>tags</strong> to apply to the resulting AMI.</li>
+        <li>Click <strong>Create</strong>.</li>
+      </ol>
+    </section>
+
+    <!-- 9 -->
+    <section class="card" id="s9">
+      <h2>9. How to Create and Run a Pipeline</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <ol class="steps">
+        <li>Go to <strong>Image pipelines</strong> and click <strong>Create image pipeline</strong>.</li>
+        <li>Enter a pipeline name.</li>
+        <li>Select the <strong>Image recipe</strong> you created earlier.</li>
+        <li>Select the <strong>Infrastructure configuration</strong>.</li>
+        <li>Select the <strong>Distribution configuration</strong>.</li>
+        <li>Optionally set a <strong>build schedule</strong> (e.g., weekly, or "build when dependencies update").</li>
+        <li>Review and click <strong>Create pipeline</strong>.</li>
+        <li>To build immediately, select the pipeline and click <strong>Run pipeline</strong>.</li>
+        <li>Monitor progress under <strong>Image pipelines → [pipeline] → Output images</strong> until the status becomes <strong>Available</strong>.</li>
+      </ol>
+    </section>
+
+    <!-- 10 -->
+    <section class="card" id="s10">
+      <h2>10. Testing in Image Builder</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p><strong>What it is:</strong> A dedicated phase where <strong>test components</strong> run against the freshly built image, before it's marked as a finished, distributable AMI.</p>
+      <p><strong>Why it matters:</strong> Catches problems (like a service failing to start, or a missing dependency) automatically, before the AMI ever reaches production.</p>
+      <p><strong>Examples of test components:</strong> "Verify Apache is reachable on port 80," "Check that a required package is installed," "Run a simple smoke test script."</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="card" id="s11">
+      <h2>11. Example: Apache Web Server Pipeline</h2>
+      <div class="badges"><span class="badge practical">Practical</span></div>
+      <div class="arch">Base Image: Amazon Linux 2023
+        ↓
+Build Component: Update OS packages
+        ↓
+Build Component: Install Apache (httpd)
+        ↓
+Build Component: Deploy index.html
+        ↓
+Test Component: Verify httpd is running
+        ↓
+     New AMI Created
+        ↓
+Distributed to: us-east-1, ap-south-1</div>
+      <p>With this pipeline defined once, every future rebuild (manual or scheduled) produces an identical, tested "Apache-ready" AMI in both Regions — with zero manual SSH steps.</p>
+    </section>
+
+    <!-- 12 -->
+    <section class="card" id="s12">
+      <h2>12. Scheduling &amp; Automation</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <ul>
+        <li><strong>Manual run</strong> — trigger a build on demand via "Run pipeline."</li>
+        <li><strong>Scheduled builds</strong> — configure a recurring schedule (e.g., every Sunday at 2 AM) so the AMI is refreshed automatically.</li>
+        <li><strong>Dependency-triggered builds</strong> — automatically rebuild when the base image (e.g., the latest Amazon Linux AMI) is updated by AWS, so your AMI always includes the newest security patches.</li>
+      </ul>
+    </section>
+
+    <!-- 13 -->
+    <section class="card" id="s13">
+      <h2>13. Multi-Region Distribution</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <p>Instead of manually running "Copy AMI" for each Region (as with a standard manually-created AMI), Image Builder's <strong>distribution configuration</strong> lets you list every target Region once — every pipeline run then automatically produces and copies the finished AMI to all of them, keeping every Region's image in sync.</p>
+    </section>
+
+    <!-- 14 -->
+    <section class="card" id="s14">
+      <h2>14. Image Builder + Auto Scaling + ASG</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="arch">Image Builder Pipeline
+        ↓
+   New AMI (tested, versioned)
+        ↓
+   Launch Template updated
+        ↓
+   Auto Scaling Group
+        ↓
+Multiple EC2 Instances (latest AMI)</div>
+      <p>The AMI produced by Image Builder can feed directly into a Launch Template, which an Auto Scaling Group then uses to launch instances — so scaling always uses the latest tested, patched image.</p>
+    </section>
+
+    <!-- 15 -->
+    <section class="card" id="s15">
+      <h2>15. Costs</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <ul>
+        <li><strong>Image Builder service itself</strong> — free to use, no additional charge for the pipeline/orchestration.</li>
+        <li><strong>Underlying resources</strong> — you pay for the temporary EC2 build/test instances (billed like normal EC2 usage, only while the build runs), the resulting EBS snapshots, and any S3 storage used for logs.</li>
+        <li><strong>Cross-Region distribution</strong> — standard data transfer and storage costs apply for the copied AMIs.</li>
+      </ul>
+    </section>
+
+    <!-- 16 -->
+    <section class="card" id="s16">
+      <h2>16. Best Practices</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <div class="box warn">
+        <strong class="t">Important Best Practices</strong>
+        <ul style="margin-top:8px;">
+          <li>Use version numbers on recipes so you can track and roll back changes.</li>
+          <li>Always include at least one test component before distributing an AMI.</li>
+          <li>Never bake secrets or credentials into build components.</li>
+          <li>Use AWS-managed components where possible instead of writing everything from scratch.</li>
+          <li>Enable S3 logging for build instances to make troubleshooting failed builds easier.</li>
+          <li>Use semantic, descriptive names for pipelines and recipes.</li>
+          <li>Schedule regular rebuilds so AMIs don't fall behind on security patches.</li>
+          <li>Clean up old, unused AMI versions and their snapshots periodically.</li>
+          <li>Restrict the IAM instance profile used by the build infrastructure to only the permissions it actually needs.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 17 -->
+    <section class="card" id="s17">
+      <h2>17. Important Terminology</h2>
+      <div class="badges"><span class="badge theory">Theory</span></div>
+      <ul>
+        <li><strong>Image Recipe</strong> — base image + list of build/test components.</li>
+        <li><strong>Component</strong> — a reusable build or test step (YAML-defined).</li>
+        <li><strong>Infrastructure Configuration</strong> — the temporary environment used to build/test the image.</li>
+        <li><strong>Distribution Configuration</strong> — where the final AMI is sent (Regions, accounts, permissions).</li>
+        <li><strong>Image Pipeline</strong> — the automated workflow tying recipe + infrastructure + distribution together.</li>
+        <li><strong>Build Instance</strong> — the temporary EC2 instance Image Builder launches to perform the build.</li>
+        <li><strong>Output Image</strong> — the resulting AMI (or container image) produced by a pipeline run.</li>
+        <li><strong>Image Lifecycle Policy</strong> — a rule that automatically deprecates or deletes old image versions after a set time.</li>
+      </ul>
+    </section>
+
+    <!-- 18 -->
+    <section class="card" id="s18">
+      <h2>18. Interview Questions</h2>
+      <div class="badges"><span class="badge interview">Interview</span></div>
+      <div class="qa"><div class="q">Q: What is EC2 Image Builder?</div><div class="a">An AWS service that automates building, testing, and distributing custom AMIs (and container images).</div></div>
+      <div class="qa"><div class="q">Q: How is Image Builder different from manually creating an AMI?</div><div class="a">Manual creation is a one-time, hands-on process; Image Builder defines the process as a repeatable, automated pipeline with built-in testing and distribution.</div></div>
+      <div class="qa"><div class="q">Q: What is an Image Recipe?</div><div class="a">A definition of the base image plus the build and test components to apply to it.</div></div>
+      <div class="qa"><div class="q">Q: What is a Component in Image Builder?</div><div class="a">A reusable build or test step, written in YAML, that installs software or validates the image.</div></div>
+      <div class="qa"><div class="q">Q: What does the Infrastructure Configuration define?</div><div class="a">The temporary EC2 environment (instance type, subnet, IAM role, security group) used to build and test the image.</div></div>
+      <div class="qa"><div class="q">Q: What does the Distribution Configuration define?</div><div class="a">Which Regions and accounts the finished AMI should be copied to, plus optional tags and launch permissions.</div></div>
+      <div class="qa"><div class="q">Q: What is an Image Pipeline?</div><div class="a">The overall automated workflow combining a recipe, infrastructure configuration, distribution configuration, and optional schedule.</div></div>
+      <div class="qa"><div class="q">Q: Can Image Builder run on a schedule?</div><div class="a">Yes — pipelines can be scheduled to rebuild periodically or trigger automatically when the base image updates.</div></div>
+      <div class="qa"><div class="q">Q: Does Image Builder support testing before distributing an image?</div><div class="a">Yes — test components run automatically after the build, before the image is marked available.</div></div>
+      <div class="qa"><div class="q">Q: How does Image Builder support multi-Region deployments?</div><div class="a">The distribution configuration can list multiple target Regions, and every pipeline run copies the AMI to all of them automatically.</div></div>
+      <div class="qa"><div class="q">Q: Is there an extra charge for using Image Builder itself?</div><div class="a">No — the service is free; you only pay for the underlying EC2 build instances, EBS snapshots, and any related storage/data transfer.</div></div>
+      <div class="qa"><div class="q">Q: How does Image Builder integrate with Auto Scaling?</div><div class="a">The AMI it produces can be referenced in a Launch Template, which an Auto Scaling Group then uses to launch instances with the latest tested image.</div></div>
+    </section>
+
+    <!-- 19 -->
+    <section class="card" id="s19">
+      <h2>19. Quick Revision</h2>
+      <div class="badges"><span class="badge theory">Summary</span></div>
+      <div class="arch">Image Builder = Automates AMI creation, testing & distribution
+
+Image Recipe = Base image + components to apply
+
+Component = Reusable build/test step (YAML)
+
+Infrastructure Configuration = Temporary build/test environment
+
+Distribution Configuration = Target Regions/accounts for the AMI
+
+Image Pipeline = Recipe + Infrastructure + Distribution + Schedule
+
+Output = A tested, versioned, ready-to-use AMI</div>
+    </section>
+
+  </div>
+
+  <footer class="end">End of AWS EC2 Image Builder Notes</footer>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  // Sidebar toggle (mobile)
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var wrap = btn.closest('.codewrap');
+      var codeEl = wrap.querySelector('pre');
+      var text = codeEl.innerText;
+      function done(){
+        var old = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+  });
+  function fallbackCopy(text, cb){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    cb();
+  }
+
+  // Sidebar search/filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // Active link highlighting on scroll
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.card[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

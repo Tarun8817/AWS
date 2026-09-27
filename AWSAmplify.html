@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS Amplify — Complete Practical & Study Guide</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#2451c4; --brand-soft:#e8effc;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#146eb4; --table-head-text:#ffffff; --table-row-alt:#f4f8fc;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#6d94f5; --brand-soft:#1c2740;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#12314d; --table-head-text:#d7ecff; --table-row-alt:#131a29;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #b34700 100%);
+    color: #1a1300; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(255,153,0,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#1a1300; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #1a1300; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #2a1b00; }
+
+  /* Badges */
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-right:8px; vertical-align:middle; }
+  .badge-theory { background:var(--badge-theory); color:#fff; }
+  .badge-practical { background:var(--badge-practical); color:#fff; }
+  .badge-important { background:var(--badge-important); color:#fff; }
+  .badge-interview { background:var(--badge-interview); color:#fff; }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); color:#fff; }
+
+  /* TOC */
+  .toc { background: var(--toc-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
+  .toc h2 { margin-top: 0; border: none; padding: 0; font-size: 1.2rem; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem 1.5rem; list-style: none; padding: 0; margin: 0; font-size: 0.88rem; }
+  .toc-grid a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .toc-grid a:hover { text-decoration: underline; color: var(--brand); }
+  @media (max-width: 680px) { .toc-grid { grid-template-columns: 1fr; } }
+
+  /* Headings & Text */
+  h2 {
+    color: var(--heading); font-size: 1.35rem; margin-top: 2.6rem; margin-bottom: 0.85rem;
+    padding-bottom: 0.45rem; border-bottom: 3px solid var(--accent);
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; scroll-margin-top: 4.5rem;
+  }
+  h3 { color: var(--blue); font-size: 1.1rem; margin-top: 1.6rem; margin-bottom: 0.55rem; }
+  h4 { color: var(--purple); font-size: 1rem; margin-top: 1.1rem; margin-bottom: 0.4rem; }
+  p { color: var(--text); margin: 0.65rem 0; }
+
+  /* Cards & Callouts */
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; }
+  .definition {
+    background: var(--accent-soft); border-left: 5px solid var(--accent); border-radius: 8px;
+    padding: 0.95rem 1.2rem; margin: 0.8rem 0 1.1rem; font-weight: 500; color: var(--text);
+  }
+  .keypoints { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .keypoints li { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .keypoints li strong { color: var(--accent-dark); }
+  .concept-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .concept-list li { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .concept-list li strong { color: var(--blue-dark); }
+  .purple-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .purple-list li { background: var(--purple-soft); border-left: 4px solid var(--purple); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .purple-list li strong { color: var(--purple); }
+  .green-list { list-style: none; padding-left: 0; margin: 0.6rem 0; }
+  .green-list li { background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 6px; padding: 0.55rem 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+  .green-list li strong { color: var(--green); }
+
+  .steps-block { background: var(--blue-soft); border-radius: 10px; padding: 1.1rem 1.4rem 1.1rem 1.6rem; margin: 0.8rem 0 1.3rem 0; border: 1px solid var(--border); }
+  .steps-block h3, .steps-block h4 { margin-top: 0; }
+  ol.steps { margin: 0; padding-left: 1.3rem; }
+  ol.steps li { padding: 0.35rem 0; color: var(--text); }
+  ol.steps li::marker { color: var(--blue-dark); font-weight: 700; }
+  ol.steps b, ol.steps strong { color: var(--blue-dark); }
+
+  .important { background: var(--important-bg); border-left: 5px solid var(--important-border); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1.1rem 0; color: var(--text); }
+  .important .important-title { color: var(--important-border); font-weight: 700; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.55rem; }
+  .important ul { margin: 0; padding-left: 1.2rem; }
+  .important li { margin-bottom: 0.4rem; }
+  .note { background: var(--note-bg); border-left: 5px solid var(--note-border); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .note strong { color: var(--note-border); }
+  .example { background: var(--green-soft); border-left: 5px solid var(--green); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .example strong { color: var(--green); }
+  .tip-line { background: var(--tip-soft); border-left: 5px solid var(--tip); border-radius: 8px; padding: 0.9rem 1.2rem; margin: 1rem 0; color: var(--text); }
+  .tip-line strong { color: var(--tip); }
+  .troubleshoot { background: var(--red-soft); border-left: 5px solid var(--red); border-radius: 8px; padding: 0.95rem 1.25rem; margin: 1rem 0; color: var(--text); }
+  .troubleshoot strong { color: var(--red); }
+
+  /* Code Block with Copy */
+  .code-container { position: relative; margin: 0.8rem 0 1.2rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .code-header { background: var(--code-head); color: #8ea1c9; padding: 5px 12px; font-size: 0.78rem; font-family: monospace; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; }
+  .copy-btn { background: #263859; color: #dce6f2; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer; transition: all .2s; }
+  .copy-btn:hover { background: var(--brand); color: #fff; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 0.9rem 1.1rem; margin: 0; overflow-x: auto; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; line-height: 1.55; white-space: pre; }
+  code { font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88em; }
+  p code, li code, td code { background: var(--brand-soft); color: var(--brand); padding: 0.15rem 0.4rem; border-radius: 4px; }
+
+  /* Architecture Diagrams */
+  .diagram { background: var(--code-bg); color: #9fe2bf; border: 1px solid var(--border); padding: 1.1rem 1.3rem; border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.88rem; text-align: left; line-height: 1.55; margin: 1rem 0; white-space: pre; overflow-x: auto; }
+  .diagram strong { color: #f9ca24; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  thead th { background: var(--table-head-bg); color: var(--table-head-text); text-align: left; padding: 0.75rem 0.95rem; font-size: 0.88rem; }
+  tbody td { padding: 0.7rem 0.95rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.88rem; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--table-row-alt); }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--blue-dark); }
+
+  /* Interview Q&A Cards */
+  .qa { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.85rem; }
+  .qa .q { color: var(--blue-dark); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.94rem; display: flex; align-items: baseline; gap: 0.4rem; }
+  .qa .a { color: var(--text); margin: 0; font-size: 0.9rem; line-height: 1.6; }
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  @media (max-width: 768px) { .qa-grid { grid-template-columns: 1fr; } }
+
+  .scenario { border-left: 4px solid var(--bad); background: var(--bad-soft); padding: 1rem 1.2rem; border-radius: 8px; margin: 0.9rem 0; }
+  .scenario .stitle { font-weight: 700; color: var(--bad); margin-bottom: 0.35rem; font-size: 0.95rem; }
+
+  /* Checklists */
+  .checklist { list-style: none; padding: 0; margin: 0.8rem 0; }
+  .checklist li { padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] { transform: scale(1.15); accent-color: var(--ok); cursor: pointer; }
+
+  /* Footer */
+  .footer-end { text-align: center; padding: 3rem 1rem 2rem; font-size: 1.1rem; font-weight: 700; color: var(--muted); border-top: 2px dashed var(--line); margin-top: 3rem; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .title-card h1 { font-size: 1.6rem; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tbody tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    tbody td { border-bottom: 1px solid var(--border); }
+    tbody td::before { content: attr(data-label); display: block; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.2rem; font-size: 0.72rem; text-transform: uppercase; }
+  }
+  @media (max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform:translateX(0); }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:45; }
+    #backdrop.show { display:block; }
+    #menu-btn { display:inline-block; }
+    .content { padding:20px 14px 60px;  width: 100%; }
+  }
+  #backtotop {
+    position:fixed; bottom:22px; right:22px; background:var(--brand); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:1.1rem; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); display:none; z-index:60;
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="brand"><span class="logo">⚡</span><span class="name">AWS Amplify Guide</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter topics...">
+
+  <h2>1. Core Concepts</h2>
+  <ul>
+    <li><a href="#s1">1. What is AWS Amplify?</a></li>
+    <li><a href="#s2">2. Why AWS Amplify?</a></li>
+    <li><a href="#s3">3. Amplify Architecture</a></li>
+    <li><a href="#s4">4. Important Components</a></li>
+    <li><a href="#s5">5. Amplify Hosting</a></li>
+    <li><a href="#s6">6. Amplify + GitHub</a></li>
+  </ul>
+
+  <h2>2. Deployment & Setup</h2>
+  <ul>
+    <li><a href="#s7">7. Practical: Deploy React/Vite</a></li>
+    <li><a href="#s8">8. Build Settings (amplify.yml)</a></li>
+    <li><a href="#s9">9. Environment Variables</a></li>
+    <li><a href="#s18">18. Amplify Environments</a></li>
+    <li><a href="#s19">19. Branch Deployments</a></li>
+    <li><a href="#s20">20. CI/CD with Amplify</a></li>
+  </ul>
+
+  <h2>3. Backend & Services</h2>
+  <ul>
+    <li><a href="#s10">10. Amplify Authentication</a></li>
+    <li><a href="#s11">11. Amplify + Cognito</a></li>
+    <li><a href="#s12">12. Amplify API (REST vs GraphQL)</a></li>
+    <li><a href="#s13">13. Amplify + REST (MERN)</a></li>
+    <li><a href="#s14">14. Amplify + GraphQL (AppSync)</a></li>
+    <li><a href="#s15">15. Amplify Storage (S3)</a></li>
+    <li><a href="#s16">16. Amplify + Lambda</a></li>
+    <li><a href="#s17">17. Amplify + DynamoDB</a></li>
+  </ul>
+
+  <h2>4. Networking & Routing</h2>
+  <ul>
+    <li><a href="#s21">21. Custom Domain Setup</a></li>
+    <li><a href="#s22">22. Amplify + Route 53</a></li>
+    <li><a href="#s23">23. Amplify + CloudFront</a></li>
+    <li><a href="#s30">30. SPA Routing (404 Fix)</a></li>
+  </ul>
+
+  <h2>5. Full-Stack & Tooling</h2>
+  <ul>
+    <li><a href="#s24">24. Amplify + MERN Stack</a></li>
+    <li><a href="#s25">25. Practical MERN Deployment</a></li>
+    <li><a href="#s26">26. Amplify CLI Reference</a></li>
+    <li><a href="#s27">27. Amplify Gen 1 vs Gen 2</a></li>
+    <li><a href="#s28">28. Amplify Security</a></li>
+    <li><a href="#s29">29. 10 Troubleshooting Cases</a></li>
+    <li><a href="#s31">31. Pricing & Billing</a></li>
+  </ul>
+
+  <h2>6. Comparisons & Interviews</h2>
+  <ul>
+    <li><a href="#s32">32. Amplify vs AWS Services</a></li>
+    <li><a href="#s33">33. Amplify vs Firebase</a></li>
+    <li><a href="#s34">34. Real-World Architecture</a></li>
+    <li><a href="#s35">35. Hands-on Project Steps</a></li>
+    <li><a href="#s36">36. Complete Master Diagram</a></li>
+    <li><a href="#s37">37. 30+ Interview Questions</a></li>
+    <li><a href="#s38">38. 10 Scenario Questions</a></li>
+    <li><a href="#s39">39. Quick Revision Cheat Sheet</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle Menu">☰ Menu</button>
+      <strong>AWS Amplify Complete Guide</strong>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- TITLE CARD -->
+    <div class="title-card">
+      <h1>AWS Amplify</h1>
+      <p class="subtitle">Complete Full-Stack Practical & Architectural Guide</p>
+      <p class="desc">"Accelerate Full-Stack Web & Mobile App Delivery with Automated CI/CD, Serverless Hosting, Cognito Auth, S3 Storage, and MERN Integrations."</p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+      <h2>📑 Quick Navigation Overview</h2>
+      <ul class="toc-grid">
+        <li><a href="#s1">1. What is AWS Amplify?</a></li>
+        <li><a href="#s2">2. Why AWS Amplify?</a></li>
+        <li><a href="#s3">3. Amplify Architecture</a></li>
+        <li><a href="#s4">4. Important Components</a></li>
+        <li><a href="#s5">5. Amplify Hosting</a></li>
+        <li><a href="#s6">6. Amplify + GitHub</a></li>
+        <li><a href="#s7">7. Practical: Deploy React/Vite</a></li>
+        <li><a href="#s8">8. Build Settings (amplify.yml)</a></li>
+        <li><a href="#s9">9. Environment Variables</a></li>
+        <li><a href="#s10">10. Amplify Authentication</a></li>
+        <li><a href="#s11">11. Amplify + Cognito</a></li>
+        <li><a href="#s12">12. REST vs GraphQL API</a></li>
+        <li><a href="#s13">13. Amplify + REST (MERN)</a></li>
+        <li><a href="#s14">14. Amplify + GraphQL (AppSync)</a></li>
+        <li><a href="#s15">15. Amplify Storage (S3)</a></li>
+        <li><a href="#s16">16. Amplify + Lambda</a></li>
+        <li><a href="#s17">17. Amplify + DynamoDB</a></li>
+        <li><a href="#s18">18. Amplify Environments</a></li>
+        <li><a href="#s19">19. Branch Deployments</a></li>
+        <li><a href="#s20">20. CI/CD with Amplify</a></li>
+        <li><a href="#s21">21. Custom Domain Setup</a></li>
+        <li><a href="#s22">22. Amplify + Route 53</a></li>
+        <li><a href="#s23">23. Amplify + CloudFront</a></li>
+        <li><a href="#s24">24. Amplify + MERN Stack</a></li>
+        <li><a href="#s25">25. Practical MERN Deployment</a></li>
+        <li><a href="#s26">26. Amplify CLI Reference</a></li>
+        <li><a href="#s27">27. Amplify Gen 1 vs Gen 2</a></li>
+        <li><a href="#s28">28. Amplify Security</a></li>
+        <li><a href="#s29">29. 10 Troubleshooting Cases</a></li>
+        <li><a href="#s30">30. SPA 404 Refresh Fix</a></li>
+        <li><a href="#s31">31. Pricing & Billing</a></li>
+        <li><a href="#s32">32. Amplify vs AWS Services</a></li>
+        <li><a href="#s33">33. Amplify vs Firebase</a></li>
+        <li><a href="#s34">34. Real-World Architecture</a></li>
+        <li><a href="#s35">35. Hands-on Project Checklist</a></li>
+        <li><a href="#s36">36. Master Architecture Diagram</a></li>
+        <li><a href="#s37">37. 30+ Interview Questions</a></li>
+        <li><a href="#s38">38. 10 Scenario Questions</a></li>
+        <li><a href="#s39">39. Quick Revision Cheat Sheet</a></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 1 -->
+    <h2 id="s1"><span class="badge badge-theory">THEORY</span> 1. What is AWS Amplify?</h2>
+    <div class="card">
+      <div class="definition">
+        "<strong>AWS Amplify</strong> is a comprehensive set of purpose-built tools, libraries, and hosting services from Amazon Web Services that enables developers to build, host, and connect full-stack web and mobile applications rapidly on top of AWS infrastructure — without manually configuring complex individual cloud services."
+      </div>
+      
+      <p>Building modern web apps usually requires stitching together 5-10 different cloud services: S3 for static files, CloudFront for CDN, Cognito for user accounts, API Gateway for endpoints, and DynamoDB for records. Amplify acts as a <strong>unified abstraction layer</strong> that orchestrates all these underlying services with zero boilerplate.</p>
+
+      <h3>Frontend vs Backend vs Auth vs Storage:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Responsibility</th>
+            <th>Underlying AWS Engine</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Frontend & Hosting</strong></td>
+            <td>Serving client-side React/Vite/Next.js code globally with automated Git CI/CD.</td>
+            <td>Amplify Hosting + Amazon CloudFront</td>
+          </tr>
+          <tr>
+            <td><strong>Authentication</strong></td>
+            <td>User signup, login, OTP verification, social OAuth (Google/Apple), and MFA.</td>
+            <td>Amazon Cognito (User & Identity Pools)</td>
+          </tr>
+          <tr>
+            <td><strong>API & Data</strong></td>
+            <td>Structured communication bridge for REST endpoints or real-time GraphQL.</td>
+            <td>Amazon API Gateway & AWS AppSync</td>
+          </tr>
+          <tr>
+            <td><strong>Storage</strong></td>
+            <td>Uploading, downloading, and securing user media files and documents.</td>
+            <td>Amazon S3 (Simple Storage Service)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 2 & 3 -->
+    <h2 id="s2"><span class="badge badge-theory">THEORY</span> 2 & 3. Why AWS Amplify & Core Architecture</h2>
+    <div class="card">
+      <h3>2. Why Developers & Startups Choose Amplify:</h3>
+      <ul class="concept-list">
+        <li><strong>Zero Server Management:</strong> No Linux patching, Nginx configuration, or SSH key management.</li>
+        <li><strong>Native GitOps CI/CD:</strong> Pushing code to GitHub automatically triggers build containers and deploys globally.</li>
+        <li><strong>Atomic Deployments:</strong> Zero downtime updates; live traffic only shifts after build verification succeeds.</li>
+        <li><strong>Free Automated SSL/TLS:</strong> Instant HTTPS certificates with automatic renewals.</li>
+      </ul>
+
+      <h3>3. High-Level Architecture Flow:</h3>
+      <div class="diagram">
+Developer (Local Machine)
+   │
+   ▼ git push origin main
+GitHub / GitLab Repository
+   │
+   ▼ Webhook Notification
+AWS Amplify Hosting
+   │ ➔ 1. Provisions Linux container
+   │ ➔ 2. Installs packages (npm ci)
+   │ ➔ 3. Builds bundle (npm run build ➔ dist)
+   │ ➔ 4. Syncs static bundle to global CDN
+   ▼
+Amazon CloudFront (400+ Global Edge Locations)
+   │
+   ▼ HTTPS / Fast SSL
+End Users Across the World</div>
+    </div>
+
+    <!-- SECTION 4, 5, 6 -->
+    <h2 id="s4"><span class="badge badge-theory">THEORY</span> 4, 5 & 6. Core Components, Hosting & GitHub Workflow</h2>
+    <div class="card">
+      <ul class="keypoints">
+        <li><strong>Amplify Hosting:</strong> Git-driven web hosting platform with built-in CDN edge distribution.</li>
+        <li><strong>Amplify CLI:</strong> Terminal tool for generating and deploying backend AWS resources.</li>
+        <li><strong>Amplify Libraries:</strong> Client SDKs for React, iOS, Android, and Flutter.</li>
+        <li><strong>Amplify Gen 2:</strong> Code-first TypeScript infrastructure powered by AWS CDK.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 7 -->
+    <h2 id="s7"><span class="badge badge-practical">PRACTICAL</span> 7. PRACTICAL: Deploy a React/Vite Application on Amplify</h2>
+    <div class="card">
+      <div class="steps-block">
+        <h3>Complete Step-by-Step Hands-on Approach:</h3>
+        <ol class="steps">
+          <li><strong>Step 1: Create Local React App with Vite:</strong>
+            <div class="code-container">
+              <div class="code-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>npm create vite@latest my-amplify-app -- --template react
+cd my-amplify-app
+npm install
+npm run dev</code></pre>
+            </div>
+          </li>
+          <li><strong>Step 2: Push to GitHub:</strong>
+            <div class="code-container">
+              <div class="code-header"><span>Git Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code>git init
+git add .
+git commit -m "feat: initial commit for Amplify deployment"
+git branch -M main
+git remote add origin https://github.com/&lt;your-username&gt;/my-amplify-app.git
+git push -u origin main</code></pre>
+            </div>
+          </li>
+          <li><strong>Step 3: Connect to AWS Amplify Console:</strong>
+            <ul>
+              <li>Open the AWS Console &rarr; Search for <strong>AWS Amplify</strong>.</li>
+              <li>Click <strong>Host web app</strong> &rarr; Select <strong>GitHub</strong> &rarr; Click <em>Next</em>.</li>
+              <li>Authorize AWS Amplify to access your GitHub repositories.</li>
+              <li>Select your repository (<code>my-amplify-app</code>) and target branch (<code>main</code>).</li>
+            </ul>
+          </li>
+          <li><strong>Step 4: Verify Build Settings:</strong>
+            Amplify auto-detects Vite and sets the build output to <code>dist</code>. Click <em>Next</em> &rarr; <em>Save and deploy</em>.
+          </li>
+          <li><strong>Step 5: Access Live URL:</strong>
+            Amplify executes: <em>Provision &rarr; Build &rarr; Deploy &rarr; Verify</em>. Once complete, click the generated link (e.g., <code>https://main.d1234abcd.amplifyapp.com</code>).
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 8 & 9 -->
+    <h2 id="s8"><span class="badge badge-theory">THEORY</span> 8 & 9. Build Settings (amplify.yml) & Environment Variables</h2>
+    <div class="card">
+      <h3>8. Production <code>amplify.yml</code> Configuration:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>YAML (amplify.yml)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: dist     # For Vite use 'dist', for Create-React-App use 'build'
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*</code></pre>
+      </div>
+
+      <h3>9. Environment Variables Best Practice:</h3>
+      <p>Configure variables in Amplify Console &rarr; <em>App settings</em> &rarr; <strong>Environment variables</strong> (e.g. <code>VITE_API_URL = https://api.mycompany.com</code>).</p>
+      <div class="important">
+        <div class="important-title">🔒 Frontend Security Warning:</div>
+        <p>All <code>VITE_</code> and <code>REACT_APP_</code> environment variables are bundled directly into the browser's JavaScript payload. Never put database credentials or AWS Secret Keys in frontend variables!</p>
+      </div>
+    </div>
+
+    <!-- SECTION 10 & 11 -->
+    <h2 id="s10"><span class="badge badge-theory">THEORY</span> 10 & 11. Amplify Authentication & Amazon Cognito</h2>
+    <div class="card">
+      <div class="definition">
+        <strong>Amplify Auth</strong> is powered by <strong>Amazon Cognito</strong>, separating identity into two engines:
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Cognito Engine</th>
+            <th>Primary Function</th>
+            <th>Tokens / Output Issued</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>User Pool (Authentication)</strong></td>
+            <td>User directory handling signup, login, password resets, and MFA verification.</td>
+            <td><strong>JWT Tokens:</strong> ID Token, Access Token, Refresh Token</td>
+          </tr>
+          <tr>
+            <td><strong>Identity Pool (Authorization)</strong></td>
+            <td>Exchanges JWTs for temporary scoped AWS IAM credentials.</td>
+            <td>Temporary AWS AccessKeyId, SecretKey & SessionToken</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 12, 13, 14 -->
+    <h2 id="s12"><span class="badge badge-theory">THEORY</span> 12, 13 & 14. API Integrations: REST vs GraphQL</h2>
+    <div class="card">
+      <h3>13. Connecting a MERN Stack Backend:</h3>
+      <div class="diagram">
+[ React on Amplify ] ──► HTTPS Request + Bearer JWT ──► [ Amazon API Gateway ]
+                                                              │
+                                                              ▼
+                                                   [ Node.js / Express API ]
+                                                              │
+                                                              ▼
+                                                    [ MongoDB Database ]</div>
+
+      <div class="tip-line">
+        <strong>Important:</strong> In your Express backend, remember to allow CORS requests from your Amplify domain: <code>cors({ origin: 'https://main.d1234abcd.amplifyapp.com' })</code>.
+      </div>
+    </div>
+
+    <!-- SECTION 15 TO 20 -->
+    <h2 id="s15"><span class="badge badge-theory">THEORY</span> 15 TO 20. STORAGE, LAMBDA, DYNAMODB & CI/CD</h2>
+    <div class="card">
+      <ul class="concept-list">
+        <li><strong>Amplify Storage (S3):</strong> Offers Public, Protected (auth-only read), and Private (owner-only) buckets.</li>
+        <li><strong>Amplify Functions (Lambda):</strong> Trigger background image resizing or transactional emails on database events.</li>
+        <li><strong>Amplify DynamoDB:</strong> Fully managed, single-digit millisecond latency NoSQL persistence.</li>
+        <li><strong>Multi-Branch Environments:</strong> <code>main</code> branch deploys to production, while <code>dev</code> branch deploys to an isolated staging URL.</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 21 TO 23 -->
+    <h2 id="s21"><span class="badge badge-theory">THEORY</span> 21 TO 23. CUSTOM DOMAIN, ROUTE 53 & CLOUDFRONT</h2>
+    <div class="card">
+      <h3>How Custom Domains Work with Route 53:</h3>
+      <ol class="steps">
+        <li>In Amplify Console, go to <strong>Domain management</strong> &rarr; click <strong>Add domain</strong>.</li>
+        <li>Enter your root domain (e.g. <code>mybrand.com</code>).</li>
+        <li>Amplify automatically provisions an SSL/TLS certificate via <strong>AWS Certificate Manager (ACM)</strong>.</li>
+        <li>Amplify automatically maps the required CNAME and Alias (A) records inside your Route 53 Hosted Zone.</li>
+      </ol>
+    </div>
+
+    <!-- SECTION 24 & 25 -->
+    <h2 id="s24"><span class="badge badge-practical">PRACTICAL</span> 24 & 25. MERN STACK DEPLOYMENT STRATEGY</h2>
+    <div class="card">
+      <p>The standard modern approach to deploying MERN stack apps on AWS:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Application Layer</th>
+            <th>Recommended AWS Hosting</th>
+            <th>Key Advantage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>React Frontend</strong></td>
+            <td><strong>AWS Amplify Hosting</strong></td>
+            <td>Zero server setup, global CloudFront CDN, automatic SSL, instant Git CI/CD.</td>
+          </tr>
+          <tr>
+            <td><strong>Node/Express Backend</strong></td>
+            <td><strong>AWS App Runner</strong> or <strong>EC2 + PM2</strong></td>
+            <td>Automatic container scaling, secure environment variables, persistent Node runtimes.</td>
+          </tr>
+          <tr>
+            <td><strong>Database</strong></td>
+            <td><strong>MongoDB Atlas</strong> or <strong>Amazon DocumentDB</strong></td>
+            <td>Automated backups, high availability replicas, and secure VPC peering.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 26 & 27 -->
+    <h2 id="s26"><span class="badge badge-practical">PRACTICAL</span> 26 & 27. AMPLIFY CLI & GEN 1 VS GEN 2</h2>
+    <div class="card">
+      <h3>26. Essential Amplify CLI Commands:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>npm install -g @aws-amplify/cli   # Install CLI globally
+amplify configure                 # Set up AWS IAM user credentials
+amplify init                      # Initialize project configuration
+amplify add auth                  # Add Cognito Authentication
+amplify add storage               # Add S3 Storage bucket
+amplify push                      # Provision backend resources to AWS cloud
+amplify status                    # View active cloud resources</code></pre>
+      </div>
+
+      <h3>27. Amplify Gen 1 vs Gen 2 (Code-First TypeScript):</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Amplify Gen 1 (Classic)</th>
+            <th>Amplify Gen 2 (Next-Gen)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Definition Model</strong></td>
+            <td>CLI interactive prompts (<code>amplify add auth</code>) with generated JSON files.</td>
+            <td><strong>Code-First TypeScript</strong> (define auth, data, and storage directly in code).</td>
+          </tr>
+          <tr>
+            <td><strong>Underlying Engine</strong></td>
+            <td>CloudFormation JSON/YAML.</td>
+            <td>Built natively on <strong>AWS Cloud Development Kit (CDK)</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>Type Safety</strong></td>
+            <td>Manual type generation.</td>
+            <td>End-to-end full-stack TypeScript safety across frontend and backend.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 28 & 29 -->
+    <h2 id="s28"><span class="badge badge-troubleshoot">TROUBLESHOOTING</span> 28 & 29. 10 COMMON AMPLIFY ERRORS & FIXES</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">Issue / Error</th>
+            <th style="width:35%;">Root Cause</th>
+            <th style="width:40%;">How to Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Build Step Failed</strong></td>
+            <td>Missing npm package or syntax error in build script.</td>
+            <td>Check Amplify build logs; run <code>npm run build</code> locally to verify.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Blank White Screen on Live App</strong></td>
+            <td>Wrong <code>baseDirectory</code> in <code>amplify.yml</code>.</td>
+            <td>Set <code>baseDirectory: dist</code> for Vite or <code>build</code> for CRA.</td>
+          </tr>
+          <tr>
+            <td><strong>3. 404 Error on Page Refresh</strong></td>
+            <td>SPA client-side route requested without a rewrite rule.</td>
+            <td>Add a 200 Rewrite rule directing all non-file paths to <code>/index.html</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Browser CORS Error</strong></td>
+            <td>Backend does not allow the Amplify domain.</td>
+            <td>Add <code>Access-Control-Allow-Origin: https://your-amplify-domain</code> in backend.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Environment Variable Undefined</strong></td>
+            <td>Missing <code>VITE_</code> prefix or app was not rebuilt after adding.</td>
+            <td>Prefix variable with <code>VITE_</code> and trigger a new build in Amplify.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Case-Sensitive Import Failure</strong></td>
+            <td>Linux build container enforces case-sensitive file paths.</td>
+            <td>Match exact import path casing (e.g. <code>import Header from './Header'</code>).</td>
+          </tr>
+          <tr>
+            <td><strong>7. Custom Domain Verification Stuck</strong></td>
+            <td>Missing or incorrect CNAME validation records in DNS.</td>
+            <td>Add ACM CNAME records to DNS host and allow TTL propagation.</td>
+          </tr>
+          <tr>
+            <td><strong>8. Node.js Version Mismatch</strong></td>
+            <td>Amplify using older Node version than required by packages.</td>
+            <td>Add <code>nvm use 20</code> in the <code>preBuild</code> phase in <code>amplify.yml</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>9. Cognito Auth 400 Bad Request</strong></td>
+            <td>Mismatched User Pool ID or App Client ID in config.</td>
+            <td>Verify IDs inside <code>amplifyconfiguration.json</code> match AWS Cognito console.</td>
+          </tr>
+          <tr>
+            <td><strong>10. Out of Memory Build Error</strong></td>
+            <td>Heavy bundle exceeding standard container memory.</td>
+            <td>Optimize bundle chunks or increase build compute allocation in settings.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 30 -->
+    <h2 id="s30"><span class="badge badge-important">IMPORTANT</span> 30. REACT SPA ROUTING (404 ON REFRESH FIX)</h2>
+    <div class="card">
+      <div class="troubleshoot">
+        <strong>The Problem:</strong> React Router routes (e.g. <code>/dashboard</code>, <code>/profile</code>) exist only in JavaScript memory in the browser. When a user presses <strong>F5 Refresh</strong>, the browser asks the static web server for a physical file at <code>/dashboard/index.html</code>. Since that file does not exist, the server returns a <strong>404 Not Found</strong> error.
+      </div>
+
+      <div class="steps-block">
+        <h3>How to Fix: Configure 200 Rewrite Rule in Amplify Console</h3>
+        <ol class="steps">
+          <li>Open Amplify Console &rarr; Go to <strong>App settings</strong> &rarr; Click <strong>Rewrites and redirects</strong>.</li>
+          <li>Click <strong>Add rule</strong> and enter:
+            <ul>
+              <li><strong>Source address:</strong> <code>&lt;/^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json)$)([^.]+$)/&gt;</code></li>
+              <li><strong>Target address:</strong> <code>/index.html</code></li>
+              <li><strong>Type:</strong> <code>200 (Rewrite)</code></li>
+            </ul>
+          </li>
+          <li>Click <strong>Save</strong>. Now all route requests return <code>index.html</code> with a 200 status code, allowing React Router to render smoothly!</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECTION 31 TO 34 -->
+    <h2 id="s31"><span class="badge badge-theory">THEORY</span> 31 TO 34. PRICING, COMPARISONS & REAL-WORLD ARCHITECTURE</h2>
+    <div class="card">
+      <h3>32. Amplify vs S3 Static Website Hosting vs EC2</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>AWS Amplify Hosting</th>
+            <th>S3 Static Hosting</th>
+            <th>Amazon EC2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Git CI/CD Pipeline</strong></td>
+            <td>Built-in automatically</td>
+            <td>Manual (requires GitHub Actions/CodePipeline)</td>
+            <td>Manual server configuration</td>
+          </tr>
+          <tr>
+            <td><strong>SSL/TLS Certificates</strong></td>
+            <td>Automatic & Free</td>
+            <td>Requires CloudFront + ACM manually</td>
+            <td>Requires Certbot / Let's Encrypt</td>
+          </tr>
+          <tr>
+            <td><strong>Best For</strong></td>
+            <td>Modern Single Page & SSR Web Apps</td>
+            <td>Raw file storage & basic static sites</td>
+            <td>Monolithic backends & legacy apps</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 35 & 36 -->
+    <h2 id="s35"><span class="badge badge-practical">PRACTICAL</span> 35 & 36. COMPLETE HANDS-ON PROJECT & MASTER ARCHITECTURE</h2>
+    <div class="card">
+      <div class="diagram">
+                                  PUBLIC INTERNET
+                                         │
+                                         ▼
+                             Custom Domain (myapp.com)
+                                         │
+                                         ▼
+                                Amazon Route 53 (DNS)
+                                         │
+                                         ▼
+                         AWS Amplify Hosting Infrastructure
+                                         │
+                                         ▼
+                           Amazon CloudFront Global CDN
+                                         │
+                                         ▼
+                           React Single Page Application
+                                         │
+            ┌────────────────────────────┼────────────────────────────┐
+            │                            │                            │
+            ▼                            ▼                            ▼
+     Amazon Cognito                 AWS AppSync /                 Amazon S3
+    (Authentication)                API Gateway                (Object Storage)
+    - User Pools (Auth)                  │                     - Static Assets
+    - Identity Pools (IAM)               ▼                     - User Uploads
+                                AWS Lambda Functions
+                                         │
+                                         ▼
+                                  Amazon DynamoDB
+                               (Serverless Database)</div>
+    </div>
+
+    <!-- SECTION 37 -->
+    <h2 id="s37"><span class="badge badge-interview">INTERVIEW</span> 37. TOP 30+ AWS AMPLIFY INTERVIEW QUESTIONS & ANSWERS</h2>
+    <div class="card">
+      <div class="qa-grid">
+        <div class="qa">
+          <div class="q">Q1. What is AWS Amplify?</div>
+          <p class="a">A set of purpose-built tools and services from AWS to build, host, and connect full-stack web and mobile apps with automated CI/CD and serverless backends.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q2. How does Amplify Hosting differ from S3 Static Hosting?</div>
+          <p class="a">Amplify includes built-in Git CI/CD, automatic SSL certificates, native CloudFront integration, PR previews, and SPA routing rewrites out of the box.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q3. Which CDN powers Amplify Hosting under the hood?</div>
+          <p class="a">Amazon CloudFront, delivering content with edge caching across hundreds of global Edge Locations.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q4. How does Amplify trigger deployments on git push?</div>
+          <p class="a">Via webhooks. When code is pushed to GitHub, Amplify spins up a temporary Linux container to run build commands and distribute assets.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q5. Why does refreshing a React SPA route cause a 404 error?</div>
+          <p class="a">Because client-side routes don't physically exist on the static server. It is resolved by adding a 200 Rewrite rule pointing non-asset URLs to <code>/index.html</code>.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q6. Which AWS service powers Amplify Authentication?</div>
+          <p class="a">Amazon Cognito, using User Pools for directory authentication and Identity Pools for AWS IAM authorization.</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q7. What is Cognito User Pool vs Identity Pool?</div>
+          <p class="a">User Pools manage Authentication (login/signup, issuing JWTs). Identity Pools manage Authorization (granting temporary AWS IAM credentials to access S3/DynamoDB).</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q8. What does amplify.yml do?</div>
+          <p class="a">It is the build specification defining <code>preBuild</code>, <code>build</code> commands, caching paths, and the output <code>baseDirectory</code> (e.g. <code>dist</code>).</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q9. What is Amplify Gen 2?</div>
+          <p class="a">The next-generation code-first TypeScript approach for AWS Amplify, built natively on the AWS Cloud Development Kit (CDK).</p>
+        </div>
+        <div class="qa">
+          <div class="q">Q10. Does Amplify replace Node/Express in MERN?</div>
+          <p class="a">No. Amplify hosts the React frontend and handles auth/storage, while the Node/Express backend runs custom business logic on EC2, ECS, or App Runner.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 38 & 39 -->
+    <h2 id="s38"><span class="badge badge-interview">SCENARIOS</span> 38 & 39. SCENARIOS & QUICK REVISION CHEATSHEET</h2>
+    <div class="card">
+      <div class="scenario">
+        <div class="stitle">Scenario 1: React site loads fine on home page, but hitting refresh on <code>/profile</code> returns 404.</div>
+        <p><strong>Solution:</strong> Go to Amplify Console &rarr; <em>Rewrites and redirects</em> and add a 200 Rewrite rule directing all traffic to <code>/index.html</code>.</p>
+      </div>
+
+      <div class="scenario">
+        <div class="stitle">Scenario 2: Code builds on Windows locally, but fails in Amplify CI/CD container.</div>
+        <p><strong>Solution:</strong> Check build logs for case-sensitive import mismatches (e.g. <code>./Navbar</code> vs <code>./navbar</code>), as Linux filesystems are case-sensitive.</p>
+      </div>
+
+      <h3>39. Quick Revision Flashcards:</h3>
+      <ul class="concept-list">
+        <li><strong>Amplify Hosting =</strong> Git-driven frontend hosting with automatic SSL and CloudFront CDN.</li>
+        <li><strong>Vite baseDirectory =</strong> <code>dist</code> (must match in <code>amplify.yml</code>).</li>
+        <li><strong>Cognito User Pool =</strong> Authentication & JWTs.</li>
+        <li><strong>Cognito Identity Pool =</strong> AWS IAM temporary credentials.</li>
+        <li><strong>Amplify Storage =</strong> S3 bucket wrapper with Public, Protected, and Private access.</li>
+        <li><strong>SPA 404 Fix =</strong> 200 Rewrite rule in Amplify Console.</li>
+      </ul>
+    </div>
+
+    <div class="footer-end">
+      End of AWS Amplify Notes
+    </div>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

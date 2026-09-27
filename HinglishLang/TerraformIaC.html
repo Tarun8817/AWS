@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terraform — Infrastructure as Code (IaC) Complete Hinglish Guide</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#6344d4; --brand-soft:#efeafd;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#5c3bbb; --table-head-text:#ffffff; --table-row-alt:#f6f4fd;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#9d86f7; --brand-soft:#21193a;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#2b1d5c; --table-head-text:#e9e2ff; --table-row-alt:#161228;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, #6344d4 0%, #301777 100%);
+    color: #ffffff; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(99,68,212,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#ffffff; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #e9e2ff; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #d0c2fd; }
+
+  /* Section Cards */
+  .card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:24px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.03);
+  }
+  .card h2 { margin-top:0; margin-bottom:12px; font-size:1.45rem; color:var(--heading); display:flex; align-items:center; gap:10px; flex-wrap:wrap; border-bottom: 2px solid var(--brand); padding-bottom: 6px; }
+  .card h3 { color:var(--blue); font-size:1.15rem; margin-top:20px; margin-bottom:8px; }
+  .card h4 { color:var(--purple); font-size:1rem; margin-top:16px; margin-bottom:6px; }
+
+  /* Badges */
+  .badge {
+    font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 8px; border-radius:4px; color:#fff; display:inline-block; vertical-align:middle;
+  }
+  .badge-theory { background:var(--badge-theory); }
+  .badge-practical { background:var(--badge-practical); }
+  .badge-interview { background:var(--badge-interview); }
+  .badge-important { background:var(--badge-important); }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); }
+
+  /* Callout Boxes */
+  .box { padding:14px 18px; border-radius:8px; margin:16px 0; font-size:.95rem; }
+  .box-tip { background:var(--tip-soft); border-left:4px solid var(--tip); color:var(--ink); }
+  .box-warn { background:var(--warn-soft); border-left:4px solid var(--warn); color:var(--ink); }
+  .box-bad { background:var(--bad-soft); border-left:4px solid var(--bad); color:var(--ink); }
+  .box-ok { background:var(--ok-soft); border-left:4px solid var(--ok); color:var(--ink); }
+  .box-important { background:var(--important-bg); border-left:4px solid var(--important-border); color:var(--ink); }
+
+  /* Code Block */
+  .code-container {
+    background:var(--code-bg); border-radius:8px; overflow:hidden; margin:16px 0; border:1px solid var(--line);
+  }
+  .code-header {
+    background:var(--code-head); padding:6px 14px; display:flex; justify-content:space-between; align-items:center;
+    font-size:.78rem; font-family:monospace; color:#8ea1c9; text-transform:uppercase;
+  }
+  .copy-btn {
+    background:#2b3a5c; color:#fff; border:none; border-radius:4px; padding:3px 8px;
+    font-size:.75rem; cursor:pointer; font-family:sans-serif; transition:all .2s;
+  }
+  .copy-btn:hover { background:var(--brand); }
+  pre { margin:0; padding:14px; overflow-x:auto; font-family:"Cascadia Code",Consolas,"Courier New",monospace; font-size:.88rem; color:var(--code-ink); line-height:1.5; }
+  code { font-family:"Cascadia Code",Consolas,"Courier New",monospace; }
+  p code, li code { background:var(--brand-soft); color:var(--brand); padding:2px 6px; border-radius:4px; font-size:.88rem; }
+
+  /* Diagrams & Visuals */
+  .diagram {
+    background:var(--code-bg); color:#9fe2bf; padding:16px; border-radius:8px;
+    font-family:monospace; font-size:.88rem; overflow-x:auto; line-height:1.45; border:1px solid var(--line); margin:16px 0;
+  }
+
+  /* Tables */
+  .table-wrapper { overflow-x:auto; margin:16px 0; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; }
+  th, td { padding:10px 14px; border:1px solid var(--line); text-align:left; }
+  th { background:var(--table-head-bg); color:var(--table-head-text); font-weight:600; }
+  tr:nth-child(even) { background:var(--table-row-alt); }
+
+  /* Steps List */
+  .steps-list { list-style:none; padding-left:0; counter-reset:step-counter; }
+  .steps-list li {
+    position:relative; padding-left:42px; margin-bottom:14px;
+  }
+  .steps-list li::before {
+    content:counter(step-counter); counter-increment:step-counter;
+    position:absolute; left:0; top:0; width:28px; height:28px; border-radius:50%;
+    background:var(--brand); color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Grid Layouts */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  @media(max-width:720px) { .grid-2 { grid-template-columns:1fr; } }
+
+  /* Back to top */
+  #backtotop {
+    position:fixed; bottom:25px; right:25px; background:var(--brand); color:#fff; border:none;
+    border-radius:50%; width:44px; height:44px; font-size:1.2rem; cursor:pointer; display:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:90;
+  }
+
+  /* Responsive */
+  @media(max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); }
+    #sidebar.open { transform:translateX(0); }
+    #menu-btn { display:inline-block; }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:45; }
+    #backdrop.show { display:block; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<nav id="sidebar">
+  <div id="brand">
+    <span class="logo">🛠️</span>
+    <span class="name">Terraform Hinglish Guide</span>
+  </div>
+  <a href="../index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="🔍 Search topics..." aria-label="Search topics">
+
+  <h2>1. Fundamentals</h2>
+  <ul>
+    <li><a href="#sec-1">1. Infrastructure as Code (IaC) Kya Hai?</a></li>
+    <li><a href="#sec-2">2. Terraform Kya Hai?</a></li>
+    <li><a href="#sec-3">3. Terraform Core Workflow</a></li>
+    <li><a href="#sec-4">4. Terraform Architecture</a></li>
+    <li><a href="#sec-5">5. Install & Verify Terraform</a></li>
+    <li><a href="#sec-6">6. AWS CLI & Credentials Setup</a></li>
+  </ul>
+
+  <h2>2. Project & HCL Syntax</h2>
+  <ul>
+    <li><a href="#sec-7">7. Project File Structure</a></li>
+    <li><a href="#sec-8">8. Provider Block Configuration</a></li>
+    <li><a href="#sec-9">9. terraform init Deep-Dive</a></li>
+    <li><a href="#sec-10">10. Create S3 Bucket (First Resource)</a></li>
+    <li><a href="#sec-11">11. terraform plan Explained</a></li>
+    <li><a href="#sec-12">12. terraform apply Explained</a></li>
+    <li><a href="#sec-13">13. State File (terraform.tfstate)</a></li>
+    <li><a href="#sec-14">14. State Refresh & Drift Detection</a></li>
+    <li><a href="#sec-15">15. Input Variables</a></li>
+    <li><a href="#sec-16">16. Output Values</a></li>
+    <li><a href="#sec-17">17. terraform.tfvars Files</a></li>
+    <li><a href="#sec-18">18. Local Values (locals)</a></li>
+    <li><a href="#sec-19">19. Data Sources</a></li>
+  </ul>
+
+  <h2>3. AWS Core Practicals</h2>
+  <ul>
+    <li><a href="#sec-20">20. Practical: EC2 Instance</a></li>
+    <li><a href="#sec-21">21. Practical: Complete Custom VPC</a></li>
+    <li><a href="#sec-22">22. Practical: Amazon RDS Database</a></li>
+    <li><a href="#sec-23">23. Resource Dependencies (depends_on)</a></li>
+    <li><a href="#sec-24">24. Terraform Modules</a></li>
+    <li><a href="#sec-25">25. Remote State (S3 & DynamoDB)</a></li>
+    <li><a href="#sec-26">26. Workspaces</a></li>
+    <li><a href="#sec-27">27. terraform import</a></li>
+    <li><a href="#sec-28">28. terraform destroy</a></li>
+  </ul>
+
+  <h2>4. Production & Interview</h2>
+  <ul>
+    <li><a href="#sec-29">29. Terraform Best Practices</a></li>
+    <li><a href="#sec-30">30. AWS Production Architecture</a></li>
+    <li><a href="#sec-31">31. Complete End-to-End Lab</a></li>
+    <li><a href="#sec-32">32. Troubleshooting Common Errors</a></li>
+    <li><a href="#sec-33">33. 50+ Terraform Interview Q&As</a></li>
+    <li><a href="#sec-34">34. Quick Revision Summary</a></li>
+  </ul>
+</nav>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">☰ Menu</button>
+      <span style="font-weight:700; color:var(--brand);">Terraform IaC — Hinglish Edition</span>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- Title Card -->
+    <div class="title-card">
+      <h1>Terraform</h1>
+      <p class="subtitle">Infrastructure as Code (IaC)</p>
+      <p class="desc">"AWS Cloud Resources ko Code se Automate aur Manage Karein"</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section class="card" id="sec-1">
+      <h2>1. Infrastructure as Code (IaC) Kya Hai? <span class="badge badge-theory">Theory</span></h2>
+      <p><strong>Infrastructure as Code (IaC)</strong> ka matlab hota hai apne cloud servers, networks, databases aur storage ko AWS Console mein manually click karke banane ke bajaye code (configuration files) likhkar automatically create aur manage karna.</p>
+      
+      <div class="diagram">
+MANUAL CONSOLE APPROACH (Slow & Mistakes ka khatra):
+AWS Console ──> Click EC2 ──> Click VPC ──> Click Security Group ──> Click RDS
+[Problems: 1 ghanta lagta hai, setting bhoolne ka risk, dev aur prod alag ban sakte hain]
+
+IaC / TERRAFORM APPROACH (Fast, Automated & Version Controlled):
+Terraform Code (main.tf) ──> terraform apply ──> AWS creates VPC, EC2, S3, RDS in 2 Minutes!
+[Benefits: 100% Automated, Git version control, Dev/Prod exact replica, Instant disaster recovery]
+      </div>
+    </section>
+
+    <!-- SECTION 2 & 3 -->
+    <section class="card" id="sec-2">
+      <h2>2 & 3. Terraform Kya Hai & Core Workflow <span class="badge badge-theory">Workflow</span></h2>
+      <div class="box box-tip">
+        <strong>Simple Definition in Hinglish:</strong><br>
+        <em>"Terraform HashiCorp company dwara banaya gaya ek open-source declarative IaC tool hai jisse hum simple HCL (HashiCorp Configuration Language) code likhkar AWS, Azure, GCP jaise kisi bhi cloud par resources create, update aur destroy kar sakte hain."</em>
+      </div>
+
+      <h3>Terraform Ke 4 Main Lifecycle Steps:</h3>
+      <div class="diagram">
+============================== TERRAFORM CORE WORKFLOW ==============================
+
+  1. Write Code (main.tf)
+          │
+          ▼
+  2. terraform init ──────► AWS Provider plugin download karta hai aur backend ready karta hai
+          │
+          ▼
+  3. terraform plan ──────► Preview dikhata hai ki kya create, update ya delete hone wala hai
+          │
+          ▼
+  4. terraform apply ─────► AWS API call karke actual cloud resources create karta hai
+          │
+          ▼
+  5. terraform destroy ───► Kaam khatam hone par sabhi resources ko clean/delete karta hai
+=====================================================================================
+      </div>
+    </section>
+
+    <!-- SECTION 4 TO 6 -->
+    <section class="card" id="sec-4">
+      <h2>4, 5, 6. Architecture, Installation & AWS Authentication <span class="badge badge-practical">Setup</span></h2>
+      
+      <h3>How Terraform Talks to AWS:</h3>
+      <div class="diagram">
+Terraform CLI (.tf code) ──► AWS Provider Plugin ──► AWS HTTPS REST APIs ──► AWS Cloud (EC2, S3, RDS)
+      </div>
+
+      <h3>Safe AWS Credentials Setup (Never Hardcode Keys!):</h3>
+      <div class="box box-warn">
+        <strong>Security Rule:</strong> Kabhi bhi apni Access Key ya Secret Key ko <code>.tf</code> file ke andar hardcode mat karein. Hamesha <code>aws configure</code> command use karein.
+      </div>
+
+      <div class="code-container">
+        <div class="code-header"><span>AWS CLI Config</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. Check Terraform version
+terraform -version
+
+# 2. Configure AWS credentials securely
+aws configure
+# AWS Access Key ID: YOUR_ACCESS_KEY
+# AWS Secret Access Key: YOUR_SECRET_KEY
+# Default region: ap-south-1 (or us-east-1)
+
+# 3. Verify AWS authentication
+aws sts get-caller-identity</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 7 TO 12 -->
+    <section class="card" id="sec-7">
+      <h2>7 to 12. First Project: S3 Bucket Resource, Plan & Apply <span class="badge badge-practical">Practical</span></h2>
+
+      <h3>1. <code>main.tf</code> (Provider & Resource):</h3>
+      <div class="code-container">
+        <div class="code-header"><span>HCL (main.tf)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+# Create AWS S3 Bucket
+resource "aws_s3_bucket" "demo_bucket" {
+  bucket = "my-unique-tf-demo-bucket-${var.environment}"
+
+  tags = {
+    Name        = "MyDemoBucket"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}</code></pre>
+      </div>
+
+      <h3>2. <code>variables.tf</code> & <code>outputs.tf</code>:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>HCL (variables.tf & outputs.tf)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># variables.tf
+variable "aws_region" {
+  type    = string
+  default = "ap-south-1"
+}
+
+variable "environment" {
+  type    = string
+  default = "dev"
+}
+
+# outputs.tf
+output "s3_bucket_name" {
+  value = aws_s3_bucket.demo_bucket.id
+}</code></pre>
+      </div>
+
+      <h3>3. Running Commands:</h3>
+      <div class="code-container">
+        <div class="code-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. Initialize
+terraform init
+
+# 2. Check Plan
+terraform plan
+
+# 3. Apply changes
+terraform apply -auto-approve
+
+# 4. View Outputs
+terraform output</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 13 TO 19 -->
+    <section class="card" id="sec-13">
+      <h2>13 to 19. State File (tfstate), Drift, Locals & Data Sources <span class="badge badge-theory">Core Concepts</span></h2>
+      
+      <div class="box box-tip">
+        <strong>What is <code>terraform.tfstate</code>?</strong><br>
+        Yeh ek JSON file hoti hai jisme Terraform record rakhta hai ki usne AWS par kaun kaun se actual resources banaye hain aur unke IDs kya hain. Is file ko kabhi manually edit nahi karte!
+      </div>
+
+      <h3>Data Source Example (Fetching dynamic AMI):</h3>
+      <div class="code-container">
+        <div class="code-header"><span>HCL Data Source</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>data "aws_ami" "latest_amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-x86_64"]
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 20 TO 22 -->
+    <section class="card" id="sec-20">
+      <h2>20, 21, 22. Practical: Complete VPC, EC2 Web Server & Security Group <span class="badge badge-practical">Infrastructure Lab</span></h2>
+
+      <div class="code-container">
+        <div class="code-header"><span>HCL (infrastructure.tf)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. VPC
+resource "aws_vpc" "custom_vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  tags                 = { Name = "Terraform-VPC" }
+}
+
+# 2. Public Subnet
+resource "aws_subnet" "public_subnet" {
+  vpc_id                  = aws_vpc.custom_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "ap-south-1a"
+  map_public_ip_on_launch = true
+  tags                    = { Name = "Public-Subnet" }
+}
+
+# 3. Internet Gateway & Route Table
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.custom_vpc.id
+}
+
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.custom_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+}
+
+resource "aws_route_table_association" "public_assoc" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+# 4. Security Group
+resource "aws_security_group" "web_sg" {
+  name   = "web-server-sg"
+  vpc_id = aws_vpc.custom_vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 5. EC2 Web Server Instance
+resource "aws_instance" "web_server" {
+  ami                    = data.aws_ami.latest_amazon_linux.id
+  instance_type          = "t3.micro"
+  subnet_id              = aws_subnet.public_subnet.id
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              yum install -y httpd
+              systemctl start httpd
+              systemctl enable httpd
+              echo "<h1>Deployed via Terraform on AWS</h1>" > /var/www/html/index.html
+              EOF
+
+  tags = { Name = "Terraform-WebServer" }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 23 TO 28 -->
+    <section class="card" id="sec-23">
+      <h2>23 to 28. Modules, S3 Remote State & DynamoDB Locking <span class="badge badge-theory">Enterprise Patterns</span></h2>
+
+      <div class="code-container">
+        <div class="code-header"><span>HCL Remote State Backend</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>terraform {
+  backend "s3" {
+    bucket         = "my-company-tf-state-bucket"
+    key            = "prod/terraform.tfstate"
+    region         = "ap-south-1"
+    dynamodb_table = "terraform-state-locks"
+    encrypt        = true
+  }
+}</code></pre>
+      </div>
+
+      <div class="box box-ok">
+        <strong>Remote Backend Ka Fayda:</strong> Multiple developers ek saath kaam kar sakte hain aur DynamoDB state locking se koi doosra developer same time par apply karke state corrupt nahi kar sakta.
+      </div>
+    </section>
+
+    <!-- SECTION 33 -->
+    <section class="card" id="sec-33">
+      <h2>33. 50+ Terraform Interview Questions & Answers <span class="badge badge-interview">Interview Q&A</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Short & Clear Technical Answer (Hinglish)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Terraform kya hai?</td><td>HashiCorp ka open-source Infrastructure as Code tool jo cloud resources ko code se create karta hai.</td></tr>
+            <tr><td>2</td><td>IaC kya hota hai?</td><td>Infrastructure ko manually click karne ke bajaye code files ke dwara automate karna.</td></tr>
+            <tr><td>3</td><td>State file (<code>terraform.tfstate</code>) kya hai?</td><td>JSON database jo code mein likhe resources ko actual AWS cloud resource IDs se map karta hai.</td></tr>
+            <tr><td>4</td><td><code>terraform init</code> kya karta hai?</td><td>Working directory initialize karta hai aur required provider plugins download karta hai.</td></tr>
+            <tr><td>5</td><td><code>terraform plan</code> kya karta hai?</td><td>Changes ka dry-run preview dikhata hai bina actual cloud modify kiye.</td></tr>
+            <tr><td>6</td><td><code>terraform apply</code> kya karta hai?</td><td>Code ke according actual cloud resources create ya update karta hai.</td></tr>
+            <tr><td>7</td><td><code>terraform destroy</code> kya karta hai?</td><td>State file mein tracked saare cloud resources ko delete kar deta hai.</td></tr>
+            <tr><td>8</td><td>Terraform Provider kya hota hai?</td><td>Plugin jo Terraform ko AWS, Azure ya GCP ke APIs se connect karta hai.</td></tr>
+            <tr><td>9</td><td>Data Source kya hota hai?</td><td>Pehle se bane cloud resources (jaise existing VPC ya latest AMI) ka data read karna.</td></tr>
+            <tr><td>10</td><td>Terraform Module kya hai?</td><td>Reusable aur parameterized code block jo standard infrastructure banata hai.</td></tr>
+            <tr><td>11</td><td>Remote State kyu use karte hain?</td><td>Team collaboration, centralized state storage (S3) aur security ke liye.</td></tr>
+            <tr><td>12</td><td>DynamoDB state locking kyu zaroori hai?</td><td>Taaki do developers ek saath apply karke state file ko corrupt na karein.</td></tr>
+            <tr><td>13</td><td>State Drift kya hota hai?</td><td>Jab koi AWS Console mein manually resource change kar deta hai aur state code se mismatch ho jati hai.</td></tr>
+            <tr><td>14</td><td><code>depends_on</code> kab use karte hain?</td><td>Jab do resources ke beech explicit dependency define karni ho jo Terraform auto-detect na kar paaye.</td></tr>
+            <tr><td>15</td><td><code>terraform.tfvars</code> file kya karti hai?</td><td>Variables ke actual values assign karne ke liye use hoti hai.</td></tr>
+            <tr><td>16</td><td><code>terraform fmt</code> kya karta hai?</td><td>HCL code ko automatically standard clean indentation format mein format karta hai.</td></tr>
+            <tr><td>17</td><td><code>terraform import</code> kya karta hai?</td><td>Pehle se manually bane AWS resources ko Terraform state ke andar lekar aata hai.</td></tr>
+            <tr><td>18</td><td>Workspace kya hota hai?</td><td>Same code se multiple isolated environments (dev, stage, prod) manage karna.</td></tr>
+            <tr><td>19</td><td><code>count</code> vs <code>for_each</code>?</td><td><code>count</code> integer numbers par chalta hai; <code>for_each</code> maps ya unique string sets par chalta hai.</td></tr>
+            <tr><td>20</td><td>Terraform vs CloudFormation?</td><td>Terraform multi-cloud hai aur HCL use karta hai; CloudFormation sirf AWS ke liye hai aur JSON/YAML use karta hai.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 34 -->
+    <section class="card" id="sec-34">
+      <h2>34. Quick Revision Summary <span class="badge badge-theory">Summary</span></h2>
+      <div class="grid-2">
+        <div class="box box-tip"><strong>Terraform</strong> = Multi-cloud declarative IaC provisioning tool</div>
+        <div class="box box-tip"><strong>Provider</strong> = Plugin connecting Terraform to AWS APIs</div>
+        <div class="box box-tip"><strong>Resource</strong> = Infrastructure component (EC2, S3, VPC)</div>
+        <div class="box box-tip"><strong>State</strong> = Single source of truth mapping code to cloud resources</div>
+        <div class="box box-tip"><strong>Module</strong> = Reusable, parameterized Terraform component</div>
+      </div>
+
+      <div class="box box-ok" style="text-align:center; font-size:1.15rem; font-weight:700; margin-top:24px;">
+        End of Terraform IaC Notes
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

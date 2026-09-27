@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSL/TLS, HTTPS & Digital Certificates — Complete Beginner to Advanced Guide</title>
+<style>
+  :root {
+    --bg:#f3f5f9; --sidebar-bg:#151c2c; --card:#ffffff; --card-bg:#ffffff; --ink:#1c2431; --text:#1c2431; --muted:#5c6779; --text-soft:#5c6779; --heading:#0f172a; --line:#dfe4ee; --border:#dfe4ee;
+    --brand:#059669; --brand-soft:#ecfdf5;
+    --accent:#ff9900; --accent-dark:#cc7a00; --accent-soft:#fff4e0;
+    --blue:#146eb4; --blue-dark:#0d4f82; --blue-soft:#e8f2fb;
+    --green:#1a7f5a; --green-soft:#e7f7f0;
+    --purple:#6b46c1; --purple-soft:#f1ebfb;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ok:#177a4a; --ok-soft:#e3f6ec;
+    --warn:#95610a; --warn-soft:#fff2dc;
+    --bad:#b6302f; --bad-soft:#fdebea;
+    --tip:#0b7285; --tip-soft:#e3f6fa;
+    --important-bg:#fff8e6; --important-border:#e6a700;
+    --note-bg:#fff1f0; --note-border:#e64545;
+    --table-head-bg:#059669; --table-head-text:#ffffff; --table-row-alt:#f0fdf4;
+    --toc-bg:#ffffff;
+    --code-bg:#0f1826; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#1b2740;
+    --badge-theory:#5b3aa0; --badge-practical:#177a4a; --badge-interview:#a34a12; --badge-important:#b6302f; --badge-troubleshoot:#c0392b;
+  }
+  [data-theme="dark"] {
+    --bg:#0e1420; --sidebar-bg:#151c2c; --card:#161e2d; --card-bg:#161e2d; --ink:#e6ecf5; --text:#e6ecf5; --muted:#9aa7bb; --text-soft:#9aa7bb; --heading:#ffffff; --line:#2a3448; --border:#2a3448;
+    --brand:#34d399; --brand-soft:#06291e;
+    --accent:#ffb238; --accent-dark:#ffc766; --accent-soft:#2a2110;
+    --blue:#5fb0ec; --blue-dark:#8ecdf7; --blue-soft:#12233a;
+    --green:#4fd8a2; --green-soft:#10281f;
+    --purple:#b79cf0; --purple-soft:#241c38;
+    --red:#ff8177; --red-soft:#2a1414;
+    --ok:#3fbf83; --ok-soft:#123526;
+    --warn:#e0a83f; --warn-soft:#3a2c0f;
+    --bad:#f0716f; --bad-soft:#3a1616;
+    --tip:#4fc7dc; --tip-soft:#0e2b31;
+    --important-bg:#2a2210; --important-border:#ffcc4d;
+    --note-bg:#2a1414; --note-border:#ff6b6b;
+    --table-head-bg:#093b2a; --table-head-text:#ecfdf5; --table-row-alt:#0d231a;
+    --toc-bg:#161d2b;
+    --code-bg:#0a1220; --code-ink:#dce6f2; --code-text:#dce6f2; --code-head:#111a2c;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.65;
+    display:flex; min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  #sidebar {
+    width:290px; flex-shrink:0; background:var(--sidebar-bg); color:#dbe3f2;
+    position:sticky; top:0; height:100vh; overflow-y:auto; padding:18px 14px 40px;
+    transition:transform .25s ease; z-index:50;
+  }
+  #sidebar h2 { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:#8ea1c9; margin:18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top:6px; }
+  #sidebar ul { list-style:none; margin:0; padding:0; }
+  #sidebar li a {
+    display:block; padding:6px 10px; border-radius:6px; color:#c9d4e8; text-decoration:none; font-size:.85rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background:#242f47; color:#fff; }
+  #brand { display:flex; align-items:center; gap:8px; padding:6px 8px 14px; border-bottom:1px solid #263252; margin-bottom:10px; }
+  #brand .logo { font-size:1.4rem; }
+  #brand .name { font-weight:700; font-size:1.05rem; color:#fff; }
+  #search-box {
+    width:100%; padding:8px 10px; border-radius:6px; border:1px solid #2c3a5c; background:#101a2c; color:#e6ecf5;
+    font-size:.85rem; margin-bottom:10px;
+  }
+
+  /* ===== Main ===== */
+  #main { flex:1; min-width:0; }
+  .topbar {
+    position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+    padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar .left { display:flex; align-items:center; gap:10px; }
+  #menu-btn {
+    display:none; background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    cursor:pointer; color:var(--ink); font-size:1rem;
+  }
+  #theme-btn {
+    background:var(--brand-soft); border:1px solid var(--line); color:var(--brand); border-radius:20px;
+    padding:6px 14px; cursor:pointer; font-size:.85rem; font-weight:600;
+  }
+  .content { max-width:1280px; margin:0 auto; padding:28px 22px 70px; }
+
+  /* Title Card */
+  .title-card {
+    background: linear-gradient(135deg, #059669 0%, #064e3b 100%);
+    color: #ffffff; border-radius: 16px; padding: 2.2rem 2rem; margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(5,150,105,0.28);
+  }
+  .title-card h1 { margin: 0 0 0.4rem 0; font-size: 2.2rem; letter-spacing: -0.02em; color:#ffffff; }
+  .title-card p.subtitle { margin: 0; font-size: 1.15rem; font-weight: 600; opacity: 0.95; color: #ecfdf5; }
+  .title-card p.desc { margin-top: 8px; font-size: 0.95rem; opacity: 0.85; color: #a7f3d0; }
+
+  /* Section Cards */
+  .card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:24px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.03);
+  }
+  .card h2 { margin-top:0; margin-bottom:12px; font-size:1.45rem; color:var(--heading); display:flex; align-items:center; gap:10px; flex-wrap:wrap; border-bottom: 2px solid var(--brand); padding-bottom: 6px; }
+  .card h3 { color:var(--blue); font-size:1.15rem; margin-top:20px; margin-bottom:8px; }
+  .card h4 { color:var(--purple); font-size:1rem; margin-top:16px; margin-bottom:6px; }
+
+  /* Badges */
+  .badge {
+    font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 8px; border-radius:4px; color:#fff; display:inline-block; vertical-align:middle;
+  }
+  .badge-theory { background:var(--badge-theory); }
+  .badge-practical { background:var(--badge-practical); }
+  .badge-interview { background:var(--badge-interview); }
+  .badge-important { background:var(--badge-important); }
+  .badge-troubleshoot { background:var(--badge-troubleshoot); }
+
+  /* Callout Boxes */
+  .box { padding:14px 18px; border-radius:8px; margin:16px 0; font-size:.95rem; }
+  .box-tip { background:var(--tip-soft); border-left:4px solid var(--tip); color:var(--ink); }
+  .box-warn { background:var(--warn-soft); border-left:4px solid var(--warn); color:var(--ink); }
+  .box-bad { background:var(--bad-soft); border-left:4px solid var(--bad); color:var(--ink); }
+  .box-ok { background:var(--ok-soft); border-left:4px solid var(--ok); color:var(--ink); }
+  .box-important { background:var(--important-bg); border-left:4px solid var(--important-border); color:var(--ink); }
+
+  /* Code Block */
+  .code-container {
+    background:var(--code-bg); border-radius:8px; overflow:hidden; margin:16px 0; border:1px solid var(--line);
+  }
+  .code-header {
+    background:var(--code-head); padding:6px 14px; display:flex; justify-content:space-between; align-items:center;
+    font-size:.78rem; font-family:monospace; color:#8ea1c9; text-transform:uppercase;
+  }
+  .copy-btn {
+    background:#2b3a5c; color:#fff; border:none; border-radius:4px; padding:3px 8px;
+    font-size:.75rem; cursor:pointer; font-family:sans-serif; transition:all .2s;
+  }
+  .copy-btn:hover { background:var(--brand); }
+  pre { margin:0; padding:14px; overflow-x:auto; font-family:"Cascadia Code",Consolas,"Courier New",monospace; font-size:.88rem; color:var(--code-ink); line-height:1.5; }
+  code { font-family:"Cascadia Code",Consolas,"Courier New",monospace; }
+  p code, li code { background:var(--brand-soft); color:var(--brand); padding:2px 6px; border-radius:4px; font-size:.88rem; }
+
+  /* Diagrams & Visuals */
+  .diagram {
+    background:var(--code-bg); color:#9fe2bf; padding:16px; border-radius:8px;
+    font-family:monospace; font-size:.88rem; overflow-x:auto; line-height:1.45; border:1px solid var(--line); margin:16px 0;
+  }
+
+  /* Tables */
+  .table-wrapper { overflow-x:auto; margin:16px 0; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; }
+  th, td { padding:10px 14px; border:1px solid var(--line); text-align:left; }
+  th { background:var(--table-head-bg); color:var(--table-head-text); font-weight:600; }
+  tr:nth-child(even) { background:var(--table-row-alt); }
+
+  /* Steps List */
+  .steps-list { list-style:none; padding-left:0; counter-reset:step-counter; }
+  .steps-list li {
+    position:relative; padding-left:42px; margin-bottom:14px;
+  }
+  .steps-list li::before {
+    content:counter(step-counter); counter-increment:step-counter;
+    position:absolute; left:0; top:0; width:28px; height:28px; border-radius:50%;
+    background:var(--brand); color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Grid Layouts */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  @media(max-width:720px) { .grid-2 { grid-template-columns:1fr; } }
+
+  /* Back to top */
+  #backtotop {
+    position:fixed; bottom:25px; right:25px; background:var(--brand); color:#fff; border:none;
+    border-radius:50%; width:44px; height:44px; font-size:1.2rem; cursor:pointer; display:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:90;
+  }
+
+  /* Responsive */
+  @media(max-width:900px) {
+    #sidebar { position:fixed; left:0; top:0; transform:translateX(-100%); }
+    #sidebar.open { transform:translateX(0); }
+    #menu-btn { display:inline-block; }
+    #backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:45; }
+    #backdrop.show { display:block; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<!-- ================= SIDEBAR ================= -->
+<nav id="sidebar">
+  <div id="brand">
+    <span class="logo">🔒</span>
+    <span class="name">SSL/TLS & HTTPS Guide</span>
+  </div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="🔍 Search SSL/TLS topics..." aria-label="Search topics">
+
+  <h2>1. Fundamentals</h2>
+  <ul>
+    <li><a href="#sec-1">1. What is SSL?</a></li>
+    <li><a href="#sec-2">2. What is TLS?</a></li>
+    <li><a href="#sec-3">3. SSL vs TLS</a></li>
+    <li><a href="#sec-4">4. What is HTTPS?</a></li>
+    <li><a href="#sec-5">5. Why HTTPS is Required</a></li>
+    <li><a href="#sec-6">6. Encryption Basics</a></li>
+    <li><a href="#sec-7">7. Symmetric Encryption</a></li>
+    <li><a href="#sec-8">8. Asymmetric Encryption</a></li>
+  </ul>
+
+  <h2>2. Certificates & Handshake</h2>
+  <ul>
+    <li><a href="#sec-9">9. Digital Certificates</a></li>
+    <li><a href="#sec-10">10. Certificate Authorities (CA)</a></li>
+    <li><a href="#sec-11">11. TLS Handshake (Detailed)</a></li>
+    <li><a href="#sec-12">12. Certificate Validation</a></li>
+    <li><a href="#sec-13">13. Certificate Chain of Trust</a></li>
+    <li><a href="#sec-14">14. Complete HTTPS Request Flow</a></li>
+    <li><a href="#sec-15">15. Port 443 vs Port 80</a></li>
+    <li><a href="#sec-16">16. HTTP vs HTTPS Comparison</a></li>
+  </ul>
+
+  <h2>3. AWS ACM & ALB Integration</h2>
+  <ul>
+    <li><a href="#sec-17">17. AWS Certificate Manager (ACM)</a></li>
+    <li><a href="#sec-18">18. Practical: Request ACM Certificate</a></li>
+    <li><a href="#sec-19">19. ACM + Route 53 DNS Validation</a></li>
+    <li><a href="#sec-20">20. ACM + ALB Setup</a></li>
+    <li><a href="#sec-21">21. ALB Listeners & HTTP Redirection</a></li>
+    <li><a href="#sec-22">22. TLS Termination vs End-to-End TLS</a></li>
+    <li><a href="#sec-23">23. EC2 & EKS HTTPS Integration</a></li>
+  </ul>
+
+  <h2>4. Types, Troubleshooting & Q&A</h2>
+  <ul>
+    <li><a href="#sec-24">24. Certificate Types (DV, OV, EV)</a></li>
+    <li><a href="#sec-25">25. Wildcard & SAN Certificates</a></li>
+    <li><a href="#sec-26">26. Expiration & Auto-Renewal</a></li>
+    <li><a href="#sec-27">27. TLS 1.2 vs TLS 1.3</a></li>
+    <li><a href="#sec-28">28. Common SSL/TLS Errors & Fixes</a></li>
+    <li><a href="#sec-29">29. 17-Step Practical HTTPS Project</a></li>
+    <li><a href="#sec-30">30. DNS vs TLS Comparison</a></li>
+    <li><a href="#sec-31">31. 50+ SSL/TLS Interview Q&As</a></li>
+    <li><a href="#sec-32">32. Quick Revision Summary</a></li>
+  </ul>
+</nav>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">☰ Menu</button>
+      <span style="font-weight:700; color:var(--brand);">SSL/TLS, HTTPS & ACM Complete Guide</span>
+    </div>
+    <button id="theme-btn">🌙 Dark mode</button>
+  </div>
+
+  <div class="content">
+
+    <!-- Title Card -->
+    <div class="title-card">
+      <h1>SSL/TLS & HTTPS</h1>
+      <p class="subtitle">Encryption, Digital Certificates & AWS Certificate Manager</p>
+      <p class="desc">"Understand Exactly What Happens When a User Opens https://example.com"</p>
+    </div>
+
+    <!-- SECTION 1 TO 5 -->
+    <section class="card" id="sec-1">
+      <h2>1 to 5. What is SSL, TLS, and HTTPS? <span class="badge badge-theory">Theory</span></h2>
+      
+      <div class="box box-tip">
+        <strong>Core Definition:</strong><br>
+        <em>"TLS (Transport Layer Security) is the cryptographic protocol that provides end-to-end encryption, authentication, and data integrity over the Internet. HTTPS is simply regular HTTP communication wrapped securely inside a TLS encrypted tunnel."</em>
+      </div>
+
+      <div class="diagram">
+HTTP (Unsecured Plaintext):
+Browser ──[ "password123" in clear text ]──► Attacker / ISP can read & tamper! ──► Server
+
+HTTPS (Protected by TLS Encryption):
+Browser ──[ a8f9#@10!b$k90 Encrypted Ciphertext ]──► Unreadable to eavesdroppers ──► Server
+      </div>
+
+      <h3>Why Plain HTTP is Dangerous:</h3>
+      <ul>
+        <li><strong>Eavesdropping (Sniffing):</strong> Anyone on the same public Wi-Fi can see passwords, credit card numbers, and session cookies.</li>
+        <li><strong>Man-in-the-Middle (MitM) Attacks:</strong> Attackers can alter web pages on the fly, injecting malware or phishing forms.</li>
+        <li><strong>Identity Spoofing:</strong> Users have no guarantee they are connecting to the real bank website versus a fake replica.</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 6 TO 8 -->
+    <section class="card" id="sec-6">
+      <h2>6, 7, 8. Symmetric vs Asymmetric Encryption <span class="badge badge-theory">Cryptography</span></h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Encryption Type</th>
+              <th>How It Works</th>
+              <th>Speed & Performance</th>
+              <th>Role in TLS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Symmetric Encryption</strong> (AES-256, ChaCha20)</td><td>Uses the <strong>exact same secret key</strong> for both encryption and decryption.</td><td>Extremely fast & efficient for bulk data.</td><td>Encrypts the actual application web traffic after the handshake.</td></tr>
+            <tr><td><strong>Asymmetric Encryption</strong> (RSA, ECDSA, ECC)</td><td>Uses a <strong>Public Key</strong> (shared openly) and a <strong>Private Key</strong> (kept secret).</td><td>Computationally heavier & slower.</td><td>Used during the TLS Handshake for server authentication & key exchange.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 9 TO 14 -->
+    <section class="card" id="sec-9">
+      <h2>9 to 14. Digital Certificates & The TLS Handshake <span class="badge badge-important">Core Workflow</span></h2>
+      
+      <div class="diagram">
+=============================== THE MODERN TLS 1.3 HANDSHAKE ===============================
+
+ [ Browser / Client ]                                              [ Web Server / ALB ]
+         │                                                                   │
+         │ ─────────── (1) ClientHello (TLS Version, Supported Ciphers) ────►│
+         │                                                                   │
+         │ ◄────────── (2) ServerHello + Server Certificate + Key Share ─────│
+         │
+         ▼
+ [ Verify Certificate ]:
+   1. Is domain valid? (example.com)
+   2. Is CA trusted? (Root CA in OS trust store)
+   3. Is certificate unexpired?
+         │
+         ▼
+ [ Generate Symmetric Session Keys (ECDHE) ]
+         │
+         │ ◄══════════════ (3) Encrypted HTTPS Session Established ═════════►│
+         │                 (All subsequent web traffic is encrypted!)        │
+=============================================================================================
+      </div>
+
+      <h3>Certificate Chain of Trust:</h3>
+      <div class="diagram">
+Root Certificate Authority (Pre-installed in Windows/macOS/iOS Trust Store)
+       │
+       ▼ Signs
+Intermediate CA (e.g., Amazon RSA 2048 M02)
+       │
+       ▼ Signs
+Leaf / Server Certificate (Issued for example.com)
+      </div>
+    </section>
+
+    <!-- SECTION 17 TO 23 -->
+    <section class="card" id="sec-17">
+      <h2>17 to 23. AWS Certificate Manager (ACM) & ALB Setup <span class="badge badge-practical">AWS Practical</span></h2>
+      
+      <div class="box box-tip">
+        <strong>AWS Certificate Manager (ACM):</strong> AWS service used to provision, manage, and automatically renew free public TLS certificates for AWS Elastic Load Balancers (ALB), CloudFront distributions, and API Gateways.
+      </div>
+
+      <h3>Step-by-Step DNS Validation Flow:</h3>
+      <ol class="steps-list">
+        <li>Open ACM Console -> Click <strong>Request certificate</strong> -> Choose <strong>Request a public certificate</strong>.</li>
+        <li>Enter Fully Qualified Domain Name (e.g. <code>example.com</code> and <code>*.example.com</code>).</li>
+        <li>Select <strong>DNS validation</strong> (Recommended over email validation).</li>
+        <li>Click <strong>Create records in Route 53</strong> button to automatically insert the required CNAME verification record.</li>
+        <li>Within 2-5 minutes, ACM validates domain control and the certificate status becomes <strong>Issued</strong>.</li>
+        <li>Attach the ACM certificate to your Application Load Balancer's HTTPS Listener (Port 443).</li>
+      </ol>
+
+      <h3>ALB TLS Termination vs End-to-End TLS:</h3>
+      <div class="diagram">
+TLS TERMINATION AT ALB (Standard & Best Performance):
+User ──[ HTTPS 443 ]──► [ Application Load Balancer ] ──[ HTTP 80 / VPC Private ]──► EC2 / EKS Pods
+(ALB offloads heavy cryptographic decryption; internal traffic stays secure within private VPC)
+
+END-TO-END TLS (Strict Compliance / PCI-DSS):
+User ──[ HTTPS 443 ]──► [ Application Load Balancer ] ──[ HTTPS 443 Re-encrypted ]──► Backend Pods
+      </div>
+    </section>
+
+    <!-- SECTION 24 TO 28 -->
+    <section class="card" id="sec-24">
+      <h2>24 to 28. Certificate Types, TLS 1.3 & Troubleshooting <span class="badge badge-troubleshoot">Troubleshooting</span></h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Common SSL/TLS Error</th>
+              <th>Root Cause</th>
+              <th>Diagnostic & Resolution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>NET::ERR_CERT_COMMON_NAME_INVALID</strong></td><td>Certificate hostname does not match the URL domain.</td><td>Verify URL and ensure SAN includes both <code>example.com</code> and <code>www.example.com</code>.</td></tr>
+            <tr><td><strong>NET::ERR_CERT_DATE_INVALID</strong></td><td>Certificate has passed its expiration date.</td><td>Renew certificate or verify ACM managed auto-renewal DNS records.</td></tr>
+            <tr><td><strong>SEC_ERROR_UNKNOWN_ISSUER</strong></td><td>Untrusted self-signed certificate or incomplete intermediate CA chain.</td><td>Install public CA certificate (Let's Encrypt / DigiCert / ACM).</td></tr>
+            <tr><td><strong>Mixed Content Warning</strong></td><td>HTTPS page is loading images/scripts via unencrypted <code>http://</code> URLs.</td><td>Change all internal script and asset links to <code>https://</code>.</td></tr>
+            <tr><td><strong>Connection Refused on Port 443</strong></td><td>ALB Security Group is missing inbound rule for port 443.</td><td>Allow inbound TCP 443 from <code>0.0.0.0/0</code> on the ALB Security Group.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 29 -->
+    <section class="card" id="sec-29">
+      <h2>29. 17-Step Practical Project: Full Production HTTPS Setup <span class="badge badge-practical">End-to-End Lab</span></h2>
+      <ol class="steps-list">
+        <li>Register domain or have an existing domain available.</li>
+        <li>Create Amazon Route 53 Public Hosted Zone for the domain.</li>
+        <li>Update domain registrar nameservers to match the 4 Route 53 NS records.</li>
+        <li>Request a free public certificate in AWS Certificate Manager (ACM).</li>
+        <li>Select DNS validation for <code>example.com</code> and <code>*.example.com</code>.</li>
+        <li>Click "Create records in Route 53" to publish validation CNAMEs.</li>
+        <li>Wait for certificate status to become <strong>Issued</strong>.</li>
+        <li>Create Application Load Balancer in public subnets.</li>
+        <li>Create Target Group pointing to EC2 instances or EKS Pods on port 80/3000.</li>
+        <li>Configure HTTPS Listener on ALB: Port <code>443</code>, Action: Forward to Target Group.</li>
+        <li>Attach the Issued ACM Certificate to the HTTPS Listener.</li>
+        <li>Configure HTTP Listener on ALB: Port <code>80</code>, Action: <strong>Redirect to HTTPS Port 443</strong>.</li>
+        <li>Update ALB Security Group to allow inbound TCP Port 80 and 443 from <code>0.0.0.0/0</code>.</li>
+        <li>In Route 53, create an <strong>A Record (Alias = Yes)</strong> pointing <code>example.com</code> to ALB.</li>
+        <li>Open browser and navigate to <code>http://example.com</code>.</li>
+        <li>Verify automatic redirect to <code>https://example.com</code>.</li>
+        <li>Click browser padlock icon to inspect the trusted certificate details!</li>
+      </ol>
+    </section>
+
+    <!-- SECTION 31 -->
+    <section class="card" id="sec-31">
+      <h2>31. 50+ SSL/TLS & HTTPS Interview Questions & Answers <span class="badge badge-interview">Interview Q&A</span></h2>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Interview Question</th>
+              <th>Concise & Accurate Answer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>What is SSL?</td><td>Secure Sockets Layer; the original cryptographic protocol developed by Netscape, now deprecated.</td></tr>
+            <tr><td>2</td><td>What is TLS?</td><td>Transport Layer Security; the modern successor to SSL providing encryption, authentication, and integrity.</td></tr>
+            <tr><td>3</td><td>What is HTTPS?</td><td>Hypertext Transfer Protocol Secure; standard HTTP data transmitted over an encrypted TLS connection.</td></tr>
+            <tr><td>4</td><td>What port does HTTPS use?</td><td>Port 443 (TCP for HTTP/1.1 and HTTP/2; UDP for HTTP/3 QUIC).</td></tr>
+            <tr><td>5</td><td>What is a Digital Certificate?</td><td>An electronic document binding a public key to an entity's identity (domain name), signed by a trusted CA.</td></tr>
+            <tr><td>6</td><td>What is a Certificate Authority (CA)?</td><td>A trusted third-party organization that validates identities and issues digitally signed TLS certificates.</td></tr>
+            <tr><td>7</td><td>Symmetric vs Asymmetric Encryption in TLS?</td><td>Asymmetric cryptography authenticates the server and establishes session keys; Symmetric cryptography encrypts bulk web traffic.</td></tr>
+            <tr><td>8</td><td>What happens during a TLS Handshake?</td><td>Client and server agree on TLS version/ciphers, authenticate the server certificate, and generate symmetric session keys.</td></tr>
+            <tr><td>9</td><td>What is AWS Certificate Manager (ACM)?</td><td>AWS service to provision, manage, and renew free public and private TLS certificates for AWS services.</td></tr>
+            <tr><td>10</td><td>What is TLS Termination?</td><td>Decrypting encrypted HTTPS traffic at the load balancer (ALB) and forwarding unencrypted HTTP inside private subnets.</td></tr>
+            <tr><td>11</td><td>What is a Wildcard Certificate?</td><td>A certificate covering all first-level subdomains using an asterisk (e.g. <code>*.example.com</code>).</td></tr>
+            <tr><td>12</td><td>What is a SAN Certificate?</td><td>Subject Alternative Name; allows securing multiple distinct domain names on a single certificate.</td></tr>
+            <tr><td>13</td><td>What is DNS Validation in ACM?</td><td>Validating domain ownership by adding a unique CNAME record generated by ACM into your domain DNS zone.</td></tr>
+            <tr><td>14</td><td>What is HTTP to HTTPS Redirection?</td><td>Configuring an HTTP port 80 listener on ALB to return HTTP 301/302 redirecting users to secure HTTPS port 443.</td></tr>
+            <tr><td>15</td><td>What is Mixed Content?</td><td>When an initial HTML page loads over secure HTTPS, but subsequent resources (images/scripts) are requested over insecure HTTP.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 32 -->
+    <section class="card" id="sec-32">
+      <h2>32. Quick Revision Summary <span class="badge badge-theory">Summary</span></h2>
+      <div class="grid-2">
+        <div class="box box-tip"><strong>TLS</strong> = Modern cryptographic protocol replacing SSL</div>
+        <div class="box box-tip"><strong>HTTPS</strong> = HTTP + TLS on Port 443</div>
+        <div class="box box-tip"><strong>ACM</strong> = Free, auto-renewing AWS TLS certificates</div>
+        <div class="box box-tip"><strong>TLS Termination</strong> = Decrypting at ALB to boost backend performance</div>
+        <div class="box box-tip"><strong>Symmetric</strong> = Fast data encryption | <strong>Asymmetric</strong> = Key handshake</div>
+      </div>
+
+      <div class="box box-ok" style="text-align:center; font-size:1.15rem; font-weight:700; margin-top:24px;">
+        End of SSL/TLS & HTTPS Notes
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Back to top button -->
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme Toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+
+  // Mobile Sidebar Toggle
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar Search Filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // ScrollSpy Active Link & Back to Top Button
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 100;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+
+// Copy Code function
+function copyCode(btn) {
+  var pre = btn.closest('.code-container').querySelector('pre code');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.innerText;
+    btn.innerText = 'Copied!';
+    setTimeout(function(){ btn.innerText = orig; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

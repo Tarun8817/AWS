@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS RDS Study Notes (English)</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --sidebar-bg: #151c2c; --card: #ffffff; --ink: #1e2a38; --muted: #5a6878; --line: #dbe2ea;
+    --brand: #1a5f9e; --brand-soft: #e6f0fa;
+    --ok: #1d7a46; --ok-soft: #e5f5ec;
+    --warn: #9a6200; --warn-soft: #fff4dc;
+    --bad: #b02a2a; --bad-soft: #fdeaea;
+    --code-bg: #14202e; --code-ink: #e3ebf3;
+  }
+  [data-theme="dark"] {
+    --bg: #0e1420; --card: #161e2d; --ink: #e6ecf5; --muted: #9aa7bb; --line: #2a3448;
+    --brand: #6d94f5; --brand-soft: #1c2740;
+    --ok: #3fbf83; --ok-soft: #123526;
+    --warn: #e0a83f; --warn-soft: #3a2c0f;
+    --bad: #f0716f; --bad-soft: #3a1616;
+    --code-bg: #0a1220; --code-ink: #dce6f2;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.65; display: flex; min-height: 100vh; }
+  /* Sidebar */
+  #sidebar {
+    width: 280px; flex-shrink: 0; background: var(--sidebar-bg); color: #dbe3f2;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 14px 40px;
+    transition: transform .25s ease; z-index: 50;
+  }
+  #sidebar h2 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea1c9; margin: 18px 0 8px; }
+  #sidebar h2:first-of-type { margin-top: 6px; }
+  #sidebar ul { list-style: none; margin: 0; padding: 0; }
+  #sidebar li a {
+    display: block; padding: 7px 10px; border-radius: 6px; color: #c9d4e8; text-decoration: none; font-size: .88rem;
+  }
+  #sidebar li a:hover, #sidebar li a.active { background: #242f47; color: #fff; }
+  #brand { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; border-bottom: 1px solid #263252; margin-bottom: 6px; }
+  #brand .logo { font-size: 1.4rem; }
+  #brand .name { font-weight: 700; font-size: 1rem; color: #fff; }
+  #search-box {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #2c3a5c; background: #101a2c; color: #e6ecf5;
+    font-size: .85rem; margin-bottom: 6px;
+  }
+
+  /* Main */
+  #main { flex: 1; min-width: 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; background: var(--card); border-bottom: 1px solid var(--line);
+    padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 10px; }
+  #menu-btn {
+    display: none; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px;
+    cursor: pointer; color: var(--ink); font-size: 1rem;
+  }
+  #theme-btn {
+    background: var(--brand-soft); border: 1px solid var(--line); color: var(--brand); border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 24px 16px 60px; }
+  #backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; }
+  #backtotop {
+    position: fixed; bottom: 22px; right: 22px; background: var(--brand); color: #fff; border: none; border-radius: 50%;
+    width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 60;
+  }
+  header.top { background: var(--brand); color: #fff; padding: 32px 20px; border-radius: 10px; margin-bottom: 20px; }
+  header.top h1 { margin: 0 0 6px; font-size: 2rem; line-height: 1.25; }
+  header.top p { margin: 0; opacity: .92; }
+  nav.toc { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+  nav.toc h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  nav.toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 32px; font-size: .95rem; }
+  nav.toc li { margin-bottom: 3px; break-inside: avoid; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px 24px; margin-bottom: 20px; }
+  section.card > h2 { margin: 0 0 14px; font-size: 1.45rem; color: var(--brand); padding-bottom: 8px; border-bottom: 2px solid var(--brand-soft); }
+  h3 { margin: 22px 0 6px; font-size: 1.12rem; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 24px; }
+  li { margin-bottom: 4px; }
+  .callout { border-left: 5px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; border-radius: 6px; margin: 14px 0; }
+  .callout.good { border-color: var(--ok); background: var(--ok-soft); }
+  .callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .callout.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .callout strong.t { display: block; margin-bottom: 2px; }
+  pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-family: Consolas, "Courier New", monospace; font-size: .88rem; line-height: 1.5; margin: 12px 0; white-space: pre; }
+  code { font-family: Consolas, "Courier New", monospace; background: #eef1f5; padding: 1px 6px; border-radius: 4px; font-size: .9em; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .k { color: #7fc4ff; } .s { color: #a5e08a; } .c { color: #8395a7; font-style: italic; } .f { color: #ffd479; } .n { color: #f2a2c0; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-soft); }
+  .tablewrap { overflow-x: auto; }
+  .arch { background: #f9fbfd; border: 1px dashed #9db4cc; font-family: Consolas, "Courier New", monospace; font-size: .9rem; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre; line-height: 1.4; margin: 12px 0; }
+  .qa { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin: 10px 0; background: #fbfcfe; }
+  .qa .q { font-weight: 700; color: var(--brand); }
+  .qa .a { margin-top: 4px; }
+  .check li { list-style: none; margin-left: -20px; }
+  .check li::before { content: "\2610  "; }
+  footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 30px; }
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    header.top h1 { font-size: 1.5rem; }
+    nav.toc ol { columns: 1; }
+    section.card { padding: 16px 14px; }
+  }
+  @media (max-width: 900px) {
+    #sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); box-shadow: 0 0 30px rgba(0,0,0,.4); }
+    #sidebar.open { transform: translateX(0); }
+    #backdrop.show { display: block; }
+    #menu-btn { display: inline-block; }
+    .wrap { padding: 20px 14px 60px;  width: 100%; }
+  }
+  @media print {
+    body { background: #fff; font-size: 12pt; }
+    .wrap { max-width: 100%; padding: 0; }
+    header.top { background: #fff; color: #000; border: 2px solid #000; }
+    section.card { border: 1px solid #999; }
+    section.card > h2 { page-break-after: avoid; }
+    pre, .arch, table, .qa, .callout { page-break-inside: avoid; }
+    pre { background: #f2f2f2; color: #000; border: 1px solid #999; white-space: pre-wrap; }
+    .k, .s, .c, .f, .n { color: #000; }
+    a { text-decoration: none; color: #000; }
+  }
+
+  /* Global Dashboard Navigation Buttons */
+  .nav-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all .2s ease;
+    margin-right: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .nav-home-btn:hover {
+    background: var(--accent, #ff9900);
+    color: #1a1300 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .sidebar-home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #334155;
+    transition: all .2s ease;
+  }
+  .sidebar-home-link:hover {
+    background: var(--brand, #2451c4);
+    color: #ffffff !important;
+    border-color: var(--brand, #2451c4);
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body data-theme="light">
+
+<div id="backdrop"></div>
+
+<nav id="sidebar">
+  <div id="brand"><span class="logo">🗄️</span><span class="name">RDS Notes</span></div>
+  <a href="./index.html" class="sidebar-home-link">🏠 Return to Dashboard</a>
+  <input type="text" id="search-box" placeholder="Filter sections...">
+  <h2>Basics</h2>
+  <ul>
+    <li><a href="#s1">1. What is AWS RDS?</a></li>
+    <li><a href="#s2">2. Supported Engines</a></li>
+    <li><a href="#s3">3. Purpose of RDS</a></li>
+    <li><a href="#s4">4. MERN Project Example</a></li>
+    <li><a href="#s5">5. RDS Instance</a></li>
+  </ul>
+  <h2>Setup & Configuration</h2>
+  <ul>
+    <li><a href="#s6">6. Create RDS MySQL</a></li>
+    <li><a href="#s7">7. Security Group</a></li>
+    <li><a href="#s8">8. RDS Endpoint</a></li>
+    <li><a href="#s9">9. Access from Outside</a></li>
+    <li><a href="#s10">10. Connect with Node.js</a></li>
+  </ul>
+  <h2>EC2 & Docker</h2>
+  <ul>
+    <li><a href="#s11">11. EC2 + Docker + RDS</a></li>
+    <li><a href="#s12">12. EC2 Commands</a></li>
+    <li><a href="#s13">13. Docker Environment</a></li>
+    <li><a href="#s14">14. Create Database/Table</a></li>
+  </ul>
+  <h2>Features</h2>
+  <ul>
+    <li><a href="#s15">15. RDS Storage</a></li>
+    <li><a href="#s16">16. Backups & Snapshots</a></li>
+    <li><a href="#s17">17. Multi-AZ</a></li>
+    <li><a href="#s18">18. Read Replica</a></li>
+    <li><a href="#s19">19. Scaling</a></li>
+    <li><a href="#s20">20. Monitoring</a></li>
+  </ul>
+  <h2>Security & Best Practices</h2>
+  <ul>
+    <li><a href="#s21">21. Security</a></li>
+    <li><a href="#s22">22. Public vs Private RDS</a></li>
+    <li><a href="#s23">23. Connect from Windows</a></li>
+    <li><a href="#s24">24. Common Errors</a></li>
+    <li><a href="#s25">25. Stop/Delete/Cost</a></li>
+  </ul>
+  <h2>Interview & Revision</h2>
+  <ul>
+    <li><a href="#s26">26. Interview Q&A</a></li>
+    <li><a href="#s27">27. Real-World Architecture</a></li>
+    <li><a href="#s28">28. RDS in One Minute</a></li>
+  </ul>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="left">
+      <button id="menu-btn" aria-label="Toggle menu">&#9776;</button>
+      <strong>AWS RDS — Complete Guide</strong>
+    </div>
+    <button id="theme-btn">&#127769; Dark mode</button>
+  </div>
+
+<div class="wrap">
+
+<header class="top">
+  <h1>AWS RDS (Relational Database Service)</h1>
+  <p>Beginner-friendly study note &mdash; English edition &mdash; for learning, revision, interviews and printing.</p>
+</header>
+
+<section class="card" id="s1">
+  <h2>1. What is AWS RDS?</h2>
+  <p><strong>AWS RDS = Amazon Relational Database Service</strong></p>
+  <div class="callout">
+    <strong class="t">Definition</strong>
+    AWS RDS is a managed database service provided by AWS that makes it easier to create, operate, manage, backup, monitor, and scale relational databases.
+  </div>
+
+  <h3>What is a database?</h3>
+  <p>A database is an organised place where an application stores data so that it can save, find, update and delete it later. Example: users, orders, products.</p>
+
+  <h3>What is a relational database?</h3>
+  <p>A relational database stores data in <strong>tables</strong> (rows and columns), and tables can be linked to each other using keys. You use <strong>SQL</strong> to talk to it. Examples: MySQL, PostgreSQL.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>id</th><th>name</th><th>email</th></tr>
+    <tr><td>1</td><td>Tarun</td><td>tarun@example.com</td></tr>
+    <tr><td>2</td><td>Riya</td><td>riya@example.com</td></tr>
+  </table>
+  </div>
+
+  <h3>What does &ldquo;managed service&rdquo; mean?</h3>
+  <p>A managed service means AWS looks after a large part of the infrastructure work (servers, hardware, OS-level maintenance, backup features and so on) so you can focus on your application. You still make choices and still own your data, your settings and your security configuration.</p>
+
+  <h3>Why do we use RDS? What problem does it solve?</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Without RDS (self-managed MySQL on a server)</th><th>With RDS</th></tr>
+    <tr>
+      <td>We install MySQL, configure the server, manage backups, updates, security, monitoring, etc. ourselves.</td>
+      <td>AWS manages much of the infrastructure and database administration for us. We mainly create, configure and use the database.</td>
+    </tr>
+  </table>
+  </div>
+  <div class="callout warn">
+    <strong class="t">Note</strong>
+    RDS does <em>not</em> remove every DBA task. You still design tables, write good queries, create users, tune performance, and configure security properly.
+  </div>
+</section>
+
+<section class="card" id="s2">
+  <h2>2. RDS Supported Database Engines</h2>
+  <p>A <strong>DB engine</strong> is the actual database software. RDS lets you pick one:</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Engine</th><th>One-line explanation</th></tr>
+    <tr><td><strong>MySQL</strong></td><td>Very popular open-source relational database; great for web apps and beginners.</td></tr>
+    <tr><td><strong>PostgreSQL</strong></td><td>Open-source relational database known for advanced features and standards compliance.</td></tr>
+    <tr><td><strong>MariaDB</strong></td><td>Open-source database that started as a fork of MySQL and is largely MySQL-compatible.</td></tr>
+    <tr><td><strong>Oracle</strong></td><td>Commercial enterprise database, often used in large companies (licensing applies).</td></tr>
+    <tr><td><strong>Microsoft SQL Server</strong></td><td>Microsoft&rsquo;s relational database, common in .NET / Windows environments.</td></tr>
+    <tr><td><strong>Amazon Aurora</strong></td><td>AWS-built database, compatible with MySQL and PostgreSQL, designed for high performance and availability.</td></tr>
+  </table>
+  </div>
+  <div class="callout">
+    <strong class="t">MERN and RDS</strong>
+    For a MERN application, MongoDB is normally used instead of RDS because MongoDB is a NoSQL database. However, if the MERN application&rsquo;s backend needs a relational MySQL/PostgreSQL database, RDS can be used.
+  </div>
+</section>
+
+<section class="card" id="s3">
+  <h2>3. Purpose of AWS RDS</h2>
+  <p>RDS handles or helps with the following administrative tasks:</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Area</th><th>In simple words</th></tr>
+    <tr><td><strong>Database setup</strong></td><td>Create a ready database from the console in a few clicks, with no manual install.</td></tr>
+    <tr><td><strong>Automated backups</strong></td><td>Daily backups and logs are kept for a retention period you choose.</td></tr>
+    <tr><td><strong>Software patching</strong></td><td>Engine updates and security patches can be applied in maintenance windows.</td></tr>
+    <tr><td><strong>Monitoring</strong></td><td>CPU, memory, storage and connections can be watched in CloudWatch.</td></tr>
+    <tr><td><strong>Maintenance</strong></td><td>AWS handles hardware and underlying infrastructure upkeep.</td></tr>
+    <tr><td><strong>Scaling</strong></td><td>Use a bigger instance, more storage, or read replicas when needed.</td></tr>
+    <tr><td><strong>High availability</strong></td><td>Multi-AZ keeps a standby copy in another Availability Zone for failover.</td></tr>
+    <tr><td><strong>Security</strong></td><td>Security groups, encryption, SSL/TLS, private subnets, IAM options.</td></tr>
+    <tr><td><strong>Recovery</strong></td><td>Restore from a snapshot or to a point in time (with automated backups).</td></tr>
+  </table>
+  </div>
+  <div class="callout warn">
+    <strong class="t">Remember</strong>
+    These features are <em>available</em> and often need to be <em>enabled or configured</em> by you (for example Multi-AZ, backup retention, encryption). RDS does not automatically do every administration task for you.
+  </div>
+</section>
+
+<section class="card" id="s4">
+  <h2>4. Real-World MERN Project Example</h2>
+  <p>Suppose my project is MERN-style, but the database is MySQL on RDS:</p>
+  <ul>
+    <li><strong>Frontend:</strong> React</li>
+    <li><strong>Backend:</strong> Node.js + Express.js (runs on an EC2 instance)</li>
+    <li><strong>Database:</strong> MySQL on AWS RDS</li>
+  </ul>
+<div class="arch">User
+ |
+ v
+React Frontend
+ |
+ v
+Node.js + Express Backend  (on EC2)
+ |
+ v
+AWS RDS MySQL
+ |
+ v
+Database (tables: users, ...)</div>
+
+  <h3>Request flow</h3>
+  <ol>
+    <li>User opens the React application.</li>
+    <li>React sends an API request.</li>
+    <li>Node.js/Express receives the request.</li>
+    <li>Backend connects to RDS MySQL.</li>
+    <li>MySQL executes the query.</li>
+    <li>Database returns data.</li>
+    <li>Backend sends the response to React.</li>
+    <li>React displays the result.</li>
+  </ol>
+
+  <h3>Example: user registration</h3>
+<pre><code><span class="f">POST</span> /api/register
+{
+  <span class="s">"name"</span>: <span class="s">"Tarun"</span>,
+  <span class="s">"email"</span>: <span class="s">"tarun@example.com"</span>,
+  <span class="s">"password"</span>: <span class="s">"MyPassword123"</span>   <span class="c">// sent to the server over HTTPS only</span>
+}</code></pre>
+  <p>The backend stores this in the RDS MySQL <code>users</code> table:</p>
+  <ul>
+    <li>name</li>
+    <li>email</li>
+    <li><strong>password hash</strong> (not the real password)</li>
+  </ul>
+  <div class="callout bad">
+    <strong class="t">Never store plain-text passwords</strong>
+    Always hash passwords (for example with <code>bcrypt</code>) before saving. If the database leaks, hashes are much safer than plain text.
+  </div>
+</section>
+
+<section class="card" id="s5">
+  <h2>5. RDS Instance</h2>
+  <div class="callout">
+    <strong class="t">Definition</strong>
+    An RDS DB instance is a virtual database environment provided by AWS where the selected database engine runs.
+  </div>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td>DB instance</td><td>The running database environment.</td><td><code>my-mysql-db</code></td></tr>
+    <tr><td>DB engine</td><td>The database software.</td><td>MySQL 8.x</td></tr>
+    <tr><td>DB instance class</td><td>The size (CPU + RAM) of the instance.</td><td><code>db.t3.micro</code> (small, for learning)</td></tr>
+    <tr><td>Storage</td><td>Disk space for your data.</td><td>20 GB</td></tr>
+    <tr><td>Endpoint</td><td>Hostname used to connect.</td><td><code>my-mysql-db.xxxxxxxxx.eu-north-1.rds.amazonaws.com</code></td></tr>
+    <tr><td>Port</td><td>Network door number for the engine.</td><td>3306 (MySQL)</td></tr>
+    <tr><td>Username</td><td>Master (admin) user of the DB.</td><td><code>admin</code></td></tr>
+    <tr><td>Password</td><td>Secret for that user.</td><td>(keep it secret!)</td></tr>
+  </table>
+  </div>
+  <p><strong>Think of it like a house:</strong> the instance is the house, the engine is the system inside (MySQL), the instance class is the size of the house, the endpoint is the address, the port is the door number, and the username/password are the keys.</p>
+</section>
+
+<section class="card" id="s6">
+  <h2>6. How to Create an AWS RDS MySQL Database</h2>
+  <p>Console screens can change slightly over time, but the flow stays the same.</p>
+  <ol>
+    <li><strong>Login</strong> to the AWS Console.</li>
+    <li>In the search bar, type <strong>RDS</strong>.</li>
+    <li>Open <strong>Amazon RDS</strong>.</li>
+    <li>Click <strong>Create database</strong>.</li>
+    <li>Choose <strong>Standard create</strong> (gives you all options). <em>Easy create</em> is simpler, with fewer choices and default settings &mdash; fine for a first try.</li>
+    <li>Select engine: <strong>MySQL</strong>.</li>
+    <li>Choose the <strong>Free Tier</strong> template if it is available for your account/region.</li>
+    <li>Choose an appropriate <strong>DB instance size</strong> (for learning, a small burstable class such as <code>db.t3.micro</code> is common).</li>
+    <li>Set the <strong>DB instance identifier</strong>: <code>my-mysql-db</code></li>
+    <li>Set the <strong>Master username</strong>: <code>admin</code></li>
+    <li>Set a <strong>strong password</strong>.</li>
+    <li>Choose appropriate <strong>storage</strong> (the default small size is fine for learning).</li>
+    <li>Configure <strong>Connectivity</strong>.</li>
+    <li><strong>VPC:</strong> use the appropriate VPC (the default VPC is fine for practice).</li>
+    <li><strong>Public access:</strong> see the explanation below.</li>
+    <li><strong>Security group:</strong> create a new one, for example <code>rds-mysql-sg</code>.</li>
+    <li><strong>Port:</strong> <code>3306</code>.</li>
+    <li>Click <strong>Create database</strong> and wait until the status becomes <strong>Available</strong>.</li>
+  </ol>
+
+  <div class="callout warn">
+    <strong class="t">Username and password rules</strong>
+    AWS may restrict certain username/password formats (length, some characters). <strong>Follow the password requirements shown by the console.</strong> The exact rules depend on the selected RDS engine and configuration, so do not assume special characters are always allowed or always forbidden. If the console rejects a character, change the password.
+  </div>
+
+  <h3>What does &ldquo;Public access = Yes&rdquo; mean?</h3>
+  <p>It means the DB instance can get a publicly resolvable address so it <em>can</em> be reached from outside the VPC. <strong>By itself it does not open the database to everyone.</strong> Public access only gives the DB a publicly reachable network path if the VPC/subnet/security configuration also allows it (a route to an internet gateway, security group rules, network ACLs).</p>
+
+  <div class="callout good">
+    <strong class="t">Practice setup summary (learning only)</strong>
+    Engine: MySQL &bull; Template: Free tier (if available) &bull; ID: <code>my-mysql-db</code> &bull; Username: <code>admin</code> &bull; Public access: Yes (only if you want to connect from your laptop) &bull; New SG: <code>rds-mysql-sg</code> &bull; Port: 3306.
+  </div>
+
+  <h3>What is port 3306?</h3>
+  <p>A port is like a numbered door on a server. MySQL listens on door number <strong>3306</strong> by default, so clients must connect to this port.</p>
+</section>
+
+<section class="card" id="s7">
+  <h2>7. Security Group</h2>
+  <p>A <strong>Security Group</strong> acts like a <strong>virtual firewall</strong> for your AWS resource. It decides who can connect, on which port and protocol.</p>
+
+  <h3>Inbound rule for MySQL</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Type</th><th>Protocol</th><th>Port</th><th>Source</th></tr>
+    <tr><td>MySQL/Aurora</td><td>TCP</td><td>3306</td><td>see below</td></tr>
+  </table>
+  </div>
+
+  <h3>Source options</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Source</th><th>Meaning</th><th>Use</th></tr>
+    <tr><td><code>0.0.0.0/0</code></td><td>Any IPv4 address in the world</td><td>Only a <em>temporary</em> learning/testing shortcut. <strong>NOT recommended for production databases.</strong></td></tr>
+    <tr><td><code>x.x.x.x/32</code> (My IP)</td><td>Exactly one IP address &mdash; yours</td><td>Better for local testing.</td></tr>
+    <tr><td>EC2 security group (e.g. <code>EC2-SG</code>)</td><td>Only resources attached to that security group</td><td><strong>Best for production.</strong></td></tr>
+  </table>
+  </div>
+<div class="arch">EC2-SG  ---- allows TCP 3306 ---->  RDS-SG
+(app server)                          (database)</div>
+  <div class="callout good">
+    <strong class="t">Why EC2-SG &rarr; RDS-SG is better</strong>
+    Only your application servers can talk to the database. If the EC2 IP changes, or you add more servers with the same security group, the rule still works. Nobody else on the internet can even try to connect.
+  </div>
+  <div class="callout bad">
+    <strong class="t">Rule</strong>
+    Never expose a production database to the public internet unnecessarily.
+  </div>
+</section>
+
+<section class="card" id="s8">
+  <h2>8. RDS Endpoint</h2>
+  <p><strong>Where to find it:</strong> AWS Console &rarr; RDS &rarr; Databases &rarr; click your DB (<code>my-mysql-db</code>) &rarr; <strong>Connectivity &amp; security</strong> tab &rarr; <strong>Endpoint</strong> (and Port).</p>
+  <div class="callout">
+    <strong class="t">Definition</strong>
+    The endpoint is the hostname that applications use to connect to the RDS database.
+  </div>
+<pre><code>Endpoint: my-mysql-db.xxxxxxxxx.eu-north-1.rds.amazonaws.com</code></pre>
+  <p>Use the endpoint instead of an IP address, because IP addresses can change.</p>
+
+  <h3>A connection needs 5 things</h3>
+  <p><code>hostname + port + username + password + database name</code></p>
+<pre><code>Host     : my-mysql-db.xxxxxxxxx.eu-north-1.rds.amazonaws.com
+Port     : 3306
+Username : admin
+Password : ********
+Database : myapp</code></pre>
+</section>
+
+<section class="card" id="s9">
+  <h2>9. How to Access AWS RDS MySQL From Outside AWS</h2>
+
+  <h3>A) From your local laptop</h3>
+  <p>Requirements:</p>
+  <ul>
+    <li>RDS <strong>Public access</strong> must be enabled if direct public connectivity is intended.</li>
+    <li>The Security Group must allow <strong>TCP 3306</strong> from your <strong>current public IP</strong>.</li>
+    <li>Network ACL / route table / subnet configuration must permit connectivity (a public subnet with a route to an internet gateway).</li>
+    <li>A <strong>MySQL client</strong> must be installed on your laptop.</li>
+  </ul>
+  <p>Preferred security group rule:</p>
+<pre><code>Type: MySQL/Aurora   Protocol: TCP   Port: 3306
+Source: My IP  &rarr;  x.x.x.x/32</code></pre>
+  <p>instead of <code>0.0.0.0/0</code>.</p>
+  <p><strong>Why?</strong> <code>/32</code> means exactly one IP, so only your machine can reach the DB port. <code>0.0.0.0/0</code> means any IPv4 address, so anyone can attempt to connect and guess passwords. Note that home internet IPs often change, so update the rule if you suddenly get a timeout.</p>
+
+  <p>Command:</p>
+<pre><code><span class="f">mysql</span> -h &lt;RDS-ENDPOINT&gt; -P <span class="n">3306</span> -u admin -p</code></pre>
+  <p>Example:</p>
+<pre><code><span class="f">mysql</span> -h my-mysql-db.xxxxxxxxx.eu-north-1.rds.amazonaws.com -P <span class="n">3306</span> -u admin -p</code></pre>
+  <p>After you press Enter, MySQL asks for the password (<code>Enter password:</code>). Type it (it will not be displayed) and press Enter.</p>
+
+  <h3>B) From EC2 (recommended for applications)</h3>
+  <p>If EC2 and RDS are in the <strong>same VPC</strong>, the application can normally connect using the RDS endpoint <strong>without making the database publicly accessible</strong>.</p>
+<div class="arch">Internet
+   |
+   v
+EC2 / Application
+   |
+   v   (private connection inside the VPC)
+RDS MySQL
+
+RDS Security Group:
+   Allow TCP 3306
+   Source = EC2 Security Group</div>
+  <p>This is safer than opening MySQL to the entire internet.</p>
+  <div class="callout warn">
+    <strong class="t">Tip</strong>
+    If you cannot connect, see <a href="#s24">Common Connection Errors</a>.
+  </div>
+</section>
+
+<section class="card" id="s10">
+  <h2>10. Connecting RDS with Node.js</h2>
+  <p>Install the package first:</p>
+<pre><code><span class="f">npm</span> install mysql2</code></pre>
+<pre><code><span class="k">const</span> mysql = <span class="f">require</span>(<span class="s">"mysql2"</span>);
+
+<span class="k">const</span> connection = mysql.<span class="f">createConnection</span>({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: <span class="n">3306</span>
+});
+
+connection.<span class="f">connect</span>((err) =&gt; {
+  <span class="k">if</span> (err) {
+    console.<span class="f">error</span>(err);
+    <span class="k">return</span>;
+  }
+
+  console.<span class="f">log</span>(<span class="s">"Connected to RDS MySQL"</span>);
+});</code></pre>
+
+  <h3>Line-by-line explanation</h3>
+  <ul>
+    <li><code>require("mysql2")</code> &mdash; imports the mysql2 library that lets Node.js talk to MySQL.</li>
+    <li><code>createConnection({...})</code> &mdash; prepares the connection settings (it does not connect yet).</li>
+    <li><code>host: process.env.DB_HOST</code> &mdash; the RDS endpoint, read from an environment variable instead of being written in code.</li>
+    <li><code>user</code> and <code>password</code> &mdash; the DB username and password, also from environment variables.</li>
+    <li><code>database</code> &mdash; which database to use (for example <code>myapp</code>).</li>
+    <li><code>port: 3306</code> &mdash; the MySQL port. (You can also use <code>process.env.DB_PORT</code>.)</li>
+    <li><code>connection.connect((err) =&gt; {...})</code> &mdash; actually tries to connect. If <code>err</code> exists, the connection failed and the error is printed.</li>
+    <li><code>console.log("Connected to RDS MySQL")</code> &mdash; the success message.</li>
+  </ul>
+
+  <div class="callout bad">
+    <strong class="t">Do not hard-code passwords in source code</strong>
+    Use environment variables instead. Never write the real password in a file that goes to GitHub.
+  </div>
+  <p>Example <code>.env</code> file (add <code>.env</code> to <code>.gitignore</code>):</p>
+<pre><code>DB_HOST=
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+DB_PORT=3306</code></pre>
+  <p>The values are left empty on purpose: fill them in on your own machine or server. To load a <code>.env</code> file in Node.js you can use the <code>dotenv</code> package; with Docker you pass them using <code>-e</code> flags.</p>
+</section>
+
+<section class="card" id="s11">
+  <h2>11. EC2 + Docker + RDS</h2>
+  <p>An EC2 instance can run your Node.js app inside a <strong>Docker container</strong> while the database stays on <strong>RDS</strong>.</p>
+<div class="arch">Internet
+   |
+   v
+EC2
+   |
+   v
+Docker Container
+   |
+   v
+Node.js + Express
+   |
+   v
+AWS RDS MySQL</div>
+  <div class="callout good">
+    <strong class="t">Key idea</strong>
+    The database does <strong>NOT</strong> need to run inside the Docker container. The application container connects to RDS using the <strong>RDS endpoint</strong>.
+  </div>
+  <p><strong>Why is this good?</strong> Containers can be stopped, replaced or rebuilt easily, while the data stays safely in RDS (with backups and monitoring).</p>
+</section>
+
+<section class="card" id="s12">
+  <h2>12. EC2 Commands</h2>
+  <p>Run these on your EC2 instance (Amazon Linux). Spellings are corrected compared to rough notes (for example <code>usermod</code>, not &ldquo;usermond&rdquo;).</p>
+
+  <h3>1) Install Docker</h3>
+<pre><code><span class="f">sudo</span> yum install -y docker</code></pre>
+  <p>Installs Docker using the <code>yum</code> package manager. <code>-y</code> answers &ldquo;yes&rdquo; to prompts automatically. (On newer Amazon Linux 2023, <code>dnf</code> is also used; <code>yum</code> still works there.)</p>
+
+  <h3>2) Start Docker</h3>
+<pre><code><span class="f">sudo</span> systemctl start docker</code></pre>
+  <p>Starts the Docker service now. Older notes show <code>sudo service docker start</code>, which also works on many Amazon Linux systems; <code>systemctl</code> is the modern way.</p>
+
+  <h3>3) Enable Docker after reboot</h3>
+<pre><code><span class="f">sudo</span> systemctl enable docker</code></pre>
+  <p>Makes Docker start automatically whenever the server reboots.</p>
+
+  <h3>4) Add ec2-user to the docker group</h3>
+<pre><code><span class="f">sudo</span> usermod -aG docker ec2-user</code></pre>
+  <p><code>-aG</code> means <em>append to Group</em>. After this, <code>ec2-user</code> can run Docker without <code>sudo</code>, but you may need to <strong>log out and log back in</strong> first for the change to apply.</p>
+
+  <h3>5) Check Docker version</h3>
+<pre><code><span class="f">docker</span> --version</code></pre>
+
+  <h3>6) Check Docker service status</h3>
+<pre><code><span class="f">sudo</span> systemctl status docker</code></pre>
+  <p>You should see <code>active (running)</code>. Press <code>q</code> to exit the status view.</p>
+
+  <h3>7) Pull an example image</h3>
+<pre><code><span class="f">docker</span> pull philippaul/node-mysql-app:02</code></pre>
+  <div class="callout warn">
+    <strong class="t">Important</strong>
+    <code>philippaul/node-mysql-app:02</code> is <strong>only an example image</strong> from a public Docker Hub account. It is <strong>not an official AWS image</strong>. Only run images you trust or built yourself, and check which environment variables the image expects.
+  </div>
+
+  <h3>8) Run the container</h3>
+  <p>Run it only after you know the RDS endpoint, the credentials, and the variable names the app expects. The application must be configured with the RDS endpoint and credentials. See the next section.</p>
+</section>
+
+<section class="card" id="s13">
+  <h2>13. Docker Environment Variables</h2>
+<pre><code><span class="f">docker</span> run -d \
+  -p <span class="n">3000</span>:<span class="n">3000</span> \
+  -e DB_HOST=&lt;RDS-ENDPOINT&gt; \
+  -e DB_USER=admin \
+  -e DB_PASSWORD=&lt;PASSWORD&gt; \
+  -e DB_NAME=&lt;DATABASE_NAME&gt; \
+  -e DB_PORT=<span class="n">3306</span> \
+  &lt;IMAGE_NAME&gt;</code></pre>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Option</th><th>Meaning</th></tr>
+    <tr><td><code>docker run</code></td><td>Create and start a container from an image.</td></tr>
+    <tr><td><code>-d</code></td><td>Detached mode &mdash; runs in the background so your terminal stays free.</td></tr>
+    <tr><td><code>-p 3000:3000</code></td><td>Maps EC2 port 3000 to container port 3000.</td></tr>
+    <tr><td><code>-e KEY=value</code></td><td>Passes an environment variable (a setting or credential) into the container.</td></tr>
+    <tr><td><code>&lt;IMAGE_NAME&gt;</code></td><td>The image to run.</td></tr>
+  </table>
+  </div>
+  <p>Also allow the app port (for example 3000, or 80/443 behind a proxy) in the <strong>EC2</strong> security group if users must reach the app.</p>
+  <div class="callout bad">
+    <strong class="t">Never commit database passwords to GitHub</strong>
+    Do not put real passwords in code, Dockerfiles, docker-compose files or notes that get pushed. Use environment variables, and for production consider AWS Secrets Manager.
+  </div>
+</section>
+
+<section class="card" id="s14">
+  <h2>14. Create Database / Table</h2>
+  <p>Connect using the <code>mysql</code> client first, then run:</p>
+<pre><code><span class="k">CREATE DATABASE</span> myapp;
+
+<span class="k">USE</span> myapp;
+
+<span class="k">CREATE TABLE</span> users (
+    id <span class="k">INT AUTO_INCREMENT PRIMARY KEY</span>,
+    name <span class="k">VARCHAR</span>(<span class="n">100</span>),
+    email <span class="k">VARCHAR</span>(<span class="n">150</span>) <span class="k">UNIQUE</span>,
+    password <span class="k">VARCHAR</span>(<span class="n">255</span>)
+);
+
+<span class="c">-- Insert example (the password is a hash, not plain text)</span>
+<span class="k">INSERT INTO</span> users (name, email, password)
+<span class="k">VALUES</span> (<span class="s">'Tarun'</span>, <span class="s">'tarun@example.com'</span>, <span class="s">'$2b$10$exampleHashedPasswordHere'</span>);
+
+<span class="c">-- Select example</span>
+<span class="k">SELECT</span> id, name, email <span class="k">FROM</span> users;</code></pre>
+  <h3>Explanation</h3>
+  <ul>
+    <li><code>CREATE DATABASE myapp;</code> &mdash; creates a new database called <code>myapp</code>.</li>
+    <li><code>USE myapp;</code> &mdash; tells MySQL to work inside this database from now on.</li>
+    <li><code>CREATE TABLE users (...)</code> &mdash; creates a table named <code>users</code>.</li>
+    <li><code>id INT AUTO_INCREMENT PRIMARY KEY</code> &mdash; a unique number for each row that increases automatically.</li>
+    <li><code>name VARCHAR(100)</code> &mdash; text, up to 100 characters.</li>
+    <li><code>email VARCHAR(150) UNIQUE</code> &mdash; the same email cannot be saved twice.</li>
+    <li><code>password VARCHAR(255)</code> &mdash; stores the <strong>password hash</strong> (hashes are long, so 255).</li>
+    <li><code>INSERT INTO ... VALUES ...</code> &mdash; adds a new row (user).</li>
+    <li><code>SELECT ... FROM users;</code> &mdash; reads data from the table. Selecting the password column is usually not needed.</li>
+  </ul>
+</section>
+
+<section class="card" id="s15">
+  <h2>15. RDS Storage</h2>
+  <ul>
+    <li><strong>Storage type:</strong> the kind of disk (for example General Purpose SSD or Provisioned IOPS SSD). It affects speed and cost.</li>
+    <li><strong>Allocated storage:</strong> how many GB you reserve at creation, for example 20 GB.</li>
+    <li><strong>Storage autoscaling:</strong> if data grows, storage can be configured to increase automatically <strong>within the maximum limit you set</strong>.</li>
+  </ul>
+  <p><strong>Example:</strong> You start with 20 GB and set a maximum of 100 GB. As the app grows, storage can grow up to 100 GB without manual work.</p>
+  <div class="callout warn">
+    <strong class="t">Storage scaling is not compute scaling</strong>
+    More storage gives more <em>disk space</em>. It does not add CPU or RAM. For more CPU/RAM you change the <strong>DB instance class</strong> (see <a href="#s19">Scaling</a>).
+  </div>
+</section>
+
+<section class="card" id="s16">
+  <h2>16. RDS Backups</h2>
+  <h3>Automated backups</h3>
+  <p>RDS can take daily backups and save transaction logs automatically, kept for a retention period you choose. This allows <strong>point-in-time recovery</strong> within that period.</p>
+  <h3>Manual snapshots</h3>
+  <p>A snapshot is a backup <strong>you create yourself</strong> at a specific moment. It stays until <em>you</em> delete it.</p>
+  <h3>Backup vs Snapshot</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th></th><th>Automated Backup</th><th>Manual Snapshot</th></tr>
+    <tr><td>Created by</td><td>RDS automatically</td><td>You</td></tr>
+    <tr><td>Retention</td><td>Limited to the retention period you set</td><td>Kept until you delete it</td></tr>
+    <tr><td>Restore option</td><td>Point-in-time recovery</td><td>Restore to that snapshot moment</td></tr>
+    <tr><td>Good for</td><td>Everyday protection</td><td>Before big changes, before deleting the DB</td></tr>
+  </table>
+  </div>
+  <p>Restoring creates a <strong>new</strong> DB instance; you then point your app to the new endpoint.</p>
+</section>
+
+<section class="card" id="s17">
+  <h2>17. RDS Multi-AZ</h2>
+  <p><strong>Multi-AZ</strong> means RDS keeps a standby copy of your database in a <strong>different Availability Zone (AZ)</strong>. If the primary has a problem, RDS can <strong>fail over</strong> to the standby.</p>
+  <div class="callout">
+    <strong class="t">Remember</strong>
+    Multi-AZ is mainly for <strong>high availability and failover</strong>. It is not for making reads faster.
+  </div>
+<div class="arch">Availability Zone A          Availability Zone B
++---------------+  sync   +---------------+
+| Primary DB    | ------> | Standby DB    |
++---------------+  copy   +---------------+
+   Your app uses one endpoint; on failure it points to the standby</div>
+  <p><strong>Simple example:</strong> Your main database server in Zone A has a hardware problem. With Multi-AZ, RDS switches to the standby in Zone B, and your app continues after a short interruption.</p>
+  <p>Multi-AZ costs more because you pay for the extra standby capacity.</p>
+</section>
+
+<section class="card" id="s18">
+  <h2>18. Read Replica</h2>
+  <p>A <strong>Read Replica</strong> is an additional copy of the database used to serve <strong>read</strong> queries (SELECT), which reduces the load on the main DB.</p>
+<div class="arch">Main DB        -> writes (INSERT / UPDATE / DELETE)
+Read Replica   -> reads  (SELECT)</div>
+  <p><strong>Example:</strong> A blog site has millions of readers but only a few writers. Send reads to replicas and keep the main DB for writes. Replicas may lag slightly behind the main DB.</p>
+  <h3>Multi-AZ vs Read Replica</h3>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Feature</th><th>Multi-AZ</th><th>Read Replica</th></tr>
+    <tr><td>Main purpose</td><td>High availability &amp; failover</td><td>Read scaling / performance</td></tr>
+    <tr><td>Used for reads?</td><td>The standby is normally for failover, not for your app&rsquo;s reads (standard single-standby setup)</td><td>Yes, apps send SELECT queries to it</td></tr>
+    <tr><td>Data copy</td><td>Synchronous (standby kept in step)</td><td>Asynchronous (may lag slightly)</td></tr>
+    <tr><td>Automatic failover</td><td>Yes, designed for it</td><td>Not its purpose; promotion is a separate action</td></tr>
+    <tr><td>Endpoint</td><td>Same endpoint for your app</td><td>Its own endpoint</td></tr>
+  </table>
+  </div>
+  <div class="callout warn">
+    <strong class="t">Do not mix them up</strong>
+    Multi-AZ = <em>safety / uptime</em>. Read Replica = <em>extra read capacity</em>. They are different features and can be used together.
+  </div>
+</section>
+
+<section class="card" id="s19">
+  <h2>19. RDS Scaling</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Type</th><th>What it does</th><th>Example</th></tr>
+    <tr><td><strong>Vertical scaling</strong></td><td>Increase CPU/RAM by changing the instance class.</td><td><code>db.t3.micro</code> &rarr; <code>db.t3.medium</code> when queries become slow.</td></tr>
+    <tr><td><strong>Storage scaling</strong></td><td>Increase database storage.</td><td>20 GB &rarr; 100 GB as data grows (or use autoscaling).</td></tr>
+    <tr><td><strong>Read scaling</strong></td><td>Add read replicas where appropriate.</td><td>Send reporting queries to a replica.</td></tr>
+  </table>
+  </div>
+  <p>Changing the instance class may involve a reboot or short downtime, so plan it for a maintenance window.</p>
+</section>
+
+<section class="card" id="s20">
+  <h2>20. RDS Monitoring</h2>
+  <p><strong>Amazon CloudWatch</strong> collects RDS metrics so you can watch them and set alarms.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Metric</th><th>Simple meaning</th></tr>
+    <tr><td>CPU utilization</td><td>How busy the DB processor is. Very high for a long time means a slow DB.</td></tr>
+    <tr><td>Database connections</td><td>How many clients are connected now. Too many can block new connections.</td></tr>
+    <tr><td>Free storage space</td><td>Disk space left. If it reaches zero, the DB can stop working properly.</td></tr>
+    <tr><td>Read IOPS</td><td>Disk read operations per second.</td></tr>
+    <tr><td>Write IOPS</td><td>Disk write operations per second.</td></tr>
+    <tr><td>Freeable memory</td><td>RAM available. Very low memory can hurt performance.</td></tr>
+  </table>
+  </div>
+  <p>Tip: create a CloudWatch alarm, for example one that alerts you when free storage gets low.</p>
+</section>
+
+<section class="card" id="s21">
+  <h2>21. RDS Security</h2>
+  <ul>
+    <li><strong>Security Groups:</strong> firewall rules; allow only the needed sources on 3306.</li>
+    <li><strong>Private subnets:</strong> place the DB where the internet has no direct route.</li>
+    <li><strong>IAM (where applicable):</strong> controls who can manage RDS in AWS; IAM database authentication is available for some engines.</li>
+    <li><strong>Encryption:</strong> encrypt data at rest (storage, backups, snapshots) using AWS KMS. Best chosen at creation time.</li>
+    <li><strong>SSL/TLS connections:</strong> encrypt data while it travels between the app and the DB.</li>
+    <li><strong>Secrets Manager:</strong> store and rotate DB credentials instead of keeping them in code.</li>
+    <li><strong>Strong passwords:</strong> long and unique, following the console rules.</li>
+    <li><strong>Least privilege:</strong> give app users only the permissions they need, not admin power.</li>
+    <li><strong>Avoid public access for production</strong> when it is not necessary.</li>
+  </ul>
+  <div class="callout good">
+    <strong class="t">Production preference</strong>
+    <code>EC2 &rarr; Private RDS</code> &nbsp;instead of&nbsp; <code>Internet &rarr; Public RDS</code>
+  </div>
+</section>
+
+<section class="card" id="s22">
+  <h2>22. Public RDS vs Private RDS</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Point</th><th>Public RDS</th><th>Private RDS</th></tr>
+    <tr><td>Reachability</td><td>Can potentially be reachable from the internet <em>if</em> networking/security rules allow it.</td><td>Not directly reachable from the public internet.</td></tr>
+    <tr><td>Who connects</td><td>Only sources allowed by security group rules (for example, your IP).</td><td>Application servers inside the VPC (or via VPN / bastion / connected networks).</td></tr>
+    <tr><td>Best use</td><td>Controlled testing / development.</td><td>Common production architecture.</td></tr>
+    <tr><td>Risk</td><td>Requires careful security configuration.</td><td>Smaller attack surface.</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="card" id="s23">
+  <h2>23. How to Connect From Local Windows</h2>
+  <ol>
+    <li>Install a <strong>MySQL client</strong> (for example MySQL Shell or the MySQL Command Line Client from the MySQL installer, or another MySQL-compatible client).</li>
+    <li>Make sure the RDS security group allows your public IP on TCP 3306 and the DB is publicly accessible.</li>
+    <li>Open <strong>Command Prompt</strong> or <strong>PowerShell</strong> and run:</li>
+  </ol>
+<pre><code><span class="f">mysql</span> -h &lt;RDS-ENDPOINT&gt; -P <span class="n">3306</span> -u admin -p</code></pre>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Flag</th><th>Meaning</th></tr>
+    <tr><td><code>-h</code></td><td>host (the RDS endpoint)</td></tr>
+    <tr><td><code>-P</code></td><td>port (capital P = 3306)</td></tr>
+    <tr><td><code>-u</code></td><td>username</td></tr>
+    <tr><td><code>-p</code></td><td>ask for the password (small p)</td></tr>
+  </table>
+  </div>
+  <p>Note: <code>-P</code> (capital) is the port and <code>-p</code> (small) is the password prompt. They are different.</p>
+  <div class="callout warn">
+    <strong class="t">Things that can block the connection</strong>
+    Windows Firewall, your local network, ISP restrictions, AWS networking, security group rules, subnet routing and RDS public accessibility can all affect connectivity.
+  </div>
+</section>
+
+<section class="card" id="s24">
+  <h2>24. Common Connection Errors</h2>
+  <h3>1) Connection timed out</h3>
+  <p>The request never reached the DB or got no answer. Possible causes:</p>
+  <ul>
+    <li>Security Group does not allow your IP / EC2-SG on 3306</li>
+    <li>Public access disabled (when connecting from outside)</li>
+    <li>Network routing / subnet / NACL problem</li>
+    <li>Wrong endpoint</li>
+    <li>Wrong port</li>
+  </ul>
+  <h3>2) Access denied for user</h3>
+  <p>You reached the DB but the login failed. Possible causes:</p>
+  <ul>
+    <li>Wrong username</li>
+    <li>Wrong password</li>
+    <li>The user does not have permission for that database/host</li>
+  </ul>
+  <h3>3) Unknown host</h3>
+  <ul>
+    <li>Wrong endpoint (typo, extra space, wrong region)</li>
+    <li>DNS / network issue on your side</li>
+  </ul>
+  <h3>4) Can&rsquo;t connect to MySQL server</h3>
+  <p>A general error. Check that the DB status is <strong>Available</strong>, the endpoint and port are correct, the security group and public access settings are right, your network allows outbound 3306, and your client can resolve the hostname.</p>
+
+  <h3>Troubleshooting checklist</h3>
+  <ul class="check">
+    <li>Is the DB status <strong>Available</strong>?</li>
+    <li>Am I using the correct <strong>endpoint</strong> (no typos)?</li>
+    <li>Is the port <strong>3306</strong>?</li>
+    <li>Does the RDS security group allow <strong>TCP 3306</strong> from the correct source (my current IP or EC2-SG)?</li>
+    <li>If connecting from my laptop, is <strong>Public access</strong> enabled and is the subnet routed to the internet?</li>
+    <li>Is my <strong>public IP</strong> still the same as in the rule?</li>
+    <li>Are the username and password correct?</li>
+    <li>Is my Windows Firewall / office / ISP network blocking outbound 3306?</li>
+    <li>If from EC2: are EC2 and RDS in the same VPC, and is EC2-SG set as the source?</li>
+  </ul>
+</section>
+
+<section class="card" id="s25">
+  <h2>25. RDS Delete / Stop / Cost</h2>
+  <h3>Can RDS be stopped?</h3>
+  <p>In many configurations, yes: you can <strong>stop</strong> a DB instance temporarily. Stopping is temporary, and RDS may start the instance again automatically after a maximum period (for example about 7 days). Some configurations (for example certain Multi-AZ or read-replica setups) may have restrictions.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Action</th><th>What happens</th></tr>
+    <tr><td><strong>Stop</strong></td><td>The instance is paused temporarily. Compute charges stop, but storage (and backup storage) can still be charged.</td></tr>
+    <tr><td><strong>Delete</strong></td><td>The instance is removed permanently. You can choose to create a final snapshot first. Without a snapshot, data may be lost.</td></tr>
+    <tr><td><strong>Snapshot</strong></td><td>A saved backup of your DB at a moment in time. It can be used to restore later and may also incur storage charges.</td></tr>
+  </table>
+  </div>
+  <div class="callout warn">
+    <strong class="t">Cost warning</strong>
+    RDS resources can incur charges depending on configuration and usage (instance hours, storage, backups, data transfer, Multi-AZ, replicas). <strong>Free Tier eligibility depends on your AWS account, service configuration, region and current AWS terms.</strong> Do not assume every RDS configuration is free. Check the current AWS Free Tier page and your billing dashboard, and delete practice databases you no longer need.
+  </div>
+</section>
+
+<section class="card" id="s26">
+  <h2>26. Interview Questions &amp; Answers</h2>
+  <div class="qa"><div class="q">Q1. What is AWS RDS?</div><div class="a">A managed relational database service from AWS that makes it easier to create, operate, back up, monitor and scale databases like MySQL and PostgreSQL.</div></div>
+  <div class="qa"><div class="q">Q2. Why do we use RDS?</div><div class="a">To reduce manual database administration: AWS helps with setup, backups, patching, monitoring, availability and scaling, so developers can focus on the application.</div></div>
+  <div class="qa"><div class="q">Q3. Is RDS a database?</div><div class="a">No. RDS is a <em>service</em> that runs and manages database engines (MySQL, PostgreSQL, etc.). The engine is the actual database.</div></div>
+  <div class="qa"><div class="q">Q4. What is a managed database service?</div><div class="a">A service where the provider handles much of the infrastructure and routine administration, while you manage your data, schema, access and configuration.</div></div>
+  <div class="qa"><div class="q">Q5. What is an RDS endpoint?</div><div class="a">The hostname applications use to connect to the DB instance, shown in the RDS console under Connectivity &amp; security.</div></div>
+  <div class="qa"><div class="q">Q6. What port does MySQL use?</div><div class="a">3306 by default.</div></div>
+  <div class="qa"><div class="q">Q7. How can an EC2 instance connect to RDS?</div><div class="a">Keep them in the same VPC (or connected networks), allow TCP 3306 in the RDS security group from the EC2 security group, and connect using the RDS endpoint, port, username and password from the app.</div></div>
+  <div class="qa"><div class="q">Q8. What is Multi-AZ?</div><div class="a">A setup with a standby DB in another Availability Zone for high availability and automatic failover. It is not for read scaling.</div></div>
+  <div class="qa"><div class="q">Q9. What is a Read Replica?</div><div class="a">A copy of the DB used to serve read queries and reduce load on the main DB. It is used for read scaling.</div></div>
+  <div class="qa"><div class="q">Q10. Difference between RDS and EC2-hosted MySQL?</div><div class="a">With RDS, AWS provides managed features (backups, patching options, monitoring, Multi-AZ options) and you manage less infrastructure. With MySQL on EC2 you install and manage the OS, MySQL, backups, updates and HA yourself: more control, but more work.</div></div>
+  <div class="qa"><div class="q">Q11. Why should we not allow 3306 from 0.0.0.0/0 in production?</div><div class="a">It lets any IPv4 address attempt to connect, greatly increasing the risk of brute-force attacks and exploitation. Allow only the app security group or trusted IPs.</div></div>
+  <div class="qa"><div class="q">Q12. Can we access RDS from our local machine?</div><div class="a">Yes, if the DB is publicly accessible, the network path is routed, and the security group allows your IP on 3306, using a MySQL client. For production, prefer access through the app/EC2, a bastion host or a VPN.</div></div>
+  <div class="qa"><div class="q">Q13. What is a Security Group?</div><div class="a">A virtual firewall that controls allowed inbound and outbound traffic for AWS resources by protocol, port and source.</div></div>
+  <div class="qa"><div class="q">Q14. What is the difference between public and private RDS?</div><div class="a">Public RDS can be reachable from the internet if network and security rules allow it. Private RDS is not directly reachable from the internet and is accessed from inside the VPC &mdash; the common production choice.</div></div>
+  <div class="qa"><div class="q">Q15. How would you connect a Node.js application to RDS?</div><div class="a">Install <code>mysql2</code>, read host, user, password, database and port from environment variables, create a connection (or pool) with them, and make sure the app&rsquo;s security group is allowed on RDS port 3306.</div></div>
+</section>
+
+<section class="card" id="s27">
+  <h2>27. Important Real-World Architecture</h2>
+  <h3>Version 1: Typical MERN-style app with RDS</h3>
+<div class="arch">                  Users
+                    |
+                    v
+              React Frontend
+                    |
+                    v
+             Node.js / Express
+                    |
+                    v
+              EC2 / Docker
+                    |
+                    v
+             AWS RDS MySQL
+                    |
+                    v
+                Database</div>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Component</th><th>Role</th></tr>
+    <tr><td>Users</td><td>People using the app in a browser or phone.</td></tr>
+    <tr><td>React Frontend</td><td>The user interface; sends API requests.</td></tr>
+    <tr><td>Node.js / Express</td><td>Backend logic: validation, authentication, business rules, DB queries.</td></tr>
+    <tr><td>EC2 / Docker</td><td>The server (EC2) and container (Docker) where the backend runs.</td></tr>
+    <tr><td>AWS RDS MySQL</td><td>The managed MySQL database service.</td></tr>
+    <tr><td>Database</td><td>Your tables and data (users, orders, etc.).</td></tr>
+  </table>
+  </div>
+
+  <h3>Version 2: More production-oriented</h3>
+<div class="arch">Users
+  |
+  v
+Load Balancer
+  |
+  v
+EC2 / ECS
+  |
+  v
+Private RDS
+  |
+  v
+Database</div>
+  <ul>
+    <li><strong>Load Balancer:</strong> spreads traffic across multiple app servers and can run health checks.</li>
+    <li><strong>EC2 / ECS:</strong> multiple app instances or containers.</li>
+    <li><strong>Private RDS:</strong> the database in private subnets, reachable only from the app&rsquo;s security group.</li>
+  </ul>
+  <div class="callout good">
+    <strong class="t">Why is RDS usually private in production?</strong>
+    Users only need to talk to the app, never to the database directly. A private DB has no direct internet route, so there is a much smaller attack surface. Even if someone learns your endpoint, they cannot connect from the internet.
+  </div>
+</section>
+
+<section class="card" id="s28">
+  <h2>28. RDS in One Minute</h2>
+  <div class="callout">
+    <strong class="t">AWS RDS = Managed relational database service.</strong>
+  </div>
+  <p><strong>For my application:</strong></p>
+<pre><code>React &rarr; Node.js/Express &rarr; RDS MySQL</code></pre>
+  <p>RDS manages much of the database infrastructure. RDS gives:</p>
+  <ul>
+    <li>Endpoint</li>
+    <li>Backups</li>
+    <li>Monitoring</li>
+    <li>Scaling options</li>
+    <li>High availability options</li>
+    <li>Security features</li>
+  </ul>
+  <p><strong>MySQL default port:</strong> <code>3306</code></p>
+  <p><strong>Local access:</strong> RDS endpoint + MySQL client + correct networking/security rules.</p>
+  <p><strong>Production:</strong> EC2/Application &rarr; Private RDS</p>
+
+  <h3>Quick create checklist (practice)</h3>
+  <ul class="check">
+    <li>Create RDS MySQL (Free tier template if available), ID <code>my-mysql-db</code>, user <code>admin</code>, strong password (follow the console rules)</li>
+    <li>New security group <code>rds-mysql-sg</code>, port 3306</li>
+    <li>For laptop testing: Public access = Yes + allow 3306 from <strong>My IP (/32)</strong></li>
+    <li>Copy the endpoint from the console</li>
+    <li>Install Docker on EC2 and pull/run the app image with environment variables</li>
+    <li>For production: switch to a private RDS and allow only EC2-SG</li>
+    <li>Delete practice resources to avoid charges</li>
+  </ul>
+  <div class="callout bad">
+    <strong class="t">Common mistakes to avoid</strong>
+    Hard-coding passwords &bull; opening 3306 to <code>0.0.0.0/0</code> in production &bull; assuming Public access alone opens the DB to everyone &bull; confusing Multi-AZ with Read Replicas &bull; assuming RDS is always free &bull; forgetting to delete practice databases.
+  </div>
+</section>
+
+<footer>AWS RDS study note (English) &mdash; static HTML, no JavaScript, no external files. Use your browser&rsquo;s Print / Save as PDF for a paper copy.</footer>
+
+</div>
+</div>
+
+<button id="backtotop" aria-label="Back to top">&#8679;</button>
+
+<script>
+(function(){
+  // Theme toggle
+  var themeBtn = document.getElementById('theme-btn');
+  themeBtn.addEventListener('click', function(){
+    var isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark ? '&#127769; Dark mode' : '&#9728;&#65039; Light mode';
+  });
+
+  // Sidebar toggle (mobile)
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menu-btn');
+  var backdrop = document.getElementById('backdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // Sidebar search/filter
+  var searchBox = document.getElementById('search-box');
+  searchBox.addEventListener('input', function(){
+    var q = searchBox.value.trim().toLowerCase();
+    document.querySelectorAll('#sidebar li').forEach(function(li){
+      var text = li.textContent.toLowerCase();
+      li.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+  // Active link highlighting on scroll
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.card[id]'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('#sidebar a'));
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.offsetTop <= pos) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current);
+    });
+    document.getElementById('backtotop').style.display = window.scrollY > 400 ? 'block' : 'none';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  document.getElementById('backtotop').addEventListener('click', function(){
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+})();
+</script>
+
+</div>
+</body>
+</html>
